@@ -3,19 +3,21 @@ package com.ies.schoolos.container;
 import java.io.Serializable;
 import java.sql.SQLException;
 
-import com.ies.schoolos.schema.BuildingSchema;
 import com.ies.schoolos.schema.CitySchema;
-import com.ies.schoolos.schema.ClassRoomSchema;
 import com.ies.schoolos.schema.DistrictSchema;
-import com.ies.schoolos.schema.FamilySchema;
 import com.ies.schoolos.schema.PostcodeSchema;
 import com.ies.schoolos.schema.ProvinceSchema;
-import com.ies.schoolos.schema.RecruitStudentFamilySchema;
-import com.ies.schoolos.schema.RecruitStudentSchema;
 import com.ies.schoolos.schema.SchoolSchema;
-import com.ies.schoolos.schema.StudentClassRoomSchema;
-import com.ies.schoolos.schema.StudentSchema;
-import com.ies.schoolos.schema.StudentStudySchema;
+import com.ies.schoolos.schema.fundamental.BuildingSchema;
+import com.ies.schoolos.schema.fundamental.ClassRoomSchema;
+import com.ies.schoolos.schema.info.FamilySchema;
+import com.ies.schoolos.schema.info.PersonnelGraduatedHistory;
+import com.ies.schoolos.schema.info.PersonnelSchema;
+import com.ies.schoolos.schema.info.StudentClassRoomSchema;
+import com.ies.schoolos.schema.info.StudentSchema;
+import com.ies.schoolos.schema.info.StudentStudySchema;
+import com.ies.schoolos.schema.recruit.RecruitStudentFamilySchema;
+import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.util.sqlcontainer.query.FreeformQuery;
 import com.vaadin.data.util.sqlcontainer.query.TableQuery;
@@ -55,7 +57,11 @@ public class Container implements Serializable {
 	private SQLContainer familyContainer;
 	//ใช้สำหรับ Query ห้องเรียนนักเรียน
 	private SQLContainer studentClassRoomContainer;
-
+	//ใช้สำหรับ Query บุคลากร
+	private SQLContainer personnelContainer;
+	//ใช้สำหรับ Query ข้อมูลการจบการศึกษา
+	private SQLContainer personnelGraduatedHistoryContainer;
+	
 	public static Container getInstance(){ 
 		if(container == null)
 			container = new Container();
@@ -116,11 +122,17 @@ public class Container implements Serializable {
             TableQuery qFamily = new TableQuery(FamilySchema.TABLE_NAME, DbConnection.getConnection());
             familyContainer = new SQLContainer(qFamily); 
 
-        	//ใช้สำหรับ Query ห้องเรียนนักเรียน
         	 /* TableQuery และ SQLContainer สำหรับตาราง ชั้นเรียน */
             TableQuery qStudentClassRoom = new TableQuery(StudentClassRoomSchema.TABLE_NAME, DbConnection.getConnection());
             studentClassRoomContainer = new SQLContainer(qStudentClassRoom); 
 
+            /* TableQuery และ SQLContainer สำหรับตาราง บุคลากร */
+            TableQuery qPersonnel = new TableQuery(PersonnelSchema.TABLE_NAME, DbConnection.getConnection());
+        	personnelContainer = new SQLContainer(qPersonnel); 
+        	
+        	 /* TableQuery และ SQLContainer สำหรับตาราง ข้อมูลการศึกษา */
+            TableQuery qPersonnelGraduatedHistory = new TableQuery(PersonnelGraduatedHistory.TABLE_NAME, DbConnection.getConnection());
+        	personnelGraduatedHistoryContainer = new SQLContainer(qPersonnelGraduatedHistory); 
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -176,10 +188,6 @@ public class Container implements Serializable {
 		return classRoomContainer;
 	}
 
-	public static Container getContainer() {
-		return container;
-	}
-
 	public SQLContainer getFreeFormContainer() {
 		return freeFormContainer;
 	}
@@ -198,5 +206,13 @@ public class Container implements Serializable {
 	
 	public SQLContainer getStudentClassRoomContainer() {
 		return studentClassRoomContainer;
+	}
+	
+	public SQLContainer getPersonnelContainer() {
+		return personnelContainer;
+	}
+	
+	public SQLContainer getPersonnelGraduatedHistoryContainer() {
+		return personnelGraduatedHistoryContainer;
 	}
 }

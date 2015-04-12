@@ -8,6 +8,7 @@ import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.CustomTable.ColumnGenerator;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
@@ -158,6 +159,7 @@ public class TwinSelectTable extends HorizontalLayout {
 	public void setFilterDecorator(TableFilterDecorator decorator){
 		leftTable.setFilterDecorator(decorator);
 		rightTable.setFilterDecorator(decorator);
+	
 	}
 	
 	public void setFilterGenerator(TableFilterGenerator generater){
@@ -178,5 +180,9 @@ public class TwinSelectTable extends HorizontalLayout {
 	public void setVisibleColumns(Object... columns){
 		leftTable.setVisibleColumns(columns);
 		rightTable.setVisibleColumns(columns);
+	}
+	
+	public void addGeneratedColumn(Object propertyId, ColumnGenerator generator){
+		
 	}
 }

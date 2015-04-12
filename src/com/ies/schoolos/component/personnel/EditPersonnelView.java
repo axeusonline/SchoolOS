@@ -1,4 +1,4 @@
-package com.ies.schoolos.component.recruit;
+package com.ies.schoolos.component.personnel;
 
 import java.util.Date;
 
@@ -20,7 +20,7 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Field;
 
-public class EditRecruitStudentView extends RecruitStudentLayout {
+public class EditPersonnelView extends RecruitStudentLayout {
 	private static final long serialVersionUID = 1L;
 
 	private String gParentsStr = "";
@@ -42,12 +42,12 @@ public class EditRecruitStudentView extends RecruitStudentLayout {
 	public SQLContainer sSqlContainer = Container.getInstance().getRecruitStudentContainer();
 	public SQLContainer fSqlContainer = Container.getInstance().getRecruitFamilyContainer();
 	
-	public EditRecruitStudentView(Object studentId) {
+	public EditPersonnelView(Object studentId) {
 		this.studentId = studentId;
 		initEdtiRecruitStudent();
 	}
 	
-	public EditRecruitStudentView(Object studentId, boolean printMode) {
+	public EditPersonnelView(Object studentId, boolean printMode) {
 		this.studentId = studentId;
 		this.printMode = printMode;
 		initEdtiRecruitStudent();

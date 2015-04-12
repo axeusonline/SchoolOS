@@ -1,8 +1,8 @@
 package com.ies.schoolos.type.dynamic;
 
 import com.ies.schoolos.container.Container;
-import com.ies.schoolos.schema.BuildingSchema;
 import com.ies.schoolos.schema.SessionSchema;
+import com.ies.schoolos.schema.fundamental.BuildingSchema;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.data.util.filter.Compare.Equal;

@@ -10,6 +10,7 @@ import org.vaadin.dialogs.ConfirmDialog;
 import com.ies.schoolos.LoginView;
 import com.ies.schoolos.component.fundamental.BuildingView;
 import com.ies.schoolos.component.fundamental.ClassRoomView;
+import com.ies.schoolos.component.personnel.PersonnelListView;
 import com.ies.schoolos.component.recruit.RecruitStudentConfirmView;
 import com.ies.schoolos.component.recruit.RecruitStudentExamRoom;
 import com.ies.schoolos.component.recruit.RecruitStudentExamScore;
@@ -48,10 +49,13 @@ public class SchoolOSView extends HorizontalSplitPanel{
 	
 	private boolean isSplit = true;
 	
-	/* รหัสเมนู */
+	/* รหัสเมนู แต่ละฝ่าย เริ่มต้นด้วย 1 */
 	private static int STUDENT_RECRUIT = 10000;
-	private static int FUNDAMENTAL = 11000;
-	private static int SETTING = 12000;
+	private static int PERSONNEL = 11000;
+	/* รหัสเมนู ข้อมูลพื้นฐาน เริ่มต้นด้วย 2 */
+	private static int FUNDAMENTAL = 20000;
+	/* รหัสเมนู ตั้งค่า เริ่มต้นด้วย 3 */
+	private static int SETTING = 30000;
 
 	private HashMap<Integer, Class<?>> _factoryData; 
 	private Component currentComponent;
@@ -83,6 +87,9 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		_factoryData.put(STUDENT_RECRUIT+5, RecruitStudentConfirmView.class);
 		_factoryData.put(STUDENT_RECRUIT+6, RecruitToStudentView.class);
 
+		_factoryData.put(PERSONNEL, null);
+		_factoryData.put(PERSONNEL+1, PersonnelListView.class);
+		
 		_factoryData.put(FUNDAMENTAL, null);
 		_factoryData.put(FUNDAMENTAL+1, BuildingView.class);
 		_factoryData.put(FUNDAMENTAL+2, ClassRoomView.class);
@@ -105,6 +112,10 @@ public class SchoolOSView extends HorizontalSplitPanel{
         initMenu(STUDENT_RECRUIT, STUDENT_RECRUIT+4, "จัดห้องเรียนชั่วคราว", menuContainer); 
         initMenu(STUDENT_RECRUIT, STUDENT_RECRUIT+5, "มอบตัวนักเรียน", menuContainer); 
         initMenu(STUDENT_RECRUIT, STUDENT_RECRUIT+6, "กำหนดรหัสนักเรียน", menuContainer); 
+        
+        //ฝ่ายบุคคล
+        initMenu(null, PERSONNEL, "งานบุคคล", menuContainer);
+        initMenu(PERSONNEL, PERSONNEL+1, "รายการเจ้าหน้าที่", menuContainer);
         
         //ข้อมูลพื้นฐาน
         initMenu(null, FUNDAMENTAL, "ข้อมูลพื้นฐาน", menuContainer);

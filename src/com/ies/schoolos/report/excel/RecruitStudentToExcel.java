@@ -1,19 +1,15 @@
 package com.ies.schoolos.report.excel;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-
 import com.ies.schoolos.container.Container;
-import com.ies.schoolos.schema.BuildingSchema;
 import com.ies.schoolos.schema.CitySchema;
-import com.ies.schoolos.schema.ClassRoomSchema;
 import com.ies.schoolos.schema.DistrictSchema;
 import com.ies.schoolos.schema.PostcodeSchema;
 import com.ies.schoolos.schema.ProvinceSchema;
-import com.ies.schoolos.schema.RecruitStudentFamilySchema;
-import com.ies.schoolos.schema.RecruitStudentSchema;
 import com.ies.schoolos.schema.SessionSchema;
+import com.ies.schoolos.schema.fundamental.BuildingSchema;
+import com.ies.schoolos.schema.fundamental.ClassRoomSchema;
+import com.ies.schoolos.schema.recruit.RecruitStudentFamilySchema;
+import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
 import com.ies.schoolos.type.Blood;
 import com.ies.schoolos.type.ClassRange;
 import com.ies.schoolos.type.FamilyStatus;
@@ -44,7 +40,7 @@ public class RecruitStudentToExcel extends Table{
 	}
 	
 	public void setData(){
-		addContainerProperty(RecruitStudentSchema.RECRUIT_CODE, String.class, null);
+		/*addContainerProperty(RecruitStudentSchema.RECRUIT_CODE, String.class, null);
 		addContainerProperty(RecruitStudentSchema.CLASS_RANGE, String.class, null);
 		addContainerProperty(RecruitStudentSchema.PEOPLE_ID, String.class, null);
 		addContainerProperty(RecruitStudentSchema.PRENAME, String.class, null);
@@ -86,7 +82,13 @@ public class RecruitStudentToExcel extends Table{
 		addContainerProperty(RecruitStudentSchema.REGISTER_DATE, Date.class, null);
 		addContainerProperty(RecruitStudentSchema.SCORE, Double.class, null);
 		addContainerProperty(RecruitStudentSchema.EXAM_BUILDING_ID, String.class, null);
-		addContainerProperty(RecruitStudentSchema.CLASS_ROOM_ID, String.class, null);
+		addContainerProperty(RecruitStudentSchema.CLASS_ROOM_ID, String.class, null);*/
+		SQLContainer sContainer = Container.getInstance().getRecruitStudentContainer();
+		sContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.SCHOOL_ID,UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
+				new Greater(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getFirstDateOfYear()),
+				new Less(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getLastDateOfYear())));
+		sContainer.addOrderBy(new OrderBy(RecruitStudentSchema.RECRUIT_CODE, true));	
+		setContainerDataSource(sContainer);
 		
 		setColumnHeader(RecruitStudentSchema.RECRUIT_CODE, "หมายเลขสมัคร");
 		setColumnHeader(RecruitStudentSchema.CLASS_RANGE, "ช่วงชั้น");
@@ -177,106 +179,114 @@ public class RecruitStudentToExcel extends Table{
 			RecruitStudentSchema.EXAM_BUILDING_ID,
 			RecruitStudentSchema.CLASS_ROOM_ID);
 		
-		SQLContainer sContainer = Container.getInstance().getRecruitStudentContainer();
-		sContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.SCHOOL_ID,UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
-				new Greater(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getFirstDateOfYear()),
-				new Less(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getLastDateOfYear())));
-		sContainer.addOrderBy(new OrderBy(RecruitStudentSchema.RECRUIT_CODE, true));	
-		
-		ArrayList<Object> visibleColumns = new ArrayList<Object>();
-		visibleColumns.addAll(Arrays.asList(getVisibleColumns()));
-		
-		for(Object itemId:sContainer.getItemIds()){
-			Item item = sContainer.getItem(itemId);
-			
-			ArrayList<Object> objects = new ArrayList<Object>();
-			
-			for(Object propertyId:getVisibleColumns()){
-				Object value = item.getItemProperty(propertyId).getValue();
-				
-				if(propertyId.equals(RecruitStudentSchema.CLASS_RANGE))
-					value = ClassRange.getNameTh((int)value);
-				else if(propertyId.equals(RecruitStudentSchema.PRENAME))
-					value = Prename.getNameTh((int)value);
-				else if(propertyId.equals(RecruitStudentSchema.GENDER))
-					value = Gender.getNameTh(Integer.parseInt(value.toString()));
-				else if(propertyId.equals(RecruitStudentSchema.RELIGION))
-					value = Religion.getNameTh(Integer.parseInt(value.toString()));
-				else if(propertyId.equals(RecruitStudentSchema.RACE))
-					value = Race.getNameTh(Integer.parseInt(value.toString()));
-				else if(propertyId.equals(RecruitStudentSchema.NATIONALITY))
-					value = Nationality.getNameTh(Integer.parseInt(value.toString()));
-				else if(propertyId.equals(RecruitStudentSchema.BLOOD))
-					value = Blood.getNameTh(Integer.parseInt(value.toString()));
-				else if(propertyId.equals(RecruitStudentSchema.FAMILY_STATUS))
-					value = FamilyStatus.getNameTh(Integer.parseInt(value.toString()));
-				else if(propertyId.equals(RecruitStudentSchema.GUARDIAN_RELATION))
-					value = GuardianRelation.getNameTh(Integer.parseInt(value.toString()));
-				else if(propertyId.equals(RecruitStudentSchema.FATHER_ID) ||
-						propertyId.equals(RecruitStudentSchema.MOTHER_ID) ||
-						propertyId.equals(RecruitStudentSchema.GUARDIAN_ID)){
-					SQLContainer familyContainer = Container.getInstance().getRecruitFamilyContainer();
+		setColumnGenerator(RecruitStudentSchema.CLASS_RANGE,
+				RecruitStudentSchema.PRENAME,
+				RecruitStudentSchema.GENDER,
+				RecruitStudentSchema.RELIGION,
+				RecruitStudentSchema.RACE,
+				RecruitStudentSchema.NATIONALITY,
+				RecruitStudentSchema.BLOOD,
+				RecruitStudentSchema.GRADUATED_SCHOOL_PROVINCE_ID,
+				RecruitStudentSchema.CURRENT_CITY_ID,
+				RecruitStudentSchema.CURRENT_DISTRICT_ID,
+				RecruitStudentSchema.CURRENT_PROVINCE_ID,
+				RecruitStudentSchema.CURRENT_POSTCODE_ID,
+				RecruitStudentSchema.FATHER_ID,
+				RecruitStudentSchema.MOTHER_ID,
+				RecruitStudentSchema.FAMILY_STATUS,
+				RecruitStudentSchema.GUARDIAN_ID,
+				RecruitStudentSchema.GUARDIAN_RELATION,
+				RecruitStudentSchema.EXAM_BUILDING_ID,
+				RecruitStudentSchema.CLASS_ROOM_ID);
+	}
+	
+	/* ตั้งค่ารูปแบบข้อมูลของค่า Fix */
+	private void setColumnGenerator(Object... propertyIds){
+		for(final Object propertyId:propertyIds){
+			addGeneratedColumn(propertyId, new ColumnGenerator() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public Object generateCell(Table source, Object itemId,Object columnId) {
+					Item item = source.getItem(itemId);
+					Object value = item.getItemProperty(propertyId).getValue();
 					
-					/* บิดา มารดา ผู้ปกครอง*/ 
-					Item familyItem = familyContainer.getItem(new RowId(value));
-					value = familyItem.getItemProperty(RecruitStudentFamilySchema.FIRSTNAME).getValue().toString() + " " +
-							familyItem.getItemProperty(RecruitStudentFamilySchema.LASTNAME).getValue().toString();
-				}else if(propertyId.equals(RecruitStudentSchema.EXAM_BUILDING_ID)){
-					/* อาคารสอบ*/ 
-					if(value != null){
-						SQLContainer examBuildingContainer = Container.getInstance().getBuildingContainer();
-						Item buildingItem = examBuildingContainer.getItem(new RowId(value));
-						value = buildingItem.getItemProperty(BuildingSchema.NAME).getValue().toString() + " "
-								+ "(" + buildingItem.getItemProperty(BuildingSchema.ROOM_NUMBER).getValue().toString() + ")";
-					}else{
-						value = "ยังไม่ระบุห้องเรียน";
+					if(propertyId.equals(RecruitStudentSchema.CLASS_RANGE))
+						value = ClassRange.getNameTh((int)value);
+					else if(propertyId.equals(RecruitStudentSchema.PRENAME))
+						value = Prename.getNameTh((int)value);
+					else if(propertyId.equals(RecruitStudentSchema.GENDER))
+						value = Gender.getNameTh(Integer.parseInt(value.toString()));
+					else if(propertyId.equals(RecruitStudentSchema.RELIGION))
+						value = Religion.getNameTh(Integer.parseInt(value.toString()));
+					else if(propertyId.equals(RecruitStudentSchema.RACE))
+						value = Race.getNameTh(Integer.parseInt(value.toString()));
+					else if(propertyId.equals(RecruitStudentSchema.NATIONALITY))
+						value = Nationality.getNameTh(Integer.parseInt(value.toString()));
+					else if(propertyId.equals(RecruitStudentSchema.BLOOD))
+						value = Blood.getNameTh(Integer.parseInt(value.toString()));
+					else if(propertyId.equals(RecruitStudentSchema.FAMILY_STATUS))
+						value = FamilyStatus.getNameTh(Integer.parseInt(value.toString()));
+					else if(propertyId.equals(RecruitStudentSchema.GUARDIAN_RELATION))
+						value = GuardianRelation.getNameTh(Integer.parseInt(value.toString()));
+					else if(propertyId.equals(RecruitStudentSchema.FATHER_ID) ||
+							propertyId.equals(RecruitStudentSchema.MOTHER_ID) ||
+							propertyId.equals(RecruitStudentSchema.GUARDIAN_ID)){
+						SQLContainer familyContainer = Container.getInstance().getRecruitFamilyContainer();
+						if(value != null){
+							/* บิดา มารดา ผู้ปกครอง*/ 
+							Item familyItem = familyContainer.getItem(new RowId(value));
+							value = familyItem.getItemProperty(RecruitStudentFamilySchema.FIRSTNAME).getValue().toString() + " " +
+									familyItem.getItemProperty(RecruitStudentFamilySchema.LASTNAME).getValue().toString();
+						}else{
+							value = "ไม่พบข้อมูล";
+						}					
+					}else if(propertyId.equals(RecruitStudentSchema.EXAM_BUILDING_ID)){
+						/* อาคารสอบ*/ 
+						if(value != null){
+							SQLContainer examBuildingContainer = Container.getInstance().getBuildingContainer();
+							Item buildingItem = examBuildingContainer.getItem(new RowId(value));
+							value = buildingItem.getItemProperty(BuildingSchema.NAME).getValue().toString() + " "
+									+ "(" + buildingItem.getItemProperty(BuildingSchema.ROOM_NUMBER).getValue().toString() + ")";
+						}else{
+							value = "ยังไม่ระบุห้องเรียน";
+						}
+						
+					}else if(propertyId.equals(RecruitStudentSchema.CLASS_ROOM_ID)){
+						/* ห้องเรียน */ 
+						if(value != null){
+							SQLContainer classRoomContainer = Container.getInstance().getClassRoomContainer();
+							Item classRoomItem = classRoomContainer.getItem(new RowId(value));
+							value = classRoomItem.getItemProperty(ClassRoomSchema.NAME).getValue().toString();
+						}else{
+							value = "ยังไม่ระบุห้องเรียน";
+						}
+					}else if(propertyId.equals(RecruitStudentSchema.GRADUATED_SCHOOL_PROVINCE_ID) ||
+							propertyId.equals(RecruitStudentSchema.CURRENT_PROVINCE_ID)){
+						/* จังหวัดโรงเรียนที่จบ ที่อยู่ปัจจุบัน*/ 
+						SQLContainer provinceContainer = Container.getInstance().getProvinceContainer();
+						Item provinceItem = provinceContainer.getItem(new RowId(value));
+						value = provinceItem.getItemProperty(ProvinceSchema.NAME).getValue().toString();
+					}else if(propertyId.equals(RecruitStudentSchema.CURRENT_DISTRICT_ID)){
+						/* อำเภอที่อยู่ปัจจุบัน*/ 
+						SQLContainer districtContainer = Container.getInstance().getDistrictContainer();
+						Item districtItem = districtContainer.getItem(new RowId(value));
+						value = districtItem.getItemProperty(DistrictSchema.NAME).getValue().toString();
+					}else if(propertyId.equals(RecruitStudentSchema.CURRENT_CITY_ID)){
+						/* ตำบลที่อยู่ปัจจุบัน*/ 
+						SQLContainer cityContainer = Container.getInstance().getCityContainer();
+						Item cityItem = cityContainer.getItem(new RowId(value));
+						value = cityItem.getItemProperty(CitySchema.NAME).getValue().toString();
+					}else if(propertyId.equals(RecruitStudentSchema.CURRENT_POSTCODE_ID)){
+						/* ตำบลที่อยู่ปัจจุบัน*/ 
+						SQLContainer postcodeContainer = Container.getInstance().getPostcodeContainer();
+						Item postcodeItem = postcodeContainer.getItem(new RowId(value));
+						value = postcodeItem.getItemProperty(PostcodeSchema.CODE).getValue().toString();
 					}
-					
-				}else if(propertyId.equals(RecruitStudentSchema.CLASS_ROOM_ID)){
-					/* ห้องเรียน */ 
-					if(value != null){
-						SQLContainer classRoomContainer = Container.getInstance().getClassRoomContainer();
-						Item classRoomItem = classRoomContainer.getItem(new RowId(value));
-						value = classRoomItem.getItemProperty(ClassRoomSchema.NAME).getValue().toString();
-					}else{
-						value = "ยังไม่ระบุห้องเรียน";
-					}
-				}else if(propertyId.equals(RecruitStudentSchema.GRADUATED_SCHOOL_PROVINCE_ID) ||
-						propertyId.equals(RecruitStudentSchema.CURRENT_PROVINCE_ID)){
-					/* จังหวัดโรงเรียนที่จบ ที่อยู่ปัจจุบัน*/ 
-					SQLContainer provinceContainer = Container.getInstance().getProvinceContainer();
-					Item provinceItem = provinceContainer.getItem(new RowId(value));
-					value = provinceItem.getItemProperty(ProvinceSchema.NAME).getValue().toString();
-				}else if(propertyId.equals(RecruitStudentSchema.CURRENT_DISTRICT_ID)){
-					/* อำเภอที่อยู่ปัจจุบัน*/ 
-					SQLContainer districtContainer = Container.getInstance().getDistrictContainer();
-					Item districtItem = districtContainer.getItem(new RowId(value));
-					value = districtItem.getItemProperty(DistrictSchema.NAME).getValue().toString();
-				}else if(propertyId.equals(RecruitStudentSchema.CURRENT_CITY_ID)){
-					/* ตำบลที่อยู่ปัจจุบัน*/ 
-					SQLContainer cityContainer = Container.getInstance().getCityContainer();
-					Item cityItem = cityContainer.getItem(new RowId(value));
-					value = cityItem.getItemProperty(CitySchema.NAME).getValue().toString();
-				}else if(propertyId.equals(RecruitStudentSchema.CURRENT_POSTCODE_ID)){
-					/* ตำบลที่อยู่ปัจจุบัน*/ 
-					SQLContainer postcodeContainer = Container.getInstance().getPostcodeContainer();
-					Item postcodeItem = postcodeContainer.getItem(new RowId(value));
-					value = postcodeItem.getItemProperty(PostcodeSchema.CODE).getValue().toString();
+									
+					return value;
 				}
-				
-				System.err.print(propertyId);
-				if(value != null)
-					System.err.println(value.getClass());
-				else
-					System.err.println();
-				
-				objects.add(value);
-				
-			}
-			addItem(objects.toArray(), itemId);
-			
+			});
 		}
-		/* ลบ WHERE ออกจาก Query เพื่อป้องกันการค้างของคำสั่่งจากการทำงานอื่นที่เรียกตัวแปรไปใช้ */
-		sContainer.removeAllContainerFilters();
 	}
 }

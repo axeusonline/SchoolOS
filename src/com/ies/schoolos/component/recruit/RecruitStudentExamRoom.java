@@ -2,37 +2,37 @@ package com.ies.schoolos.component.recruit;
 
 import java.util.Collection;
 
-import org.tepi.filtertable.FilterTable;
+import org.tepi.filtertable.numberfilter.NumberInterval;
 
 import com.ies.schoolos.component.ui.ContentPage;
 import com.ies.schoolos.component.ui.TwinSelectTable;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
-import com.ies.schoolos.schema.BuildingSchema;
-import com.ies.schoolos.schema.RecruitStudentSchema;
 import com.ies.schoolos.schema.SchoolSchema;
 import com.ies.schoolos.schema.SessionSchema;
+import com.ies.schoolos.schema.fundamental.BuildingSchema;
+import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
 import com.ies.schoolos.type.ClassRange;
 import com.ies.schoolos.type.Prename;
 import com.ies.schoolos.type.dynamic.Building;
 import com.ies.schoolos.utility.Notification;
-import com.ies.schoolos.utility.Utility;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.filter.And;
 import com.vaadin.data.util.filter.Compare.Equal;
-import com.vaadin.data.util.filter.IsNull;
 import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.CustomTable.ColumnGenerator;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.CustomTable;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.UI;
 
@@ -42,20 +42,32 @@ public class RecruitStudentExamRoom extends ContentPage{
 
 	private int capacity = 0;
 	
+	private StringBuilder sqlBuilder = new StringBuilder();
+	
 	private ComboBox building;
 	private ComboBox classRange;
-	//private OptionGroup gender;
 	private Label capacityLabel;
 	
 	private TwinSelectTable twinSelect;
 	
-	private SQLContainer sContainer = Container.getInstance().getRecruitStudentContainer();
+	private SQLContainer leftContainer;
+	private SQLContainer rightContainer = Container.getInstance().getRecruitStudentContainer();
 	private SQLContainer bContainer = Container.getInstance().getBuildingContainer();
 
 	public RecruitStudentExamRoom() {
 		super("จัดห้องสอบ");
 		
-		sContainer.refresh();
+		/* ดึงค่าตารางทางซ้าย */
+		sqlBuilder.append(" SELECT * FROM " + RecruitStudentSchema.TABLE_NAME);
+		sqlBuilder.append(" WHERE " + RecruitStudentSchema.SCHOOL_ID + "=" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+		sqlBuilder.append(" AND " + RecruitStudentSchema.EXAM_BUILDING_ID + " IS NULL");
+		leftContainer = new Container().getFreeFormContainer(sqlBuilder.toString(), RecruitStudentSchema.STUDENT_ID);
+		
+		/* ค้นหาตารางขวา */
+		rightContainer.removeAllContainerFilters();
+		rightContainer.addContainerFilter(new Equal(SchoolSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)));
+		
+		rightContainer.refresh();
 		bContainer.refresh();
 		
 		buildMainLayout();
@@ -96,17 +108,6 @@ public class RecruitStudentExamRoom extends ContentPage{
 		toolStrip.addComponent(classRange);
 		toolStrip.setComponentAlignment(classRange, Alignment.MIDDLE_LEFT);
 		
-		/*gender = new OptionGroup("เพศ",new Gender());
-		gender.setItemCaptionPropertyId("name");
-		gender.setImmediate(true);
-		gender.setNullSelectionAllowed(false);
-		gender.setRequired(true);
-		gender.setWidth("-1px");
-		gender.setHeight("-1px");
-		gender.addValueChangeListener(searchValueChange);
-		toolStrip.addComponent(gender);
-		toolStrip.setComponentAlignment(gender, Alignment.MIDDLE_LEFT);*/
-		
 		capacityLabel = new Label();
 		capacityLabel.setStyleName("label-green");
 		toolStrip.addComponent(capacityLabel);
@@ -119,29 +120,15 @@ public class RecruitStudentExamRoom extends ContentPage{
 		twinSelect.setMultiSelect(true);
 		twinSelect.showFooterCount(true);
 		twinSelect.setFooterUnit("คน");
-		
-		twinSelect.addContainerProperty(RecruitStudentSchema.RECRUIT_CODE, String.class, null);
-		twinSelect.addContainerProperty(RecruitStudentSchema.CLASS_RANGE, String.class, null);
-		twinSelect.addContainerProperty(RecruitStudentSchema.PRENAME, String.class, null);
-		twinSelect.addContainerProperty(RecruitStudentSchema.FIRSTNAME, String.class, null);
-		twinSelect.addContainerProperty(RecruitStudentSchema.LASTNAME, String.class, null);
-		
+
 		twinSelect.setFilterDecorator(new TableFilterDecorator());
 		twinSelect.setFilterGenerator(new TableFilterGenerator());
 		twinSelect.setFilterBarVisible(true);
-        
-		twinSelect.setColumnHeader(RecruitStudentSchema.RECRUIT_CODE, "หมายเลขสมัคร");
-		twinSelect.setColumnHeader(RecruitStudentSchema.CLASS_RANGE,"ช่วงชั้น");
-		twinSelect.setColumnHeader(RecruitStudentSchema.PRENAME, "ชื่อต้น");
-		twinSelect.setColumnHeader(RecruitStudentSchema.FIRSTNAME, "ชื่อ");
-		twinSelect.setColumnHeader(RecruitStudentSchema.LASTNAME, "สกุล");
 		
-		twinSelect.setVisibleColumns(
-				RecruitStudentSchema.RECRUIT_CODE, 
-				RecruitStudentSchema.CLASS_RANGE,
-				RecruitStudentSchema.PRENAME,
-				RecruitStudentSchema.FIRSTNAME, 
-				RecruitStudentSchema.LASTNAME);
+		twinSelect.getLeftTable().setContainerDataSource(leftContainer);
+		twinSelect.getRightTable().setContainerDataSource(rightContainer);
+		setRightData();
+		initTableStyle();
 		
 		twinSelect.setAddClick(addListener);
 		twinSelect.setAddAllClick(addAllListener);
@@ -152,42 +139,61 @@ public class RecruitStudentExamRoom extends ContentPage{
 		setExpandRatio(twinSelect, 1);
 	}
 	
-	/* จำนวนนักเรียนทีี่ค้นฟา */
-	private void setLeftData(){
-		twinSelect.removeAllLeftItem();
+	/* ตั้งค่ารูปแบบแสดงของตาราง */
+	private void initTableStyle(){
+		twinSelect.setColumnHeader(RecruitStudentSchema.RECRUIT_CODE, "หมายเลขสมัคร");
+		twinSelect.setColumnHeader(RecruitStudentSchema.CLASS_RANGE,"ช่วงชั้น");
+		twinSelect.setColumnHeader(RecruitStudentSchema.PRENAME, "ชื่อต้น");
+		twinSelect.setColumnHeader(RecruitStudentSchema.FIRSTNAME, "ชื่อ");
+		twinSelect.setColumnHeader(RecruitStudentSchema.LASTNAME, "สกุล");
+		twinSelect.setColumnHeader(RecruitStudentSchema.EXAM_BUILDING_ID, "ห้องสอบ");
 		
-		/* ค้นหานักเรียนที่ยังไม่ถูกกำหนดห้องสอบ */
-		sContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.CLASS_RANGE, classRange.getValue()),
-				//new Equal(RecruitStudentSchema.GENDER, gender.getValue()),
-				new Equal(RecruitStudentSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
-				new IsNull(RecruitStudentSchema.EXAM_BUILDING_ID)));
+		twinSelect.setVisibleColumns(
+				RecruitStudentSchema.RECRUIT_CODE, 
+				RecruitStudentSchema.CLASS_RANGE,
+				RecruitStudentSchema.PRENAME,
+				RecruitStudentSchema.FIRSTNAME, 
+				RecruitStudentSchema.LASTNAME, 
+				RecruitStudentSchema.EXAM_BUILDING_ID);
 		
-		for(final Object itemId:sContainer.getItemIds()){
-			Item item = sContainer.getItem(itemId);
-			addItemData(twinSelect.getLeftTable(), itemId, item);
+		setColumnGenerator(RecruitStudentSchema.CLASS_RANGE, RecruitStudentSchema.PRENAME, "");
+	}
+	
+	/* ตั้งค่ารูปแบบข้อมูลของค่า Fix */
+	private void setColumnGenerator(Object... propertyIds){
+		for(final Object propertyId:propertyIds){
+			twinSelect.addGeneratedColumn(propertyId, new ColumnGenerator() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public Object generateCell(CustomTable source, Object itemId, Object columnId) {
+					Item item = source.getItem(itemId);
+					Object value = new Object();
+					
+					if(RecruitStudentSchema.CLASS_RANGE.equals(propertyId))
+						value = ClassRange.getNameTh(Integer.parseInt(item.getItemProperty(RecruitStudentSchema.CLASS_RANGE).getValue().toString()));
+					else if(RecruitStudentSchema.PRENAME.equals(propertyId))
+						value = Prename.getNameTh(Integer.parseInt(item.getItemProperty(RecruitStudentSchema.PRENAME).getValue().toString()));
+					return value;
+				}
+			});
 		}
-		
+	}
+	
+	/* จำนวนนักเรียนทีี่ค้นฟา */
+	private void setLeftData(){		
 		twinSelect.setLeftCountFooter(RecruitStudentSchema.RECRUIT_CODE);
-		/* ลบ WHERE ออกจาก Query เพื่อป้องกันการค้างของคำสั่่งจากการทำงานอื่นที่เรียกตัวแปรไปใช้ */
-		sContainer.removeAllContainerFilters();
 	}
 	
 	/* จำนวนนักเรียนที่ถูกเลือก */
 	private void setRightData(){
-		twinSelect.removeAllRightItem();
-		
-		/* ค้นหานักเรียนที่อยู่ห้องสอบที่กำหนด */
-		sContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.EXAM_BUILDING_ID, building.getValue()),
-				new Equal(SchoolSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID))));
-		
-		for(Object itemId: sContainer.getItemIds()){
-			Item item = sContainer.getItem(itemId);
-			addItemData(twinSelect.getRightTable(), itemId, item);
-		}
+		Object buildingSelect = building.getValue();
+		if(buildingSelect != null)
+			twinSelect.getRightTable().setFilterFieldValue(RecruitStudentSchema.EXAM_BUILDING_ID, new NumberInterval(null, null, buildingSelect.toString()));
+		else
+			twinSelect.getRightTable().setFilterFieldValue(RecruitStudentSchema.EXAM_BUILDING_ID, new NumberInterval(null, null, "0"));
 		
 		twinSelect.setRightCountFooter(RecruitStudentSchema.RECRUIT_CODE);
-		/* ลบ WHERE ออกจาก Query เพื่อป้องกันการค้างของคำสั่่งจากการทำงานอื่นที่เรียกตัวแปรไปใช้ */
-		sContainer.removeAllContainerFilters();
 	}
 	
 	/* ย้ายข้างจากซ้ายไปขวาจากที่ถูกเลือก */
@@ -195,13 +201,17 @@ public class RecruitStudentExamRoom extends ContentPage{
 	private void selectData(Object... itemIds){
 		for(Object itemId: itemIds){
 			try {
-				Item item = twinSelect.getLeftTable().getItem(itemId);
-				addItemData(twinSelect.getRightTable(), itemId, item);
-				twinSelect.getLeftTable().removeItem(itemId);
+				/* ก่อนแก้ไข เพิ่มต้องลบ Filter ก่อนหน้า */
+				rightContainer.removeAllContainerFilters();
 				
-				Item studentItem = sContainer.getItem(itemId);
+				Item studentItem = rightContainer.getItem(itemId);
 				studentItem.getItemProperty(RecruitStudentSchema.EXAM_BUILDING_ID).setValue(Integer.parseInt(building.getValue().toString()));
-				sContainer.commit();
+				rightContainer.commit();
+				
+				/* Refresh ข้อมูลาราง */
+				rightContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.EXAM_BUILDING_ID, building.getValue()),
+						new Equal(SchoolSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID))));
+				leftContainer.refresh();
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -216,17 +226,21 @@ public class RecruitStudentExamRoom extends ContentPage{
 		Collection<?> itemIds = twinSelect.getLeftTable().getItemIds();
 		for(Object itemId: itemIds){
 			try {
-				Item item = twinSelect.getLeftTable().getItem(itemId);
-				addItemData(twinSelect.getRightTable(), itemId, item);
+				/* ก่อนแก้ไข เพิ่มต้องลบ Filter ก่อนหน้า */
+				rightContainer.removeAllContainerFilters();
 				
-				Item studentItem = sContainer.getItem(itemId);
+				Item studentItem = rightContainer.getItem(itemId);
 				studentItem.getItemProperty(RecruitStudentSchema.EXAM_BUILDING_ID).setValue(Integer.parseInt(building.getValue().toString()));
-				sContainer.commit();
+				rightContainer.commit();
+				
+				/* Refresh ข้อมูลาราง */
+				rightContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.EXAM_BUILDING_ID, building.getValue()),
+						new Equal(SchoolSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID))));
+				leftContainer.refresh();
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		twinSelect.getLeftTable().removeAllItems();
 		twinSelect.setLeftCountFooter(RecruitStudentSchema.RECRUIT_CODE);
 		twinSelect.setRightCountFooter(RecruitStudentSchema.RECRUIT_CODE);
 	}
@@ -236,13 +250,17 @@ public class RecruitStudentExamRoom extends ContentPage{
 	private void removeData(Object... itemIds){
 		for(Object itemId: itemIds){
 			try {
-				Item item = twinSelect.getRightTable().getItem(itemId);
-				addItemData(twinSelect.getLeftTable(), itemId, item);
-				twinSelect.getRightTable().removeItem(itemId);	
+				/* ก่อนแก้ไข เพิ่มต้องลบ Filter ก่อนหน้า */
+				rightContainer.removeAllContainerFilters();
 				
-				Item studentItem = sContainer.getItem(itemId);
+				Item studentItem = rightContainer.getItem(itemId);
 				studentItem.getItemProperty(RecruitStudentSchema.EXAM_BUILDING_ID).setValue(null);
-				sContainer.commit();
+				rightContainer.commit();
+				
+				/* Refresh ข้อมูลาราง */
+				rightContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.EXAM_BUILDING_ID, building.getValue()),
+						new Equal(SchoolSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID))));
+				leftContainer.refresh();
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -255,19 +273,22 @@ public class RecruitStudentExamRoom extends ContentPage{
 	@SuppressWarnings("unchecked")
 	private void removeAllData(){
 		for(Object itemId: twinSelect.getRightTable().getItemIds()){
-			
 			try {
-				Item item = twinSelect.getRightTable().getItem(itemId);	
-				addItemData(twinSelect.getLeftTable(), itemId, item);
+				/* ก่อนแก้ไข เพิ่มต้องลบ Filter ก่อนหน้า */
+				rightContainer.removeAllContainerFilters();
 				
-				Item studentItem = sContainer.getItem(itemId);
+				Item studentItem = rightContainer.getItem(itemId);
 				studentItem.getItemProperty(RecruitStudentSchema.EXAM_BUILDING_ID).setValue(null);
-				sContainer.commit();
+				rightContainer.commit();
+				
+				/* Refresh ข้อมูลาราง */
+				rightContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.EXAM_BUILDING_ID, building.getValue()),
+						new Equal(SchoolSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID))));
+				leftContainer.refresh();
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		twinSelect.getRightTable().removeAllItems();
 		twinSelect.setLeftCountFooter(RecruitStudentSchema.RECRUIT_CODE);
 		twinSelect.setRightCountFooter(RecruitStudentSchema.RECRUIT_CODE);
 	}
@@ -283,28 +304,7 @@ public class RecruitStudentExamRoom extends ContentPage{
 		return isFull;
 	}
 	
-	/* ใส่ข้อมูลในตาราง */
-	private void addItemData(FilterTable table, Object itemId, Item item){
-		/* ตรวจสอบข้อมูล หากมาจาก setLeftData , setRightData ค่าจะเป็น int
-		 * หากมาจากการย้ายข้าง ข้อมูลจะเป็น String อยู่แล้วไม่จำเป็นต้องมาดึงค่าของตัวแปร Fix 
-		 * */
-		String classRange = item.getItemProperty(RecruitStudentSchema.CLASS_RANGE).getValue().toString();
-		String prename = item.getItemProperty(RecruitStudentSchema.PRENAME).getValue().toString();
-		
-		if(Utility.isInteger(classRange))
-			classRange = ClassRange.getNameTh(Integer.parseInt(item.getItemProperty(RecruitStudentSchema.CLASS_RANGE).getValue().toString()));
-		if(Utility.isInteger(prename))
-			prename = Prename.getNameTh(Integer.parseInt(item.getItemProperty(RecruitStudentSchema.PRENAME).getValue().toString()));
-		
-		table.addItem(new Object[] {
-				item.getItemProperty(RecruitStudentSchema.RECRUIT_CODE).getValue(), 
-				classRange,
-				prename, 
-				item.getItemProperty(RecruitStudentSchema.FIRSTNAME).getValue(), 
-				item.getItemProperty(RecruitStudentSchema.LASTNAME).getValue()
-		},itemId);
-	}
-	
+
 	/* ค้นหานักเรียนตามเงื่อนไขที่เลือก */
 	private ValueChangeListener searchValueChange = new ValueChangeListener() {
 		private static final long serialVersionUID = 1L;
@@ -312,19 +312,15 @@ public class RecruitStudentExamRoom extends ContentPage{
 		@Override
 		public void valueChange(ValueChangeEvent event) {
 			if(building.getValue() != null &&
-					/*gender.getValue() != null &&*/
 					classRange.getValue() != null){
 				/* ======== ดึงข้อมูลนักเรียนที่ค้นหา ========== */
 				setLeftData();
 				setRightData();
-				
 				/* ======== ดึงจำนวนคนที่ห้องรองรับได้ ========== */
 				Item item = bContainer.getItem(new RowId(building.getValue()));
 				capacity = Integer.parseInt(item.getItemProperty(BuildingSchema.CAPACITY).getValue().toString());
-				
 				capacityLabel.setValue("ความจุนักเรียน " + capacity + " คน");
 			}
-				
 		}
 	};
 	
@@ -333,13 +329,17 @@ public class RecruitStudentExamRoom extends ContentPage{
 		private static final long serialVersionUID = 1L;
 		@Override
 		public void buttonClick(ClickEvent event) {
-			Collection<?> itemIds = (Collection<?>)twinSelect.getLeftTable().getValue();
-			
-			if(isFullCapacity(itemIds.size())){
-				Notification.show("ห้องสอบเต็ม กรุณาเลือกห้องสอบใหม่่", Type.WARNING_MESSAGE);
+			if(building.getValue() == null){
+				Notification.show("กรุณาเลือกห้องสอบ", Type.WARNING_MESSAGE);
 				return;
 			}
-			
+				
+				
+			Collection<?> itemIds = (Collection<?>)twinSelect.getLeftTable().getValue();
+			if(isFullCapacity(itemIds.size())){
+				Notification.show("ห้องสอลบไม่เพียงพอ", Type.WARNING_MESSAGE);
+				return;
+			}
 			for(Object itemId:itemIds){
 				selectData(itemId);
 			}
@@ -351,15 +351,18 @@ public class RecruitStudentExamRoom extends ContentPage{
 		private static final long serialVersionUID = 1L;
 		@Override
 		public void buttonClick(ClickEvent event) {
-			Collection<?> itemIds = twinSelect.getLeftTable().getItemIds();
-			
-			if(isFullCapacity(itemIds.size())){
-				Notification.show("ห้องสอบเต็ม กรุณาเลือกห้องสอบใหม่่", Type.WARNING_MESSAGE);
+			if(building.getValue() == null){
+				Notification.show("กรุณาเลือกห้องสอบ", Type.WARNING_MESSAGE);
 				return;
 			}
 			
-			selectAllData();
+			Collection<?> itemIds = twinSelect.getLeftTable().getItemIds();
 			
+			if(isFullCapacity(itemIds.size())){
+				Notification.show("ห้องสอลบไม่เพียงพอ", Type.WARNING_MESSAGE);
+				return;
+			}
+			selectAllData();
 		}
 	};
 	
@@ -368,6 +371,11 @@ public class RecruitStudentExamRoom extends ContentPage{
 		private static final long serialVersionUID = 1L;
 		@Override
 		public void buttonClick(ClickEvent event) {
+			if(building.getValue() == null){
+				Notification.show("กรุณาเลือกห้องสอบ", Type.WARNING_MESSAGE);
+				return;
+			}
+			
 			for(Object itemId:(Collection<?>)twinSelect.getRightTable().getValue()){
 				removeData(itemId);
 			}
@@ -379,6 +387,11 @@ public class RecruitStudentExamRoom extends ContentPage{
 		private static final long serialVersionUID = 1L;
 		@Override
 		public void buttonClick(ClickEvent event) {
+			if(building.getValue() == null){
+				Notification.show("กรุณาเลือกห้องสอบ", Type.WARNING_MESSAGE);
+				return;
+			}
+			
 			removeAllData();
 		}
 	};

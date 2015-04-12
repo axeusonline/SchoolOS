@@ -1,4 +1,4 @@
-package com.ies.schoolos.schema;
+package com.ies.schoolos.schema.fundamental;
 
 public class ClassRoomSchema implements java.io.Serializable{
 	private static final long serialVersionUID = 1L;

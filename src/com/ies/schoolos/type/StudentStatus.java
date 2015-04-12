@@ -7,7 +7,7 @@ public class StudentStatus extends IndexedContainer{
 
 	private static final long serialVersionUID = 1L;
 	
-	private static String[] studentStatuses = {"กำลังศึกษา","ทำงาน","พักการเรียน","นักเรียนโครงการ","ลาออก","จำหน่ายออก","จบการศึกษา"};
+	private static String[] studentStatuses = {"กำลังศึกษา","พักการเรียน","นักเรียนโครงการ","ลาออก","จำหน่ายออก","จบการศึกษา"};
 	
 	public StudentStatus() {
 		initContainer();

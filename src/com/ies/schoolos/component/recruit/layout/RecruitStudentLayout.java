@@ -3,8 +3,8 @@ package com.ies.schoolos.component.recruit.layout;
 import java.util.Date;
 
 import com.ies.schoolos.component.ui.NumberField;
-import com.ies.schoolos.schema.RecruitStudentFamilySchema;
-import com.ies.schoolos.schema.RecruitStudentSchema;
+import com.ies.schoolos.schema.recruit.RecruitStudentFamilySchema;
+import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
 import com.ies.schoolos.type.AliveStatus;
 import com.ies.schoolos.type.Blood;
 import com.ies.schoolos.type.ClassRange;
@@ -356,7 +356,6 @@ public class RecruitStudentLayout extends TabSheet {
 		height.setImmediate(false);
 		height.setWidth("-1px");
 		height.setHeight("-1px");
-		//height.addValidator(new DoubleRangeValidator("ข้อมูลไม่ถูกต้อง", 30.00, 250.00));
 		height.setNullRepresentation("");
 		generalForm.addComponent(height);
 		
@@ -365,7 +364,6 @@ public class RecruitStudentLayout extends TabSheet {
 		weight.setImmediate(false);
 		weight.setWidth("-1px");
 		weight.setHeight("-1px");
-		//weight.addValidator(new DoubleRangeValidator("ข้อมูลไม่ถูกต้อง", 30.00, 150.00));
 		weight.setNullRepresentation("");
 		generalForm.addComponent(weight);
 		

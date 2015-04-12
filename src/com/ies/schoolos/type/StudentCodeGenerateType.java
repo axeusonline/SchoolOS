@@ -7,7 +7,7 @@ public class StudentCodeGenerateType  extends IndexedContainer{
 
 	private static final long serialVersionUID = 1L;
 	
-	private static String[] aliveStatuses = {"อัตโนมัติ","กำหนดเอง"};
+	private static String[] studentCodeGenerateTypes = {"อัตโนมัติ","กำหนดเอง"};
 
 	public StudentCodeGenerateType() {
 		initContainer();
@@ -16,14 +16,14 @@ public class StudentCodeGenerateType  extends IndexedContainer{
 	@SuppressWarnings("unchecked")
 	private void initContainer(){
 	   addContainerProperty("name", String.class,null);
-	   for (int i = 0; i < aliveStatuses.length; i++) {
+	   for (int i = 0; i < studentCodeGenerateTypes.length; i++) {
 	        Item item = addItem(i);
-	        item.getItemProperty("name").setValue(aliveStatuses[i]);
+	        item.getItemProperty("name").setValue(studentCodeGenerateTypes[i]);
 	   }
 	}
 	
 	public static String getNameTh(int index){
-		return aliveStatuses[index];
+		return studentCodeGenerateTypes[index];
 	}
 
 }

@@ -1,11 +1,11 @@
-package com.ies.schoolos.schema;
+package com.ies.schoolos.schema.recruit;
 
-public class FamilySchema implements java.io.Serializable{
+public class RecruitStudentFamilySchema implements java.io.Serializable{
 	private static final long serialVersionUID = 1L;
 	
-	public static final String TABLE_NAME = "family";
+	public static final String TABLE_NAME = "recruit_student_family";
 	
-	public static final String FAMILY_ID = "family_id";
+	public static final String REG_FAMILY_ID = "reg_family_id";
 	public static final String PEOPLE_ID= "people_id";
 	public static final String PEOPLE_ID_TYPE= "people_id_type";
 	public static final String PRENAME= "prename";

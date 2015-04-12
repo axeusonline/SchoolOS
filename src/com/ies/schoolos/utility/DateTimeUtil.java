@@ -57,6 +57,11 @@ public class DateTimeUtil {
 		return Integer.toString(1900+new Date().getYear());
 	}
 	
+	@SuppressWarnings("deprecation")
+	public static String getBuddishYear(){
+		return Integer.toString(2443+new Date().getYear());
+	}
+	
 	public static boolean compareBetweenDate(Date beginDate, Date endDate){
 		boolean isBetween = false;
 		Date todayDate = new Date();

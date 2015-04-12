@@ -1,4 +1,4 @@
-package com.ies.schoolos.component.recruit;
+package com.ies.schoolos.component.personnel;
 
 import org.tepi.filtertable.FilterTable;
 import org.vaadin.dialogs.ConfirmDialog;
@@ -7,14 +7,13 @@ import com.ies.schoolos.component.ui.ContentPage;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
-import com.ies.schoolos.report.RecruitStudentReport;
 import com.ies.schoolos.schema.SessionSchema;
-import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
-import com.ies.schoolos.type.ClassRange;
+import com.ies.schoolos.schema.info.PersonnelSchema;
 import com.ies.schoolos.type.Prename;
+import com.ies.schoolos.utility.Notification;
 import com.vaadin.data.Item;
+import com.vaadin.data.util.filter.And;
 import com.vaadin.data.util.filter.Compare.Equal;
-import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Alignment;
@@ -23,7 +22,6 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CustomTable;
 import com.vaadin.ui.CustomTable.ColumnGenerator;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
@@ -31,27 +29,29 @@ import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseListener;
 
-public class RecruitStudentListView  extends ContentPage{
+public class PersonnelListView  extends ContentPage{
 
 	private static final long serialVersionUID = 1L;
 	
-	private SQLContainer sContainer = Container.getInstance().getRecruitStudentContainer();
-	private SQLContainer fContainer = Container.getInstance().getRecruitFamilyContainer();
+	private SQLContainer pContainer = Container.getInstance().getPersonnelContainer();
+	private SQLContainer fContainer = Container.getInstance().getFamilyContainer();
 	private SQLContainer bContainer = Container.getInstance().getBuildingContainer();
 	
 	private HorizontalLayout toolbar;
 	private Button add;	
 	private FilterTable  table;
 	
-	public RecruitStudentListView() {	
-		super("รายชื่อผู้สมัครเรียน");
-		
-		sContainer.refresh();
+	public PersonnelListView() {	
+		super("รายชื่อบุคลากร");
+
+		pContainer.refresh();
 		fContainer.refresh();
 		bContainer.refresh();
 		
-		sContainer.removeAllContainerFilters();
-		sContainer.addContainerFilter(new Equal(RecruitStudentSchema.SCHOOL_ID,UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)));
+		pContainer.removeAllContainerFilters();
+		pContainer.addContainerFilter(new And(
+				new Equal(PersonnelSchema.SCHOOL_ID,UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
+				new Equal(PersonnelSchema.PERSONEL_STATUS, 0)));
 		
 		buildMainLayout();
 	}	
@@ -70,13 +70,16 @@ public class RecruitStudentListView  extends ContentPage{
 			public void buttonClick(ClickEvent event) {
 				Window addLayout = new Window();
 				addLayout.setSizeFull();
-				addLayout.setContent(new AddRecruitStudentView());
+				addLayout.setContent(new AddPersonnelView());
 				addLayout.addCloseListener(new CloseListener() {
 					private static final long serialVersionUID = 1L;
 
 					@Override
 					public void windowClose(CloseEvent e) {
-						sContainer.addContainerFilter(new Equal(RecruitStudentSchema.SCHOOL_ID,UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)));
+						pContainer.addContainerFilter(new And(
+								new Equal(PersonnelSchema.SCHOOL_ID,UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
+								new Equal(PersonnelSchema.PERSONEL_STATUS, 0)));
+						pContainer.refresh();
 						setFooterData();
 					}
 				});
@@ -85,7 +88,7 @@ public class RecruitStudentListView  extends ContentPage{
 		});
 		toolbar.addComponent(add);
 		
-		/*ExcelExporter excelExporter = new ExcelExporter(new RecruitStudentToExcel());
+		/*ExcelExporter excelExporter = new ExcelExporter(new PersonnelToExcel());
 		excelExporter.setIcon(FontAwesome.FILE_EXCEL_O);
 		excelExporter.setCaption("ส่งออกไฟล์ Excel");
 		toolbar.addComponent(excelExporter);*/
@@ -100,7 +103,7 @@ public class RecruitStudentListView  extends ContentPage{
 		table.setFilterGenerator(new TableFilterGenerator());
         table.setFilterBarVisible(true);
 
-		table.setContainerDataSource(sContainer);
+		table.setContainerDataSource(pContainer);
 	    setFooterData();
 		initTableStyle();
 
@@ -113,25 +116,20 @@ public class RecruitStudentListView  extends ContentPage{
 	
 	/* ตั้งค่ารูปแบบแสดงของตาราง */
 	private void initTableStyle(){		
-		table.setColumnHeader(RecruitStudentSchema.RECRUIT_CODE, "หมายเลขสมัคร");
-		table.setColumnHeader(RecruitStudentSchema.CLASS_RANGE,"ช่วงชั้น");
-		table.setColumnHeader(RecruitStudentSchema.PRENAME, "ชื่อต้น");
-		table.setColumnHeader(RecruitStudentSchema.FIRSTNAME, "ชื่อ");
-		table.setColumnHeader(RecruitStudentSchema.LASTNAME, "สกุล");
-		table.setColumnHeader(RecruitStudentSchema.REGISTER_DATE, "วันที่สมัคร");
-		table.setColumnHeader(RecruitStudentSchema.EXAM_BUILDING_ID, "ห้องสอบ");
+		table.setColumnHeader(PersonnelSchema.PERSONEL_CODE, "หมายเลขประจำตัว");
+		table.setColumnHeader(PersonnelSchema.PRENAME, "ชื่อต้น");
+		table.setColumnHeader(PersonnelSchema.FIRSTNAME, "ชื่อ");
+		table.setColumnHeader(PersonnelSchema.LASTNAME, "สกุล");
+		table.setColumnHeader(PersonnelSchema.JOB_POSITION_ID, "ตำแหน่ง");
 		
 		table.setVisibleColumns(
-				RecruitStudentSchema.RECRUIT_CODE, 
-				RecruitStudentSchema.CLASS_RANGE,
-				RecruitStudentSchema.PRENAME,
-				RecruitStudentSchema.FIRSTNAME, 
-				RecruitStudentSchema.LASTNAME,
-				RecruitStudentSchema.REGISTER_DATE);
+				PersonnelSchema.PERSONEL_CODE, 
+				PersonnelSchema.PRENAME,
+				PersonnelSchema.FIRSTNAME, 
+				PersonnelSchema.LASTNAME,
+				PersonnelSchema.JOB_POSITION_ID);
 		
-		setColumnGenerator(RecruitStudentSchema.CLASS_RANGE,
-				RecruitStudentSchema.PRENAME,
-				"");
+		setColumnGenerator(PersonnelSchema.PRENAME, PersonnelSchema.JOB_POSITION_ID, "");
 	}
 	
 	/* ตั้งค่ารูปแบบข้อมูลของค่า Fix */
@@ -145,9 +143,7 @@ public class RecruitStudentListView  extends ContentPage{
 					Item item = source.getItem(itemId);
 					Object value = null;
 					
-					if(RecruitStudentSchema.CLASS_RANGE.equals(propertyId))
-						value = ClassRange.getNameTh(Integer.parseInt(item.getItemProperty(propertyId).getValue().toString()));
-					else if(RecruitStudentSchema.PRENAME.equals(propertyId))
+					if(PersonnelSchema.PRENAME.equals(propertyId))
 						value = Prename.getNameTh(Integer.parseInt(item.getItemProperty(propertyId).getValue().toString()));
 					else if("".equals(propertyId))
 						value = initButtonLayout(item, itemId);
@@ -160,20 +156,7 @@ public class RecruitStudentListView  extends ContentPage{
 	
 	private HorizontalLayout initButtonLayout(final Item item, final Object itemId){
 		final HorizontalLayout buttonLayout = new HorizontalLayout();
-		
-		Button	print = new Button("พิมพ์ใบสมัคร",FontAwesome.PRINT);
-		print.setWidth("100%");
-		print.addClickListener(new ClickListener() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				new RecruitStudentReport(Integer.parseInt(itemId.toString()));
-			}
-		});
-		buttonLayout.addComponent(print);
-		buttonLayout.setComponentAlignment(print, Alignment.MIDDLE_CENTER);
-		
+			
 		Button editButton = new Button(FontAwesome.EDIT);
 		editButton.setId(itemId.toString());
 		editButton.addClickListener(new ClickListener() {
@@ -183,7 +166,7 @@ public class RecruitStudentListView  extends ContentPage{
 				
 				Window editLayout = new Window();
 				editLayout.setSizeFull();
-				editLayout.setContent(new EditRecruitStudentView(item.getItemProperty(RecruitStudentSchema.STUDENT_ID).getValue()));
+				//editLayout.setContent(new EditPersonnelView(item.getItemProperty(PersonnelSchema.STUDENT_ID).getValue()));
 				UI.getCurrent().addWindow(editLayout);
 			}
 		});
@@ -196,27 +179,19 @@ public class RecruitStudentListView  extends ContentPage{
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				ConfirmDialog.show(UI.getCurrent(), "ลบนักเรียน","คุณต้องการลบนักเรียนนี้ใช่หรือไม่?","ตกลง","ยกเลิก",
+				ConfirmDialog.show(UI.getCurrent(), "ลบบุคลากร","การลบข้อมูลจะส่งผลต่อข้อมูลประวัติการทำงาน และการสอนทั้งหมด คุณต้องการลบบุคลากรนี้ใช่หรือไม่?","ตกลง","ยกเลิก",
 			        new ConfirmDialog.Listener() {
 						private static final long serialVersionUID = 1L;
 						public void onClose(ConfirmDialog dialog) {
 			                if (dialog.isConfirmed()) {
-			                	if(sContainer.removeItem(itemId)){
+			                	if(pContainer.removeItem(itemId)){
 			                		try {
-			                			sContainer.commit();
-					                	fContainer.removeItem(new RowId(item.getItemProperty(RecruitStudentSchema.FATHER_ID).getValue()));
-					                	fContainer.commit();
-					                	fContainer.removeItem(new RowId(item.getItemProperty(RecruitStudentSchema.MOTHER_ID).getValue()));
-					                	fContainer.commit();
-					                	fContainer.removeItem(new RowId(item.getItemProperty(RecruitStudentSchema.GUARDIAN_ID).getValue()));
-					                	fContainer.commit();
-
-					                	setFooterData();
+			                			pContainer.commit();
+			                			setFooterData();
 									}catch (Exception e1) {
 										Notification.show("บันทึกไม่สำเร็จ กรุณาลองอีกครั้ง" , Type.WARNING_MESSAGE);
 										e1.printStackTrace();
 									}
-			                		
 			                	}
 			                }
 			            }
@@ -230,6 +205,6 @@ public class RecruitStudentListView  extends ContentPage{
 	
 	/*นำจำนวนที่นับ มาใส่ค่าในส่วนท้ายตาราง*/
 	private void setFooterData(){
-		table.setColumnFooter(RecruitStudentSchema.RECRUIT_CODE, "ทั้งหมด: "+ table.size() + " คน");
+		table.setColumnFooter(PersonnelSchema.PERSONEL_CODE, "ทั้งหมด: "+ table.size() + " คน");
 	}
 }

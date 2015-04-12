@@ -6,8 +6,8 @@ import java.util.Date;
 import com.ies.schoolos.component.recruit.layout.RecruitStudentLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.report.RecruitStudentReport;
-import com.ies.schoolos.schema.RecruitStudentSchema;
 import com.ies.schoolos.schema.SessionSchema;
+import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
 import com.ies.schoolos.schema.view.StatRecruitStudentCodeSchema;
 import com.ies.schoolos.utility.Notification;
 import com.vaadin.data.Item;
@@ -40,8 +40,8 @@ public class AddRecruitStudentView extends RecruitStudentLayout {
 	 * */
 	private ArrayList<Object> idStore = new ArrayList<Object>();
 	
-	public SQLContainer sSqlContainer = Container.getInstance().getRecruitStudentContainer();
-	public SQLContainer fSqlContainer = Container.getInstance().getRecruitFamilyContainer();
+	private SQLContainer sSqlContainer = Container.getInstance().getRecruitStudentContainer();
+	private SQLContainer fSqlContainer = Container.getInstance().getRecruitFamilyContainer();
 	
 	public AddRecruitStudentView() {
 		initAddRecruitStudent();
@@ -56,6 +56,9 @@ public class AddRecruitStudentView extends RecruitStudentLayout {
 	}
 	
 	private void initAddRecruitStudent(){
+		sSqlContainer.removeAllContainerFilters();
+		fSqlContainer.removeAllContainerFilters();
+		
 		setGParentsValueChange(gParensValueChange);
 		setFinishhClick(finishClick);
 		initSqlContainerRowIdChange();
