@@ -63,6 +63,9 @@ public class PersonnelLayout extends TabSheet {
 private static final long serialVersionUID = 1L;
 	
 	public boolean isInsertParents = true;
+	public boolean isDuplicateFather = false;
+	public boolean isDuplicateMother = false;
+	public boolean isDuplicateSpouse = false;
 	
 	/* ที่เก็บ Id Auto Increment เมื่อมีการ Commit SQLContainer 
 	 * 0 แทนถึง id บิดา
@@ -959,7 +962,7 @@ private static final long serialVersionUID = 1L;
 		});
 		buttonLayout.addComponents(workBack);
 		
-		fatherNext = new Button(FontAwesome.ARROW_RIGHT);
+		fatherNext = new Button(FontAwesome.SAVE);
 		fatherNext.setWidth("100%");
 		fatherNext.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 1L;
@@ -1015,15 +1018,18 @@ private static final long serialVersionUID = 1L;
 
 			@Override
 			public void textChange(TextChangeEvent event) {
-				if(fPeopleid.isValid()){
-					fSqlContainer.addContainerFilter(new Equal(FamilySchema.PEOPLE_ID,event.getText()));
-					if(fSqlContainer.size() > 0){
-						Item item = fSqlContainer.getItem(fSqlContainer.getIdByIndex(0));
-						fatherBinder.setItemDataSource(item);
-						idStore.add(item.getItemProperty(FamilySchema.FAMILY_ID).getValue());
-						fatherBinder.setEnabled(false);
+				if(event.getText() != null){
+					if(event.getText().length() >= 13){
+						fSqlContainer.addContainerFilter(new Equal(FamilySchema.PEOPLE_ID,event.getText()));
+						if(fSqlContainer.size() > 0){
+							Item item = fSqlContainer.getItem(fSqlContainer.getIdByIndex(0));
+							fatherBinder.setItemDataSource(item);
+							idStore.add(item.getItemProperty(FamilySchema.FAMILY_ID).getValue());
+							fatherBinder.setEnabled(false);
+							isDuplicateFather = true;
+						}
+						fSqlContainer.removeAllContainerFilters();
 					}
-					fSqlContainer.removeAllContainerFilters();
 				}
 			}
 		});
@@ -1156,7 +1162,6 @@ private static final long serialVersionUID = 1L;
 		fSalary.setWidth("-1px");
 		fSalary.setHeight("-1px");
 		fSalary.setNullRepresentation("");
-		//fSalary.addValidator(new DoubleRangeValidator("ข้อมูลไม่ถูกต้อง", 0.00, null));
 		fatherForm.addComponent(fSalary);
 		
 		fAliveStatus = new ComboBox("สถานภาพ",new AliveStatus());
@@ -1317,15 +1322,18 @@ private static final long serialVersionUID = 1L;
 
 			@Override
 			public void textChange(TextChangeEvent event) {
-				if(mPeopleid.isValid()){
-					fSqlContainer.addContainerFilter(new Equal(FamilySchema.PEOPLE_ID,event.getText()));
-					if(fSqlContainer.size() > 0){
-						Item item = fSqlContainer.getItem(fSqlContainer.getIdByIndex(0));
-						motherBinder.setItemDataSource(item);
-						idStore.add(item.getItemProperty(FamilySchema.FAMILY_ID).getValue());
-						motherBinder.setEnabled(false);
+				if(event.getText() != null){
+					if(event.getText().length() >= 13){
+						fSqlContainer.addContainerFilter(new Equal(FamilySchema.PEOPLE_ID,event.getText()));
+						if(fSqlContainer.size() > 0){
+							Item item = fSqlContainer.getItem(fSqlContainer.getIdByIndex(0));
+							motherBinder.setItemDataSource(item);
+							idStore.add(item.getItemProperty(FamilySchema.FAMILY_ID).getValue());
+							motherBinder.setEnabled(false);
+							isDuplicateMother = true;
+						}
+						fSqlContainer.removeAllContainerFilters();
 					}
-					fSqlContainer.removeAllContainerFilters();
 				}
 			}
 		});
@@ -1618,15 +1626,18 @@ private static final long serialVersionUID = 1L;
 
 			@Override
 			public void textChange(TextChangeEvent event) {
-				if(sPeopleid.isValid()){
-					fSqlContainer.addContainerFilter(new Equal(FamilySchema.PEOPLE_ID,event.getText()));
-					if(fSqlContainer.size() > 0){
-						Item item = fSqlContainer.getItem(fSqlContainer.getIdByIndex(0));
-						spouseBinder.setItemDataSource(item);
-						idStore.add(item.getItemProperty(FamilySchema.FAMILY_ID).getValue());
-						spouseBinder.setEnabled(false);
+				if(event.getText() != null){
+					if(event.getText().length() >= 13){
+						fSqlContainer.addContainerFilter(new Equal(FamilySchema.PEOPLE_ID,event.getText()));
+						if(fSqlContainer.size() > 0){
+							Item item = fSqlContainer.getItem(fSqlContainer.getIdByIndex(0));
+							spouseBinder.setItemDataSource(item);
+							idStore.add(item.getItemProperty(FamilySchema.FAMILY_ID).getValue());
+							spouseBinder.setEnabled(false);
+							isDuplicateSpouse = true;
+						}
+						fSqlContainer.removeAllContainerFilters();
 					}
-					fSqlContainer.removeAllContainerFilters();
 				}
 			}
 		});
@@ -1915,8 +1926,8 @@ private static final long serialVersionUID = 1L;
 		personnelBinder.bind(personnelCode, PersonnelSchema.PERSONEL_CODE);
 		personnelBinder.bind(personnelStatus, PersonnelSchema.PERSONEL_STATUS);
 		personnelBinder.bind(startWorkDate, PersonnelSchema.START_WORK_DATE);
-		personnelBinder.bind(jobPosition, PersonnelSchema.JOB_POSITION_ID);
-		personnelBinder.bind(department, PersonnelSchema.DEPARTMENT_ID);
+		personnelBinder.bind(jobPosition, PersonnelSchema.JOB_POSITION);
+		personnelBinder.bind(department, PersonnelSchema.DEPARTMENT);
 		personnelBinder.bind(employmentType, PersonnelSchema.EMPLOYMENT_TYPE);
 		personnelBinder.bind(bankName, PersonnelSchema.BANK_NAME);
 		personnelBinder.bind(bankAccountNumber, PersonnelSchema.BANK_ACCOUNT_NUMBER);
@@ -2281,24 +2292,30 @@ private static final long serialVersionUID = 1L;
 	public boolean validateForms(){
 		/* ตรวจสอบว่าต้องการใส่ข้อมูลบิดา มาร หรือไม่*/
 		if(isInsertParents){
-			System.err.println("sfasdfsfsdf");
 			/* ตรวจสอบว่าข้อมูลบิดา มารดา ครบถ้วนหรือไม่*/
-			if(fatherBinder.isValid() &&
-					motherBinder.isValid()){
+			if(fatherBinder.isValid() && motherBinder.isValid())
+				return true;
+			else{
+				/* ตรวจสอบว่าสถานภาพว่า สมรส หรือไม่ */
+				if(maritalStatus.equals("1")){
+					/* ตรวจสอบว่าข้อมูลคู่สมรส ครบถ้วนหรือไม่*/
+					if(spouseBinder.isValid())
+						return true;
+					else
+						return false;
+				}else{
+					return false;
+				}
+			}
+			
+		}else{
+			/* ตรวจสอบว่าข้อมูลบุคลากร ครบถ้วนหรือไม่*/
+			if(personnelBinder.isValid()){
+				System.err.println("personnel");
 				return true;
 			}
-			/* ตรวจสอบว่าสถานภาพว่า สมรส หรือไม่ */
-			if(maritalStatus.equals("1"))
-				/* ตรวจสอบว่าข้อมูลคู่สมรส ครบถ้วนหรือไม่*/
-				if(spouseBinder.isValid())
-					return true;
-			
-			
 		}
-		/* ตรวจสอบว่าข้อมูลบุคลากร ครบถ้วนหรือไม่*/
-		if(personnelBinder.isValid()){
-			return true;
-		}
+
 		return false;
 	}
 }

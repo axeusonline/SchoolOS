@@ -89,7 +89,6 @@ public class AddPersonnelView extends PersonnelLayout {
 						/* เพิ่มบิดา  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
 						if(!saveFormData(fSqlContainer, fatherBinder))
 							return;	
-
 						
 						/* เพิ่มมารดา  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
 						if(!saveFormData(fSqlContainer, motherBinder))
@@ -102,15 +101,13 @@ public class AddPersonnelView extends PersonnelLayout {
 							/* เพิ่มคู่สมรส  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
 							if(!saveFormData(fSqlContainer, spouseBinder))
 								return;
-
 						}
-
 					} catch (Exception e) {
 						Notification.show("บันทึกไม่สำเร็จ", Type.WARNING_MESSAGE);
 						e.printStackTrace();
 					}
 				}
-			
+				
 				/* เพิ่มบุคลากร หากบันทึกไม่ผ่านจะหยุดการทำงานทันที*/
 				if(!saveFormData(pSqlContainer, personnelBinder))
 					return;

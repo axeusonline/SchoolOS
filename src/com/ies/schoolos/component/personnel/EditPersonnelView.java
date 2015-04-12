@@ -2,11 +2,11 @@ package com.ies.schoolos.component.personnel;
 
 import java.util.Date;
 
-import com.ies.schoolos.component.recruit.layout.RecruitStudentLayout;
+import com.ies.schoolos.component.personnel.layout.PersonnelLayout;
 import com.ies.schoolos.container.Container;
-import com.ies.schoolos.report.RecruitStudentReport;
-import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
+import com.ies.schoolos.schema.info.PersonnelSchema;
 import com.ies.schoolos.utility.Notification;
+import com.ies.schoolos.utility.Utility;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -20,128 +20,85 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Field;
 
-public class EditPersonnelView extends RecruitStudentLayout {
+public class EditPersonnelView extends PersonnelLayout {
 	private static final long serialVersionUID = 1L;
 
-	private String gParentsStr = "";
+	private String maritalStr = "";
 	private boolean printMode = false;
-
-	private boolean isNewGuardian = false;
 	
 	private Object fatherId;
 	private Object motherId;
-	private Object guardianId;
-	private Object newGuardianId;
-	private Object studentId;
+	private Object spouseId;
+	private Object personnelId;
 	
-	private Item studentItem;
+	private Item personnelItem;
 	private Item fatherItem;
 	private Item motherItem;
-	private Item guardianItem;
+	private Item spouseItem;
 	
-	public SQLContainer sSqlContainer = Container.getInstance().getRecruitStudentContainer();
-	public SQLContainer fSqlContainer = Container.getInstance().getRecruitFamilyContainer();
+	public SQLContainer pSqlContainer = Container.getInstance().getPersonnelContainer();
+	public SQLContainer fSqlContainer = Container.getInstance().getFamilyContainer();
 	
-	public EditPersonnelView(Object studentId) {
-		this.studentId = studentId;
-		initEdtiRecruitStudent();
+	public EditPersonnelView(Object personnelId) {
+		this.personnelId = personnelId;
+		initEdtiPersonnel();
 	}
 	
-	public EditPersonnelView(Object studentId, boolean printMode) {
-		this.studentId = studentId;
+	public EditPersonnelView(Object personnelId, boolean printMode) {
+		this.personnelId = personnelId;
 		this.printMode = printMode;
-		initEdtiRecruitStudent();
+		initEdtiPersonnel();
 	}
 	
-	private void initEdtiRecruitStudent(){
-		setGParentsValueChange(gParensValueChange);
+	private void initEdtiPersonnel(){
+		setMaritalValueChange(maritalValueChange);
 		setFinishhClick(finishClick);
 		initEditData();
 		initSqlContainerRowIdChange();
 	}
 	
-	/* นำข้อมูลจาก studentId มาทำการกรอกในฟอร์มทั้งหมด */
+	/* นำข้อมูลจาก personnelId มาทำการกรอกในฟอร์มทั้งหมด */
 	private void initEditData(){
-		sSqlContainer.getItem(new RowId(studentId));
+		pSqlContainer.getItem(new RowId(personnelId));
+		personnelItem = pSqlContainer.getItem(new RowId(personnelId));
+		
+		fatherId = personnelItem.getItemProperty(PersonnelSchema.FATHER_ID).getValue();
+		motherId = personnelItem.getItemProperty(PersonnelSchema.MOTHER_ID).getValue();
+		spouseId = personnelItem.getItemProperty(PersonnelSchema.SPOUSE_ID).getValue();
+		
+		if(fatherId != null)
+			fatherItem = fSqlContainer.getItem(new RowId(fatherId));
+		if(motherId != null)
+			motherItem = fSqlContainer.getItem(new RowId(motherId));
+		if(spouseId != null)
+			spouseItem = fSqlContainer.getItem(new RowId(spouseId));	
 
-		studentItem = sSqlContainer.getItem(new RowId(studentId));
-		
-		fatherId = studentItem.getItemProperty(RecruitStudentSchema.FATHER_ID).getValue();
-		motherId = studentItem.getItemProperty(RecruitStudentSchema.MOTHER_ID).getValue();
-		guardianId = studentItem.getItemProperty(RecruitStudentSchema.GUARDIAN_ID).getValue();
-		
-		fatherItem = fSqlContainer.getItem(new RowId(fatherId));
-		motherItem = fSqlContainer.getItem(new RowId(motherId));
-		guardianItem = fSqlContainer.getItem(new RowId(guardianId));	
-		
 		fatherBinder.setItemDataSource(fatherItem);
 		motherBinder.setItemDataSource(motherItem);
-		guardianBinder.setItemDataSource(guardianItem);
-		studentBinder.setItemDataSource(studentItem);
-		
-		/*ตรวจความสัมพันธ์ของผู้ปกครอง
-		 *  กรณี เป็น "บิดา/มารดา (0)"
-		 *  กรณี เป็น "อื่น ๆ " 
-		 * */				
-		int gRelation = Integer.parseInt(studentItem.getItemProperty(RecruitStudentSchema.GUARDIAN_RELATION).getValue().toString());
-		if(gRelation == 0){
-			/*ตรวจสอบ PK ของผู้ปกครองว่าเป็น บิดา หรือ มารดา
-			 *  กรณี เป็น "บิดา (0)"
-			 *  กรณี เป็น "มารดา (1)" 
-			 * */	
-			if(guardianId.equals(fatherId)){
-				setGParentsValue(0);
-			}else if(guardianId.equals(motherId)){
-				setGParentsValue(1);
-			}
-		}else{
-			setGParentsValue(2);
-		}
+		spouseBinder.setItemDataSource(spouseItem);
+		personnelBinder.setItemDataSource(personnelItem);
 	}
-	
-	/* Event บุคคล ที่ถูกเลือกเป็น ผู้ปกครอง */
-	private ValueChangeListener gParensValueChange = new ValueChangeListener() {
+
+	/* Event บุคคล ที่ถูกเลือกเป็น คู่สมรส */
+	private ValueChangeListener maritalValueChange = new ValueChangeListener() {
 		private static final long serialVersionUID = 1L;
 
 		@Override
 		public void valueChange(ValueChangeEvent event) {
 			if(event.getProperty().getValue() != null){
-				gParentsStr = event.getProperty().getValue().toString();
+				enableSpouseBinder();
+				maritalStr = event.getProperty().getValue().toString();
 
-				/*กำหนดข้อมูลตามความสัมพันธ์ของผู้ปกครอง
-				 * กรณี เลือกเป็น "บิดา (0)" ข้อมูลบิดาจะถูกนำมาตั้งค่าภายในฟอร์ม
-				 * กรณี เลือกเป็น "มารดา (1)" ข้อมูลมารดาจะถูกนำมาตั้งค่าภายในฟอร์ม
-				 * กรณี เลือกเป็น "อื่น ๆ (2)" ข้อมูลผู้ปกครองจะอนุญาติให้พิมพ์เอง
+				/*กำหนดข้อมูลตามความสัมพันธ์ของคู่สมรส
+				 * กรณี เลือกเป็น "โสด (0)" ข้อมูลคู่สมรสจะถูกปิดไม่ให้เพิ่ม
+				 * กรณี เลือกเป็น "สมรส (1)" ข้อมูลสมรสจะถูกเปิดเพื่อทำการกรอกในฟอร์ม
 				 * */
-				if(gParentsStr.equals("0")){
-					newGuardianId = fatherId;
-					guardianBinder.setItemDataSource(fatherItem);
-					/* ตั้งค่าความสัมพันธืของผู้ปกครอง เป็น "บิดา/มารดา" */
-					setGuardianRelationValue(0);
-					disableGuardianBinder();
-				}else if(gParentsStr.equals("1")){
-					newGuardianId = motherId;
-					guardianBinder.setItemDataSource(motherItem);
-					/* ตั้งค่าความสัมพันธืของผู้ปกครอง เป็น "บิดา/มารดา" */
-					setGuardianRelationValue(0);
-					disableGuardianBinder();
-				}else if(gParentsStr.equals("2")){
-					newGuardianId = guardianId;
-					enableGuardianBinder();
-					/*
-					 * ตรวจสอบ guardianId เดิมว่า ใครเป็นผู้ปกครอง
-					 *  กรณีเดิมเป็นบิดา หรือ มาดา แสดงถึงการเพิ่มข้อมูลใหม่ ก็จะทำการตั้งสถานะเป็น เพิ่มผู้ปกครองใหม่
-					 *  กรณีเดิ่มเป็นอื่น ๆ ก็จะทำการแทนค่าเดิมกลับมา
-					 * */
-					if(guardianId.equals(fatherId) || guardianId.equals(motherId)){
-						isNewGuardian = true;
-					}else{
-						isNewGuardian = false;
-						guardianBinder.setItemDataSource(guardianItem);
-					}
-					resetGuardian();
+				if(maritalStr.equals("0")){
+					resetSpouse();
+					disableSpouseBinder();
+				}else if(maritalStr.equals("1") && spouseId == null){
+					resetSpouse();
 				}
-				setNewGuardianId();
 			}
 		}
 	};
@@ -152,37 +109,55 @@ public class EditPersonnelView extends RecruitStudentLayout {
 
 		@Override
 		public void buttonClick(ClickEvent event) {
+			/* ตรวจสอบความครบถ้วนของข้อมูล*/
 			if(!validateForms()){
 				Notification.show("กรุณากรอกข้อมูลให้ครบถ้วน", Type.WARNING_MESSAGE);
 				return;
 			}
-		
+						
 			try {
-				/* เพิ่มบิดา  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
-				fatherBinder.commit();
-				fSqlContainer.commit();
+				/* ตรวจสอบว่า อยู่สถานะการเพิ่มข้อมูลใหม่ บิดา มารดา หรือไม่? 
+				 *  ถ้าใช่ ก็บันทึกข้อมูลใหม่
+				 *  ถ้าไม่ ก็อัพเดทข้อมูลเดิม */
+				if(isInsertParents){
+					/* เพิ่มบิดา โดยตรวจสอบว่าบิดาดังกล่าวไม่ซ้ำ และถูกบันทึกข้อมูลใหม่  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
+					if(!isDuplicateFather && !saveFormData(fSqlContainer, fatherBinder))
+						return;	
 					
-				/* เพิ่มมารดา  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
-				motherBinder.commit();
-				fSqlContainer.commit();
-				
-				/* ตรวจสอบว่าเป็นการเพิ่มผู้ปกครองใหม่หรือแก้ไขจากข้อมูลเดิม */
-				if(isNewGuardian){
-					if(!saveFormData(fSqlContainer, guardianBinder))
+					/* เพิ่มมารดา  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
+					if(!isDuplicateMother && !saveFormData(fSqlContainer, motherBinder))
 						return;
+					
+					setFatherIdToPersonnelForm();
+					setMotherIdToPersonnelForm();
 				}else{
-					guardianBinder.commit();
+					/* เพิ่มบิดา  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
+					fatherBinder.commit();
+					fSqlContainer.commit();
+						
+					/* เพิ่มมารดา  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
+					motherBinder.commit();
 					fSqlContainer.commit();
 				}
-									
+				
+				/* ตรวจสอบว่าเป็นการเพิ่มคู่สมรสใหม่หรือแก้ไขจากข้อมูลเดิม */
+				if(maritalStr.equals("1") && spouseId == null){
+					if(!isDuplicateSpouse && !saveFormData(fSqlContainer, spouseBinder))
+						return;
+					setSpouseIdToPersonnelForm();
+				}else{
+					spouseBinder.commit();
+					fSqlContainer.commit();
+				}
+				
 				/* เพิ่มนักเรียน หากบันทึกไม่ผ่านจะหยุดการทำงานทันที*/					
-				studentBinder.commit();
-				sSqlContainer.commit();
+				personnelBinder.commit();
+				pSqlContainer.commit();
 				
 				/* ตรวจสอบสถานะการพิมพ์*/
 				if(printMode){
-					visiblePrintButton();
-					new RecruitStudentReport(Integer.parseInt(studentId.toString()));
+					//visiblePrintButton();
+					//new PersonnelReport(Integer.parseInt(personnelId.toString()));
 				}
 				
 				Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
@@ -196,14 +171,13 @@ public class EditPersonnelView extends RecruitStudentLayout {
 	
 	/* กำหนดค่า PK Auto Increment หลังการบันทึก */
 	private void initSqlContainerRowIdChange(){		
-		/* บิดา แม่ ผู้ปกครอง */
+		/* บิดา แม่ คู่สมรส */
 		fSqlContainer.addRowIdChangeListener(new RowIdChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void rowIdChange(RowIdChangeEvent arg0) {
-				newGuardianId = arg0.getNewRowId();
-				setNewGuardianId();
+				idStore.add(arg0.getNewRowId());
 			}
 		});
 	}
@@ -233,7 +207,10 @@ public class EditPersonnelView extends RecruitStudentLayout {
 					className = Date.class.getName();
 					value = fieldGroup.getField(fieldGroup.getPropertyId(field)).getValue();
 				}else if(clazz == Double.class && fieldGroup.getField(fieldGroup.getPropertyId(field)).getValue() != null){
-					value = Double.parseDouble(fieldGroup.getField(fieldGroup.getPropertyId(field)).getValue().toString());
+					if(Utility.isInteger(fieldGroup.getField(fieldGroup.getPropertyId(field)).getValue()))
+						value = Double.parseDouble(fieldGroup.getField(fieldGroup.getPropertyId(field)).getValue().toString());
+					else
+						value = 0.0;
 				}else if(clazz == Integer.class && fieldGroup.getField(fieldGroup.getPropertyId(field)).getValue() != null){
 					value = Integer.parseInt(fieldGroup.getField(fieldGroup.getPropertyId(field)).getValue().toString());
 				}else{
@@ -252,8 +229,20 @@ public class EditPersonnelView extends RecruitStudentLayout {
 		}
 	}
 	
+	
+	
 	@SuppressWarnings("unchecked")
-	private void setNewGuardianId(){
-		studentItem.getItemProperty(RecruitStudentSchema.GUARDIAN_ID).setValue(Integer.parseInt(newGuardianId.toString()));
+	private void setFatherIdToPersonnelForm(){
+		personnelItem.getItemProperty(PersonnelSchema.FATHER_ID).setValue(Integer.parseInt(idStore.get(0).toString()));
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void setMotherIdToPersonnelForm(){
+		personnelItem.getItemProperty(PersonnelSchema.MOTHER_ID).setValue(Integer.parseInt(idStore.get(1).toString()));
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void setSpouseIdToPersonnelForm(){
+		personnelItem.getItemProperty(PersonnelSchema.SPOUSE_ID).setValue(Integer.parseInt(idStore.get(2).toString()));
 	}
 }

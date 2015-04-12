@@ -16,6 +16,7 @@ import com.vaadin.data.Item;
 import com.vaadin.data.util.filter.Compare.Equal;
 import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
+import com.vaadin.data.util.sqlcontainer.TemporaryRowId;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -144,14 +145,14 @@ public class RecruitStudentListView  extends ContentPage{
 				public Object generateCell(CustomTable source, Object itemId, Object columnId) {
 					Item item = source.getItem(itemId);
 					Object value = null;
-					
-					if(RecruitStudentSchema.CLASS_RANGE.equals(propertyId))
-						value = ClassRange.getNameTh(Integer.parseInt(item.getItemProperty(propertyId).getValue().toString()));
-					else if(RecruitStudentSchema.PRENAME.equals(propertyId))
-						value = Prename.getNameTh(Integer.parseInt(item.getItemProperty(propertyId).getValue().toString()));
-					else if("".equals(propertyId))
-						value = initButtonLayout(item, itemId);
-					
+					if(item != null && itemId.getClass() != TemporaryRowId.class){
+						if(RecruitStudentSchema.CLASS_RANGE.equals(propertyId))
+							value = ClassRange.getNameTh(Integer.parseInt(item.getItemProperty(propertyId).getValue().toString()));
+						else if(RecruitStudentSchema.PRENAME.equals(propertyId))
+							value = Prename.getNameTh(Integer.parseInt(item.getItemProperty(propertyId).getValue().toString()));
+						else if("".equals(propertyId))
+							value = initButtonLayout(item, itemId);
+					}
 					return value;
 				}
 			});

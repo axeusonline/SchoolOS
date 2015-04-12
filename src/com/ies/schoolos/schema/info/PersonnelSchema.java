@@ -30,8 +30,8 @@ public class PersonnelSchema implements java.io.Serializable{
 	public static final String WEIGHT = "weight";
 	public static final String CONGENITAL_DISEASE = "congenital_disease";
 	public static final String PERSONEL_STATUS = "personnel_status";
-	public static final String JOB_POSITION_ID = "job_position";
-	public static final String DEPARTMENT_ID = "department";
+	public static final String JOB_POSITION = "job_position";
+	public static final String DEPARTMENT = "department";
 	public static final String TEL = "tel";
 	public static final String MOBILE = "mobile";
 	public static final String EMAIL = "email";

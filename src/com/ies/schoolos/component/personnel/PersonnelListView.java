@@ -9,12 +9,14 @@ import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.info.PersonnelSchema;
+import com.ies.schoolos.type.JobPosition;
 import com.ies.schoolos.type.Prename;
 import com.ies.schoolos.utility.Notification;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.filter.And;
 import com.vaadin.data.util.filter.Compare.Equal;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
+import com.vaadin.data.util.sqlcontainer.TemporaryRowId;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -35,7 +37,6 @@ public class PersonnelListView  extends ContentPage{
 	
 	private SQLContainer pContainer = Container.getInstance().getPersonnelContainer();
 	private SQLContainer fContainer = Container.getInstance().getFamilyContainer();
-	private SQLContainer bContainer = Container.getInstance().getBuildingContainer();
 	
 	private HorizontalLayout toolbar;
 	private Button add;	
@@ -46,7 +47,6 @@ public class PersonnelListView  extends ContentPage{
 
 		pContainer.refresh();
 		fContainer.refresh();
-		bContainer.refresh();
 		
 		pContainer.removeAllContainerFilters();
 		pContainer.addContainerFilter(new And(
@@ -120,16 +120,16 @@ public class PersonnelListView  extends ContentPage{
 		table.setColumnHeader(PersonnelSchema.PRENAME, "ชื่อต้น");
 		table.setColumnHeader(PersonnelSchema.FIRSTNAME, "ชื่อ");
 		table.setColumnHeader(PersonnelSchema.LASTNAME, "สกุล");
-		table.setColumnHeader(PersonnelSchema.JOB_POSITION_ID, "ตำแหน่ง");
+		table.setColumnHeader(PersonnelSchema.JOB_POSITION, "ตำแหน่ง");
 		
 		table.setVisibleColumns(
 				PersonnelSchema.PERSONEL_CODE, 
 				PersonnelSchema.PRENAME,
 				PersonnelSchema.FIRSTNAME, 
 				PersonnelSchema.LASTNAME,
-				PersonnelSchema.JOB_POSITION_ID);
+				PersonnelSchema.JOB_POSITION);
 		
-		setColumnGenerator(PersonnelSchema.PRENAME, PersonnelSchema.JOB_POSITION_ID, "");
+		setColumnGenerator(PersonnelSchema.PRENAME, PersonnelSchema.JOB_POSITION, "");
 	}
 	
 	/* ตั้งค่ารูปแบบข้อมูลของค่า Fix */
@@ -140,14 +140,16 @@ public class PersonnelListView  extends ContentPage{
 
 				@Override
 				public Object generateCell(CustomTable source, Object itemId, Object columnId) {
-					Item item = source.getItem(itemId);
 					Object value = null;
-					
-					if(PersonnelSchema.PRENAME.equals(propertyId))
-						value = Prename.getNameTh(Integer.parseInt(item.getItemProperty(propertyId).getValue().toString()));
-					else if("".equals(propertyId))
-						value = initButtonLayout(item, itemId);
-					
+					Item item = source.getItem(itemId);
+					if(item != null && itemId.getClass() != TemporaryRowId.class){
+						if(PersonnelSchema.PRENAME.equals(propertyId))
+							value = Prename.getNameTh(Integer.parseInt(item.getItemProperty(propertyId).getValue().toString()));
+						else if(PersonnelSchema.JOB_POSITION.equals(propertyId))
+							value = JobPosition.getNameTh(Integer.parseInt(item.getItemProperty(propertyId).getValue().toString()));
+						else if("".equals(propertyId))
+							value = initButtonLayout(item, itemId);
+					}
 					return value;
 				}
 			});
@@ -166,7 +168,7 @@ public class PersonnelListView  extends ContentPage{
 				
 				Window editLayout = new Window();
 				editLayout.setSizeFull();
-				//editLayout.setContent(new EditPersonnelView(item.getItemProperty(PersonnelSchema.STUDENT_ID).getValue()));
+				editLayout.setContent(new EditPersonnelView(item.getItemProperty(PersonnelSchema.PERSONEL_ID).getValue()));
 				UI.getCurrent().addWindow(editLayout);
 			}
 		});

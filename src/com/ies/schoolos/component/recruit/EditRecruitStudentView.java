@@ -141,7 +141,7 @@ public class EditRecruitStudentView extends RecruitStudentLayout {
 					}
 					resetGuardian();
 				}
-				setNewGuardianId();
+				setNewGuardianIdToStudentForm();
 			}
 		}
 	};
@@ -203,7 +203,7 @@ public class EditRecruitStudentView extends RecruitStudentLayout {
 			@Override
 			public void rowIdChange(RowIdChangeEvent arg0) {
 				newGuardianId = arg0.getNewRowId();
-				setNewGuardianId();
+				setNewGuardianIdToStudentForm();
 			}
 		});
 	}
@@ -253,7 +253,7 @@ public class EditRecruitStudentView extends RecruitStudentLayout {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void setNewGuardianId(){
+	private void setNewGuardianIdToStudentForm(){
 		studentItem.getItemProperty(RecruitStudentSchema.GUARDIAN_ID).setValue(Integer.parseInt(newGuardianId.toString()));
 	}
 }
