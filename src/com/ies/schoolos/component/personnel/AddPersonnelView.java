@@ -160,8 +160,8 @@ public class AddPersonnelView extends PersonnelLayout {
 			Item item = sqlContainer.getItem(tmpItem);
 			for(Field<?> field: fieldGroup.getFields()){
 				/* หาชนิดตัวแปร ของข้อมูลภายใน Database ของแต่ละ Field */
-				Class<?> clazz = item.getItemProperty(fieldGroup.getPropertyId(field)).getType();				
-				System.err.println(fieldGroup.getPropertyId(field));
+				Class<?> clazz = item.getItemProperty(fieldGroup.getPropertyId(field)).getType();			
+
 				String className = clazz.getName();;
 				Object value = null;
 				if(fieldGroup.getField(fieldGroup.getPropertyId(field)).getValue() != null && 

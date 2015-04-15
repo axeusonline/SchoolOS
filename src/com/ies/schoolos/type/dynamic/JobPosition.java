@@ -1,4 +1,4 @@
-package com.ies.schoolos.type;
+package com.ies.schoolos.type.dynamic;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;

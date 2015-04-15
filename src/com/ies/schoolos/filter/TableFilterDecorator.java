@@ -136,7 +136,7 @@ public class TableFilterDecorator implements FilterDecorator {
     @Override
     public Locale getLocale() {
         // TODO Auto-generated method stub
-        return null;
+        return new Locale("th", "TH");
     }
 
     @Override

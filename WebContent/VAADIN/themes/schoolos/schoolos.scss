@@ -11,7 +11,7 @@
 
 // Affects the color of some component elements, e.g Button, Panel title, etc
 //$v-background-color: hsl(210, 0%, 98%);
-// Affects the color of content areas, e.g  Panel and Window content, TextField input etc
+// Affects the color of content areas, e.g	Panel and Window content, TextField input etc
 //$v-app-background-color: $v-background-color;
 
 // Affects the visual appearance of all components
@@ -30,17 +30,20 @@
 @import "../valo/valo.scss";
 
 @mixin schoolos {
-  @include valo;
-  @include v-font("Blenda Script", '../../schoolos/fonts/Blenda Script.otf');
-  @include v-font("HelveticaLTStd-Blk", '../../schoolos/fonts/HelveticaLTStd-Blk.otf');
-  
-  // Insert your own theme rules here
-  //**********************************
-  	// NAVIGATION LOGIN
-  	//**********************************
-  	.nav-bar-login{
-  		background:rgb(60,141,188);
-  		.branding{
+	@include valo;
+	@include v-font("Blenda Script", '../../schoolos/fonts/Blenda Script.otf');
+	@include v-font("HelveticaLTStd-Blk", '../../schoolos/fonts/HelveticaLTStd-Blk.otf');
+	
+	// Insert your own theme rules here
+	.schoolos .v-tabsheet-tabitemcell .v-tabsheet-tabitem{
+		background:rgb(255,255,255);
+	}
+	//**********************************
+	// NAVIGATION LOGIN
+	//**********************************
+	.nav-bar-login{
+		background:rgb(60,141,188);
+		.branding{
 			color:rgb(255,255,255);
 			font-size:36px;
 			font-family: "Blenda Script";
@@ -60,7 +63,7 @@
 			font-weight:bold;
 			text-align:center;
 		}
-  	}
+	}
 	//**********************************
 	// LOGIN PAGE
 	//********************************** 
@@ -76,12 +79,12 @@
 			background-color: #ffffff;
 			box-shadow:none;
 			border:none;
-		    opacity: 0.9;
+				opacity: 0.9;
 		}
 		.content-form{
 			width:100%;
 			margin-left: auto;
-    		margin-right: auto;
+			margin-right: auto;
 		}
 		.login-box{
 			height:160px;
@@ -108,7 +111,7 @@
 	// MAIN MENU
 	//********************************** 
 	.header{
-  		background:rgb(60,141,188);
+		background:rgb(60,141,188);
 		.branding{
 			color:rgb(255,255,255);
 			font-size:36px;
@@ -132,19 +135,69 @@
 			text-align:center;
 			margin:5px;
 		}
-  	}
+	}
 	.menu-tree{
 		background:rgb(34,45,50);
 		color:rgb(255,255,255);
 		font-weight:bold;
 	}
+	.v-splitpanel-horizontal > div > .v-splitpanel-first-container{
+		background:rgb(34,45,50);
+		.menu-left-panel{
+			background:rgb(34,45,50);
+			border:0px;
+			.menu-box-blue, .menu-box-green, .menu-box-red{
+				background:rgb(255,255,255);
+				border: 2px solid;
+				border-radius: 5px;
+				.v-button{
+					background:rgb(255,255,255);
+					color:rgb(0,162,232);
+					box-shadow:none;
+					border: 0px;
+					border-radius:5px;
+					font-weight:bold;
+					text-align:left;
+				}
+			}
+			
+		}
+	}
+	.v-caption-menu-box-blue, .v-caption-menu-box-green, .v-caption-menu-box-red{
+		border: 0px;
+		border-radius: 5px;
+		color:rgb(255,255,255);
+		text-align:center;
+		font-size:16px;
+		font-weight:bold;
+	}
+	.v-caption-menu-box-blue{
+		background:rgb(6,168,251);
+	}
+	
+	.v-caption-menu-box-green{
+		background:rgb(141,202,69);
+	}
+	
+	.v-caption-menu-box-red{
+		background:rgb(237,57,55);
+	}
 	
 	//**********************************
 	// CONTENT
 	//********************************** 
+	.heart-red{
+		color:rgb(255,255,255);
+		text-align:center;
+		font-weight:bold;
+		font-size:24px;
+		.v-icon{
+			color:rgb(237,57,55);
+		}
+	}
+	
 	.right-layout{
 		background:rgb(233,234,237);
-		
 	}
 	.menu-content{
 		background:rgb(233,234,237);
@@ -154,7 +207,8 @@
 	}
 	.border-white{
 		background:rgb(255,255,255);
-		padding-left: 20px;
+		//padding-left:20px;
+		border-radius:15px;
 	}
 	.content-title{
 		font-size:18px;

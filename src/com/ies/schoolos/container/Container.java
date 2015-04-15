@@ -8,8 +8,11 @@ import com.ies.schoolos.schema.DistrictSchema;
 import com.ies.schoolos.schema.PostcodeSchema;
 import com.ies.schoolos.schema.ProvinceSchema;
 import com.ies.schoolos.schema.SchoolSchema;
+import com.ies.schoolos.schema.academic.LessonPlanSchema;
+import com.ies.schoolos.schema.academic.LessonPlanSubjectSchema;
 import com.ies.schoolos.schema.fundamental.BuildingSchema;
 import com.ies.schoolos.schema.fundamental.ClassRoomSchema;
+import com.ies.schoolos.schema.fundamental.SubjectSchema;
 import com.ies.schoolos.schema.info.FamilySchema;
 import com.ies.schoolos.schema.info.PersonnelGraduatedHistory;
 import com.ies.schoolos.schema.info.PersonnelSchema;
@@ -59,8 +62,14 @@ public class Container implements Serializable {
 	private SQLContainer studentClassRoomContainer;
 	//ใช้สำหรับ Query บุคลากร
 	private SQLContainer personnelContainer;
-	//ใช้สำหรับ Query ข้อมูลการจบการศึกษา
+	//ใช้สำหรับ Query ข้อมูลประวัติการศึกษา
 	private SQLContainer personnelGraduatedHistoryContainer;
+	//ใช้สำหรับ Query ข้อมูลรายวิชา
+	private SQLContainer subjectContainer;
+	//ใช้สำหรับ Query ข้อมูลแผนการเรียน
+	private SQLContainer lessonPlanContainer;
+	//ใช้สำหรับ Query ข้อมูลรายวิชาในแผนการเรียน
+	private SQLContainer lessonPlanSubjectContainer;
 	
 	public static Container getInstance(){ 
 		if(container == null)
@@ -130,10 +139,23 @@ public class Container implements Serializable {
             TableQuery qPersonnel = new TableQuery(PersonnelSchema.TABLE_NAME, DbConnection.getConnection());
         	personnelContainer = new SQLContainer(qPersonnel); 
         	
-        	 /* TableQuery และ SQLContainer สำหรับตาราง ข้อมูลการศึกษา */
+        	 /* TableQuery และ SQLContainer สำหรับตาราง ข้อมูลประวัติการศึกษา */
             TableQuery qPersonnelGraduatedHistory = new TableQuery(PersonnelGraduatedHistory.TABLE_NAME, DbConnection.getConnection());
         	personnelGraduatedHistoryContainer = new SQLContainer(qPersonnelGraduatedHistory); 
-
+        	
+        	/* TableQuery และ SQLContainer สำหรับตาราง ข้อมูลรายวิชา */
+        	TableQuery qSubject = new TableQuery(SubjectSchema.TABLE_NAME, DbConnection.getConnection());
+        	subjectContainer = new SQLContainer(qSubject); 
+        	
+        	/* TableQuery และ SQLContainer สำหรับตาราง ข้อมูลแผนการเรียน */
+        	TableQuery qLessonPlan = new TableQuery(LessonPlanSchema.TABLE_NAME, DbConnection.getConnection());
+        	lessonPlanContainer = new SQLContainer(qLessonPlan); 
+        	
+        	/* TableQuery และ SQLContainer สำหรับตาราง ข้อมูลรายวิชาในแผนการเรียน */
+        	TableQuery qLessonPlanSubject = new TableQuery(LessonPlanSubjectSchema.TABLE_NAME, DbConnection.getConnection());
+        	lessonPlanSubjectContainer = new SQLContainer(qLessonPlanSubject);
+        	
+        	
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -215,4 +237,17 @@ public class Container implements Serializable {
 	public SQLContainer getPersonnelGraduatedHistoryContainer() {
 		return personnelGraduatedHistoryContainer;
 	}
+	
+	public SQLContainer getSubjectContainer() {
+		return subjectContainer;
+	}
+	
+	public SQLContainer getLessonPlanContainer() {
+		return lessonPlanContainer;
+	}
+	
+	public SQLContainer getLessonPlanSubjectContainer() {
+		return lessonPlanSubjectContainer;
+	}
+	
 }

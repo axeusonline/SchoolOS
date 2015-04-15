@@ -1,38 +1,50 @@
 package com.ies.schoolos.component.recruit;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.tepi.filtertable.FilterTable;
 import org.vaadin.dialogs.ConfirmDialog;
+import org.vaadin.haijian.ExcelExporter;
 
-import com.ies.schoolos.component.ui.ContentPage;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
 import com.ies.schoolos.report.RecruitStudentReport;
+import com.ies.schoolos.report.excel.RecruitStudentToExcel;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
 import com.ies.schoolos.type.ClassRange;
+import com.ies.schoolos.type.Gender;
 import com.ies.schoolos.type.Prename;
+import com.ies.schoolos.utility.DateTimeUtil;
 import com.vaadin.data.Item;
+import com.vaadin.data.util.filter.And;
 import com.vaadin.data.util.filter.Compare.Equal;
+import com.vaadin.data.util.filter.Compare.Greater;
+import com.vaadin.data.util.filter.Compare.Less;
 import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.util.sqlcontainer.TemporaryRowId;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CustomTable;
 import com.vaadin.ui.CustomTable.ColumnGenerator;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseListener;
 
-public class RecruitStudentListView  extends ContentPage{
+public class RecruitStudentListView extends VerticalLayout{
 
 	private static final long serialVersionUID = 1L;
 	
@@ -40,21 +52,29 @@ public class RecruitStudentListView  extends ContentPage{
 	private SQLContainer fContainer = Container.getInstance().getRecruitFamilyContainer();
 	private SQLContainer bContainer = Container.getInstance().getBuildingContainer();
 	
+	private HashMap<Object, HashMap<Object, Object>> summarizes = new HashMap<Object, HashMap<Object, Object>>();
+	
+	
 	private HorizontalLayout toolbar;
 	private Button add;	
 	private FilterTable  table;
+	private Label summarize;
 	
-	public RecruitStudentListView() {	
-		super("รายชื่อผู้สมัครเรียน");
-		
+	public RecruitStudentListView() {			
 		sContainer.refresh();
 		fContainer.refresh();
 		bContainer.refresh();
 		
 		sContainer.removeAllContainerFilters();
-		sContainer.addContainerFilter(new Equal(RecruitStudentSchema.SCHOOL_ID,UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)));
+		sContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.SCHOOL_ID,UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
+				new Greater(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getFirstDateOfYear()),
+				new Less(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getLastDateOfYear())));
+		
+		setSpacing(true);
+		setMargin(true);
 		
 		buildMainLayout();
+		setSummarize();
 	}	
 	
 	private void buildMainLayout(){
@@ -77,7 +97,10 @@ public class RecruitStudentListView  extends ContentPage{
 
 					@Override
 					public void windowClose(CloseEvent e) {
-						sContainer.addContainerFilter(new Equal(RecruitStudentSchema.SCHOOL_ID,UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)));
+						sContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.SCHOOL_ID,UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
+								new Greater(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getFirstDateOfYear()),
+								new Less(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getLastDateOfYear())));
+						setSummarize();
 						setFooterData();
 					}
 				});
@@ -86,14 +109,18 @@ public class RecruitStudentListView  extends ContentPage{
 		});
 		toolbar.addComponent(add);
 		
-		/*ExcelExporter excelExporter = new ExcelExporter(new RecruitStudentToExcel());
+		ExcelExporter excelExporter = new ExcelExporter(new RecruitStudentToExcel());
 		excelExporter.setIcon(FontAwesome.FILE_EXCEL_O);
 		excelExporter.setCaption("ส่งออกไฟล์ Excel");
-		toolbar.addComponent(excelExporter);*/
+		toolbar.addComponent(excelExporter);
 		
 		/* Content */
+		HorizontalLayout studentsLayout = new HorizontalLayout();
+		studentsLayout.setWidth("100%");
+		addComponent(studentsLayout);
+        setExpandRatio(studentsLayout, 1);
+        
 		table = new FilterTable();
-		table.setSizeFull();
 		table.setSelectable(true);
 		table.setFooterVisible(true);        
 		
@@ -107,9 +134,15 @@ public class RecruitStudentListView  extends ContentPage{
 
 		table.setColumnReorderingAllowed(true);
 		table.setColumnCollapsingAllowed(true);
-
-		addComponent(table);
-        setExpandRatio(table, 1);
+		studentsLayout.addComponent(table);
+		studentsLayout.setExpandRatio(table, 4);
+		
+		summarize = new Label();
+        summarize.setWidth("100%");
+        summarize.setContentMode(ContentMode.HTML);
+        studentsLayout.addComponent(summarize);
+        studentsLayout.setExpandRatio(summarize, 1);
+		
 	}
 	
 	/* ตั้งค่ารูปแบบแสดงของตาราง */
@@ -161,6 +194,7 @@ public class RecruitStudentListView  extends ContentPage{
 	
 	private HorizontalLayout initButtonLayout(final Item item, final Object itemId){
 		final HorizontalLayout buttonLayout = new HorizontalLayout();
+		buttonLayout.setSpacing(true);
 		
 		Button	print = new Button("พิมพ์ใบสมัคร",FontAwesome.PRINT);
 		print.setWidth("100%");
@@ -232,5 +266,58 @@ public class RecruitStudentListView  extends ContentPage{
 	/*นำจำนวนที่นับ มาใส่ค่าในส่วนท้ายตาราง*/
 	private void setFooterData(){
 		table.setColumnFooter(RecruitStudentSchema.RECRUIT_CODE, "ทั้งหมด: "+ table.size() + " คน");
+	}
+	
+	private void setSummarize(){
+		
+		summarizes.clear();
+		
+		/*SELECT gender , COUNT(class_range) AS class_range 
+		FROM recruit_student 
+		WHERE school_id = 9 GROUP BY class_range,gender ORDER BY class_range ASC;*/
+		StringBuilder builder = new StringBuilder();
+		builder.append(" SELECT " + RecruitStudentSchema.STUDENT_ID + "," + RecruitStudentSchema.GENDER + "," + RecruitStudentSchema.CLASS_RANGE + ", COUNT("+RecruitStudentSchema.CLASS_RANGE+") AS sum");
+		builder.append(" FROM " + RecruitStudentSchema.TABLE_NAME);
+		builder.append(" WHERE " + RecruitStudentSchema.SCHOOL_ID + "=" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+		builder.append(" GROUP BY " +  RecruitStudentSchema.CLASS_RANGE + "," + RecruitStudentSchema.GENDER);
+		builder.append(" ORDER BY " +  RecruitStudentSchema.CLASS_RANGE + " ASC");
+
+		SQLContainer freeCon = Container.getInstance().getFreeFormContainer(builder.toString(), RecruitStudentSchema.STUDENT_ID);
+		
+		HashMap<Object, Object> genderMap = null;
+		StringBuilder sumStr = new StringBuilder();
+		int currentClassRange = -1;
+		for (Object itemId:freeCon.getItemIds()) {
+			Item item = freeCon.getItem(itemId);
+			
+			int classRange = Integer.parseInt(item.getItemProperty(RecruitStudentSchema.CLASS_RANGE).getValue().toString());
+			int gender = Integer.parseInt(item.getItemProperty(RecruitStudentSchema.GENDER).getValue().toString());
+			int sum = Integer.parseInt(item.getItemProperty("sum").getValue().toString());
+			
+			if(currentClassRange < classRange){
+				genderMap = new HashMap<Object, Object>();
+				currentClassRange = classRange;
+				summarizes.put(classRange, genderMap);
+			}
+
+			genderMap.put(gender, sum);
+			
+		}
+		
+		for ( Map.Entry<Object, HashMap<Object, Object>> entry : summarizes.entrySet()) {
+			String genderStr = "";
+			int total = 0;
+			int classRange =(int) entry.getKey();
+		    HashMap<Object, Object> genders = entry.getValue();
+		    
+		    for(Map.Entry<Object, Object> genderEntry : genders.entrySet()){
+		    	int genderKey =(int) genderEntry.getKey();
+		    	int genderSum = (int) genderEntry.getValue();
+		    	genderStr += ("<b>"+Gender.getNameTh(genderKey)+"</b> " + genderSum)+" คน<br/>";
+		    	total += genderSum;
+		    }
+		    sumStr.append("<b>" + ClassRange.getNameTh(classRange) +"</b> " + total + " คน </br>"+ genderStr + "</br>");
+		}
+		summarize.setValue(sumStr.toString());
 	}
 }

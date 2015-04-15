@@ -1,13 +1,11 @@
 package com.ies.schoolos.component.recruit;
 
 import org.tepi.filtertable.FilterTable;
-import org.vaadin.haijian.ExcelExporter;
 
 import com.ies.schoolos.component.ui.ContentPage;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
-import com.ies.schoolos.report.excel.RecruitStudentToExcel;
 import com.ies.schoolos.schema.SchoolSchema;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
@@ -40,8 +38,6 @@ private static final long serialVersionUID = 1L;
 	
 	private Item item;
 	
-	private HorizontalLayout toolbar;
-	
 	private HorizontalLayout scoreLayout;
 	private FilterTable  table;
 	
@@ -61,18 +57,7 @@ private static final long serialVersionUID = 1L;
 		buildMainLayout();
 	}	
 	
-	private void buildMainLayout(){
-		/* Toolbar */
-		
-		/*toolbar = new HorizontalLayout();
-		toolbar.setSpacing(true);
-		addComponent(toolbar);
-		
-		ExcelExporter excelExporter = new ExcelExporter(new RecruitStudentToExcel());
-		excelExporter.setIcon(FontAwesome.FILE_EXCEL_O);
-		excelExporter.setCaption("ส่งออกไฟล์ Excel");
-		toolbar.addComponent(excelExporter);*/
-		
+	private void buildMainLayout(){		
 		/* Content */
 		scoreLayout = new HorizontalLayout();
 		scoreLayout.setSpacing(true);

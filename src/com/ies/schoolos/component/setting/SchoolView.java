@@ -40,7 +40,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Window;
 
-public class SchoolView extends ContentPage {
+public class SchoolView extends ContentPage{
 	private static final long serialVersionUID = 1L;
 	
 	private SQLContainer schoolContainer = Container.getInstance().getSchoolContainer();
@@ -84,11 +84,14 @@ public class SchoolView extends ContentPage {
 		
 		schoolContainer.refresh();
 		
+		setSpacing(true);
+		setMargin(true);
+		setHeight("-1px");
 		buildMainLayout();
 	}
 	
 	private void buildMainLayout(){
-		setHeight("-1px");
+		
 		
 		gridLayout = new GridLayout();
 		gridLayout.setSizeFull();
@@ -97,8 +100,7 @@ public class SchoolView extends ContentPage {
 		gridLayout.setSpacing(true);
 		addComponent(gridLayout);
 		setExpandRatio(gridLayout, 1);
-		
-		
+
 		intSchoolLayout();
 		initShortUrlLayout();
 		initPeriodLayout();

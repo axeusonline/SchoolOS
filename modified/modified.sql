@@ -126,3 +126,113 @@ CREATE TABLE IF NOT EXISTS `personnel_graduated_history` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='ประวัติการศึกษาบุคลากร';
 
 ALTER TABLE `recruit_student` CHANGE `father_id` `father_id` INT(11) NULL COMMENT 'FK รหัสบิดา', CHANGE `mother_id` `mother_id` INT(11) NULL COMMENT 'FK รหัสมารดา',CHANGE `guardian_id` `guardian_id` INT(11) NULL COMMENT 'FK ผู้ปกครอง';
+
+/* 
+   Description:  เพิ่มตารางสำหรับงานแผนการเรียน
+   Date: 05/04/2015
+*/
+CREATE TABLE IF NOT EXISTS `subject_type` (
+  `subject_type_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'PK ตารางประเภทวิชา',
+  `school_id` int(11) NULL COMMENT 'FK โรงเรียน',
+  `name` varchar(64) NOT NULL COMMENT 'ชื่อ',
+  `name_nd` varchar(64) DEFAULT NULL COMMENT 'ชื่อภาษาที่สอง',
+  `created_by_id` int(11) DEFAULT NULL COMMENT 'FK ผู้ใส่ข้อมูล',
+  `created_date` datetime DEFAULT NULL COMMENT 'วันเดือนปี ที่ใส่ข้อมูล',
+  `modified_by_id` int(11) DEFAULT NULL COMMENT 'FK ผู้แก้ไขข้อมูล',
+  `modified_date` datetime DEFAULT NULL COMMENT 'วันเดือนปี ที่แก้ไขข้อมูล',
+  PRIMARY KEY (`subject_type_id`),
+  KEY `fk_subject_type_has_school_idx` (`school_id`),
+  CONSTRAINT `fk_subject_type_has_school` FOREIGN KEY (`school_id`) REFERENCES `school` (`school_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='ตารางแผนก';
+
+CREATE TABLE IF NOT EXISTS `lesson_type` (
+  `lesson_type_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'PK ตารางสาระการเรียนรู้',
+  `school_id` int(11) NULL COMMENT 'FK โรงเรียน',
+  `name` varchar(64) NOT NULL COMMENT 'ชื่อ',
+  `name_nd` varchar(64) DEFAULT NULL COMMENT 'ชื่อภาษาที่สอง',
+  `created_by_id` int(11) DEFAULT NULL COMMENT 'FK ผู้ใส่ข้อมูล',
+  `created_date` datetime DEFAULT NULL COMMENT 'วันเดือนปี ที่ใส่ข้อมูล',
+  `modified_by_id` int(11) DEFAULT NULL COMMENT 'FK ผู้แก้ไขข้อมูล',
+  `modified_date` datetime DEFAULT NULL COMMENT 'วันเดือนปี ที่แก้ไขข้อมูล',
+  PRIMARY KEY (`lesson_type_id`),
+  KEY `fk_lesson_type_has_school_idx` (`school_id`),
+  CONSTRAINT `fk_lesson_type_has_school` FOREIGN KEY (`school_id`) REFERENCES `school` (`school_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='ตารางแผนก';
+
+CREATE TABLE IF NOT EXISTS `subject` (
+  `subject_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'PK ตารางรายวิชา',
+  `school_id` int(11) NOT NULL COMMENT 'FK โรงเรียน',
+  `code` varchar(16) DEFAULT '' COMMENT 'รหัสวิชา เช่น ท1101',
+  `code_nd` varchar(16) DEFAULT NULL COMMENT 'รหัสวิชา ภาษาที่สอง',
+  `name` varchar(64) NOT NULL DEFAULT '' COMMENT 'ชื่อวิชา',
+  `name_nd` varchar(16) DEFAULT NULL COMMENT 'ชื่อวิชาภาษาที่สอง',
+  `weight` double DEFAULT NULL COMMENT 'น้ำหนักของวิชา',
+  `hours` double DEFAULT NULL COMMENT 'จำนวนชั่วโมงที่สอน',
+  `lesson_type` int(4) NOT NULL COMMENT '*Fix สาระการเรียนรู้',
+  `subject_type` int(4) NOT NULL COMMENT '*Fix ประเภทวิชา เช่น วิชาพื้นฐาน วิชาเพิ่มเติม วิชาเลือก และ กิจกรรมพัฒนาผู้เรียน',
+  `description` text COMMENT 'รายละเอียด',
+  `created_by_id` int(11) DEFAULT NULL COMMENT 'FK ผู้ใส่ข้อมูล',
+  `created_date` datetime DEFAULT NULL COMMENT 'วันเดือนปี ที่ใส่ข้อมูล',
+  `modified_by_id` int(11) DEFAULT NULL COMMENT 'FK ผู้แก้ไขข้อมูล',
+  `modified_date` datetime DEFAULT NULL COMMENT 'วันเดือนปี ที่แก้ไขข้อมูล',
+  PRIMARY KEY (`subject_id`),
+  KEY `fk_subject_has_school_idx` (`school_id`),
+  CONSTRAINT `fk_subject_has_school` FOREIGN KEY (`school_id`) REFERENCES `school` (`school_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `lesson_plan` (
+  `lesson_plan_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'PK แผนการเรียน',
+  `school_id` int(11) NOT NULL COMMENT 'FK โรงเรียน',
+  `name` varchar(128) NOT NULL DEFAULT '' COMMENT 'ชื่อแผนการเรียน',
+  `description` text COMMENT 'รายละเอียด',
+  `class_range` tinyint NOT NULL COMMENT '*Fix ช่วงชั้น',
+  `created_by_id` int(11) DEFAULT NULL COMMENT 'FK ผู้ใส่ข้อมูล',
+  `created_date` datetime DEFAULT NULL COMMENT 'วันเดือนปี ที่ใส่ข้อมูล',
+  `modified_by_id` int(11) DEFAULT NULL COMMENT 'FK ผู้แก้ไขข้อมูล',
+  `modified_date` datetime DEFAULT NULL COMMENT 'วันเดือนปี ที่แก้ไขข้อมูล',
+  PRIMARY KEY (`lesson_plan_id`),
+  KEY `fk_lesson_plan_has_school_idx` (`school_id`),
+  CONSTRAINT `fk_lesson_plan_has_school` FOREIGN KEY (`school_id`) REFERENCES `school` (`school_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `lesson_plan_subject` (
+  `lesson_plan_subject_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'PK ตารางรายวิชาในแผนการเรียน',
+  `school_id` int(11) NOT NULL COMMENT 'FK โรงเรียน',
+  `lesson_plan_id` int(11) NOT NULL COMMENT 'FK รหัสแผนการเรียน',
+  `subject_id` int(11) NOT NULL COMMENT 'FK รหัสวิชา',
+  `class_year` tinyint(4) NOT NULL COMMENT '*Fix ชั้นปีที่ เช่น ม 1',
+  `semester` tinyint(4) NOT NULL COMMENT '*Fix เทอมการศึกษา เช่น สอนเทอม 1 , เทอม 2',
+  `created_by_id` int(11) DEFAULT NULL COMMENT 'FK ผู้ใส่ข้อมูล',
+  `created_date` datetime DEFAULT NULL COMMENT 'วันเดือนปี ที่ใส่ข้อมูล',
+  `modified_by_id` int(11) DEFAULT NULL COMMENT 'FK ผู้แก้ไขข้อมูล',
+  `modified_date` datetime DEFAULT NULL COMMENT 'วันเดือนปี ที่แก้ไขข้อมูล',
+  PRIMARY KEY (`lesson_plan_subject_id`),
+  KEY `fk_lesson_plan_subject_has_school_idx` (`school_id`),
+  KEY `fk_lesson_plan_id_idx` (`lesson_plan_id`),
+  KEY `fk_subject_id_idx` (`subject_id`),
+  CONSTRAINT `lesson_plan_subject_subject_id_fk` FOREIGN KEY (`subject_id`) REFERENCES `subject` (`subject_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `lesson_plan_subject_lesson_plan_id_fk` FOREIGN KEY (`lesson_plan_id`) REFERENCES `lesson_plan` (`lesson_plan_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_lesson_plan_subject_has_school` FOREIGN KEY (`school_id`) REFERENCES `school` (`school_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `class_room_lesson_plan` (
+  `class_room_lesson_plan_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'PK ตารางจัดการแผนการเรียน',
+  `school_id` int(11) NOT NULL COMMENT 'FK โรงเรียน',
+  `class_room_id` int(11) NOT NULL COMMENT 'FK รหัสห้องเรียน',
+  `lesson_plan_id` int(11) NOT NULL COMMENT 'FK รหัสแผนการเรียน',
+  `academic_year` int(11) NOT NULL COMMENT 'ปีการศึกษา',
+  `created_by_id` int(11) DEFAULT NULL COMMENT 'FK ผู้ใส่ข้อมูล',
+  `created_date` datetime DEFAULT NULL COMMENT 'วันเดือนปี ที่ใส่ข้อมูล',
+  `modified_by_id` int(11) DEFAULT NULL COMMENT 'FK ผู้แก้ไขข้อมูล',
+  `modified_date` datetime DEFAULT NULL COMMENT 'วันเดือนปี ที่แก้ไขข้อมูล',
+  PRIMARY KEY (`class_room_lesson_plan_id`),
+  KEY `fk_class_room_lesson_plan_has_school_idx` (`school_id`),
+  KEY `fk_class_room_id_idx` (`class_room_id`),
+  KEY `fk_lesson_plan_id_idx` (`lesson_plan_id`),
+  CONSTRAINT `class_room_lesson_plan_lesson_plan_id_fk` FOREIGN KEY (`lesson_plan_id`) REFERENCES `lesson_plan` (`lesson_plan_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `class_room_lesson_plan_class_room_id_fk` FOREIGN KEY (`class_room_id`) REFERENCES `class_room` (`class_room_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_class_room_lesson_plan_has_school` FOREIGN KEY (`school_id`) REFERENCES `school` (`school_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='แผนการเรียนรายชั้น';
+
+ALTER TABLE `building` ADD `created_by_id` INT NULL AFTER `capacity`, ADD `created_date` DATETIME NULL AFTER `created_by_id`, ADD `modified_by_id` INT NULL AFTER `created_date`, ADD `modified_date` DATETIME NULL AFTER `modified_by_id`;
+ALTER TABLE `class_room` ADD `created_by_id` INT NULL AFTER `capacity`, ADD `created_date` DATETIME NULL AFTER `created_by_id`, ADD `modified_by_id` INT NULL AFTER `created_date`, ADD `modified_date` DATETIME NULL AFTER `modified_by_id`;

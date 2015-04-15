@@ -3,14 +3,13 @@ package com.ies.schoolos.component.personnel;
 import org.tepi.filtertable.FilterTable;
 import org.vaadin.dialogs.ConfirmDialog;
 
-import com.ies.schoolos.component.ui.ContentPage;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.info.PersonnelSchema;
-import com.ies.schoolos.type.JobPosition;
 import com.ies.schoolos.type.Prename;
+import com.ies.schoolos.type.dynamic.JobPosition;
 import com.ies.schoolos.utility.Notification;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.filter.And;
@@ -20,6 +19,7 @@ import com.vaadin.data.util.sqlcontainer.TemporaryRowId;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CustomTable;
 import com.vaadin.ui.CustomTable.ColumnGenerator;
@@ -31,7 +31,7 @@ import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseListener;
 
-public class PersonnelListView  extends ContentPage{
+public class PersonnelListView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -43,8 +43,6 @@ public class PersonnelListView  extends ContentPage{
 	private FilterTable  table;
 	
 	public PersonnelListView() {	
-		super("รายชื่อบุคลากร");
-
 		pContainer.refresh();
 		fContainer.refresh();
 		
@@ -53,6 +51,9 @@ public class PersonnelListView  extends ContentPage{
 				new Equal(PersonnelSchema.SCHOOL_ID,UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
 				new Equal(PersonnelSchema.PERSONEL_STATUS, 0)));
 		
+		setSizeFull();
+		setSpacing(true);
+		setMargin(true);
 		buildMainLayout();
 	}	
 	

@@ -15,11 +15,36 @@ public class ClassYear extends IndexedContainer{
 	public ClassYear() {
 		initContainer();
 	}
+	
+	public ClassYear(int classRange) {
+		/* ตรวจสอบช่วงชั้น เพื่อดึงชั้นปีที่อยู่ในช่วงที่กำหนด
+		 *  กรณั ช่วงชั้นเป็น 0 แสดงถึงดึงเฉพาะ ชั้นปี อนุบาล
+		 *  กรณี ช่วงชั้นเป็น 1 แสดงถึงดึงเฉพาะ ชั้นปี ประถม
+		 *  กรณั ช่วงชั้นเป็น 2 แสดงถึงดึงเฉพาะ ชั้นปี ม.ต้น
+		 *  กรณี ช่วงชั้นเป็น 3 แสดงถึงดึงเฉพาะ ชั้นปี ม.ปลาย */
+		if(classRange == 0)
+			initContainer(0, 2);
+		else if(classRange == 1)
+			initContainer(3, 8);
+		else if(classRange == 2)
+			initContainer(9, 11);
+		else if(classRange == 3)
+			initContainer(12, 14);
+	}
  
 	@SuppressWarnings("unchecked")
 	private void initContainer(){
 	   addContainerProperty("name", String.class,null);
 	   for (int i = 0; i < classYears.length; i++) {
+	        Item item = addItem(i);
+	        item.getItemProperty("name").setValue(classYears[i]);
+	   }
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void initContainer(int firstIndex, int lastIndex){
+	   addContainerProperty("name", String.class,null);
+	   for (int i = firstIndex; i <= lastIndex; i++) {
 	        Item item = addItem(i);
 	        item.getItemProperty("name").setValue(classYears[i]);
 	   }
