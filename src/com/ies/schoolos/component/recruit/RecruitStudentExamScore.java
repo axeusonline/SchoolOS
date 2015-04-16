@@ -6,16 +6,19 @@ import com.ies.schoolos.component.ui.ContentPage;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
-import com.ies.schoolos.schema.SchoolSchema;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
 import com.ies.schoolos.type.ClassRange;
 import com.ies.schoolos.type.Prename;
+import com.ies.schoolos.utility.DateTimeUtil;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.FieldGroup;
+import com.vaadin.data.util.filter.And;
 import com.vaadin.data.util.filter.Compare.Equal;
+import com.vaadin.data.util.filter.Compare.Greater;
+import com.vaadin.data.util.filter.Compare.Less;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
@@ -52,7 +55,10 @@ private static final long serialVersionUID = 1L;
 		super("คะแนนสอบ");
 		sContainer.refresh();
 		sContainer.removeAllContainerFilters();
-		sContainer.addContainerFilter(new Equal(SchoolSchema.SCHOOL_ID,	UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)));;
+		sContainer.addContainerFilter(new And(
+				new Equal(RecruitStudentSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
+				new Greater(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getFirstDateOfYear()),
+				new Less(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getLastDateOfYear())));
 		
 		buildMainLayout();
 	}	
@@ -222,16 +228,16 @@ private static final long serialVersionUID = 1L;
 	
 	/* ตั้งค่าโหมดของปกติ คือ ปิดการแก้ไขบนฟอร์ม */
 	private void setNormalMode(){
-		firstname.setReadOnly(false);
-		lastname.setReadOnly(false);
+		firstname.setEnabled(false);
+		lastname.setEnabled(false);
 		score.setEnabled(false);
 		save.setEnabled(false);
 	}
 
 	/* ตั้งค่าโหมดของแก้ไข คือ เปิดการแก้ไขบนฟอร์ม */
 	private void setEditMode(){
-		firstname.setReadOnly(false);
-		lastname.setReadOnly(false);
+		firstname.setEnabled(false);
+		lastname.setEnabled(false);
 		score.setEnabled(true);
 		save.setEnabled(true);
 	}

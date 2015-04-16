@@ -61,22 +61,20 @@ public class TableFilterGenerator implements FilterGenerator {
 
     @Override
     public void filterRemoved(Object propertyId) {
-        Notification n = new Notification("Filter removed from: " + propertyId,
-                Notification.Type.TRAY_NOTIFICATION);
+        Notification n = new Notification("คำค้นถูกถอนสำหรับ: " + propertyId, Notification.Type.TRAY_NOTIFICATION);
         n.setDelayMsec(800);
         n.show(Page.getCurrent());
     }
 
     @Override
     public void filterAdded(Object propertyId, Class<? extends Filter> filterType, Object value) {
-        Notification n = new Notification("Filter added to: " + propertyId,  Notification.Type.TRAY_NOTIFICATION);
+        Notification n = new Notification("คำค้นสำหรับ: " + propertyId,  Notification.Type.TRAY_NOTIFICATION);
         n.setDelayMsec(800);
         n.show(Page.getCurrent());
     }
 
     @Override
-    public Filter filterGeneratorFailed(Exception reason, Object propertyId,
-            Object value) {
+    public Filter filterGeneratorFailed(Exception reason, Object propertyId, Object value) {
         /* Return null -> Does not add any filter on failure */
         return null;
     }

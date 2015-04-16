@@ -15,6 +15,7 @@ import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
 import com.ies.schoolos.type.ClassRange;
 import com.ies.schoolos.type.Prename;
 import com.ies.schoolos.type.dynamic.Building;
+import com.ies.schoolos.utility.DateTimeUtil;
 import com.ies.schoolos.utility.Notification;
 import com.ies.schoolos.utility.Utility;
 import com.vaadin.data.Item;
@@ -22,6 +23,8 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.filter.And;
 import com.vaadin.data.util.filter.Compare.Equal;
+import com.vaadin.data.util.filter.Compare.Greater;
+import com.vaadin.data.util.filter.Compare.Less;
 import com.vaadin.data.util.filter.IsNull;
 import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
@@ -157,6 +160,8 @@ public class RecruitStudentExamRoom extends VerticalLayout{
 		/* ค้นหานักเรียนที่ยังไม่ถูกกำหนดห้องสอบ */
 		sContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.CLASS_RANGE, classRange.getValue()),
 				new Equal(RecruitStudentSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
+				new Greater(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getFirstDateOfYear()),
+				new Less(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getLastDateOfYear()),
 				new IsNull(RecruitStudentSchema.EXAM_BUILDING_ID)));
 		
 		for(final Object itemId:sContainer.getItemIds()){

@@ -8,8 +8,10 @@ import com.ies.schoolos.schema.DistrictSchema;
 import com.ies.schoolos.schema.PostcodeSchema;
 import com.ies.schoolos.schema.ProvinceSchema;
 import com.ies.schoolos.schema.SchoolSchema;
+import com.ies.schoolos.schema.academic.ClassRoomLessonPlanSchema;
 import com.ies.schoolos.schema.academic.LessonPlanSchema;
 import com.ies.schoolos.schema.academic.LessonPlanSubjectSchema;
+import com.ies.schoolos.schema.academic.TeachingSchema;
 import com.ies.schoolos.schema.fundamental.BuildingSchema;
 import com.ies.schoolos.schema.fundamental.ClassRoomSchema;
 import com.ies.schoolos.schema.fundamental.SubjectSchema;
@@ -70,6 +72,10 @@ public class Container implements Serializable {
 	private SQLContainer lessonPlanContainer;
 	//ใช้สำหรับ Query ข้อมูลรายวิชาในแผนการเรียน
 	private SQLContainer lessonPlanSubjectContainer;
+	//ใช้สำหรับ Query ข้อมูลรายห้องเรียนในแผนการเรียน
+	private SQLContainer classRoomLessonPlanContainer;
+	//ใช้สำหรับ Query อาจารย์ผู้สอน
+	private SQLContainer teachingContainer;
 	
 	public static Container getInstance(){ 
 		if(container == null)
@@ -154,7 +160,14 @@ public class Container implements Serializable {
         	/* TableQuery และ SQLContainer สำหรับตาราง ข้อมูลรายวิชาในแผนการเรียน */
         	TableQuery qLessonPlanSubject = new TableQuery(LessonPlanSubjectSchema.TABLE_NAME, DbConnection.getConnection());
         	lessonPlanSubjectContainer = new SQLContainer(qLessonPlanSubject);
+
+        	/* TableQuery และ SQLContainer สำหรับตาราง ห้องเรียนในแผนการเรียน */
+        	TableQuery qClassRoomLessonPlan = new TableQuery(ClassRoomLessonPlanSchema.TABLE_NAME, DbConnection.getConnection());
+        	classRoomLessonPlanContainer = new SQLContainer(qClassRoomLessonPlan);
         	
+        	/* TableQuery และ SQLContainer สำหรับตาราง อาจารย์ผ้สอน */
+        	TableQuery qTeaching = new TableQuery(TeachingSchema.TABLE_NAME, DbConnection.getConnection());
+        	teachingContainer = new SQLContainer(qTeaching);
         	
         } catch (SQLException e) {
             e.printStackTrace();
@@ -248,6 +261,14 @@ public class Container implements Serializable {
 	
 	public SQLContainer getLessonPlanSubjectContainer() {
 		return lessonPlanSubjectContainer;
+	}
+	
+	public SQLContainer getClassRoomLessonPlanContainer() {
+		return classRoomLessonPlanContainer;
+	}
+	
+	public SQLContainer getTeachingContainer() {
+		return teachingContainer;
 	}
 	
 }

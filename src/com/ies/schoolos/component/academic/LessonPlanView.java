@@ -108,17 +108,19 @@ public class LessonPlanView extends VerticalLayout{
 		table.setColumnReorderingAllowed(true);
 		table.setColumnCollapsingAllowed(true);
 		lessonPlanLayout.addComponent(table);
+		lessonPlanLayout.setExpandRatio(table, 2);
 		
 		//Form		
 		lessonPlanForm = new FormLayout();
 		lessonPlanForm.setSpacing(true);
 		lessonPlanForm.setStyleName("border-white");
 		lessonPlanLayout.addComponent(lessonPlanForm);
+		lessonPlanLayout.setExpandRatio(lessonPlanForm, 1);
 		
 		Label formLab = new Label("แผนการเรียน");
 		lessonPlanForm.addComponent(formLab);
 		
-		name = new TextField();
+		name = new TextField("ชื่อแผนการเรียน");
 		name.setInputPrompt("ชื่อแผนการเรียน");
 		name.setNullRepresentation("");
 		name.setImmediate(false);
@@ -223,8 +225,9 @@ public class LessonPlanView extends VerticalLayout{
 	
 	private HorizontalLayout initButtonLayout(final Item item, final Object itemId){
 		final HorizontalLayout buttonLayout = new HorizontalLayout();
-			
-		Button addSubjectButton = new Button("กำหนดรายวิชา",FontAwesome.INDENT);
+		buttonLayout.setSpacing(true);
+		
+		Button addSubjectButton = new Button("เพิ่มรายวิชา",FontAwesome.INDENT);
 		addSubjectButton.setId(itemId.toString());
 		addSubjectButton.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 1L;
@@ -234,12 +237,29 @@ public class LessonPlanView extends VerticalLayout{
 				Object classRange = item.getItemProperty(LessonPlanSchema.CLASS_RANGE).getValue();
 				Window editLayout = new Window();
 				editLayout.setSizeFull();
-				editLayout.setContent(new AddLessonPlanSubjects(lessonPlanId,classRange));
+				editLayout.setContent(new AddLessonPlanSubject(lessonPlanId,classRange));
 				UI.getCurrent().addWindow(editLayout);
 			}
 		});
 		buttonLayout.addComponent(addSubjectButton);
 		buttonLayout.setComponentAlignment(addSubjectButton, Alignment.MIDDLE_CENTER);
+		
+		Button classRoomButton = new Button("เลือกชั้นเรียน",FontAwesome.UNIVERSITY);
+		classRoomButton.setId(itemId.toString());
+		classRoomButton.addClickListener(new ClickListener() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void buttonClick(ClickEvent event) {
+				Object lessonPlanId = item.getItemProperty(LessonPlanSchema.LESSON_PLAN_ID).getValue();
+				Object classRange = item.getItemProperty(LessonPlanSchema.CLASS_RANGE).getValue();
+				Window editLayout = new Window();
+				editLayout.setSizeFull();
+				editLayout.setContent(new AddClassRoomLessonPlan(lessonPlanId,classRange));
+				UI.getCurrent().addWindow(editLayout);
+			}
+		});
+		buttonLayout.addComponent(classRoomButton);
+		buttonLayout.setComponentAlignment(classRoomButton, Alignment.MIDDLE_CENTER);
 		
 		Button removeButton = new Button(FontAwesome.TRASH_O);
 		removeButton.setId(itemId.toString());

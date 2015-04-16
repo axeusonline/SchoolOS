@@ -58,7 +58,7 @@ public class SchoolOSView extends HorizontalSplitPanel{
         
         initLeftMenuLayout();
         initRightContentLayout();
-        initComponent(new RecruitStudentMainView());
+        initComponent(new AcademicMainView());
 	}
 
 	/* เมนูซ้ายมือ */

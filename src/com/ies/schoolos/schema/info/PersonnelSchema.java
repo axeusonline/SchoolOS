@@ -6,7 +6,7 @@ public class PersonnelSchema implements java.io.Serializable{
 	
 	public static final String TABLE_NAME = "personnel";
 	
-	public static final String PERSONEL_ID = "personnel_id";
+	public static final String PERSONNEL_ID = "personnel_id";
 	public static final String SCHOOL_ID = "school_id";
 	public static final String PEOPLE_ID = "people_id";
 	public static final String PEOPLE_ID_TYPE = "people_id_type";

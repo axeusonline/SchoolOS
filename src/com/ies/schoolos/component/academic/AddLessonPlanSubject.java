@@ -9,6 +9,7 @@ import com.ies.schoolos.component.ui.TwinSelectTable;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
+import com.ies.schoolos.schema.CreateModifiedSchema;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.academic.LessonPlanSubjectSchema;
 import com.ies.schoolos.schema.fundamental.SubjectSchema;
@@ -31,7 +32,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
 
-public class AddLessonPlanSubjects extends VerticalLayout {
+public class AddLessonPlanSubject extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 
@@ -45,7 +46,7 @@ public class AddLessonPlanSubjects extends VerticalLayout {
 	private ComboBox semester;
 	private TwinSelectTable twinSelect;
 	
-	public AddLessonPlanSubjects(Object lessonPlanId, Object classRange) {
+	public AddLessonPlanSubject(Object lessonPlanId, Object classRange) {
 		this.lessonPlanId = lessonPlanId;
 		this.classRange = classRange;
 
@@ -195,6 +196,8 @@ public class AddLessonPlanSubjects extends VerticalLayout {
 				lessonPlanSubjectItem.getItemProperty(LessonPlanSubjectSchema.SUBJECT_ID).setValue(Integer.parseInt(itemId.toString()));
 				lessonPlanSubjectItem.getItemProperty(LessonPlanSubjectSchema.CLASS_YEAR).setValue(Integer.parseInt(classYear.getValue().toString()));
 				lessonPlanSubjectItem.getItemProperty(LessonPlanSubjectSchema.SEMESTER).setValue(Integer.parseInt(semester.getValue().toString()));
+				
+				CreateModifiedSchema.setCreateAndModified(lessonPlanSubjectItem);
 				lessonPlanSubjectContainer.commit();
 			}
 			setLeftData();
@@ -224,6 +227,8 @@ public class AddLessonPlanSubjects extends VerticalLayout {
 				lessonPlanSubjectItem.getItemProperty(LessonPlanSubjectSchema.SUBJECT_ID).setValue(Integer.parseInt(itemId.toString()));
 				lessonPlanSubjectItem.getItemProperty(LessonPlanSubjectSchema.CLASS_YEAR).setValue(Integer.parseInt(classYear.getValue().toString()));
 				lessonPlanSubjectItem.getItemProperty(LessonPlanSubjectSchema.SEMESTER).setValue(Integer.parseInt(semester.getValue().toString()));
+				
+				CreateModifiedSchema.setCreateAndModified(lessonPlanSubjectItem);
 				lessonPlanSubjectContainer.commit();
 			}
 			setLeftData();

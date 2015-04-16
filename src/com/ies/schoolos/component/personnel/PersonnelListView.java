@@ -169,7 +169,7 @@ public class PersonnelListView extends VerticalLayout {
 				
 				Window editLayout = new Window();
 				editLayout.setSizeFull();
-				editLayout.setContent(new EditPersonnelView(item.getItemProperty(PersonnelSchema.PERSONEL_ID).getValue()));
+				editLayout.setContent(new EditPersonnelView(item.getItemProperty(PersonnelSchema.PERSONNEL_ID).getValue()));
 				UI.getCurrent().addWindow(editLayout);
 			}
 		});

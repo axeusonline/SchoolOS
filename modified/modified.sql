@@ -236,3 +236,29 @@ CREATE TABLE IF NOT EXISTS `class_room_lesson_plan` (
 
 ALTER TABLE `building` ADD `created_by_id` INT NULL AFTER `capacity`, ADD `created_date` DATETIME NULL AFTER `created_by_id`, ADD `modified_by_id` INT NULL AFTER `created_date`, ADD `modified_date` DATETIME NULL AFTER `modified_by_id`;
 ALTER TABLE `class_room` ADD `created_by_id` INT NULL AFTER `capacity`, ADD `created_date` DATETIME NULL AFTER `created_by_id`, ADD `modified_by_id` INT NULL AFTER `created_date`, ADD `modified_date` DATETIME NULL AFTER `modified_by_id`;
+
+/* 
+   Description:  แก้ไขโครงสร้างตาราง และเพิ่มตารางผู้สอน
+   Date: 16/04/2015
+*/
+ALTER TABLE `class_room_lesson_plan` CHANGE `academic_year` `academic_year` VARCHAR(4) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'ปีการศึกษา';
+
+CREATE TABLE IF NOT EXISTS `teaching` (
+  `teaching_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'PK อาจารย์ผู้สอน',
+  `school_id` int(11) NOT NULL COMMENT 'FK โรงเรียน',
+  `personnel_id` int(11) DEFAULT NULL COMMENT 'FK บุคลากร',
+  `personnel_name_tmp` varchar(150) DEFAULT NULL COMMENT 'ชื่อชั่วคราวบุคลากร',
+  `subject_id` int(11) NOT NULL COMMENT 'FK วิชา',
+  `academic_year` VARCHAR(4) NOT NULL COMMENT 'ปีการศึกษา',
+  `created_by_id` int(11) NULL COMMENT 'FK ผู้เพิ่มข้อมูล',
+  `created_date` datetime NULL COMMENT 'วันเวลาที่เพิ่ม',
+  `modified_by_id` int(11) NULL COMMENT 'FK ผู้แก้ไขข้อมูล',
+  `modified_date` datetime NULL COMMENT 'วันเวลาที่แก้ไข',
+  PRIMARY KEY (`teaching_id`),
+  KEY `fk_teaching_has_school_idx` (`school_id`),
+  KEY `fk_teaching_has_personnel_idx` (`personnel_id`),
+  KEY `fk_teaching_has_subject_idx` (`subject_id`),
+  CONSTRAINT `fk_teaching_has_school` FOREIGN KEY (`school_id`) REFERENCES `school` (`school_id`),
+  CONSTRAINT `fk_teaching_has_personnel` FOREIGN KEY (`personnel_id`) REFERENCES `personnel` (`personnel_id`),
+  CONSTRAINT `fk_teaching_has_subject` FOREIGN KEY (`subject_id`) REFERENCES `subject` (`subject_id`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='อาจารย์ผู้สอน';

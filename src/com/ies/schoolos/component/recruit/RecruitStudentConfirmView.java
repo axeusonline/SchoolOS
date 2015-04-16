@@ -14,10 +14,13 @@ import com.ies.schoolos.schema.fundamental.ClassRoomSchema;
 import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
 import com.ies.schoolos.type.ClassRange;
 import com.ies.schoolos.type.Prename;
+import com.ies.schoolos.utility.DateTimeUtil;
 import com.ies.schoolos.utility.Utility;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.filter.And;
 import com.vaadin.data.util.filter.Compare.Equal;
+import com.vaadin.data.util.filter.Compare.Greater;
+import com.vaadin.data.util.filter.Compare.Less;
 import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.ui.UI;
@@ -102,6 +105,8 @@ public class RecruitStudentConfirmView extends VerticalLayout{
 		/* ค้นหานักเรียนที่ยังไม่ถูกกำหนดชั้นเรียน */
 		sContainer.addContainerFilter(new And(
 				new Equal(RecruitStudentSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
+				new Greater(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getFirstDateOfYear()),
+				new Less(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getLastDateOfYear()),
 				new Equal(RecruitStudentSchema.IS_CONFIRM, false)));
 		
 		for(final Object itemId:sContainer.getItemIds()){
