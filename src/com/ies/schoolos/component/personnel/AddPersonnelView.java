@@ -28,13 +28,13 @@ public class AddPersonnelView extends PersonnelLayout {
 	
 	public AddPersonnelView() {
 		initAddPersonnel();
-		setDebugMode(true);
+		//setDebugMode(true);
 	}
 	
 	public AddPersonnelView(boolean printMode) {
 		this.printMode = printMode;
 		initAddPersonnel();
-		setDebugMode(true);
+		//setDebugMode(true);
 	}
 	
 	private void initAddPersonnel(){
@@ -78,6 +78,7 @@ public class AddPersonnelView extends PersonnelLayout {
 		public void buttonClick(ClickEvent event) {
 			/* ตรวจสอบความครบถ้วนของข้อมูล*/
 			if(!validateForms()){
+				System.err.println(validateForms());
 				Notification.show("กรุณากรอกข้อมูลให้ครบถ้วน", Type.WARNING_MESSAGE);
 				return;
 			}
@@ -184,6 +185,7 @@ public class AddPersonnelView extends PersonnelLayout {
 				}
 				
 				Object data = Class.forName(className).cast(value);
+				System.err.println(fieldGroup.getPropertyId(field) + "," + data);
 				item.getItemProperty(fieldGroup.getPropertyId(field)).setValue(data);
 			}
 			
@@ -200,6 +202,7 @@ public class AddPersonnelView extends PersonnelLayout {
 				item.getItemProperty(PersonnelSchema.SCHOOL_ID).setValue(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
 				item.getItemProperty(PersonnelSchema.RECRUIT_BY_ID).setValue(UI.getCurrent().getSession().getAttribute(SessionSchema.USER_ID));
 				item.getItemProperty(PersonnelSchema.RECRUIT_DATE).setValue(new Date());
+				item.getItemProperty(PersonnelSchema.START_WORK_DATE).setValue(new Date());
 				
 				CreateModifiedSchema.setCreateAndModified(item);
 			}

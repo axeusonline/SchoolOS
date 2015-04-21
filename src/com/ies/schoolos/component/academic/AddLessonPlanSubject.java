@@ -13,9 +13,9 @@ import com.ies.schoolos.schema.CreateModifiedSchema;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.academic.LessonPlanSubjectSchema;
 import com.ies.schoolos.schema.fundamental.SubjectSchema;
-import com.ies.schoolos.type.ClassRange;
 import com.ies.schoolos.type.ClassYear;
 import com.ies.schoolos.type.Semester;
+import com.ies.schoolos.type.dynamic.LessonType;
 import com.ies.schoolos.utility.Notification;
 import com.ies.schoolos.utility.Utility;
 import com.vaadin.data.Item;
@@ -284,7 +284,7 @@ public class AddLessonPlanSubject extends VerticalLayout {
 		String lessonType = item.getItemProperty(SubjectSchema.LESSON_TYPE).getValue().toString();
 		
 		if(Utility.isInteger(lessonType))
-			lessonType = ClassRange.getNameTh(Integer.parseInt(item.getItemProperty(SubjectSchema.LESSON_TYPE).getValue().toString()));
+			lessonType = LessonType.getNameTh(Integer.parseInt(item.getItemProperty(SubjectSchema.LESSON_TYPE).getValue().toString()));
 		
 		if(table == twinSelect.getLeftTable())
 			table.addItem(new Object[] {

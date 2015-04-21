@@ -196,7 +196,6 @@ public class RecruitToStudentView extends VerticalLayout{
 			@Override
 			public void rowIdChange(RowIdChangeEvent arg0) {
 				idStore.add(arg0.getNewRowId());
-				System.err.println("UPDATE STUDENT COMPLET:" + idStore.size() + ",id:" + arg0.getNewRowId().toString());
 			}
 		});
 		
@@ -207,7 +206,6 @@ public class RecruitToStudentView extends VerticalLayout{
 			@Override
 			public void rowIdChange(RowIdChangeEvent arg0) {
 				idStore.add(arg0.getNewRowId());
-				System.err.println("UPDATE STUDENT STUDY COMPLET:" + idStore.size() + ",id:" + arg0.getNewRowId().toString());
 			}
 		});
 		
@@ -218,7 +216,6 @@ public class RecruitToStudentView extends VerticalLayout{
 			@Override
 			public void rowIdChange(RowIdChangeEvent arg0) {
 				idStore.add(arg0.getNewRowId());
-				System.err.println("UPDATE FAMILY COMPLET:" + idStore.size() + ",id:" + arg0.getNewRowId().toString()+","+idStore.toString());
 			}
 		});
 		
@@ -228,7 +225,6 @@ public class RecruitToStudentView extends VerticalLayout{
 			@Override
 			public void rowIdChange(RowIdChangeEvent arg0) {
 				idStore.add(arg0.getNewRowId());
-				System.err.println("UPDATE STUDENT CLASS ROOM COMPLET:" + idStore.size() + ",id:" + arg0.getNewRowId().toString());
 			}
 		});
 	}
@@ -285,10 +281,7 @@ public class RecruitToStudentView extends VerticalLayout{
 		if(rsContainer.size() > 0){
 			for (Object itemId:rsContainer.getItemIds()) {
 			    Item recruitStudentItem = rsContainer.getItem(itemId);
-			    System.err.println(recruitStudentItem.getItemProperty(RecruitStudentSchema.CLASS_RANGE).getValue().toString() +
-					   recruitStudentItem.getItemProperty(RecruitStudentSchema.FIRSTNAME).getValue().toString() +
-					   recruitStudentItem.getItemProperty(RecruitStudentSchema.LASTNAME).getValue().toString());
-			    
+			   
 			    /*  ดึงข้อมูลบิด า*/ 
 			    Item recruitFatherItem = rsFamilyContainer.getItem(new RowId(recruitStudentItem.getItemProperty(RecruitStudentSchema.FATHER_ID).getValue()));
 			    manageFamilyData(recruitFatherItem);
@@ -336,7 +329,6 @@ public class RecruitToStudentView extends VerticalLayout{
 	    	
 	    	newFamily(oldFamilyItem,familyItem);
 	    }else{
-	    	System.err.println("HAS FAMILY PEOPLE ID:"+familyItem.getItemProperty(FamilySchema.FAMILY_ID).getValue() );
 	    	idStore.add(familyItem.getItemProperty(FamilySchema.FAMILY_ID).getValue());
 	    }
 	}
@@ -356,7 +348,6 @@ public class RecruitToStudentView extends VerticalLayout{
 
 	    	newStudent(oldStudentItem, studentItem);
 	    }else{
-	    	System.err.println("HAS STUDENT PEOPLE ID:"+studentItem.getItemProperty(StudentSchema.STUDENT_ID).getValue() );
 	    	idStore.add(studentItem.getItemProperty(StudentSchema.STUDENT_ID).getValue());
 	    }	    
 	}
@@ -424,14 +415,11 @@ public class RecruitToStudentView extends VerticalLayout{
 		    			}else if(propertyId.equals(StudentSchema.MOTHER_ID)){
 		    				value = Integer.parseInt(idStore.get(1).toString());
 		    			}
-		    			System.err.println("NEW STUDENT:" + propertyId + "," + value + ",");
-		    			//System.err.println(value.getClass());
 						newItem.getItemProperty(propertyId).setValue(value);
 					}
 				}
 				
 			}
-		    System.err.println("STUDENT");
 		    /* กำหนด ผู้ใส่ หรือ แก้ไขข้อมูล*/
 		    CreateModifiedSchema.setCreateAndModified(newItem);
 		    
@@ -459,8 +447,6 @@ public class RecruitToStudentView extends VerticalLayout{
 		    			if(propertyId.equals(StudentStudySchema.GUARDIAN_ID)){
 		    				value = Integer.parseInt(idStore.get(2).toString());
 		    			}
-
-		    			System.err.println("NEW STUDY STUDENT:" + propertyId + "," + value + ",");
 
 						newItem.getItemProperty(propertyId).setValue(value);
 					}
@@ -523,9 +509,6 @@ public class RecruitToStudentView extends VerticalLayout{
 				Object value = oldItem.getItemProperty(propertyId).getValue();
 				if(newItem.getItemPropertyIds().contains(propertyId)){
 					if(!propertyId.toString().equals(StudentClassRoomSchema.STUDENT_CLASS_ROOM_ID)){
-						
-		    			System.err.println("NEW STUDENT CLASS ROOM:" + propertyId + "," + value + ",");
-
 						newItem.getItemProperty(propertyId).setValue(value);
 					}
 				}
@@ -539,7 +522,6 @@ public class RecruitToStudentView extends VerticalLayout{
 		    
 		    studentClassRoomContainer.commit();
 		    idStore.clear();
-		    System.err.println("CLEAR:" + idStore.size());
 		}catch (Exception e) {
 			Notification.show("บันทึกห้องเรียนไม่สำเร็จ", Type.WARNING_MESSAGE);
 			e.printStackTrace();
@@ -574,7 +556,6 @@ public class RecruitToStudentView extends VerticalLayout{
 		   
 		   maxCode = new Date().getYear()+2443;
 		   studentCode = Integer.toString(maxCode).substring(2)+maxCode+"001";
-		   System.err.println("AUTO:" + studentCode);
 	   }else if(generateCodeType == 1){
 		   /* ค้นรหัสนักเรียนที่มากสุด เพื่อบวกค่าเรื่อย ๆ เพื่อทำการบวกรหัสนักเรียน */
 		   freeFormContainer = Container.getInstance().getFreeFormContainer(StatStudentCodeSchema.getQuery(), StatStudentCodeSchema.MAX_STUDENT_CODE);
@@ -592,13 +573,9 @@ public class RecruitToStudentView extends VerticalLayout{
 						studentCode = schoolItem.getItemProperty(SchoolSchema.STUDENT_CODE_FIRST).getValue().toString();
 					}
 				}
-				System.err.println("HAS:" + studentCode);
 			}else{
 				studentCode = schoolItem.getItemProperty(SchoolSchema.STUDENT_CODE_FIRST).getValue().toString();
 			}
-		   
-		   
-		   System.err.println("MANAUL:" + studentCode);
 	   }
 	   
 	   

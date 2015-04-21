@@ -262,3 +262,27 @@ CREATE TABLE IF NOT EXISTS `teaching` (
   CONSTRAINT `fk_teaching_has_personnel` FOREIGN KEY (`personnel_id`) REFERENCES `personnel` (`personnel_id`),
   CONSTRAINT `fk_teaching_has_subject` FOREIGN KEY (`subject_id`) REFERENCES `subject` (`subject_id`)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='อาจารย์ผู้สอน';
+  
+/* 
+   Description:  เพิ่มตารางสอน
+   Date: 17/04/2015
+*/
+ CREATE TABLE IF NOT EXISTS `timetable` (
+  `timetable_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'PK ตารางสอน',
+  `school_id` int(11) NOT NULL COMMENT 'FK โรงเรียน',
+  `class_room_id` int(11) NOT NULL COMMENT 'FK ชั้นเรียน',
+  `teaching_id` int(11) DEFAULT NULL COMMENT 'FK อาจารย์ผู้สอน',
+  `section` tinyint(4) NOT NULL COMMENT 'คาบเรียน',
+  `working_day` tinyint(4) NOT NULL COMMENT 'วันที่สอน',
+  `created_by_id` int(11) NULL COMMENT 'FK ผู้เพิ่มข้อมูล',
+  `created_date` datetime NULL COMMENT 'วันเวลาที่เพิ่ม',
+  `modified_by_id` int(11) NULL COMMENT 'FK ผู้แก้ไขข้อมูล',
+  `modified_date` datetime NULL COMMENT 'วันเวลาที่แก้ไข',
+  PRIMARY KEY (`timetable_id`),
+  KEY `fk_timetable_has_school_idx` (`school_id`),
+  KEY `fk_timetable_has_class_room_idx` (`class_room_id`),
+  KEY `fk_timetable_has_teaching_idx` (`teaching_id`),
+  CONSTRAINT `fk_timetable_has_school` FOREIGN KEY (`school_id`) REFERENCES `school` (`school_id`),
+  CONSTRAINT `fk_timetable_has_class_room` FOREIGN KEY (`class_room_id`) REFERENCES `class_room` (`class_room_id`),
+  CONSTRAINT `fk_timetable_has_teaching` FOREIGN KEY (`teaching_id`) REFERENCES `teaching` (`teaching_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='ตารางสอน';

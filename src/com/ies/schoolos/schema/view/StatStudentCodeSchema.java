@@ -29,7 +29,7 @@ public class StatStudentCodeSchema implements java.io.Serializable{
     	String query = "SELECT * FROM " + TABLE_NAME
     			+ " WHERE " + RECRUIT_CLASS_YEAR + "=" + classYear
     			+ " AND " + SCHOOL_ID + "=" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID);
-    	System.err.println(query);
+
     	return query;
     }
     
@@ -39,7 +39,6 @@ public class StatStudentCodeSchema implements java.io.Serializable{
     public static String getQuery(){
     	String query = "SELECT MAX(" + MAX_STUDENT_CODE + ") AS " + MAX_STUDENT_CODE + " FROM " + TABLE_NAME
     			+ " WHERE " + SCHOOL_ID + "=" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID);
-    	System.err.println(query);
     	return query;
     }
     

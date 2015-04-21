@@ -424,6 +424,7 @@ public class LoginView extends VerticalLayout{
 		if(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID) != null){
 			schoolRecruit.setVisible(false);
 			signonTopic.setValue(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_NAME).toString());
+			System.err.println(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
 			
 			Item item = schoolContainer.getItem(new RowId(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)));
 			

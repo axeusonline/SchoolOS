@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import com.ies.schoolos.component.academic.LessonPlanView;
 import com.ies.schoolos.component.academic.TeachingView;
+import com.ies.schoolos.component.academic.TimetableView;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -47,6 +48,11 @@ public class AcademicMainView  extends VerticalLayout {
 		teaching.setSizeFull();
 		dashboar.addComponent(teaching);
 		addClickListener(teaching, TeachingView.class);
+		
+		Button timetable = new Button("3.ตารางสอน", FontAwesome.CUBE);
+		timetable.setSizeFull();
+		dashboar.addComponent(timetable);
+		addClickListener(timetable, TimetableView.class);
 		
 		tabSheet = new TabSheet();
 		tabSheet.setWidth("95%");

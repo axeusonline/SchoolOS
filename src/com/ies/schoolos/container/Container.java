@@ -12,6 +12,7 @@ import com.ies.schoolos.schema.academic.ClassRoomLessonPlanSchema;
 import com.ies.schoolos.schema.academic.LessonPlanSchema;
 import com.ies.schoolos.schema.academic.LessonPlanSubjectSchema;
 import com.ies.schoolos.schema.academic.TeachingSchema;
+import com.ies.schoolos.schema.academic.TimetableSchema;
 import com.ies.schoolos.schema.fundamental.BuildingSchema;
 import com.ies.schoolos.schema.fundamental.ClassRoomSchema;
 import com.ies.schoolos.schema.fundamental.SubjectSchema;
@@ -76,6 +77,8 @@ public class Container implements Serializable {
 	private SQLContainer classRoomLessonPlanContainer;
 	//ใช้สำหรับ Query อาจารย์ผู้สอน
 	private SQLContainer teachingContainer;
+	//ใช้สำหรับ Query ตารางเรียน
+	private SQLContainer timetableContainer;
 	
 	public static Container getInstance(){ 
 		if(container == null)
@@ -169,6 +172,9 @@ public class Container implements Serializable {
         	TableQuery qTeaching = new TableQuery(TeachingSchema.TABLE_NAME, DbConnection.getConnection());
         	teachingContainer = new SQLContainer(qTeaching);
         	
+        	/* TableQuery และ SQLContainer สำหรับตาราง อาจารย์ผ้สอน */
+        	TableQuery qTimetable = new TableQuery(TimetableSchema.TABLE_NAME, DbConnection.getConnection());
+        	timetableContainer = new SQLContainer(qTimetable);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -270,5 +276,10 @@ public class Container implements Serializable {
 	public SQLContainer getTeachingContainer() {
 		return teachingContainer;
 	}
+	
+	public SQLContainer getTimetableContainer() {
+		return timetableContainer;
+	}
+	
 	
 }

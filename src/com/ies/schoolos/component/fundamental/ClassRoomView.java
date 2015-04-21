@@ -365,8 +365,7 @@ public class ClassRoomView extends ContentPage{
 			Item item = classContainer.getItem(tmpItem);
 			for(Field<?> field: classRoomBinder.getFields()){
 				/* หาชนิดตัวแปร ของข้อมูลภายใน Database ของแต่ละ Field */
-				Class<?> clazz = item.getItemProperty(classRoomBinder.getPropertyId(field)).getType();				
-				System.err.println(classRoomBinder.getPropertyId(field));
+				Class<?> clazz = item.getItemProperty(classRoomBinder.getPropertyId(field)).getType();	
 				String className = clazz.getName();;
 				Object value = null;
 				if(classRoomBinder.getField(classRoomBinder.getPropertyId(field)).getValue() != null && 

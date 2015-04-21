@@ -314,8 +314,7 @@ public class LessonPlanView extends VerticalLayout{
 			Item item = lContainer.getItem(tmpItem);
 			for(Field<?> field: lessonPlanBinder.getFields()){
 				/* หาชนิดตัวแปร ของข้อมูลภายใน Database ของแต่ละ Field */
-				Class<?> clazz = item.getItemProperty(lessonPlanBinder.getPropertyId(field)).getType();				
-				System.err.println(lessonPlanBinder.getPropertyId(field));
+				Class<?> clazz = item.getItemProperty(lessonPlanBinder.getPropertyId(field)).getType();	
 				String className = clazz.getName();;
 				Object value = null;
 				if(lessonPlanBinder.getField(lessonPlanBinder.getPropertyId(field)).getValue() != null && 

@@ -352,8 +352,7 @@ public class SubjectView extends ContentPage{
 			Item item = sContainer.getItem(tmpItem);
 			for(Field<?> field: subjectBinder.getFields()){
 				/* หาชนิดตัวแปร ของข้อมูลภายใน Database ของแต่ละ Field */
-				Class<?> clazz = item.getItemProperty(subjectBinder.getPropertyId(field)).getType();				
-				System.err.println(subjectBinder.getPropertyId(field));
+				Class<?> clazz = item.getItemProperty(subjectBinder.getPropertyId(field)).getType();
 				String className = clazz.getName();;
 				Object value = null;
 				if(subjectBinder.getField(subjectBinder.getPropertyId(field)).getValue() != null && 

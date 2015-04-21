@@ -234,13 +234,13 @@ public class TeachingView extends VerticalLayout {
 	private void setRightData(){
 		twinSelect.removeAllRightItem();
 		
-		StringBuilder subjectBuilder = new StringBuilder();
-		subjectBuilder.append(" SELECT * FROM "+ TeachingSchema.TABLE_NAME + " tc");
-		subjectBuilder.append(" INNER JOIN "+ SubjectSchema.TABLE_NAME + " s ON s." + SubjectSchema.SUBJECT_ID + " = tc." + TeachingSchema.SUBJECT_ID);
-		subjectBuilder.append(" WHERE tc."+ TeachingSchema.SCHOOL_ID + "=" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
-		subjectBuilder.append(" AND tc." + TeachingSchema.ACADEMIC_YEAR + "=" + DateTimeUtil.getBuddishYear());
+		StringBuilder teachingBuilder = new StringBuilder();
+		teachingBuilder.append(" SELECT * FROM "+ TeachingSchema.TABLE_NAME + " tc");
+		teachingBuilder.append(" INNER JOIN "+ SubjectSchema.TABLE_NAME + " s ON s." + SubjectSchema.SUBJECT_ID + " = tc." + TeachingSchema.SUBJECT_ID);
+		teachingBuilder.append(" WHERE tc."+ TeachingSchema.SCHOOL_ID + "=" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+		teachingBuilder.append(" AND tc." + TeachingSchema.ACADEMIC_YEAR + "=" + DateTimeUtil.getBuddishYear());
 
-		tContainer = Container.getInstance().getFreeFormContainer(subjectBuilder.toString(), TeachingSchema.TEACHING_ID);
+		tContainer = Container.getInstance().getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
 		for(Object itemId: tContainer.getItemIds()){
 			Item item = tContainer.getItem(itemId);
 			addItemData(twinSelect.getRightTable(), itemId, item);
@@ -386,7 +386,6 @@ public class TeachingView extends VerticalLayout {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}		
-				
 			}
 			table.addItem(new Object[] {
 					personalCode, 

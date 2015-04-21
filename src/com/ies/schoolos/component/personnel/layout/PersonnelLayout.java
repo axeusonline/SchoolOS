@@ -19,6 +19,7 @@ import com.ies.schoolos.type.Nationality;
 import com.ies.schoolos.type.Occupation;
 import com.ies.schoolos.type.PeopleIdType;
 import com.ies.schoolos.type.PersonnelCodeGenerateType;
+import com.ies.schoolos.type.PersonnelStatus;
 import com.ies.schoolos.type.Prename;
 import com.ies.schoolos.type.Race;
 import com.ies.schoolos.type.Religion;
@@ -284,15 +285,17 @@ private static final long serialVersionUID = 1L;
 
 			@Override
 			public void textChange(TextChangeEvent event) {
-				if(peopleId.isValid()){
-					pSqlContainer.addContainerFilter(new Equal(FamilySchema.PEOPLE_ID,event.getText()));
-					if(pSqlContainer.size() > 0){
-						disableDuplicatePeopleIdForm();
-						Notification.show("หมายเลขประชาชนถูกใช้งานแล้ว กรุณาระบุใหม่อีกครั้ง", Type.WARNING_MESSAGE);
-					}else{
-						enableDuplicatePeopleIdForm();
+				if(event.getText() != null){
+					if(event.getText().length() >= 13){
+						pSqlContainer.addContainerFilter(new Equal(PersonnelSchema.PEOPLE_ID,event.getText()));
+						if(pSqlContainer.size() > 0){
+							disableDuplicatePeopleIdForm();
+							Notification.show("หมายเลขประชาชนถูกใช้งานแล้ว กรุณาระบุใหม่อีกครั้ง", Type.WARNING_MESSAGE);
+						}else{
+							enableDuplicatePeopleIdForm();
+						}
+						pSqlContainer.removeAllContainerFilters();
 					}
-					pSqlContainer.removeAllContainerFilters();
 				}
 			}
 		});
@@ -409,7 +412,7 @@ private static final long serialVersionUID = 1L;
 		nationality.setFilteringMode(FilteringMode.CONTAINS);
 		generalForm.addComponent(nationality);
 		
-		maritalStatus = new ComboBox("สถาณภาพ",new MaritalStatus());
+		maritalStatus = new ComboBox("สถานภาพ",new MaritalStatus());
 		maritalStatus.setInputPrompt("กรุณาเลือก");
 		maritalStatus.setItemCaptionPropertyId("name");
 		maritalStatus.setImmediate(true);
@@ -546,7 +549,7 @@ private static final long serialVersionUID = 1L;
 		personnelCode.setNullRepresentation("");
 		workForm.addComponent(personnelCode);
 		
-		personnelStatus = new ComboBox("สถานะบุคลากร",new Blood());
+		personnelStatus = new ComboBox("สถานะบุคลากร",new PersonnelStatus());
 		personnelStatus.setInputPrompt("กรุณาเลือก");
 		personnelStatus.setItemCaptionPropertyId("name");
 		personnelStatus.setImmediate(true);
@@ -563,7 +566,7 @@ private static final long serialVersionUID = 1L;
 		startWorkDate.setRequired(true);
 		startWorkDate.setWidth("-1px");
 		startWorkDate.setHeight("-1px");
-		workForm.addComponent(birthDate);
+		workForm.addComponent(startWorkDate);
 		
 		department = new ComboBox("แผนก",new Department());
 		department.setInputPrompt("กรุณาเลือก");
@@ -979,6 +982,7 @@ private static final long serialVersionUID = 1L;
 		                	setSelectedTab(fatherForm);
 		                }else{
 		                	isInsertParents = false;
+
 		                	finish.click();
 		                }
 		            }
@@ -2311,7 +2315,7 @@ private static final long serialVersionUID = 1L;
 		}else{
 			/* ตรวจสอบว่าข้อมูลบุคลากร ครบถ้วนหรือไม่*/
 			if(personnelBinder.isValid()){
-				System.err.println("personnel");
+				System.err.println("adsfasdfsadfsdf");
 				return true;
 			}
 		}

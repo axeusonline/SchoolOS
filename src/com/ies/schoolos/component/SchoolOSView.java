@@ -286,10 +286,7 @@ public class SchoolOSView extends HorizontalSplitPanel{
 	
 	/* ออกจากระบบ */
 	private void logout(){
-		UI ui = UI.getCurrent();
-    	ui.setContent(new LoginView());
-    	
-    	Cookie emailCookie = new Cookie(SessionSchema.EMAIL, "");
+		Cookie emailCookie = new Cookie(SessionSchema.EMAIL, "");
 		emailCookie.setMaxAge(0);
 		emailCookie.setPath(VaadinService.getCurrentRequest().getContextPath());
 		VaadinService.getCurrentResponse().addCookie(emailCookie);
@@ -298,5 +295,20 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		passwordCookie.setMaxAge(0);
 		passwordCookie.setPath(VaadinService.getCurrentRequest().getContextPath());
 		VaadinService.getCurrentResponse().addCookie(passwordCookie);
+		
+		resetSession();
+		
+		UI ui = UI.getCurrent();
+    	ui.setContent(new LoginView());
 	}
+	
+	/* ตั้งค่า Session */
+	private void resetSession(){
+		UI.getCurrent().getSession().setAttribute(SessionSchema.IS_ROOT, null);
+		UI.getCurrent().getSession().setAttribute(SessionSchema.SCHOOL_ID, null);
+		UI.getCurrent().getSession().setAttribute(SessionSchema.SCHOOL_NAME, null);
+		UI.getCurrent().getSession().setAttribute(SessionSchema.FIRSTNAME, null);
+		UI.getCurrent().getSession().setAttribute(SessionSchema.EMAIL, null);
+	}
+	
 }

@@ -5,7 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class DateTimeUtil {
-
+	
 	public static String getDDMMYYYY(Date date){
 		String dateStr = new SimpleDateFormat("dd/MM/yyyy").format(date);
     	String year = dateStr.substring(6);

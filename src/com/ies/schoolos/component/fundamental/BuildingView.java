@@ -269,8 +269,7 @@ public class BuildingView extends ContentPage{
 			Item item = bContainer.getItem(tmpItem);
 			for(Field<?> field: buildingBinder.getFields()){
 				/* หาชนิดตัวแปร ของข้อมูลภายใน Database ของแต่ละ Field */
-				Class<?> clazz = item.getItemProperty(buildingBinder.getPropertyId(field)).getType();				
-				System.err.println(buildingBinder.getPropertyId(field));
+				Class<?> clazz = item.getItemProperty(buildingBinder.getPropertyId(field)).getType();		
 				String className = clazz.getName();;
 				Object value = null;
 				if(buildingBinder.getField(buildingBinder.getPropertyId(field)).getValue() != null && 
