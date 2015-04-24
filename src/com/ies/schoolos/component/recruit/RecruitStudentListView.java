@@ -66,7 +66,7 @@ public class RecruitStudentListView extends VerticalLayout{
 		bContainer.refresh();
 		
 		sContainer.removeAllContainerFilters();
-		sContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.SCHOOL_ID,UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
+		sContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.SCHOOL_ID,SessionSchema.getSchoolID()),
 				new Greater(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getFirstDateOfYear()),
 				new Less(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getLastDateOfYear())));
 		
@@ -97,7 +97,7 @@ public class RecruitStudentListView extends VerticalLayout{
 
 					@Override
 					public void windowClose(CloseEvent e) {
-						sContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.SCHOOL_ID,UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
+						sContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.SCHOOL_ID,SessionSchema.getSchoolID()),
 								new Greater(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getFirstDateOfYear()),
 								new Less(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getLastDateOfYear())));
 						setSummarize();
@@ -278,7 +278,7 @@ public class RecruitStudentListView extends VerticalLayout{
 		StringBuilder builder = new StringBuilder();
 		builder.append(" SELECT " + RecruitStudentSchema.STUDENT_ID + "," + RecruitStudentSchema.GENDER + "," + RecruitStudentSchema.CLASS_RANGE + ", COUNT("+RecruitStudentSchema.CLASS_RANGE+") AS sum");
 		builder.append(" FROM " + RecruitStudentSchema.TABLE_NAME);
-		builder.append(" WHERE " + RecruitStudentSchema.SCHOOL_ID + "=" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+		builder.append(" WHERE " + RecruitStudentSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		builder.append(" GROUP BY " +  RecruitStudentSchema.CLASS_RANGE + "," + RecruitStudentSchema.GENDER);
 		builder.append(" ORDER BY " +  RecruitStudentSchema.CLASS_RANGE + " ASC");
 

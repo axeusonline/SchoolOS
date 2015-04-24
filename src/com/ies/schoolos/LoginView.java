@@ -120,7 +120,7 @@ public class LoginView extends VerticalLayout{
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				if(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID) != null)
+				if(SessionSchema.getSchoolID() != null)
 					UI.getCurrent().addWindow(initStudentRecruitForm());
 				else
 					Notification.show("ไม่อนุญาติให้สมัครโดยไม่ผ่าน ลิ้งของโรงเรียน", Type.WARNING_MESSAGE);
@@ -373,7 +373,13 @@ public class LoginView extends VerticalLayout{
 
 			if(BCrypt.checkpw(password, passwordHash)){
 				UI ui = UI.getCurrent();
-				setSession(item);
+				SessionSchema.setSession(
+						true,
+						item.getItemProperty(SchoolSchema.SCHOOL_ID).getValue(),
+						item.getItemProperty(SchoolSchema.SCHOOL_ID).getValue(),
+						item.getItemProperty(SchoolSchema.NAME).getValue(),
+						item.getItemProperty(SchoolSchema.FIRSTNAME).getValue(),
+						item.getItemProperty(SchoolSchema.EMAIL).getValue());
 				ui.setContent(new SchoolOSView());	
 				/* จำบัญชีผู้ใช้และรหัสผ่าน */
 				if(rememberPass.getValue()){
@@ -410,23 +416,13 @@ public class LoginView extends VerticalLayout{
 		return loginWindow;
 	}
 	
-	/* ตั้งค่า Session */
-	private void setSession(Item item){
-		getSession().setAttribute(SessionSchema.IS_ROOT, true);
-		getSession().setAttribute(SessionSchema.SCHOOL_ID, item.getItemProperty(SchoolSchema.SCHOOL_ID).getValue());
-		getSession().setAttribute(SessionSchema.SCHOOL_NAME, item.getItemProperty(SchoolSchema.NAME).getValue());
-		getSession().setAttribute(SessionSchema.FIRSTNAME, item.getItemProperty(SchoolSchema.FIRSTNAME).getValue());
-		getSession().setAttribute(SessionSchema.EMAIL, item.getItemProperty(SchoolSchema.EMAIL).getValue());
-	}
-	
 	private void getCriteriaLogin(){
 		/* ถ้าเข้ากับ Url โรงเรียนให้ทำการปิดรับสมัคร แล้วขึ้นชื่อโรงเรียนแทน */
-		if(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID) != null){
+		if(SessionSchema.getSchoolID() != null){
 			schoolRecruit.setVisible(false);
-			signonTopic.setValue(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_NAME).toString());
-			System.err.println(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+			signonTopic.setValue(SessionSchema.getSchoolName().toString());
 			
-			Item item = schoolContainer.getItem(new RowId(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)));
+			Item item = schoolContainer.getItem(new RowId(SessionSchema.getSchoolID()));
 			
 			/* ตรวจสอบว่า อยู่ช่วงรับสมัครใหม */
 			if(item.getItemProperty(SchoolSchema.RECRUIT_START_DATE).getValue() != null &&

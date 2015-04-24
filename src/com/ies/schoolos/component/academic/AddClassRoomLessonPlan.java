@@ -17,12 +17,13 @@ import com.ies.schoolos.utility.DateTimeUtil;
 import com.ies.schoolos.utility.Notification;
 import com.ies.schoolos.utility.Utility;
 import com.vaadin.data.Item;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -68,7 +69,15 @@ public class AddClassRoomLessonPlan extends VerticalLayout {
 		classYear.setWidth("-1px");
 		classYear.setHeight("-1px");
 		classYear.setValue(new ClassYear(Integer.parseInt(classRange.toString())).getIdByIndex(0));
-		classYear.setReadOnly(true);
+		classYear.addValueChangeListener(new ValueChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				setLeftData();
+				setRightData();
+			}
+		});
 		
 		toolStrip.addComponent(classYear);
 		toolStrip.setComponentAlignment(classYear, Alignment.MIDDLE_LEFT);
@@ -138,12 +147,12 @@ public class AddClassRoomLessonPlan extends VerticalLayout {
 		
 		StringBuilder subject = new StringBuilder();
 		subject.append(" SELECT * FROM " + ClassRoomSchema.TABLE_NAME);
-		subject.append(" WHERE "+ ClassRoomSchema.SCHOOL_ID + "=" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+		subject.append(" WHERE "+ ClassRoomSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		subject.append(" AND " + ClassRoomSchema.CLASS_YEAR + "=" + classYear.getValue());
 		subject.append(" AND " + ClassRoomSchema.CLASS_ROOM_ID + " NOT IN (");
 		subject.append(" SELECT "+ ClassRoomLessonPlanSchema.CLASS_ROOM_ID);
 		subject.append(" FROM "+ ClassRoomLessonPlanSchema.TABLE_NAME);
-		subject.append(" WHERE "+ ClassRoomLessonPlanSchema.SCHOOL_ID + "=" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+		subject.append(" WHERE "+ ClassRoomLessonPlanSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		subject.append(" AND " + ClassRoomLessonPlanSchema.LESSON_PLAN_ID + "=" + lessonPlanId);
 		subject.append(" AND " + ClassRoomLessonPlanSchema.ACADEMIC_YEAR + "=" + DateTimeUtil.getBuddishYear() + ")");
 
@@ -162,7 +171,7 @@ public class AddClassRoomLessonPlan extends VerticalLayout {
 		StringBuilder subject = new StringBuilder();
 		subject.append(" SELECT * FROM "+ ClassRoomLessonPlanSchema.TABLE_NAME + " crl");
 		subject.append(" INNER JOIN "+ ClassRoomSchema.TABLE_NAME + " cr ON cr." + ClassRoomSchema.CLASS_ROOM_ID + " = crl." + ClassRoomLessonPlanSchema.CLASS_ROOM_ID);
-		subject.append(" WHERE crl."+ ClassRoomLessonPlanSchema.SCHOOL_ID + "=" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+		subject.append(" WHERE crl."+ ClassRoomLessonPlanSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		subject.append(" AND crl." + ClassRoomLessonPlanSchema.LESSON_PLAN_ID + "=" + lessonPlanId);
 		subject.append(" AND crl." + ClassRoomLessonPlanSchema.ACADEMIC_YEAR + "=" + DateTimeUtil.getBuddishYear());
 		
@@ -186,7 +195,7 @@ public class AddClassRoomLessonPlan extends VerticalLayout {
 				Object tempId = classRoomLessonPlanContainer.addItem();
 				
 				Item classRoomLessonPlanItem = classRoomLessonPlanContainer.getItem(tempId);
-				classRoomLessonPlanItem.getItemProperty(ClassRoomLessonPlanSchema.SCHOOL_ID).setValue(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+				classRoomLessonPlanItem.getItemProperty(ClassRoomLessonPlanSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
 				classRoomLessonPlanItem.getItemProperty(ClassRoomLessonPlanSchema.LESSON_PLAN_ID).setValue(Integer.parseInt(lessonPlanId.toString()));
 				classRoomLessonPlanItem.getItemProperty(ClassRoomLessonPlanSchema.CLASS_ROOM_ID).setValue(Integer.parseInt(itemId.toString()));
 				classRoomLessonPlanItem.getItemProperty(ClassRoomLessonPlanSchema.ACADEMIC_YEAR).setValue(academicYear.getValue());
@@ -215,7 +224,7 @@ public class AddClassRoomLessonPlan extends VerticalLayout {
 				Object tempId = classRoomLessonPlanContainer.addItem();
 				
 				Item classRoomLessonPlanItem = classRoomLessonPlanContainer.getItem(tempId);
-				classRoomLessonPlanItem.getItemProperty(ClassRoomLessonPlanSchema.SCHOOL_ID).setValue(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+				classRoomLessonPlanItem.getItemProperty(ClassRoomLessonPlanSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
 				classRoomLessonPlanItem.getItemProperty(ClassRoomLessonPlanSchema.LESSON_PLAN_ID).setValue(Integer.parseInt(lessonPlanId.toString()));
 				classRoomLessonPlanItem.getItemProperty(ClassRoomLessonPlanSchema.CLASS_ROOM_ID).setValue(Integer.parseInt(itemId.toString()));
 				classRoomLessonPlanItem.getItemProperty(ClassRoomLessonPlanSchema.ACADEMIC_YEAR).setValue(DateTimeUtil.getBuddishYear());

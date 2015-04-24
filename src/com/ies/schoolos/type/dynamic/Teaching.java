@@ -12,7 +12,6 @@ import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.util.sqlcontainer.query.FreeformQuery;
-import com.vaadin.ui.UI;
 
 public class Teaching extends IndexedContainer{
 
@@ -35,7 +34,7 @@ public class Teaching extends IndexedContainer{
 		StringBuilder teachingBuilder = new StringBuilder();
 		teachingBuilder.append(" SELECT * FROM "+ TeachingSchema.TABLE_NAME + " tc");
 		teachingBuilder.append(" INNER JOIN "+ SubjectSchema.TABLE_NAME + " s ON s." + SubjectSchema.SUBJECT_ID + " = tc." + TeachingSchema.SUBJECT_ID);
-		teachingBuilder.append(" WHERE tc."+ TeachingSchema.SCHOOL_ID + "=" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+		teachingBuilder.append(" WHERE tc."+ TeachingSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		teachingBuilder.append(" AND tc." + TeachingSchema.ACADEMIC_YEAR + "=" + DateTimeUtil.getBuddishYear());
 		
 		tContainer = Container.getInstance().getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
@@ -56,7 +55,7 @@ public class Teaching extends IndexedContainer{
 					builder.append(" SELECT " + PersonnelSchema.PERSONNEL_ID + "," + PersonnelSchema.PERSONEL_CODE + "," + PersonnelSchema.FIRSTNAME + "," + PersonnelSchema.LASTNAME);
 					builder.append(" FROM " + PersonnelSchema.TABLE_NAME);
 					builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + teachingItem.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue());
-
+					
 					FreeformQuery tq = new FreeformQuery(builder.toString(), DbConnection.getConnection(),PersonnelSchema.PERSONNEL_ID);
 					SQLContainer personnelContainer = new SQLContainer(tq);
 
@@ -95,7 +94,7 @@ public class Teaching extends IndexedContainer{
 		StringBuilder teachingBuilder = new StringBuilder();
 		teachingBuilder.append(" SELECT * FROM "+ TeachingSchema.TABLE_NAME + " tc");
 		teachingBuilder.append(" INNER JOIN "+ SubjectSchema.TABLE_NAME + " s ON s." + SubjectSchema.SUBJECT_ID + " = tc." + TeachingSchema.SUBJECT_ID);
-		teachingBuilder.append(" WHERE tc."+ TeachingSchema.SCHOOL_ID + "=" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+		teachingBuilder.append(" WHERE tc."+ TeachingSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		teachingBuilder.append(" AND tc." + TeachingSchema.ACADEMIC_YEAR + "=" + DateTimeUtil.getBuddishYear());
 		teachingBuilder.append(" AND s." + SubjectSchema.SUBJECT_ID + " IN");
 		teachingBuilder.append(" (SELECT " + LessonPlanSubjectSchema.SUBJECT_ID + " FROM " + LessonPlanSubjectSchema.TABLE_NAME);

@@ -1,7 +1,6 @@
 package com.ies.schoolos.schema.view;
 
 import com.ies.schoolos.schema.SessionSchema;
-import com.vaadin.ui.UI;
 
 public class StatClassRoomSchema implements java.io.Serializable{
 	private static final long serialVersionUID = 1L;
@@ -28,7 +27,7 @@ public class StatClassRoomSchema implements java.io.Serializable{
     public static String getQuery(int classYear){
     	String query = "SELECT * FROM " + TABLE_NAME 
 		+ " WHERE "	+ CLASS_YEAR + "=" + classYear 
-		+ " AND " + SCHOOL_ID + "=" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID);
+		+ " AND " + SCHOOL_ID + "=" + SessionSchema.getSchoolID();
     	return query;
     }
 }

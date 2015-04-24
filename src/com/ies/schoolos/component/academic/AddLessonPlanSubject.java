@@ -26,7 +26,6 @@ import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -53,6 +52,8 @@ public class AddLessonPlanSubject extends VerticalLayout {
 		buildMainLayout();
 		setLeftData();
 		setRightData();
+		twinSelect.getRightTable().setFilterFieldValue(LessonPlanSubjectSchema.CLASS_YEAR, new NumberInterval(null, null, "-1"));
+		twinSelect.getRightTable().setFilterFieldValue(LessonPlanSubjectSchema.SEMESTER, new NumberInterval(null, null, "-1"));
 	}
 	
 	private void buildMainLayout(){
@@ -113,6 +114,13 @@ public class AddLessonPlanSubject extends VerticalLayout {
 		twinSelect.getRightTable().setColumnHeader(LessonPlanSubjectSchema.CLASS_YEAR, "ชั้นปี");
 		twinSelect.getRightTable().setColumnHeader(LessonPlanSubjectSchema.SEMESTER, "เทอมการศึกษา");
 		
+		twinSelect.getRightTable().setColumnCollapsingAllowed(true);
+		twinSelect.getRightTable().setColumnCollapsed(LessonPlanSubjectSchema.CLASS_YEAR, true);
+		twinSelect.getRightTable().setColumnCollapsed(LessonPlanSubjectSchema.SEMESTER, true);
+		// you can set individual columns non-collapsible
+		/*twinSelect.getRightTable().setColumnCollapsible(LessonPlanSubjectSchema.CLASS_YEAR, false);
+		twinSelect.getRightTable().setColumnCollapsible(LessonPlanSubjectSchema.SEMESTER, false);*/
+		
 		twinSelect.getLeftTable().setVisibleColumns(
 				SubjectSchema.CODE, 
 				SubjectSchema.NAME,
@@ -146,11 +154,13 @@ public class AddLessonPlanSubject extends VerticalLayout {
 		
 		StringBuilder subject = new StringBuilder();
 		subject.append(" SELECT * FROM " + SubjectSchema.TABLE_NAME);
-		subject.append(" WHERE "+ SubjectSchema.SCHOOL_ID + "=" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+		subject.append(" WHERE "+ SubjectSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		subject.append(" AND " + SubjectSchema.SUBJECT_ID + " NOT IN (");
 		subject.append(" SELECT "+ LessonPlanSubjectSchema.SUBJECT_ID);
 		subject.append(" FROM "+ LessonPlanSubjectSchema.TABLE_NAME);
-		subject.append(" WHERE "+ LessonPlanSubjectSchema.SCHOOL_ID + "=" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+		subject.append(" WHERE "+ LessonPlanSubjectSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
+		subject.append(" AND " + LessonPlanSubjectSchema.CLASS_YEAR + "=" + classYear.getValue());
+		subject.append(" AND " + LessonPlanSubjectSchema.SEMESTER + "=" + semester.getValue());
 		subject.append(" AND " + LessonPlanSubjectSchema.LESSON_PLAN_ID + "=" + lessonPlanId + ")");
 
 		sContainer = Container.getInstance().getFreeFormContainer(subject.toString(), SubjectSchema.SUBJECT_ID);
@@ -168,7 +178,7 @@ public class AddLessonPlanSubject extends VerticalLayout {
 		StringBuilder subject = new StringBuilder();
 		subject.append(" SELECT * FROM "+ LessonPlanSubjectSchema.TABLE_NAME + " lps");
 		subject.append(" INNER JOIN "+ SubjectSchema.TABLE_NAME + " s ON s." + SubjectSchema.SUBJECT_ID + " = lps." + LessonPlanSubjectSchema.SUBJECT_ID);
-		subject.append(" WHERE lps."+ LessonPlanSubjectSchema.SCHOOL_ID + "=" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+		subject.append(" WHERE lps."+ LessonPlanSubjectSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		subject.append(" AND lps." + LessonPlanSubjectSchema.LESSON_PLAN_ID + "=" + lessonPlanId);
 		
 		sContainer = Container.getInstance().getFreeFormContainer(subject.toString(), LessonPlanSubjectSchema.LESSON_PLAN_SUBJECT_ID);
@@ -191,7 +201,7 @@ public class AddLessonPlanSubject extends VerticalLayout {
 				Object tempId = lessonPlanSubjectContainer.addItem();
 				
 				Item lessonPlanSubjectItem = lessonPlanSubjectContainer.getItem(tempId);
-				lessonPlanSubjectItem.getItemProperty(LessonPlanSubjectSchema.SCHOOL_ID).setValue(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+				lessonPlanSubjectItem.getItemProperty(LessonPlanSubjectSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
 				lessonPlanSubjectItem.getItemProperty(LessonPlanSubjectSchema.LESSON_PLAN_ID).setValue(Integer.parseInt(lessonPlanId.toString()));
 				lessonPlanSubjectItem.getItemProperty(LessonPlanSubjectSchema.SUBJECT_ID).setValue(Integer.parseInt(itemId.toString()));
 				lessonPlanSubjectItem.getItemProperty(LessonPlanSubjectSchema.CLASS_YEAR).setValue(Integer.parseInt(classYear.getValue().toString()));
@@ -222,7 +232,7 @@ public class AddLessonPlanSubject extends VerticalLayout {
 				Object tempId = lessonPlanSubjectContainer.addItem();
 				
 				Item lessonPlanSubjectItem = lessonPlanSubjectContainer.getItem(tempId);
-				lessonPlanSubjectItem.getItemProperty(LessonPlanSubjectSchema.SCHOOL_ID).setValue(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+				lessonPlanSubjectItem.getItemProperty(LessonPlanSubjectSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
 				lessonPlanSubjectItem.getItemProperty(LessonPlanSubjectSchema.LESSON_PLAN_ID).setValue(Integer.parseInt(lessonPlanId.toString()));
 				lessonPlanSubjectItem.getItemProperty(LessonPlanSubjectSchema.SUBJECT_ID).setValue(Integer.parseInt(itemId.toString()));
 				lessonPlanSubjectItem.getItemProperty(LessonPlanSubjectSchema.CLASS_YEAR).setValue(Integer.parseInt(classYear.getValue().toString()));
@@ -310,9 +320,11 @@ public class AddLessonPlanSubject extends VerticalLayout {
 		public void valueChange(ValueChangeEvent event) {
 			if(classYear.getValue() != null &&
 					semester.getValue() != null){
+				setLeftData();
+				
 				twinSelect.getRightTable().setFilterFieldValue(LessonPlanSubjectSchema.CLASS_YEAR, new NumberInterval(null, null, classYear.getValue().toString()));
 				twinSelect.getRightTable().setFilterFieldValue(LessonPlanSubjectSchema.SEMESTER, new NumberInterval(null, null, semester.getValue().toString()));
-				
+
 				twinSelect.setLeftCountFooter(SubjectSchema.CODE);
 				twinSelect.setRightCountFooter(SubjectSchema.CODE);
 			}

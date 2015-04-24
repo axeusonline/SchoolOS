@@ -19,7 +19,6 @@ import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 
 import com.ies.schoolos.schema.SessionSchema;
-import com.vaadin.ui.UI;
 
 public class EmailSender {
 	public EmailSender(String to, String subject, String description, String filename, InputStream inputStream) {
@@ -27,7 +26,7 @@ public class EmailSender {
 		final String password = "!IeSP@ssw0rd?";
 		
 	    // Sender's email ID needs to be mentioned
-	    String from = UI.getCurrent().getSession().getAttribute(SessionSchema.EMAIL).toString();
+	    String from = SessionSchema.getEmail().toString();
 
 	    // Get system properties
 	    Properties properties = System.getProperties();

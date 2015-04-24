@@ -61,7 +61,7 @@ public class LessonPlanView extends VerticalLayout{
 	
 	public LessonPlanView() {
 		lContainer.refresh();
-		lContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)));
+		lContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
 		
 		setSpacing(true);
 		setMargin(true);
@@ -172,7 +172,7 @@ public class LessonPlanView extends VerticalLayout{
 						if(!saveFormData())
 							return;
 						
-						lContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)));
+						lContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
 					}
 					item = null;
 					initFieldGroup();
@@ -217,6 +217,7 @@ public class LessonPlanView extends VerticalLayout{
 						else if("".equals(propertyId))
 							value = initButtonLayout(item, itemId);
 					}
+					System.err.println(value);
 					return value;
 				}
 			});
@@ -227,7 +228,7 @@ public class LessonPlanView extends VerticalLayout{
 		final HorizontalLayout buttonLayout = new HorizontalLayout();
 		buttonLayout.setSpacing(true);
 		
-		Button addSubjectButton = new Button("เพิ่มรายวิชา",FontAwesome.INDENT);
+		Button addSubjectButton = new Button("เลือกรายวิชา",FontAwesome.INDENT);
 		addSubjectButton.setId(itemId.toString());
 		addSubjectButton.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 1L;
@@ -293,7 +294,7 @@ public class LessonPlanView extends VerticalLayout{
 	
 	/*นำจำนวนที่นับ มาใส่ค่าในส่วนท้ายตาราง*/
 	private void setFooterData(){
-		table.setColumnFooter(LessonPlanSchema.NAME, "ทั้งหมด: "+ table.size() + " วิชา");
+		table.setColumnFooter(LessonPlanSchema.NAME, "ทั้งหมด: "+ table.size() + " แผนการเรียน");
 	}
 	
 	/* จัดกลุ่มของ ฟอร์มในการแก้ไข - เพิ่ม ข้อมูล */
@@ -336,7 +337,7 @@ public class LessonPlanView extends VerticalLayout{
 				Object data = Class.forName(className).cast(value);
 				item.getItemProperty(lessonPlanBinder.getPropertyId(field)).setValue(data);
 			}
-			item.getItemProperty(LessonPlanSchema.SCHOOL_ID).setValue(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+			item.getItemProperty(LessonPlanSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
 			CreateModifiedSchema.setCreateAndModified(item);
 			lContainer.commit();
 			

@@ -31,8 +31,8 @@
 
 @mixin schoolos {
 	@include valo;
-	@include v-font("Blenda Script", '../../schoolos/fonts/Blenda Script.otf');
-	@include v-font("HelveticaLTStd-Blk", '../../schoolos/fonts/HelveticaLTStd-Blk.otf');
+	@include v-font("Blenda Script", 'fonts/Blenda Script.otf');
+	@include v-font("HelveticaLTStd-Blk", 'fonts/HelveticaLTStd-Blk.otf');
 	
 	// Insert your own theme rules here
 	.schoolos .v-tabsheet-tabitemcell .v-tabsheet-tabitem{
@@ -198,14 +198,21 @@
 	.red-button, .red-label{
 		background:rgb(237,57,55);
 		text-align:center;
+		font-size:12px;
 		font-weight:bold;
 		color:rgb(255,255,255);
 	}
 	.green-button, .green-label{
 		background:rgb(141,202,69);
 		text-align:center;
+		font-size:12px;
 		font-weight:bold;
 		color:rgb(255,255,255);
+		
+	}
+	
+	.v-button-red-button .v-button-caption {
+	   white-space: normal;
 	}
 	
 	.right-layout{

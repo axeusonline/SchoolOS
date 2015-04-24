@@ -48,7 +48,7 @@ public class PersonnelListView extends VerticalLayout {
 		
 		pContainer.removeAllContainerFilters();
 		pContainer.addContainerFilter(new And(
-				new Equal(PersonnelSchema.SCHOOL_ID,UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
+				new Equal(PersonnelSchema.SCHOOL_ID,SessionSchema.getSchoolID()),
 				new Equal(PersonnelSchema.PERSONEL_STATUS, 0)));
 		
 		setSizeFull();
@@ -78,7 +78,7 @@ public class PersonnelListView extends VerticalLayout {
 					@Override
 					public void windowClose(CloseEvent e) {
 						pContainer.addContainerFilter(new And(
-								new Equal(PersonnelSchema.SCHOOL_ID,UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
+								new Equal(PersonnelSchema.SCHOOL_ID,SessionSchema.getSchoolID()),
 								new Equal(PersonnelSchema.PERSONEL_STATUS, 0)));
 						pContainer.refresh();
 						setFooterData();
@@ -107,6 +107,7 @@ public class PersonnelListView extends VerticalLayout {
 		table.setContainerDataSource(pContainer);
 	    setFooterData();
 		initTableStyle();
+		table.sort(new Object[]{PersonnelSchema.PERSONEL_CODE}, new boolean[]{true});
 
 		table.setColumnReorderingAllowed(true);
 		table.setColumnCollapsingAllowed(true);

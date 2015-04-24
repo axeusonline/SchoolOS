@@ -33,7 +33,6 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -161,7 +160,7 @@ public class RecruitStudentClassRoomTmpView extends VerticalLayout{
 		
 		/* ค้นหานักเรียนที่ยังไม่ถูกกำหนดชั้นเรียน */
 		sContainer.addContainerFilter(new And(
-				new Equal(RecruitStudentSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
+				new Equal(RecruitStudentSchema.SCHOOL_ID, SessionSchema.getSchoolID()),
 				new Greater(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getFirstDateOfYear()),
 				new Less(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getLastDateOfYear()),
 				new IsNull(RecruitStudentSchema.CLASS_ROOM_ID)));
@@ -182,7 +181,7 @@ public class RecruitStudentClassRoomTmpView extends VerticalLayout{
 		
 		/* ค้นหานักเรียนที่อยู่ชั้นเรียนที่กำหนด */
 		sContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.CLASS_ROOM_ID, Integer.parseInt(classRoom.getValue().toString())),
-				new Equal(SchoolSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID))));
+				new Equal(SchoolSchema.SCHOOL_ID, SessionSchema.getSchoolID())));
 		
 		for(Object itemId: sContainer.getItemIds()){
 			Item item = sContainer.getItem(itemId);

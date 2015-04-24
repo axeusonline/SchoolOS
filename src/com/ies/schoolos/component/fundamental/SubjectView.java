@@ -68,7 +68,7 @@ public class SubjectView extends ContentPage{
 		super("รายวิชา");
 		
 		sContainer.refresh();
-		sContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)));
+		sContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
 		setSpacing(true);
 		setMargin(true);
 		
@@ -117,12 +117,15 @@ public class SubjectView extends ContentPage{
 		table.setColumnReorderingAllowed(true);
 		table.setColumnCollapsingAllowed(true);
 		subjectLayout.addComponent(table);
+		subjectLayout.setExpandRatio(table,(float)2.2);
 		
 		//Form		
 		subjectForm = new FormLayout();
 		subjectForm.setSpacing(true);
+		subjectForm.setMargin(true);
 		subjectForm.setStyleName("border-white");
 		subjectLayout.addComponent(subjectForm);
+		subjectLayout.setExpandRatio(subjectForm,1);
 		
 		Label formLab = new Label("รายวิชา");
 		subjectForm.addComponent(formLab);
@@ -176,7 +179,7 @@ public class SubjectView extends ContentPage{
 		hour.setHeight("-1px");
 		subjectForm.addComponent(hour);
 		
-		lessonType = new ComboBox("สาระการเรียนรู็",new LessonType());
+		lessonType = new ComboBox("สาระการเรียนรู้",new LessonType());
 		lessonType.setInputPrompt("กรุณาเลือก");
 		lessonType.setItemCaptionPropertyId("name");
 		lessonType.setImmediate(true);
@@ -231,9 +234,10 @@ public class SubjectView extends ContentPage{
 						if(!saveFormData())
 							return;
 						
-						sContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)));
+						sContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
 					}
 					item = null;
+					save.setCaption("บันทึก");
 					initFieldGroup();
 					Notification.show("บันทึึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 				} catch (Exception e) {
@@ -252,7 +256,7 @@ public class SubjectView extends ContentPage{
 		table.setColumnHeader(SubjectSchema.CODE, "รหัสวิชา");
 		table.setColumnHeader(SubjectSchema.NAME, "ชื่อวิชา");
 		table.setColumnHeader(SubjectSchema.WEIGHT, "น้ำหนัก");
-		table.setColumnHeader(SubjectSchema.LESSON_TYPE, "สาระการเรียนรู็");
+		table.setColumnHeader(SubjectSchema.LESSON_TYPE, "สาระการเรียนรู้");
 		table.setColumnHeader(SubjectSchema.SUBJECT_TYPE, "ประเภทวิชา");
 		
 		table.setVisibleColumns(
@@ -374,10 +378,10 @@ public class SubjectView extends ContentPage{
 				Object data = Class.forName(className).cast(value);
 				item.getItemProperty(subjectBinder.getPropertyId(field)).setValue(data);
 			}
-			item.getItemProperty(SubjectSchema.SCHOOL_ID).setValue(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+			item.getItemProperty(SubjectSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
 			CreateModifiedSchema.setCreateAndModified(item);
 			sContainer.commit();
-			
+			setFooterData();
 			return true;
 		} catch (Exception e) {
 			Notification.show("บันทึกไม่สำเร็จ", Type.WARNING_MESSAGE);

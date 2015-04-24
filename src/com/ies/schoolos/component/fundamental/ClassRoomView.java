@@ -63,7 +63,7 @@ public class ClassRoomView extends ContentPage{
 		super("ชั้นเรียน");
 		
 		classContainer.refresh();
-		classContainer.addContainerFilter(new Equal(ClassRoomSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)));
+		classContainer.addContainerFilter(new Equal(ClassRoomSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
 		setSpacing(true);
 		setMargin(true);
 		
@@ -102,11 +102,11 @@ public class ClassRoomView extends ContentPage{
 		table.setFilterDecorator(new TableFilterDecorator());
 		table.setFilterGenerator(new TableFilterGenerator());
         table.setFilterBarVisible(true);
-
 		table.setContainerDataSource(classContainer);
 	    setFooterData();
 		initTableStyle();
 
+        table.sort(new Object[]{ClassRoomSchema.CLASS_YEAR, ClassRoomSchema.NUMBER}, new boolean[]{true,true});
 		table.setColumnReorderingAllowed(true);
 		table.setColumnCollapsingAllowed(true);
 		classRoomLayout.addComponent(table);
@@ -114,6 +114,7 @@ public class ClassRoomView extends ContentPage{
 		//Form		
 		classRoomForm = new FormLayout();
 		classRoomForm.setSpacing(true);
+		classRoomForm.setMargin(true);
 		classRoomForm.setStyleName("border-white");
 		classRoomLayout.addComponent(classRoomForm);
 		
@@ -159,7 +160,7 @@ public class ClassRoomView extends ContentPage{
 					sqlBuilder.append(" SELECT MAX(" + ClassRoomSchema.NUMBER + ") AS " + ClassRoomSchema.NUMBER);
 					sqlBuilder.append(" FROM " + ClassRoomSchema.TABLE_NAME);
 					sqlBuilder.append(" WHERE "	+ ClassRoomSchema.CLASS_YEAR + "=" + classYear );
-					sqlBuilder.append(" AND " + ClassRoomSchema.SCHOOL_ID + "=" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+					sqlBuilder.append(" AND " + ClassRoomSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 					
 					
 					SQLContainer freeContainer = Container.getInstance().getFreeFormContainer(sqlBuilder.toString(),ClassRoomSchema.NUMBER);
@@ -247,9 +248,10 @@ public class ClassRoomView extends ContentPage{
 						if(!saveFormData())
 							return;
 						
-						classContainer.addContainerFilter(new Equal(ClassRoomSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)));
+						classContainer.addContainerFilter(new Equal(ClassRoomSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
 					}
 					item = null;
+					save.setCaption("บันทึก");
 					initFieldGroup();
 					Notification.show("บันทึึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 				} catch (Exception e) {
@@ -315,7 +317,7 @@ public class ClassRoomView extends ContentPage{
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				ConfirmDialog.show(UI.getCurrent(), "ลบรายวิชา","คุณต้องการลบรายวิชานี้ใช่หรือไม่?","ตกลง","ยกเลิก",
+				ConfirmDialog.show(UI.getCurrent(), "ลบชั้นเรียน","คุณต้องการลบชั้นเรียนนี้ใช่หรือไม่?","ตกลง","ยกเลิก",
 			        new ConfirmDialog.Listener() {
 						private static final long serialVersionUID = 1L;
 						public void onClose(ConfirmDialog dialog) {
@@ -342,7 +344,7 @@ public class ClassRoomView extends ContentPage{
 	
 	/*นำจำนวนที่นับ มาใส่ค่าในส่วนท้ายตาราง*/
 	private void setFooterData(){
-		table.setColumnFooter(ClassRoomSchema.CLASS_YEAR, "ทั้งหมด: "+ table.size() + " วิชา");
+		table.setColumnFooter(ClassRoomSchema.CLASS_YEAR, "ทั้งหมด: "+ table.size() + " ชั้นเรียน");
 	}
 	
 	/* จัดกลุ่มของ ฟอร์มในการแก้ไข - เพิ่ม ข้อมูล */
@@ -387,7 +389,7 @@ public class ClassRoomView extends ContentPage{
 				Object data = Class.forName(className).cast(value);
 				item.getItemProperty(classRoomBinder.getPropertyId(field)).setValue(data);
 			}
-			item.getItemProperty(ClassRoomSchema.SCHOOL_ID).setValue(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+			item.getItemProperty(ClassRoomSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
 			CreateModifiedSchema.setCreateAndModified(item);
 			classContainer.commit();
 			

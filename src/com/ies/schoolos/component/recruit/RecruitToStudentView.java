@@ -102,7 +102,7 @@ public class RecruitToStudentView extends VerticalLayout{
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				Item schoolItem = schoolContainer.getItem(new RowId(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)));
+				Item schoolItem = schoolContainer.getItem(new RowId(SessionSchema.getSchoolID()));
 				/* ตรวจสอบประเภทการสร้างรหัสนักเรียน
 				 *  กรณีมีการตั้งค่าประเภทการกำหนดรหัสนักเรียน (อัตโนมัติ = 0 , กำหนดเอง = 1) 
 				 *  กรณีไม่มีการตั้งค่าประเภทการกำหนดรหัสนักเรียน จะขึ้นเตือนว่าให้มีการตั้งค่าก่อน*/
@@ -233,7 +233,7 @@ public class RecruitToStudentView extends VerticalLayout{
 	private void setTableData(){
 		/* ดึงจำนวนนักเรียนที่ไม่ยืนยันตัว เพื่อหาจำนวนผู้สมัครทั้งหมด */
 		rsContainer.addContainerFilter(new And(
-				new Equal(RecruitStudentSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
+				new Equal(RecruitStudentSchema.SCHOOL_ID, SessionSchema.getSchoolID()),
 				new Greater(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getFirstDateOfYear()),
 				new Less(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getLastDateOfYear()),
 				new Equal(RecruitStudentSchema.IS_CONFIRM, false)));
@@ -243,7 +243,7 @@ public class RecruitToStudentView extends VerticalLayout{
 		
 		/* ดึงจำนวนนักเรียนที่ยืนยันตัว */ 
 		rsContainer.addContainerFilter(new And(
-				new Equal(SchoolSchema.SCHOOL_ID,UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
+				new Equal(SchoolSchema.SCHOOL_ID,SessionSchema.getSchoolID()),
 				new Greater(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getFirstDateOfYear()),
 				new Less(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getLastDateOfYear()),
 				new Equal(RecruitStudentSchema.IS_CONFIRM, true)));
@@ -272,7 +272,7 @@ public class RecruitToStudentView extends VerticalLayout{
 	private void transferRecruitToStudent(){
 		/* ดึงนักเรียนทั้งหมด ที่มีการยืนยันตัว โดยเรียงตาม ช่วงชั้นและชื่อ */	
 		rsContainer.addContainerFilter(new And(
-				new Equal(RecruitStudentSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
+				new Equal(RecruitStudentSchema.SCHOOL_ID, SessionSchema.getSchoolID()),
 				new Equal(RecruitStudentSchema.IS_CONFIRM, true),
 				new Equal(RecruitStudentSchema.IS_GENERATE_STUDENT_CODE, false)));
 		rsContainer.addOrderBy(new OrderBy(RecruitStudentSchema.CLASS_RANGE, true));
@@ -370,7 +370,7 @@ public class RecruitToStudentView extends VerticalLayout{
 		Item studentItem = null;
 		
 		studentContainer.addContainerFilter(new And(
-				new Equal(StudentSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
+				new Equal(StudentSchema.SCHOOL_ID, SessionSchema.getSchoolID()),
 				new Equal(StudentSchema.PEOPLE_ID, peopleId)));
 		if(studentContainer.size() > 0){
 			studentItem = studentContainer.getItem(studentContainer.getIdByIndex(0));
@@ -477,7 +477,7 @@ public class RecruitToStudentView extends VerticalLayout{
 		    newItem.getItemProperty(StudentStudySchema.STUDENT_ID).setValue(Integer.parseInt(idStore.get(3).toString()));
 		    newItem.getItemProperty(StudentStudySchema.STUDENT_STATUS).setValue(0);
 		    newItem.getItemProperty(StudentStudySchema.STUDENT_CODE).setValue(studentCode);
-		    newItem.getItemProperty(StudentStudySchema.RECRUIT_BY_ID).setValue(UI.getCurrent().getSession().getAttribute(SessionSchema.USER_ID));
+		    newItem.getItemProperty(StudentStudySchema.RECRUIT_BY_ID).setValue(SessionSchema.getUserID());
 		    newItem.getItemProperty(StudentStudySchema.RECRUIT_DATE).setValue(new Date());
 		    newItem.getItemProperty(StudentStudySchema.RECRUIT_TYPE).setValue(2);
 		    newItem.getItemProperty(StudentStudySchema.RECRUIT_CLASS_YEAR).setValue(classYear);
@@ -560,7 +560,7 @@ public class RecruitToStudentView extends VerticalLayout{
 		   /* ค้นรหัสนักเรียนที่มากสุด เพื่อบวกค่าเรื่อย ๆ เพื่อทำการบวกรหัสนักเรียน */
 		   freeFormContainer = Container.getInstance().getFreeFormContainer(StatStudentCodeSchema.getQuery(), StatStudentCodeSchema.MAX_STUDENT_CODE);
 		   
-		   Item schoolItem = schoolContainer.getItem(new RowId(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)));
+		   Item schoolItem = schoolContainer.getItem(new RowId(SessionSchema.getSchoolID()));
 		   /* ตรวจสอบ รหัสนักเรียนที่มากสุดของแต่ละชั้นปีว่ามีการกำหนดหรือยัง
 		    *  กรณี มีการกำหนดแล้วก็จะบวกรหัสที่มากสุดณปัจจุุบัน
 		    *  กรณี ไม่มีการกำหนดจะทำการกำหนดค่าเอง  */
@@ -595,7 +595,7 @@ public class RecruitToStudentView extends VerticalLayout{
 		StringBuilder builder = new StringBuilder();
 		builder.append(" SELECT " + RecruitStudentSchema.STUDENT_ID + "," + RecruitStudentSchema.GENDER + "," + RecruitStudentSchema.CLASS_RANGE + ", COUNT("+RecruitStudentSchema.CLASS_RANGE+") AS sum");
 		builder.append(" FROM " + RecruitStudentSchema.TABLE_NAME);
-		builder.append(" WHERE " + RecruitStudentSchema.SCHOOL_ID + "=" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+		builder.append(" WHERE " + RecruitStudentSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		builder.append(" AND " + RecruitStudentSchema.IS_CONFIRM + "=" + true);
 		builder.append(" GROUP BY " +  RecruitStudentSchema.CLASS_RANGE + "," + RecruitStudentSchema.GENDER);
 		builder.append(" ORDER BY " +  RecruitStudentSchema.CLASS_RANGE + " ASC");

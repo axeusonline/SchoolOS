@@ -43,7 +43,7 @@ public class RecruitStudentConfirmedToExcel extends Table{
 	
 	public void setData(){
 		SQLContainer sContainer = Container.getInstance().getRecruitStudentContainer();
-		sContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.SCHOOL_ID,UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
+		sContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.SCHOOL_ID,SessionSchema.getSchoolID()),
 				new Greater(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getFirstDateOfYear()),
 				new Less(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getLastDateOfYear()),
 				new Equal(RecruitStudentSchema.IS_CONFIRM, true)));

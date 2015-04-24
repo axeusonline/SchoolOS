@@ -2,11 +2,9 @@ package com.ies.schoolos.filter;
 
 import org.tepi.filtertable.FilterGenerator;
 
-import com.ies.schoolos.utility.Notification;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.filter.Compare;
 import com.vaadin.data.util.filter.Or;
-import com.vaadin.server.Page;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Field;
@@ -61,16 +59,16 @@ public class TableFilterGenerator implements FilterGenerator {
 
     @Override
     public void filterRemoved(Object propertyId) {
-        Notification n = new Notification("คำค้นถูกถอนสำหรับ: " + propertyId, Notification.Type.TRAY_NOTIFICATION);
+        /*Notification n = new Notification("คำค้นถูกถอนสำหรับ: " + propertyId, Notification.Type.TRAY_NOTIFICATION);
         n.setDelayMsec(800);
-        n.show(Page.getCurrent());
+        n.show(Page.getCurrent());*/
     }
 
     @Override
     public void filterAdded(Object propertyId, Class<? extends Filter> filterType, Object value) {
-        Notification n = new Notification("คำค้นสำหรับ: " + propertyId,  Notification.Type.TRAY_NOTIFICATION);
+        /*Notification n = new Notification("คำค้นสำหรับ: " + propertyId,  Notification.Type.TRAY_NOTIFICATION);
         n.setDelayMsec(800);
-        n.show(Page.getCurrent());
+        n.show(Page.getCurrent());*/
     }
 
     @Override

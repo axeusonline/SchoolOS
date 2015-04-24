@@ -46,14 +46,13 @@ import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.server.Page;
 import com.vaadin.server.StreamResource;
-import com.vaadin.ui.UI;
 
 public class RecruitStudentReport {
 	
 	private final String DEFAULT_FORM = "https://storage.googleapis.com/schoolos/forms/";
 	private final String DEFAULT_IMAGE = "https://storage.googleapis.com/schoolos/images/";
 	private final String REPORT_ID = "recruit_student.jasper";
-	private final String LOGO = UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID) +".jpg";
+	private final String LOGO = SessionSchema.getSchoolID() +".jpg";
 		
 	private StreamResource resource;
 	private String fileName = "";
@@ -113,10 +112,10 @@ public class RecruitStudentReport {
 	
 	/* ส่งอีเมลล์ใบสมัคร */
 	private void sendEmail(){
-		String subject = "ใบสมัคร"+UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_NAME).toString();
-		String description = "อีเมล์ฉบับนี้ส่งมา เพื่อยืนยันว่าคุณได้สมัครเรียนเรียบร้อยแล้ว สำหรับ" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_NAME).toString() + System.getProperty("line.separator") +
+		String subject = "ใบสมัคร"+SessionSchema.getSchoolName().toString();
+		String description = "อีเมล์ฉบับนี้ส่งมา เพื่อยืนยันว่าคุณได้สมัครเรียนเรียบร้อยแล้ว สำหรับ" + SessionSchema.getSchoolName().toString() + System.getProperty("line.separator") +
 				"กรุณาพิมพ์หลักฐานการสมัครที่แนบด้านล่างนี้ ในการประกอบเอกสารการรับสมัคร" + System.getProperty("line.separator") +
-				"หากมีข้อสงสัยกรุณาติดต่อกลับที่ " + UI.getCurrent().getSession().getAttribute(SessionSchema.EMAIL).toString() + System.getProperty("line.separator") +
+				"หากมีข้อสงสัยกรุณาติดต่อกลับที่ " + SessionSchema.getEmail().toString() + System.getProperty("line.separator") +
 				System.getProperty("line.separator") +
 				"กรุณาอย่าส่งกลับมาอีเมลล์ที่ใช้ในการส่งนี้ " + System.getProperty("line.separator") +
 				"โดย ทีมงาน SchoolOS ";
@@ -149,7 +148,7 @@ public class RecruitStudentReport {
 		emailTo = item.getItemProperty(RecruitStudentSchema.EMAIL).getValue().toString();
 		
 		paramMap.put("reg_id",item.getItemProperty(RecruitStudentSchema.RECRUIT_CODE).getValue());
-		paramMap.put("school_name",UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_NAME));
+		paramMap.put("school_name",SessionSchema.getSchoolName());
 		paramMap.put(RecruitStudentSchema.STUDENT_ID,item.getItemProperty(RecruitStudentSchema.STUDENT_ID).getValue());
 		paramMap.put(RecruitStudentSchema.CLASS_RANGE,ClassRange.getNameTh(Integer.parseInt(item.getItemProperty(RecruitStudentSchema.CLASS_RANGE).getValue().toString())));
 		paramMap.put(RecruitStudentSchema.PEOPLE_ID,item.getItemProperty(RecruitStudentSchema.PEOPLE_ID).getValue());

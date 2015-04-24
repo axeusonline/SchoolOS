@@ -172,7 +172,7 @@ public class StudentToExcel extends Table{
 				+ "INNER JOIN family f1 ON s.father_id = f1.family_id "
 				+ "INNER JOIN family f2 ON s.mother_id = f2.family_id "
 				+ "INNER JOIN family f3 ON ss.guardian_id = f3.family_id "
-				+ "WHERE scr.school_id = " + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)+ " "
+				+ "WHERE scr.school_id = " + SessionSchema.getSchoolID()+ " "
 				+ "AND scr.academic_year =" + DateTimeUtil.getChristianYear() + " "
 				+ "ORDER BY cr.class_year,cr.number,ss.student_code", StudentClassRoomSchema.STUDENT_CLASS_ROOM_ID);
 		

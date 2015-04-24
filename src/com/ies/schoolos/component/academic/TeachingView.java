@@ -82,7 +82,7 @@ public class TeachingView extends VerticalLayout {
 		toolStrip.addComponent(subject);
 		toolStrip.setComponentAlignment(subject, Alignment.MIDDLE_LEFT);
 		
-		addition = new Button("เพิ่มอาจารย์พิเศษ", FontAwesome.USER);
+		addition = new Button("เพิ่มอาจารย์ชั่วคราว", FontAwesome.USER);
 		addition.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 1L;
 
@@ -117,26 +117,31 @@ public class TeachingView extends VerticalLayout {
 						public void buttonClick(ClickEvent event) {
 							if(name.isValid()){
 								try {
-									/* ก่อนแก้ไข เพิ่มต้องลบ Filter ก่อนหน้า */
-									teachingContainer.removeAllContainerFilters();
+									if(name.getValue().split(" ").length > 1){
+										/* ก่อนแก้ไข เพิ่มต้องลบ Filter ก่อนหน้า */
+										teachingContainer.removeAllContainerFilters();
+										
+										Object tempId = teachingContainer.addItem();
+										
+										Item teachingItem = teachingContainer.getItem(tempId);
+										teachingItem.getItemProperty(TeachingSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
+										teachingItem.getItemProperty(TeachingSchema.SUBJECT_ID).setValue(Integer.parseInt(subject.getValue().toString()));
+										teachingItem.getItemProperty(TeachingSchema.PERSONNEL_NAME_TMP).setValue(name.getValue());
+										teachingItem.getItemProperty(TeachingSchema.ACADEMIC_YEAR).setValue(DateTimeUtil.getBuddishYear());
+										
+										CreateModifiedSchema.setCreateAndModified(teachingItem);
+										teachingContainer.commit();
+										
+										setRightData();
+										sortData();
+										twinSelect.setLeftCountFooter(PersonnelSchema.PERSONEL_CODE);
+										twinSelect.setRightCountFooter(PersonnelSchema.PERSONEL_CODE);
+										
+										window.close();
+									}else{
+										Notification.show("กรุณาระบุ ชื่อ นามสกุล ให้ถูกต้อง", Type.WARNING_MESSAGE);
+									}
 									
-									Object tempId = teachingContainer.addItem();
-									
-									Item teachingItem = teachingContainer.getItem(tempId);
-									teachingItem.getItemProperty(TeachingSchema.SCHOOL_ID).setValue(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
-									teachingItem.getItemProperty(TeachingSchema.SUBJECT_ID).setValue(Integer.parseInt(subject.getValue().toString()));
-									teachingItem.getItemProperty(TeachingSchema.PERSONNEL_NAME_TMP).setValue(name.getValue());
-									teachingItem.getItemProperty(TeachingSchema.ACADEMIC_YEAR).setValue(DateTimeUtil.getBuddishYear());
-									
-									CreateModifiedSchema.setCreateAndModified(teachingItem);
-									teachingContainer.commit();
-									
-									setRightData();
-									sortData();
-									twinSelect.setLeftCountFooter(PersonnelSchema.PERSONEL_CODE);
-									twinSelect.setRightCountFooter(PersonnelSchema.PERSONEL_CODE);
-									
-									window.close();
 								}catch (Exception e) {
 									Notification.show("บันทึกไม่สำเร็จ", Type.WARNING_MESSAGE);
 									e.printStackTrace();
@@ -191,7 +196,9 @@ public class TeachingView extends VerticalLayout {
 				PersonnelSchema.LASTNAME,
 				TeachingSchema.ACADEMIC_YEAR,
 				TeachingSchema.SUBJECT_ID);
-		twinSelect.getRightTable().setFilterFieldVisible(TeachingSchema.SUBJECT_ID, false);
+		
+		twinSelect.getRightTable().setColumnCollapsingAllowed(true);
+		twinSelect.getRightTable().setColumnCollapsed(TeachingSchema.SUBJECT_ID, true);
 		
 		twinSelect.setAddClick(addListener);
 		twinSelect.setAddAllClick(addAllListener);
@@ -213,16 +220,18 @@ public class TeachingView extends VerticalLayout {
 	private void setLeftData(){		
 		twinSelect.removeAllLeftItem();
 		
-		StringBuilder subject = new StringBuilder();
-		subject.append(" SELECT * FROM " + PersonnelSchema.TABLE_NAME);
-		subject.append(" WHERE "+ PersonnelSchema.SCHOOL_ID + "=" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
-		subject.append(" AND " + PersonnelSchema.PERSONNEL_ID + " NOT IN (");
-		subject.append(" SELECT "+ TeachingSchema.PERSONNEL_ID);
-		subject.append(" FROM "+ TeachingSchema.TABLE_NAME);
-		subject.append(" WHERE "+ TeachingSchema.SCHOOL_ID + "=" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
-		subject.append(" AND " + TeachingSchema.ACADEMIC_YEAR + "=" + DateTimeUtil.getBuddishYear() + ")");
-
-		tContainer = Container.getInstance().getFreeFormContainer(subject.toString(), PersonnelSchema.PERSONNEL_ID);
+		StringBuilder subjectBuilder = new StringBuilder();
+		subjectBuilder.append(" SELECT * FROM " + PersonnelSchema.TABLE_NAME);
+		subjectBuilder.append(" WHERE "+ PersonnelSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
+		subjectBuilder.append(" AND "+ PersonnelSchema.PERSONNEL_ID + " NOT IN (");
+		subjectBuilder.append(" SELECT "+ TeachingSchema.PERSONNEL_ID + " FROM " + TeachingSchema.TABLE_NAME);
+		subjectBuilder.append(" WHERE "+ TeachingSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
+		subjectBuilder.append(" AND "+ TeachingSchema.SUBJECT_ID + "=" + subject.getValue());
+		subjectBuilder.append(" AND "+ TeachingSchema.PERSONNEL_ID + " IS NOT NULL )");
+		
+		System.err.println(subjectBuilder.toString());
+		
+		tContainer = Container.getInstance().getFreeFormContainer(subjectBuilder.toString(), PersonnelSchema.PERSONNEL_ID);
 		for(final Object itemId:tContainer.getItemIds()){
 			Item item = tContainer.getItem(itemId);
 			addItemData(twinSelect.getLeftTable(), itemId, item);
@@ -237,7 +246,7 @@ public class TeachingView extends VerticalLayout {
 		StringBuilder teachingBuilder = new StringBuilder();
 		teachingBuilder.append(" SELECT * FROM "+ TeachingSchema.TABLE_NAME + " tc");
 		teachingBuilder.append(" INNER JOIN "+ SubjectSchema.TABLE_NAME + " s ON s." + SubjectSchema.SUBJECT_ID + " = tc." + TeachingSchema.SUBJECT_ID);
-		teachingBuilder.append(" WHERE tc."+ TeachingSchema.SCHOOL_ID + "=" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+		teachingBuilder.append(" WHERE tc."+ TeachingSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		teachingBuilder.append(" AND tc." + TeachingSchema.ACADEMIC_YEAR + "=" + DateTimeUtil.getBuddishYear());
 
 		tContainer = Container.getInstance().getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
@@ -268,7 +277,7 @@ public class TeachingView extends VerticalLayout {
 				Object tempId = teachingContainer.addItem();
 				
 				Item teachingItem = teachingContainer.getItem(tempId);
-				teachingItem.getItemProperty(TeachingSchema.SCHOOL_ID).setValue(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+				teachingItem.getItemProperty(TeachingSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
 				teachingItem.getItemProperty(TeachingSchema.SUBJECT_ID).setValue(Integer.parseInt(subject.getValue().toString()));
 				teachingItem.getItemProperty(TeachingSchema.PERSONNEL_ID).setValue(Integer.parseInt(itemId.toString()));
 				teachingItem.getItemProperty(TeachingSchema.ACADEMIC_YEAR).setValue(DateTimeUtil.getBuddishYear());
@@ -298,7 +307,7 @@ public class TeachingView extends VerticalLayout {
 				Object tempId = teachingContainer.addItem();
 				
 				Item teachingItem = teachingContainer.getItem(tempId);
-				teachingItem.getItemProperty(TeachingSchema.SCHOOL_ID).setValue(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+				teachingItem.getItemProperty(TeachingSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
 				teachingItem.getItemProperty(TeachingSchema.SUBJECT_ID).setValue(Integer.parseInt(subject.getValue().toString()));
 				teachingItem.getItemProperty(TeachingSchema.PERSONNEL_ID).setValue(Integer.parseInt(itemId.toString()));
 				teachingItem.getItemProperty(TeachingSchema.ACADEMIC_YEAR).setValue(DateTimeUtil.getBuddishYear());
@@ -364,7 +373,7 @@ public class TeachingView extends VerticalLayout {
 			Object firstname = null;
 			Object lastname = null;
 			
-			/* ตรวจสอบว่า เป็นอาจารย์พิเศษไหม ถ้าใช่ แสดงว่า personnel_id = null จึงต้องดึงจากชื่อ Tmp มาแสดงแทน */
+			/* ตรวจสอบว่า เป็นอาจารย์ชั่วคราวไหม ถ้าใช่ แสดงว่า personnel_id = null จึงต้องดึงจากชื่อ Tmp มาแสดงแทน */
 			if(item.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue() == null){
 				String[] nameTmp = item.getItemProperty(TeachingSchema.PERSONNEL_NAME_TMP).getValue().toString().split(" ");
 				firstname = nameTmp[0];
@@ -405,6 +414,7 @@ public class TeachingView extends VerticalLayout {
 		public void valueChange(ValueChangeEvent event) {
 			if(subject.getValue() != null){
 				twinSelect.getRightTable().setFilterFieldValue(TeachingSchema.SUBJECT_ID, new NumberInterval(null, null, subject.getValue().toString()));
+				setLeftData();
 				
 				twinSelect.setLeftCountFooter(PersonnelSchema.PERSONEL_CODE);
 				twinSelect.setRightCountFooter(PersonnelSchema.PERSONEL_CODE);

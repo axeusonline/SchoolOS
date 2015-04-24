@@ -195,7 +195,7 @@ public class SchoolView extends ContentPage{
 								schoolBinder.commit();
 								schoolContainer.commit();
 								
-								Cookie emailCookie = new Cookie(SessionSchema.EMAIL, UI.getCurrent().getSession().getAttribute(SessionSchema.EMAIL).toString());
+								Cookie emailCookie = new Cookie(SessionSchema.EMAIL, SessionSchema.getEmail().toString());
 								emailCookie.setMaxAge(12000);
 								emailCookie.setPath(VaadinService.getCurrentRequest().getContextPath());
 								VaadinService.getCurrentResponse().addCookie(emailCookie);
@@ -326,7 +326,7 @@ public class SchoolView extends ContentPage{
 
 	private void initialDataBinding(){	
 		schoolContainer.addContainerFilter(new Equal(SchoolSchema.SCHOOL_ID,
-				UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)));
+				SessionSchema.getSchoolID()));
 
 		for(Object itemId:schoolContainer.getItemIds()){
 			schoolItem = schoolContainer.getItem(itemId);

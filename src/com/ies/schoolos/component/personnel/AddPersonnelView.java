@@ -15,7 +15,6 @@ import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.util.sqlcontainer.query.QueryDelegate.RowIdChangeEvent;
 import com.vaadin.data.util.sqlcontainer.query.QueryDelegate.RowIdChangeListener;
 import com.vaadin.ui.Field;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
@@ -78,7 +77,6 @@ public class AddPersonnelView extends PersonnelLayout {
 		public void buttonClick(ClickEvent event) {
 			/* ตรวจสอบความครบถ้วนของข้อมูล*/
 			if(!validateForms()){
-				System.err.println(validateForms());
 				Notification.show("กรุณากรอกข้อมูลให้ครบถ้วน", Type.WARNING_MESSAGE);
 				return;
 			}
@@ -199,8 +197,9 @@ public class AddPersonnelView extends PersonnelLayout {
 					if(maritalStr.equals("1"))
 						item.getItemProperty(PersonnelSchema.SPOUSE_ID).setValue(Integer.parseInt(idStore.get(2).toString()));
 				}
-				item.getItemProperty(PersonnelSchema.SCHOOL_ID).setValue(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
-				item.getItemProperty(PersonnelSchema.RECRUIT_BY_ID).setValue(UI.getCurrent().getSession().getAttribute(SessionSchema.USER_ID));
+				
+				item.getItemProperty(PersonnelSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
+				item.getItemProperty(PersonnelSchema.RECRUIT_BY_ID).setValue(SessionSchema.getUserID());
 				item.getItemProperty(PersonnelSchema.RECRUIT_DATE).setValue(new Date());
 				item.getItemProperty(PersonnelSchema.START_WORK_DATE).setValue(new Date());
 				

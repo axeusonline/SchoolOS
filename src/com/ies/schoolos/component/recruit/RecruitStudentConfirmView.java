@@ -23,7 +23,6 @@ import com.vaadin.data.util.filter.Compare.Greater;
 import com.vaadin.data.util.filter.Compare.Less;
 import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -104,7 +103,7 @@ public class RecruitStudentConfirmView extends VerticalLayout{
 		
 		/* ค้นหานักเรียนที่ยังไม่ถูกกำหนดชั้นเรียน */
 		sContainer.addContainerFilter(new And(
-				new Equal(RecruitStudentSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
+				new Equal(RecruitStudentSchema.SCHOOL_ID, SessionSchema.getSchoolID()),
 				new Greater(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getFirstDateOfYear()),
 				new Less(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getLastDateOfYear()),
 				new Equal(RecruitStudentSchema.IS_CONFIRM, false)));
@@ -125,7 +124,7 @@ public class RecruitStudentConfirmView extends VerticalLayout{
 		
 		/* ค้นหานักเรียนที่อยู่ชั้นเรียนที่กำหนด */
 		sContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.IS_CONFIRM, true),
-				new Equal(SchoolSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID))));
+				new Equal(SchoolSchema.SCHOOL_ID, SessionSchema.getSchoolID())));
 		
 		for(Object itemId: sContainer.getItemIds()){
 			Item item = sContainer.getItem(itemId);

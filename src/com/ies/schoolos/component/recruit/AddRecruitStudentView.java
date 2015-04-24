@@ -7,6 +7,8 @@ import com.ies.schoolos.component.recruit.layout.RecruitStudentLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.report.RecruitStudentReport;
 import com.ies.schoolos.schema.SessionSchema;
+import com.ies.schoolos.schema.info.FamilySchema;
+import com.ies.schoolos.schema.info.PersonnelSchema;
 import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
 import com.ies.schoolos.schema.view.StatRecruitStudentCodeSchema;
 import com.ies.schoolos.utility.Notification;
@@ -20,7 +22,6 @@ import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.util.sqlcontainer.query.QueryDelegate.RowIdChangeEvent;
 import com.vaadin.data.util.sqlcontainer.query.QueryDelegate.RowIdChangeListener;
 import com.vaadin.ui.Field;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
@@ -234,6 +235,19 @@ public class AddRecruitStudentView extends RecruitStudentLayout {
 					}else{
 						value = fieldGroup.getField(fieldGroup.getPropertyId(field)).getValue();
 					}
+					
+					if(sqlContainer == fSqlContainer){
+						if(fieldGroup.getPropertyId(field).equals(FamilySchema.PEOPLE_ID)){
+							value = value.toString().replace(" ", "");
+							value = value.toString().replace("-", "");
+						}
+					}else if(sqlContainer == sSqlContainer){
+						if(fieldGroup.getPropertyId(field).equals(PersonnelSchema.PEOPLE_ID)){
+							value = value.toString().replace(" ", "");
+							value = value.toString().replace("-", "");
+						}
+					}
+					
 				}
 				
 				Object data = Class.forName(className).cast(value);
@@ -270,7 +284,7 @@ public class AddRecruitStudentView extends RecruitStudentLayout {
 				item.getItemProperty(RecruitStudentSchema.GUARDIAN_ID).setValue(Integer.parseInt(idStore.get(2).toString()));
 				item.getItemProperty(RecruitStudentSchema.REGISTER_DATE).setValue(new Date());
 				item.getItemProperty(RecruitStudentSchema.RECRUIT_CODE).setValue(recruitCode);
-				item.getItemProperty(RecruitStudentSchema.SCHOOL_ID).setValue(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+				item.getItemProperty(RecruitStudentSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
 				item.getItemProperty(RecruitStudentSchema.IS_CONFIRM).setValue(false);
 				item.getItemProperty(RecruitStudentSchema.IS_GENERATE_STUDENT_CODE).setValue(false);
 			}

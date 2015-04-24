@@ -7,7 +7,6 @@ import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.data.util.filter.Compare.Equal;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
-import com.vaadin.ui.UI;
 
 public class Subject extends IndexedContainer{
 
@@ -23,7 +22,7 @@ public class Subject extends IndexedContainer{
 	@SuppressWarnings("unchecked")
 	private void initContainer(){
 		SQLContainer container = sContainer.getSubjectContainer();
-		container.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, Integer.parseInt(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID).toString())));
+		container.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, Integer.parseInt(SessionSchema.getSchoolID().toString())));
 		
 		for (int i = 0; i < container.size(); i++) {
 			Object itemId = container.getIdByIndex(i);

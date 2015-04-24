@@ -2,6 +2,8 @@ package com.ies.schoolos.component.personnel;
 
 import java.util.Date;
 
+import org.vaadin.dialogs.ConfirmDialog;
+
 import com.ies.schoolos.component.personnel.layout.PersonnelLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.info.PersonnelSchema;
@@ -19,10 +21,14 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Field;
+import com.vaadin.ui.UI;
 
 public class EditPersonnelView extends PersonnelLayout {
 	private static final long serialVersionUID = 1L;
 
+	private Object familyStore[] = new Object[4];
+	private int fIndex = 0;
+	
 	private String maritalStr = "";
 	private boolean printMode = false;
 	
@@ -66,17 +72,24 @@ public class EditPersonnelView extends PersonnelLayout {
 		motherId = personnelItem.getItemProperty(PersonnelSchema.MOTHER_ID).getValue();
 		spouseId = personnelItem.getItemProperty(PersonnelSchema.SPOUSE_ID).getValue();
 		
-		if(fatherId != null)
+		if(fatherId != null){
 			fatherItem = fSqlContainer.getItem(new RowId(fatherId));
-		if(motherId != null)
+			familyStore[0] = fatherId;
+		}
+		if(motherId != null){
 			motherItem = fSqlContainer.getItem(new RowId(motherId));
-		if(spouseId != null)
-			spouseItem = fSqlContainer.getItem(new RowId(spouseId));	
+			familyStore[1] = motherId;
+		}
+		if(spouseId != null){
+			spouseItem = fSqlContainer.getItem(new RowId(spouseId));
+			familyStore[2] = spouseId;
+		}
 
 		fatherBinder.setItemDataSource(fatherItem);
 		motherBinder.setItemDataSource(motherItem);
 		spouseBinder.setItemDataSource(spouseItem);
 		personnelBinder.setItemDataSource(personnelItem);
+
 	}
 
 	/* Event บุคคล ที่ถูกเลือกเป็น คู่สมรส */
@@ -120,49 +133,110 @@ public class EditPersonnelView extends PersonnelLayout {
 				 *  ถ้าใช่ ก็บันทึกข้อมูลใหม่
 				 *  ถ้าไม่ ก็อัพเดทข้อมูลเดิม */
 				if(isInsertParents){
-					/* เพิ่มบิดา โดยตรวจสอบว่าบิดาดังกล่าวไม่ซ้ำ และถูกบันทึกข้อมูลใหม่  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
-					if(!isDuplicateFather && !saveFormData(fSqlContainer, fatherBinder))
-						return;	
-					
-					/* เพิ่มมารดา  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
-					if(!isDuplicateMother && !saveFormData(fSqlContainer, motherBinder))
-						return;
-					
-					setFatherIdToPersonnelForm();
-					setMotherIdToPersonnelForm();
+					/* ตรวจสอบว่า เป็นการแก้ไข หรือการเพิ่มข้อมูลบิดา
+					 *  ถ้า id = null แปลว่าเพิ่ม
+					 *  ถ้า id != null แปลว่าแก้ไข  */
+					if(personnelBinder.getItemDataSource().getItemProperty(PersonnelSchema.FATHER_ID).getValue() == null){
+						fIndex = 0;
+						/* เพิ่มบิดา โดยตรวจสอบว่าบิดาดังกล่าวไม่ซ้ำ และถูกบันทึกข้อมูลใหม่  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
+						if(!isDuplicateFather &&  !saveFormData(fSqlContainer, fatherBinder))
+							return;	
+						setFatherIdToPersonnelForm();
+					}else{
+						fatherBinder.commit();
+						fSqlContainer.commit();
+					}
+
+					/* ตรวจสอบว่า เป็นการแก้ไข หรือการเพิ่มข้อมูลมารดา
+					 *  ถ้า id = null แปลว่าเพิ่ม
+					 *  ถ้า id != null แปลว่าแก้ไข  */
+					if(personnelBinder.getItemDataSource().getItemProperty(PersonnelSchema.MOTHER_ID).getValue() == null){
+						fIndex = 1;
+						/* เพิ่มบิดา โดยตรวจสอบว่ามารดาดังกล่าวไม่ซ้ำ และถูกบันทึกข้อมูลใหม่  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
+						if(!isDuplicateMother && !saveFormData(fSqlContainer, motherBinder))
+								return;
+						setMotherIdToPersonnelForm();
+					}else{
+						motherBinder.commit();
+						fSqlContainer.commit();
+					}
 				}else{
-					/* เพิ่มบิดา  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
-					fatherBinder.commit();
-					fSqlContainer.commit();
-						
-					/* เพิ่มมารดา  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
-					motherBinder.commit();
-					fSqlContainer.commit();
+					/* ตรวจสอบว่าเดิมมีข้อมูลหรือเปล่า ถ้ามีก็ให้แก้ไขแทน */
+					if(fatherBinder.getItemDataSource() != null){
+						fatherBinder.commit();
+						fSqlContainer.commit();
+					}
+
+					/* ตรวจสอบว่าเดิมมีข้อมูลหรือเปล่า ถ้ามีก็ให้แก้ไขแทน */
+					if(motherBinder.getItemDataSource() != null){
+						motherBinder.commit();
+						fSqlContainer.commit();
+					}
 				}
 				
-				/* ตรวจสอบว่าเป็นการเพิ่มคู่สมรสใหม่หรือแก้ไขจากข้อมูลเดิม */
-				if(maritalStr.equals("1") && spouseId == null){
-					if(!isDuplicateSpouse && !saveFormData(fSqlContainer, spouseBinder))
-						return;
-					setSpouseIdToPersonnelForm();
+				/* ตรวจสอบข้อมูลคู่สมรสว่าครบถ้วนไหม?
+				 *  หากครบถ้วน แสดงว่าต้องการเพิ่มข้อมูล 
+				 *  หากไม่ครบ แสถงว่า ต้องการเพิ่มแต่ข้อมูลไม่ครบ หรือ ไม่ต้องการเพิ่ม 
+				 *  */
+				if(spouseBinder.isValid()){
+					/* ตรวจสอบว่าเป็นการเพิ่มคู่สมรสใหม่หรือแก้ไขจากข้อมูลเดิม */
+					if(maritalStr.equals("1") && spouseId == null){
+						/* เพิ่มบิดา โดยตรวจสอบว่าคู่สมรสดังกล่าวไม่ซ้ำ และถูกบันทึกข้อมูลใหม่  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
+						if(personnelBinder.getItemDataSource().getItemProperty(PersonnelSchema.SPOUSE_ID).getValue() == null){
+							fIndex = 2;
+							if(!isDuplicateSpouse &&  !saveFormData(fSqlContainer, spouseBinder))
+								return;
+							setSpouseIdToPersonnelForm();
+						}else{
+							spouseBinder.commit();
+							fSqlContainer.commit();
+						}
+					}else{
+						/* ตรวจสอบว่าเดิมมีข้อมูลหรือเปล่า ถ้ามีก็ให้แก้ไขแทน */
+						if(spouseBinder.getItemDataSource() != null){
+							spouseBinder.commit();
+							fSqlContainer.commit();
+						}
+					}
+					/* เพิ่มนักเรียน หากบันทึกไม่ผ่านจะหยุดการทำงานทันที*/					
+					personnelBinder.commit();
+					pSqlContainer.commit();
+					Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 				}else{
-					spouseBinder.commit();
-					fSqlContainer.commit();
+					/* กรณีเลือกสถานะเป็นสมรส ต้องตรวจสอบว่าจะเพิ่มข้อมูลหรือไม้่?
+					 *  หากตอบใช่ แปลว่าเข้าช่้อมูลไม่ครบ 
+					 *  หากไม่ใช่ ถือว่าบันทึกข้อมูลบุคลากรเลย 
+					 *  */
+					if(maritalStr.equals("1") && spouseId == null){
+						ConfirmDialog.show(UI.getCurrent(), "เพิ่มคู่สมรส","บุคลากรสถานะสมรส ต้องการเพิ่มข้อมูลคู่สมรส?","ตกลง","ยกเลิก",
+					        new ConfirmDialog.Listener() {
+								private static final long serialVersionUID = 1L;
+								public void onClose(ConfirmDialog dialog) {
+					                if (dialog.isConfirmed()) {
+					                	selectSpouseFormTab();
+					                }else{
+					                	try{
+					                		/* เพิ่มนักเรียน หากบันทึกไม่ผ่านจะหยุดการทำงานทันที*/					
+						    				personnelBinder.commit();
+						    				pSqlContainer.commit();
+						    				Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
+						    				
+					                	}catch (Exception e) {
+					        				Notification.show("บันทึกไม่สำเร็จ", Type.WARNING_MESSAGE);
+					        				e.printStackTrace();
+					        			}
+					                }
+					            }
+				        });
+					}
 				}
-				
-				/* เพิ่มนักเรียน หากบันทึกไม่ผ่านจะหยุดการทำงานทันที*/					
-				personnelBinder.commit();
-				pSqlContainer.commit();
 				
 				/* ตรวจสอบสถานะการพิมพ์*/
 				if(printMode){
 					//visiblePrintButton();
 					//new PersonnelReport(Integer.parseInt(personnelId.toString()));
 				}
-				
-				Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
-				
-			} catch (Exception e) {
+			}catch (Exception e) {
 				Notification.show("บันทึกไม่สำเร็จ", Type.WARNING_MESSAGE);
 				e.printStackTrace();
 			}
@@ -177,7 +251,7 @@ public class EditPersonnelView extends PersonnelLayout {
 
 			@Override
 			public void rowIdChange(RowIdChangeEvent arg0) {
-				idStore.add(arg0.getNewRowId());
+				familyStore[fIndex] = arg0.getNewRowId();
 			}
 		});
 	}
@@ -217,6 +291,7 @@ public class EditPersonnelView extends PersonnelLayout {
 					value = fieldGroup.getField(fieldGroup.getPropertyId(field)).getValue();
 				}
 				Object data = Class.forName(className).cast(value);
+				System.err.println(fieldGroup.getPropertyId(field) + "," + data);
 				item.getItemProperty(fieldGroup.getPropertyId(field)).setValue(data);
 			}
 			sqlContainer.commit();
@@ -233,16 +308,16 @@ public class EditPersonnelView extends PersonnelLayout {
 	
 	@SuppressWarnings("unchecked")
 	private void setFatherIdToPersonnelForm(){
-		personnelItem.getItemProperty(PersonnelSchema.FATHER_ID).setValue(Integer.parseInt(idStore.get(0).toString()));
+		personnelItem.getItemProperty(PersonnelSchema.FATHER_ID).setValue(Integer.parseInt(familyStore[0].toString()));
 	}
 	
 	@SuppressWarnings("unchecked")
 	private void setMotherIdToPersonnelForm(){
-		personnelItem.getItemProperty(PersonnelSchema.MOTHER_ID).setValue(Integer.parseInt(idStore.get(1).toString()));
+		personnelItem.getItemProperty(PersonnelSchema.MOTHER_ID).setValue(Integer.parseInt(familyStore[1].toString()));
 	}
 	
 	@SuppressWarnings("unchecked")
 	private void setSpouseIdToPersonnelForm(){
-		personnelItem.getItemProperty(PersonnelSchema.SPOUSE_ID).setValue(Integer.parseInt(idStore.get(2).toString()));
+		personnelItem.getItemProperty(PersonnelSchema.SPOUSE_ID).setValue(Integer.parseInt(familyStore[2].toString()));
 	}
 }

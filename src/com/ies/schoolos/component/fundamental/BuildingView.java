@@ -56,7 +56,7 @@ public class BuildingView extends ContentPage{
 		super("อาคารเรียน/สอบ");
 		
 		bContainer.refresh();
-		bContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)));
+		bContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
 		setSpacing(true);
 		setMargin(true);
 		buildMainLayout();
@@ -161,9 +161,10 @@ public class BuildingView extends ContentPage{
 						if(!saveFormData())
 							return;
 						
-						bContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)));
+						bContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
 					}
 					item = null;
+					save.setCaption("บันทึก");
 					initFieldGroup();
 					Notification.show("บันทึึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 				} catch (Exception e) {
@@ -248,7 +249,7 @@ public class BuildingView extends ContentPage{
 	
 	/*นำจำนวนที่นับ มาใส่ค่าในส่วนท้ายตาราง*/
 	private void setFooterData(){
-		table.setColumnFooter(BuildingSchema.NAME, "ทั้งหมด: "+ table.size() + " วิชา");
+		table.setColumnFooter(BuildingSchema.NAME, "ทั้งหมด: "+ table.size() + " อาคาร");
 	}
 	
 	/* จัดกลุ่มของ ฟอร์มในการแก้ไข - เพิ่ม ข้อมูล */
@@ -291,7 +292,7 @@ public class BuildingView extends ContentPage{
 				Object data = Class.forName(className).cast(value);
 				item.getItemProperty(buildingBinder.getPropertyId(field)).setValue(data);
 			}
-			item.getItemProperty(BuildingSchema.SCHOOL_ID).setValue(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+			item.getItemProperty(BuildingSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
 			CreateModifiedSchema.setCreateAndModified(item);
 			bContainer.commit();
 			

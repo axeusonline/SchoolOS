@@ -1201,7 +1201,6 @@ private static final long serialVersionUID = 1L;
 		fCurrentAddress = new TextArea("ที่อยู่ปัจจุบัน");
 		fCurrentAddress.setInputPrompt("บ้านเลขที่ ซอย ถนน");
 		fCurrentAddress.setImmediate(false);
-		fCurrentAddress.setRequired(true);
 		fCurrentAddress.setWidth("-1px");
 		fCurrentAddress.setHeight("-1px");
 		fCurrentAddress.setNullRepresentation("");
@@ -1212,7 +1211,6 @@ private static final long serialVersionUID = 1L;
 		fCurrentProvinceId.setItemCaptionPropertyId("name");
 		fCurrentProvinceId.setImmediate(true);
 		fCurrentProvinceId.setNullSelectionAllowed(false);
-		fCurrentProvinceId.setRequired(true);
 		fCurrentProvinceId.setWidth("-1px");
 		fCurrentProvinceId.setHeight("-1px");
 		fCurrentProvinceId.setFilteringMode(FilteringMode.CONTAINS);
@@ -1231,7 +1229,6 @@ private static final long serialVersionUID = 1L;
 		fCurrentDistrict.setItemCaptionPropertyId("name");
 		fCurrentDistrict.setImmediate(true);
 		fCurrentDistrict.setNullSelectionAllowed(false);
-		fCurrentDistrict.setRequired(true);
 		fCurrentDistrict.setWidth("-1px");
 		fCurrentDistrict.setHeight("-1px");
 		fCurrentDistrict.setFilteringMode(FilteringMode.CONTAINS);
@@ -1252,7 +1249,6 @@ private static final long serialVersionUID = 1L;
 		fCurrentCity.setItemCaptionPropertyId("name");
 		fCurrentCity.setImmediate(true);
 		fCurrentCity.setNullSelectionAllowed(false);
-		fCurrentCity.setRequired(true);
 		fCurrentCity.setWidth("-1px");
 		fCurrentCity.setHeight("-1px");
 		fCurrentCity.setFilteringMode(FilteringMode.CONTAINS);
@@ -1263,7 +1259,6 @@ private static final long serialVersionUID = 1L;
 		fCurrentPostcode.setItemCaptionPropertyId("name");
 		fCurrentPostcode.setImmediate(true);
 		fCurrentPostcode.setNullSelectionAllowed(false);
-		fCurrentPostcode.setRequired(true);
 		fCurrentPostcode.setWidth("-1px");
 		fCurrentPostcode.setHeight("-1px");
 		fCurrentPostcode.setFilteringMode(FilteringMode.CONTAINS);
@@ -1504,7 +1499,6 @@ private static final long serialVersionUID = 1L;
 		mCurrentAddress = new TextArea("ที่อยู่ปัจจุบัน");
 		mCurrentAddress.setInputPrompt("บ้านเลขที่ ซอย ถนน");
 		mCurrentAddress.setImmediate(false);
-		mCurrentAddress.setRequired(true);
 		mCurrentAddress.setWidth("-1px");
 		mCurrentAddress.setHeight("-1px");
 		mCurrentAddress.setNullRepresentation("");
@@ -1515,7 +1509,6 @@ private static final long serialVersionUID = 1L;
 		mCurrentProvinceId.setItemCaptionPropertyId("name");
 		mCurrentProvinceId.setImmediate(true);
 		mCurrentProvinceId.setNullSelectionAllowed(false);
-		mCurrentProvinceId.setRequired(true);
 		mCurrentProvinceId.setWidth("-1px");
 		mCurrentProvinceId.setHeight("-1px");
 		mCurrentProvinceId.setFilteringMode(FilteringMode.CONTAINS);
@@ -1534,7 +1527,6 @@ private static final long serialVersionUID = 1L;
 		mCurrentDistrict.setItemCaptionPropertyId("name");
 		mCurrentDistrict.setImmediate(true);
 		mCurrentDistrict.setNullSelectionAllowed(false);
-		mCurrentDistrict.setRequired(true);
 		mCurrentDistrict.setWidth("-1px");
 		mCurrentDistrict.setHeight("-1px");
 		mCurrentDistrict.setFilteringMode(FilteringMode.CONTAINS);
@@ -1555,7 +1547,6 @@ private static final long serialVersionUID = 1L;
 		mCurrentCity.setItemCaptionPropertyId("name");
 		mCurrentCity.setImmediate(true);
 		mCurrentCity.setNullSelectionAllowed(false);
-		mCurrentCity.setRequired(true);
 		mCurrentCity.setWidth("-1px");
 		mCurrentCity.setHeight("-1px");
 		mCurrentCity.setFilteringMode(FilteringMode.CONTAINS);
@@ -1566,7 +1557,6 @@ private static final long serialVersionUID = 1L;
 		mCurrentPostcode.setItemCaptionPropertyId("name");
 		mCurrentPostcode.setImmediate(true);
 		mCurrentPostcode.setNullSelectionAllowed(false);
-		mCurrentPostcode.setRequired(true);
 		mCurrentPostcode.setWidth("-1px");
 		mCurrentPostcode.setHeight("-1px");
 		mCurrentPostcode.setFilteringMode(FilteringMode.CONTAINS);
@@ -1808,7 +1798,6 @@ private static final long serialVersionUID = 1L;
 		sCurrentAddress = new TextArea("ที่อยู่ปัจจุบัน");
 		sCurrentAddress.setInputPrompt("บ้านเลขที่ ซอย ถนน");
 		sCurrentAddress.setImmediate(false);
-		sCurrentAddress.setRequired(true);
 		sCurrentAddress.setWidth("-1px");
 		sCurrentAddress.setHeight("-1px");
 		sCurrentAddress.setNullRepresentation("");
@@ -1819,7 +1808,6 @@ private static final long serialVersionUID = 1L;
 		sCurrentProvinceId.setItemCaptionPropertyId("name");
 		sCurrentProvinceId.setImmediate(true);
 		sCurrentProvinceId.setNullSelectionAllowed(false);
-		sCurrentProvinceId.setRequired(true);
 		sCurrentProvinceId.setWidth("-1px");
 		sCurrentProvinceId.setHeight("-1px");
 		sCurrentProvinceId.setFilteringMode(FilteringMode.CONTAINS);
@@ -1838,7 +1826,6 @@ private static final long serialVersionUID = 1L;
 		sCurrentDistrict.setItemCaptionPropertyId("name");
 		sCurrentDistrict.setImmediate(true);
 		sCurrentDistrict.setNullSelectionAllowed(false);
-		sCurrentDistrict.setRequired(true);
 		sCurrentDistrict.setWidth("-1px");
 		sCurrentDistrict.setHeight("-1px");
 		sCurrentDistrict.setFilteringMode(FilteringMode.CONTAINS);
@@ -1859,7 +1846,6 @@ private static final long serialVersionUID = 1L;
 		sCurrentCity.setItemCaptionPropertyId("name");
 		sCurrentCity.setImmediate(true);
 		sCurrentCity.setNullSelectionAllowed(false);
-		sCurrentCity.setRequired(true);
 		sCurrentCity.setWidth("-1px");
 		sCurrentCity.setHeight("-1px");
 		sCurrentCity.setFilteringMode(FilteringMode.CONTAINS);
@@ -1870,7 +1856,6 @@ private static final long serialVersionUID = 1L;
 		sCurrentPostcode.setItemCaptionPropertyId("name");
 		sCurrentPostcode.setImmediate(true);
 		sCurrentPostcode.setNullSelectionAllowed(false);
-		sCurrentPostcode.setRequired(true);
 		sCurrentPostcode.setWidth("-1px");
 		sCurrentPostcode.setHeight("-1px");
 		sCurrentPostcode.setFilteringMode(FilteringMode.CONTAINS);
@@ -2062,7 +2047,12 @@ private static final long serialVersionUID = 1L;
 			personnelCode.setValue(personalCode);
 			personnelCode.setEnabled(false);
 		}else{
-			personnelCode.setValue(null);
+			if(personnelBinder.getItemDataSource() == null)
+				personnelCode.setValue(null);
+			else{
+				Item item = personnelBinder.getItemDataSource();
+				personnelCode.setValue(item.getItemProperty(PersonnelSchema.PERSONEL_CODE).getValue().toString());
+			}
 		}
 	}
 	
@@ -2227,6 +2217,9 @@ private static final long serialVersionUID = 1L;
 
 	/* ==================== PUBLIC ==================== */
 	
+	public void selectSpouseFormTab(){
+		setSelectedTab(spouseForm);
+	}
 	/* ตั้งค่า Mode ว่าต้องการให้กำหนดข้อมูลเริ่มต้นให้เลยไหม*/
 	public void setDebugMode(boolean debugMode){
 		if(debugMode)
@@ -2315,7 +2308,6 @@ private static final long serialVersionUID = 1L;
 		}else{
 			/* ตรวจสอบว่าข้อมูลบุคลากร ครบถ้วนหรือไม่*/
 			if(personnelBinder.isValid()){
-				System.err.println("adsfasdfsadfsdf");
 				return true;
 			}
 		}

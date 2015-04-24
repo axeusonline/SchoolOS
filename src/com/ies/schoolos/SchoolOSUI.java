@@ -34,62 +34,6 @@ public class SchoolOSUI extends UI {
 	protected void init(VaadinRequest request) {
 		getUrlParameter();
 		autoLogin();
-		
-		/*final AppletIntegration applet = new AppletIntegration() {
-
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void attach() {
-            	super.attach();
-            	
-                setAppletArchives(Arrays.asList(new String[] { "smartcard-applet.jar", 
-                		"commons-lang-2.4.jar",
-                        "commons-logging-1.0.2.jar", 
-                        "jna.jar", 
-                        "SmartCard.jar", 
-                        "SmartcardDataAccess.jar",
-                		"log4j.jar",
-                		"log4j-core.jar"}));
-            	
-                setAppletArchives(Arrays.asList(new String[] { "SmartCardApplet.jar",
-                		"log4j.jar",
-                		"commons-lang-2.4.jar",}));
-               
-                //setCodebase("https://storage.googleapis.com/schoolos/applets/");
-
-            	setAppletArchives(Arrays.asList(new String[] { "smartcard-applet.jar", 
-                		"commons-lang-2.4.jar",
-                        "commons-logging-1.0.2.jar", 
-                        "jna.jar", 
-                        "SmartCard.jar", 
-                        "SmartcardDataAccess.jar"}));
-            	
-                setCodebase("http://java.sun.com/update/1.6.0/jinstall-6u30-windows-i586.cab#Version=1,6,0,0");
-                setAppletClass("SmartCard.class");
-                //setAppletClass("com/iMed/iMedApp/iMedOPDApp/Smartcard/SmartCard");
-            	
-            	
-                setWidth("800px");
-                setHeight("500px");
-                setId("smartcard");
-                
-                //System.err.println(getCodebase());
-                JavaScript.getCurrent().addFunction("connectSmartcard",  new JavaScriptFunction() {
-        			@Override
-        			public void call(JsonArray arguments) {
-        				
-        				Notification.show("asdfdsf", Type.WARNING_MESSAGE);
-        			}
-        		});
-        		
-        		Link link = new Link("Get Smartcard", new ExternalResource("connectSmartcard()"));
-                setContent(link);
-            }
-        };
-   
-        setContent(applet);*/
-
 	}
 	
 	/*ค้นหาหน้าของโรงเรียนด้วย url เพื่อใช้ในการสมัครเรียนโดยไม่ต้อง Login */
@@ -101,7 +45,13 @@ public class SchoolOSUI extends UI {
 			if(schoolContainer.size() > 0){
 				for(Object itemId: schoolContainer.getItemIds()){
 					Item item = schoolContainer.getItem(itemId);
-					setSession(item);
+					SessionSchema.setSession(
+							true,
+							item.getItemProperty(SchoolSchema.SCHOOL_ID).getValue(),
+							item.getItemProperty(SchoolSchema.SCHOOL_ID).getValue(),
+							item.getItemProperty(SchoolSchema.NAME).getValue(),
+							item.getItemProperty(SchoolSchema.FIRSTNAME).getValue(),
+							item.getItemProperty(SchoolSchema.EMAIL).getValue());
 				}
 			}
 			//ลบ WHERE ออกจาก Query เพื่อป้องกันการค้างของคำสั่่งจากการทำงานอื่นที่เรียกตัวแปรไปใช้
@@ -120,11 +70,17 @@ public class SchoolOSUI extends UI {
 			schoolContainer.addContainerFilter(new And(
 					new Equal(SchoolSchema.EMAIL,email.getValue()),
 					new Equal(SchoolSchema.PASSWORD,password.getValue())));
-			
+
 			if(schoolContainer.size() != 0){
 				for(Object itemId: schoolContainer.getItemIds()){
 					Item item = schoolContainer.getItem(itemId);
-					setSession(item);
+					SessionSchema.setSession(
+							true,
+							item.getItemProperty(SchoolSchema.SCHOOL_ID).getValue(),
+							item.getItemProperty(SchoolSchema.SCHOOL_ID).getValue(),
+							item.getItemProperty(SchoolSchema.NAME).getValue(),
+							item.getItemProperty(SchoolSchema.FIRSTNAME).getValue(),
+							item.getItemProperty(SchoolSchema.EMAIL).getValue());
 				}
 				setContent(new SchoolOSView());
 			}else{
@@ -142,14 +98,5 @@ public class SchoolOSUI extends UI {
 		    }
 		}
 		return cookie;
-	}
-	
-	private void setSession(Item item){
-		getSession().setAttribute(SessionSchema.IS_ROOT, true);
-		getSession().setAttribute(SessionSchema.SCHOOL_ID, item.getItemProperty(SchoolSchema.SCHOOL_ID).getValue());
-		getSession().setAttribute(SessionSchema.USER_ID, item.getItemProperty(SchoolSchema.SCHOOL_ID).getValue());
-		getSession().setAttribute(SessionSchema.SCHOOL_NAME, item.getItemProperty(SchoolSchema.NAME).getValue());
-		getSession().setAttribute(SessionSchema.FIRSTNAME, item.getItemProperty(SchoolSchema.FIRSTNAME).getValue());
-		getSession().setAttribute(SessionSchema.EMAIL, item.getItemProperty(SchoolSchema.EMAIL).getValue());
 	}
 }

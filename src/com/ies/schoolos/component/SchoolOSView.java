@@ -212,7 +212,7 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		menuBarLayout.addComponent(menuBar);
 		menuBarLayout.setComponentAlignment(menuBar, Alignment.MIDDLE_RIGHT);
 		
-		MenuItem menuItem = menuBar.addItem(UI.getCurrent().getSession().getAttribute(SessionSchema.FIRSTNAME).toString(), null, null);
+		MenuItem menuItem = menuBar.addItem(SessionSchema.getFirstname().toString(), null, null);
 		menuItem.setEnabled(true);
 		menuItem.setIcon(FontAwesome.USER);
 		menuItem.addItem("ออกจากระบบ", null, new Command() {

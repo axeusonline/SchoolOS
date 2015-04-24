@@ -286,3 +286,9 @@ CREATE TABLE IF NOT EXISTS `teaching` (
   CONSTRAINT `fk_timetable_has_class_room` FOREIGN KEY (`class_room_id`) REFERENCES `class_room` (`class_room_id`),
   CONSTRAINT `fk_timetable_has_teaching` FOREIGN KEY (`teaching_id`) REFERENCES `teaching` (`teaching_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='ตารางสอน';
+
+ALTER TABLE  `family` CHANGE  `current_address`  `current_address` VARCHAR( 256 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT  'สถานที่อยู่ปัจจุบัน',
+CHANGE  `current_city_id`  `current_city_id` INT( 11 ) NULL COMMENT  'ตำบล สถานที่อยู่ปัจจุบัน',
+CHANGE  `current_district_id`  `current_district_id` INT( 11 ) NULL COMMENT  'อำเภอ สถานที่อยู่ปัจจุบัน',
+CHANGE  `current_province_id`  `current_province_id` INT( 11 ) NULL COMMENT  'จังหวัด สถานที่อยู่ปัจจุบัน',
+CHANGE  `current_postcode_id`  `current_postcode_id` INT( 11 ) NULL COMMENT  'ไปรษณีย์ สถานที่อยู่ปัจจุบัน';

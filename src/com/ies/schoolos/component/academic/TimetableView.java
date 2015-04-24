@@ -41,6 +41,7 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.NativeButton;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -65,6 +66,7 @@ public class TimetableView extends VerticalLayout {
 	private HashMap<Object, HashMap<Object, Object[]>> timetables;
 
 	private SQLContainer teachingContainer = Container.getInstance().getTeachingContainer();
+	private SQLContainer classRoomContainer = Container.getInstance().getClassRoomContainer();
 	private SQLContainer timetableContainer = Container.getInstance().getTimetableContainer();
 	private SQLContainer freeFormContainer;
 	
@@ -244,6 +246,7 @@ public class TimetableView extends VerticalLayout {
 			table.addContainerProperty("7", Button.class, null);
 			table.addContainerProperty("8", Button.class, null);
 			table.addContainerProperty("9", Button.class, null);
+			table.addContainerProperty("10", Button.class, null);
 			
 			table.setColumnAlignment(TimetableSchema.WORKING_DAY,Align.CENTER);
 			table.setColumnAlignment("1",Align.CENTER);
@@ -255,6 +258,7 @@ public class TimetableView extends VerticalLayout {
 			table.setColumnAlignment("7",Align.CENTER);
 			table.setColumnAlignment("8",Align.CENTER);
 			table.setColumnAlignment("9",Align.CENTER);
+			table.setColumnAlignment("10",Align.CENTER);
 			
 			table.setColumnHeader(TimetableSchema.WORKING_DAY,"วัน");
 			table.setColumnHeader("1","1");
@@ -266,10 +270,11 @@ public class TimetableView extends VerticalLayout {
 			table.setColumnHeader("7","7");
 			table.setColumnHeader("8","8");
 			table.setColumnHeader("9","9");
+			table.setColumnHeader("10","10");
 			
 			table.setVisibleColumns(
 					TimetableSchema.WORKING_DAY,
-					"1","2","3","4","5","6","7","8","9");
+					"1","2","3","4","5","6","7","8","9","10");
 		}else{
 			table.addContainerProperty(TimetableSchema.WORKING_DAY, String.class, null);
 			table.addContainerProperty(TimetableSchema.CLASS_ROOM_ID, String.class, null);
@@ -282,6 +287,7 @@ public class TimetableView extends VerticalLayout {
 			table.addContainerProperty("7", Label.class, null);
 			table.addContainerProperty("8", Label.class, null);
 			table.addContainerProperty("9", Label.class, null);
+			table.addContainerProperty("10", Label.class, null);
 			
 			table.setColumnAlignment(TimetableSchema.WORKING_DAY,Align.CENTER);
 			table.setColumnAlignment(TimetableSchema.CLASS_ROOM_ID,Align.CENTER);
@@ -294,6 +300,7 @@ public class TimetableView extends VerticalLayout {
 			table.setColumnAlignment("7",Align.CENTER);
 			table.setColumnAlignment("8",Align.CENTER);
 			table.setColumnAlignment("9",Align.CENTER);
+			table.setColumnAlignment("10",Align.CENTER);
 			
 			table.setColumnHeader(TimetableSchema.WORKING_DAY,"วัน");
 			table.setColumnHeader(TimetableSchema.CLASS_ROOM_ID,"ชั้นเรียน");
@@ -306,11 +313,12 @@ public class TimetableView extends VerticalLayout {
 			table.setColumnHeader("7","7");
 			table.setColumnHeader("8","8");
 			table.setColumnHeader("9","9");
+			table.setColumnHeader("10","10");
 			
 			table.setVisibleColumns(
 					TimetableSchema.WORKING_DAY,
 					TimetableSchema.CLASS_ROOM_ID,
-					"1","2","3","4","5","6","7","8","9");
+					"1","2","3","4","5","6","7","8","9","10");
 		}
 		
 		
@@ -341,10 +349,11 @@ public class TimetableView extends VerticalLayout {
 						Object timetableIdArray[] = teachings.get(weekDay);
 						/*ข้อมูลตารางสอน ระหว่างคาบ โดยมี 9 ช่อง หรือ 9 คาบ
 						 *  Index ต่อมาแสดงถึงคาบ 9 คาบ ระหว่าง 0-8 (1-9) */
-						for(int j=0; j < 9; j++){
+						for(int j=0; j < 10; j++){
 							final int section =j;
-							Button button = new Button();
+							NativeButton button = new NativeButton();
 							button.setWidth("80px");
+							button.setHeight("50px");
 							/* ตรวจสอบว่า คาบดังกล่่าวถูกระบุ timetableId ใว้หรือยัง
 							 *  กรณียังว่าง จะกำหนด Caption เป็นว่าง
 							 *  กรณี ระบุและว จะกำหนด Caption เป็นชื่อวิชา (อจ) พร้อมตั้งค่า id บนปุ่ม*/
@@ -362,10 +371,13 @@ public class TimetableView extends VerticalLayout {
 							}else{
 								final Object timetableId = timetableIdArray[j];
 								Item timetableItem = timetableContainer.getItem(new RowId(timetableId));
-
-								String caption = new Teaching(classYear.getValue(), semester.getValue()).
+								Item classRoomItem = classRoomContainer.getItem(new RowId(timetableItem.getItemProperty(TimetableSchema.CLASS_ROOM_ID).getValue()));
+								
+								/* แสดง ชื่ออาจารย์ /n ห้องเรียน*/
+								String caption = new Teaching().
 										getItem(new RowId(timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue())).
-										getItemProperty("name").getValue().toString();
+										getItemProperty("name").getValue().toString() + "\n" +										
+										classRoomItem.getItemProperty(ClassRoomSchema.NAME).getValue();
 								
 								button.setCaption(getTeachingName(caption));
 								button.setId(timetableId.toString());
@@ -385,7 +397,7 @@ public class TimetableView extends VerticalLayout {
 					}
 				}else if(!Arrays.asList(daysClosed).contains(Integer.toString(weekDay))){
 					data.add(Days.getNameTh(weekDay));	
-					for(int j=0; j < 9; j++){
+					for(int j=0; j < 10; j++){
 						final int section =j;
 						Button button = new Button("ว่าง");
 						button.setWidth("80px");
@@ -405,7 +417,7 @@ public class TimetableView extends VerticalLayout {
 			}else{
 				if(!Arrays.asList(daysClosed).contains(Integer.toString(weekDay))){	
 					data.add(Days.getNameTh(weekDay));	
-					for(int j=0; j < 9; j++){
+					for(int j=0; j < 10; j++){
 						final int section =j;
 						Button button = new Button("ว่าง");
 						button.setStyleName("green-button");
@@ -455,7 +467,7 @@ public class TimetableView extends VerticalLayout {
 
 							Object timetableIdArray[] = teachingsTmp.get(classRoomId);
 							/* วนลูบจำนวนคาบ 9 คาบ */
-							for(int j=0; j < 9; j++){
+							for(int j=0; j < 10; j++){
 								Label lable = new Label();
 								lable.setWidth("90px");
 								lable.setHeight("100%");
@@ -470,7 +482,7 @@ public class TimetableView extends VerticalLayout {
 									Object timetableId = timetableIdArray[j];
 
 									Item timetableItem = timetableContainer.getItem(new RowId(timetableId));
-									String caption = new Teaching(classYear.getValue(), semester.getValue()).
+									String caption = new Teaching().
 											getItem(new RowId(timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue())).
 											getItemProperty("name").getValue().toString();
 									lable.setValue(getTeachingNameHtml(caption));
@@ -480,7 +492,7 @@ public class TimetableView extends VerticalLayout {
 								data.add(lable);
 							}
 						}else{
-							for(int j=0; j < 9; j++){
+							for(int j=0; j < 10; j++){
 								Label lable = new Label("ว่าง");
 								lable.setWidth("90px");
 								lable.setHeight("100%");
@@ -489,7 +501,7 @@ public class TimetableView extends VerticalLayout {
 							}
 						}
 					}else{
-						for(int j=0; j < 9; j++){
+						for(int j=0; j < 10; j++){
 							Label lable = new Label("ว่าง");
 							lable.setWidth("90px");
 							lable.setHeight("100%");
@@ -501,9 +513,10 @@ public class TimetableView extends VerticalLayout {
 					/* เก็บ id เป็น วัน,ห้องเรียน (index ของวัน ,id ห้องเรียน) */
 					allTimeteachingTable.addItem(data.toArray(),i+","+classRoomId.toString());
 				}else{
-					for(int j=0; j < 9; j++){
+					for(int j=0; j < 10; j++){
 						Label lable = new Label("ว่าง");
-						lable.setSizeFull();
+						lable.setWidth("90px");
+						lable.setHeight("100%");
 						lable.setStyleName("green-label");
 						data.add(lable);
 					}
@@ -543,7 +556,7 @@ public class TimetableView extends VerticalLayout {
 								timetableContainer.removeAllContainerFilters();
 								Object tmpId = timetableContainer.addItem();
 								Item timetableItem = timetableContainer.getItem(tmpId);
-								timetableItem.getItemProperty(TimetableSchema.SCHOOL_ID).setValue(UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+								timetableItem.getItemProperty(TimetableSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
 								timetableItem.getItemProperty(TimetableSchema.CLASS_ROOM_ID).setValue(Integer.parseInt(itemIdPlit[1]));
 								timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).setValue(Integer.parseInt(teaching.getValue().toString()));
 								timetableItem.getItemProperty(TimetableSchema.SECTION).setValue((int)section);
@@ -651,7 +664,7 @@ public class TimetableView extends VerticalLayout {
 				timetableIdArray[(int)section] = timetableId;
 				teachings.put(workDay, timetableIdArray);
 			}else{
-				Object timetableIdArray[] = new Object[9];
+				Object timetableIdArray[] = new Object[10];
 				timetableIdArray[(int)section] = timetableId;
 				teachings.put(workDay, timetableIdArray);
 			}
@@ -685,13 +698,13 @@ public class TimetableView extends VerticalLayout {
 					timetableIdArray[(int)section] = timetableId;
 					classRoomMap.put(classRoomId, timetableIdArray);
 				}else{
-					Object timetableIdArray[] = new Object[9];
+					Object timetableIdArray[] = new Object[10];
 					timetableIdArray[(int)section] = timetableId;
 					classRoomMap.put(classRoomId, timetableIdArray);
 				}
 				timetables.put(workDay, classRoomMap);
 			}else{
-				Object timetableIdArray[] = new Object[9];
+				Object timetableIdArray[] = new Object[10];
 				timetableIdArray[(int)section] = timetableId;
 				classRoomMap.put(classRoomId, timetableIdArray);
 				timetables.put(workDay, classRoomMap);
@@ -749,7 +762,7 @@ public class TimetableView extends VerticalLayout {
 		sql.append(" SELECT * FROM " + ClassRoomLessonPlanSchema.TABLE_NAME +" crl");
 		sql.append(" INNER JOIN " + ClassRoomSchema.TABLE_NAME + " cr ON cr." + ClassRoomSchema.CLASS_ROOM_ID +" = crl." + ClassRoomLessonPlanSchema.CLASS_ROOM_ID);
 		sql.append(" WHERE cr." + ClassRoomSchema.CLASS_YEAR + "=" + classYear.getValue());
-		sql.append(" AND crl." + ClassRoomLessonPlanSchema.SCHOOL_ID + "=" + UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID));
+		sql.append(" AND crl." + ClassRoomLessonPlanSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		sql.append(" AND crl." + ClassRoomLessonPlanSchema.ACADEMIC_YEAR + "=" + DateTimeUtil.getBuddishYear());
 		
 		return sql.toString();

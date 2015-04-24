@@ -177,7 +177,7 @@ public class RecruitStudentToExcel extends Table{
 			RecruitStudentSchema.CLASS_ROOM_ID);
 		
 		SQLContainer sContainer = Container.getInstance().getRecruitStudentContainer();
-		sContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.SCHOOL_ID,UI.getCurrent().getSession().getAttribute(SessionSchema.SCHOOL_ID)),
+		sContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.SCHOOL_ID,SessionSchema.getSchoolID()),
 				new Greater(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getFirstDateOfYear()),
 				new Less(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getLastDateOfYear())));
 		sContainer.addOrderBy(new OrderBy(RecruitStudentSchema.RECRUIT_CODE, true));	
@@ -235,6 +235,7 @@ public class RecruitStudentToExcel extends Table{
 					/* อาคารสอบ*/ 
 					if(value != null){
 						Item buildingItem = examBuildingContainer.getItem(new RowId(value));
+						
 						value = buildingItem.getItemProperty(BuildingSchema.NAME).getValue().toString() + " "
 								+ "(" + buildingItem.getItemProperty(BuildingSchema.ROOM_NUMBER).getValue().toString() + ")";
 					}else{
