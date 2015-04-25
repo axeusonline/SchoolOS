@@ -65,9 +65,9 @@ public class TimetableView extends VerticalLayout {
 	 *     > Object[] แสดง index ของคาบ โดยภายในเก็บ timetableId */
 	private HashMap<Object, HashMap<Object, Object[]>> timetables;
 
-	private SQLContainer teachingContainer = Container.getInstance().getTeachingContainer();
-	private SQLContainer classRoomContainer = Container.getInstance().getClassRoomContainer();
-	private SQLContainer timetableContainer = Container.getInstance().getTimetableContainer();
+	private SQLContainer teachingContainer = Container.getTeachingContainer();
+	private SQLContainer classRoomContainer = Container.getClassRoomContainer();
+	private SQLContainer timetableContainer = Container.getTimetableContainer();
 	private SQLContainer freeFormContainer;
 	
 	private FormLayout settingForm;
@@ -374,12 +374,12 @@ public class TimetableView extends VerticalLayout {
 								Item classRoomItem = classRoomContainer.getItem(new RowId(timetableItem.getItemProperty(TimetableSchema.CLASS_ROOM_ID).getValue()));
 								
 								/* แสดง ชื่ออาจารย์ /n ห้องเรียน*/
-								String caption = new Teaching().
+								String caption = getTeachingName(new Teaching().
 										getItem(new RowId(timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue())).
-										getItemProperty("name").getValue().toString() + "\n" +										
+										getItemProperty("name").getValue().toString()) + "\n" +										
 										classRoomItem.getItemProperty(ClassRoomSchema.NAME).getValue();
-								
-								button.setCaption(getTeachingName(caption));
+								System.err.println(caption);
+								button.setCaption(caption);
 								button.setId(timetableId.toString());
 								button.setStyleName("red-button");
 								button.addClickListener(new ClickListener() {
@@ -647,7 +647,7 @@ public class TimetableView extends VerticalLayout {
 	private void seachTeachingTimetable(){
 		teachings = new HashMap<Object, Object[]>();
 		Item teachingItem = teachingContainer.getItem(teaching.getValue());
-		freeFormContainer = Container.getInstance().getFreeFormContainer(getTeachingSQL(teachingItem), TimetableSchema.TIMETABLE_ID);
+		freeFormContainer = Container.getFreeFormContainer(getTeachingSQL(teachingItem), TimetableSchema.TIMETABLE_ID);
 		/* นำข้อมูลที่ได้มาใส่ใน Object โดยในฐานข้อมูลจะเก็บ 1 คาบ 1 แถว แต่มาใส่ในตารางจะต้องมารวมทุกคาบมาเป็นแถวเดียวโดยแยกตามวัน */
 		for (Object itemId:freeFormContainer.getItemIds()) {
 
@@ -674,7 +674,7 @@ public class TimetableView extends VerticalLayout {
 	/* ค้นหาข้อมูลตารางสอนทั้งหมด */
 	private void seachAllTimetable(){
 		timetables = new HashMap<Object, HashMap<Object, Object[]>>();
-		freeFormContainer = Container.getInstance().getFreeFormContainer(getAllTimetable(), TimetableSchema.TIMETABLE_ID);
+		freeFormContainer = Container.getFreeFormContainer(getAllTimetable(), TimetableSchema.TIMETABLE_ID);
 		/* นำข้อมูลที่ได้มาใส่ใน Object โดยในฐานข้อมูลจะเก็บ 1 คาบ 1 แถว แต่มาใส่ในตารางจะต้องมารวมทุกคาบมาเป็นแถวเดียวโดยแยกตามวัน */
 		for (Object itemId:freeFormContainer.getItemIds()) {
 			Item timetableItem = freeFormContainer.getItem(itemId);
@@ -811,11 +811,9 @@ public class TimetableView extends VerticalLayout {
 	private String getTeachingName(String name){
 		String styles = "";
 		if(name.indexOf(":") == -1)
-			styles = name.substring(0, name.indexOf("("))/*+"\n" +
-    				name.substring(name.indexOf("(")+1, name.indexOf(" "))*/;
+			styles = name.substring(0, name.indexOf("("));
     	else
-    		styles = name.substring(0, name.indexOf(":"))/*+"\n" +
-    				name.substring(name.indexOf("(")+1, name.indexOf(" "))*/;
+    		styles = name.substring(0, name.indexOf(":"));
 		return styles;
 	}
 	

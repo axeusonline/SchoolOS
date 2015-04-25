@@ -17,7 +17,7 @@ import com.ies.schoolos.schema.fundamental.BuildingSchema;
 import com.ies.schoolos.schema.fundamental.ClassRoomSchema;
 import com.ies.schoolos.schema.fundamental.SubjectSchema;
 import com.ies.schoolos.schema.info.FamilySchema;
-import com.ies.schoolos.schema.info.PersonnelGraduatedHistory;
+import com.ies.schoolos.schema.info.PersonnelGraduatedHistorySchema;
 import com.ies.schoolos.schema.info.PersonnelSchema;
 import com.ies.schoolos.schema.info.StudentClassRoomSchema;
 import com.ies.schoolos.schema.info.StudentSchema;
@@ -30,254 +30,270 @@ import com.vaadin.data.util.sqlcontainer.query.TableQuery;
 
 public class Container implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
-	private static Container container;
-	 
-	//ใช้สำหรับ Manaul Query
-	private SQLContainer freeFormContainer;
-	
-	//ใช้สำหรับ Query จังหวัด
-	private SQLContainer provinceContainer;
-	//ใช้สำหรับ Query อำเภอ
-	private SQLContainer districtContainer;
-	//ใช้สำหรับ Query ตำบล
-	private SQLContainer cityContainer;
-	//ใช้สำหรับ Query ไปรษณีย์
-	private SQLContainer postcodeContainer;
-	
-	//ใช้สำหรับ Query โรงเรียน
-	private SQLContainer schoolContainer;
-	//ใช้สำหรับ Query ผู้สมัครเรียน
-	private SQLContainer recruitStudentContainer;
-	//ใช้สำหรับ Query ผู้ปกครองผู้สมัครเรียน
-	private SQLContainer recruitFamilyContainer;
-	//ใช้สำหรับ Query อาคารเรียน
-	private SQLContainer buildingContainer;
-	//ใช้สำหรับ Query ห้องเรียน
-	private SQLContainer classRoomContainer;
-	//ใช้สำหรับ Query นักเรียน
-	private SQLContainer studentContainer;
-	//ใช้สำหรับ Query ข้อมูลการเรียน
-	private SQLContainer studentStudyContainer;
-	//ใช้สำหรับ Query ผุ้ปกครอง
-	private SQLContainer familyContainer;
-	//ใช้สำหรับ Query ห้องเรียนนักเรียน
-	private SQLContainer studentClassRoomContainer;
-	//ใช้สำหรับ Query บุคลากร
-	private SQLContainer personnelContainer;
-	//ใช้สำหรับ Query ข้อมูลประวัติการศึกษา
-	private SQLContainer personnelGraduatedHistoryContainer;
-	//ใช้สำหรับ Query ข้อมูลรายวิชา
-	private SQLContainer subjectContainer;
-	//ใช้สำหรับ Query ข้อมูลแผนการเรียน
-	private SQLContainer lessonPlanContainer;
-	//ใช้สำหรับ Query ข้อมูลรายวิชาในแผนการเรียน
-	private SQLContainer lessonPlanSubjectContainer;
-	//ใช้สำหรับ Query ข้อมูลรายห้องเรียนในแผนการเรียน
-	private SQLContainer classRoomLessonPlanContainer;
-	//ใช้สำหรับ Query อาจารย์ผู้สอน
-	private SQLContainer teachingContainer;
-	//ใช้สำหรับ Query ตารางเรียน
-	private SQLContainer timetableContainer;
-	
-	public static Container getInstance(){ 
-		if(container == null)
-			container = new Container();
-        return container;  
-    }
 
-	public Container() {
-        initContainers();
-	}
-	
-	private void initContainers() {
-        try {
-        	 /* TableQuery และ SQLContainer สำหรับตาราง จังหวัด */
-            TableQuery qProvince = new TableQuery(ProvinceSchema.TABLE_NAME, DbConnection.getConnection());
-            provinceContainer = new SQLContainer(qProvince);
-            
-            /* TableQuery และ SQLContainer สำหรับตาราง อำเภอ */
-            TableQuery qDistrict = new TableQuery(DistrictSchema.TABLE_NAME, DbConnection.getConnection());
-            districtContainer = new SQLContainer(qDistrict);
-            
-            /* TableQuery และ SQLContainer สำหรับตาราง  ตำบล */
-            TableQuery qCity = new TableQuery(CitySchema.TABLE_NAME, DbConnection.getConnection());
-            cityContainer = new SQLContainer(qCity);
-            
-            /* TableQuery และ SQLContainer สำหรับตาราง ไปรษณีย์ */
-            TableQuery qPostcode = new TableQuery(PostcodeSchema.TABLE_NAME, DbConnection.getConnection());
-            postcodeContainer = new SQLContainer(qPostcode);
-            
-            /* TableQuery และ SQLContainer สำหรับตาราง School */
-            TableQuery qSchool = new TableQuery(SchoolSchema.TABLE_NAME, DbConnection.getConnection());
-            schoolContainer = new SQLContainer(qSchool);
-
-            /* TableQuery และ SQLContainer สำหรับตาราง สมัครนักเรียน */
-            TableQuery qRecruitStudent = new TableQuery(RecruitStudentSchema.TABLE_NAME, DbConnection.getConnection());
-            recruitStudentContainer = new SQLContainer(qRecruitStudent);
-            
-            /* TableQuery และ SQLContainer สำหรับตาราง บิดา มารดา ผ้ปกครอง ของผู้สมัครเรียน */
-            TableQuery qRecruitFamily = new TableQuery(RecruitStudentFamilySchema.TABLE_NAME, DbConnection.getConnection());
-            recruitFamilyContainer = new SQLContainer(qRecruitFamily);
-            
-            /* TableQuery และ SQLContainer สำหรับตาราง อาคารสอบ */
-            TableQuery qBuilding = new TableQuery(BuildingSchema.TABLE_NAME, DbConnection.getConnection());
-            buildingContainer = new SQLContainer(qBuilding);
-            
-            /* TableQuery และ SQLContainer สำหรับตาราง ชั้นเรียน */
-            TableQuery qClassRoom = new TableQuery(ClassRoomSchema.TABLE_NAME, DbConnection.getConnection());
-            classRoomContainer = new SQLContainer(qClassRoom); 
-            
-            /* TableQuery และ SQLContainer สำหรับตาราง นักเรียน */
-            TableQuery qStudent = new TableQuery(StudentSchema.TABLE_NAME, DbConnection.getConnection());
-            studentContainer = new SQLContainer(qStudent); 
-            
-            /* TableQuery และ SQLContainer สำหรับตาราง ข้อมูลการเรียน */
-            TableQuery qStudentStudy = new TableQuery(StudentStudySchema.TABLE_NAME, DbConnection.getConnection());
-            studentStudyContainer = new SQLContainer(qStudentStudy); 
-
-        	/* TableQuery และ SQLContainer สำหรับตาราง ผุ้ปกครอง */
-            TableQuery qFamily = new TableQuery(FamilySchema.TABLE_NAME, DbConnection.getConnection());
-            familyContainer = new SQLContainer(qFamily); 
-
-        	 /* TableQuery และ SQLContainer สำหรับตาราง ชั้นเรียน */
-            TableQuery qStudentClassRoom = new TableQuery(StudentClassRoomSchema.TABLE_NAME, DbConnection.getConnection());
-            studentClassRoomContainer = new SQLContainer(qStudentClassRoom); 
-
-            /* TableQuery และ SQLContainer สำหรับตาราง บุคลากร */
-            TableQuery qPersonnel = new TableQuery(PersonnelSchema.TABLE_NAME, DbConnection.getConnection());
-        	personnelContainer = new SQLContainer(qPersonnel); 
-        	
-        	 /* TableQuery และ SQLContainer สำหรับตาราง ข้อมูลประวัติการศึกษา */
-            TableQuery qPersonnelGraduatedHistory = new TableQuery(PersonnelGraduatedHistory.TABLE_NAME, DbConnection.getConnection());
-        	personnelGraduatedHistoryContainer = new SQLContainer(qPersonnelGraduatedHistory); 
-        	
-        	/* TableQuery และ SQLContainer สำหรับตาราง ข้อมูลรายวิชา */
-        	TableQuery qSubject = new TableQuery(SubjectSchema.TABLE_NAME, DbConnection.getConnection());
-        	subjectContainer = new SQLContainer(qSubject); 
-        	
-        	/* TableQuery และ SQLContainer สำหรับตาราง ข้อมูลแผนการเรียน */
-        	TableQuery qLessonPlan = new TableQuery(LessonPlanSchema.TABLE_NAME, DbConnection.getConnection());
-        	lessonPlanContainer = new SQLContainer(qLessonPlan); 
-        	
-        	/* TableQuery และ SQLContainer สำหรับตาราง ข้อมูลรายวิชาในแผนการเรียน */
-        	TableQuery qLessonPlanSubject = new TableQuery(LessonPlanSubjectSchema.TABLE_NAME, DbConnection.getConnection());
-        	lessonPlanSubjectContainer = new SQLContainer(qLessonPlanSubject);
-
-        	/* TableQuery และ SQLContainer สำหรับตาราง ห้องเรียนในแผนการเรียน */
-        	TableQuery qClassRoomLessonPlan = new TableQuery(ClassRoomLessonPlanSchema.TABLE_NAME, DbConnection.getConnection());
-        	classRoomLessonPlanContainer = new SQLContainer(qClassRoomLessonPlan);
-        	
-        	/* TableQuery และ SQLContainer สำหรับตาราง อาจารย์ผ้สอน */
-        	TableQuery qTeaching = new TableQuery(TeachingSchema.TABLE_NAME, DbConnection.getConnection());
-        	teachingContainer = new SQLContainer(qTeaching);
-        	
-        	/* TableQuery และ SQLContainer สำหรับตาราง อาจารย์ผ้สอน */
-        	TableQuery qTimetable = new TableQuery(TimetableSchema.TABLE_NAME, DbConnection.getConnection());
-        	timetableContainer = new SQLContainer(qTimetable);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-	public SQLContainer getFreeFormContainer(String sql, String primaryKey) {
+	public static SQLContainer getFreeFormContainer(String sql, String primaryKey) {
+		FreeformQuery tq;
+		SQLContainer freeFormContainer = null;
 		try {
-			FreeformQuery tq = new FreeformQuery(sql, DbConnection.getConnection(),primaryKey);		
+			tq = new FreeformQuery(sql, DbConnection.getConnection(),primaryKey);		
 			freeFormContainer = new SQLContainer(tq);
 			freeFormContainer.setAutoCommit(true);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 		return freeFormContainer;
 	}
 
-	public SQLContainer getProvinceContainer() {
+	public static SQLContainer getProvinceContainer() {
+		TableQuery tQuery;
+    	SQLContainer provinceContainer = null;;
+		try {
+			tQuery = new TableQuery(ProvinceSchema.TABLE_NAME, DbConnection.getConnection());
+			provinceContainer = new SQLContainer(tQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return provinceContainer;
 	}
 
-	public SQLContainer getDistrictContainer() {
+	public static SQLContainer getDistrictContainer() {
+		TableQuery tQuery;
+    	SQLContainer districtContainer = null;;
+		try {
+			tQuery = new TableQuery(DistrictSchema.TABLE_NAME, DbConnection.getConnection());
+			districtContainer = new SQLContainer(tQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return districtContainer;
 	}
 
-	public SQLContainer getCityContainer() {
+	public static SQLContainer getCityContainer() {
+		TableQuery tQuery;
+    	SQLContainer cityContainer = null;;
+		try {
+			tQuery = new TableQuery(CitySchema.TABLE_NAME, DbConnection.getConnection());
+			cityContainer = new SQLContainer(tQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return cityContainer;
 	}
 
-	public SQLContainer getPostcodeContainer() {
+	public static SQLContainer getPostcodeContainer() {
+		TableQuery tQuery;
+    	SQLContainer postcodeContainer = null;;
+		try {
+			tQuery = new TableQuery(PostcodeSchema.TABLE_NAME, DbConnection.getConnection());
+			postcodeContainer = new SQLContainer(tQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return postcodeContainer;
 	}
 	
-	public SQLContainer getSchoolContainer() {
+	public static SQLContainer getSchoolContainer() {
+		TableQuery tQuery;
+    	SQLContainer schoolContainer = null;;
+		try {
+			tQuery = new TableQuery(SchoolSchema.TABLE_NAME, DbConnection.getConnection());
+			schoolContainer = new SQLContainer(tQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return schoolContainer;
 	}
 
-	public SQLContainer getRecruitStudentContainer() {
+	public static SQLContainer getRecruitStudentContainer() {
+		TableQuery tQuery;
+    	SQLContainer recruitStudentContainer = null;;
+		try {
+			tQuery = new TableQuery(RecruitStudentSchema.TABLE_NAME, DbConnection.getConnection());
+			recruitStudentContainer = new SQLContainer(tQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return recruitStudentContainer;
 	}
 
-	public SQLContainer getRecruitFamilyContainer() {
+	public static SQLContainer getRecruitFamilyContainer() {
+		TableQuery tQuery;
+    	SQLContainer recruitFamilyContainer = null;;
+		try {
+			tQuery = new TableQuery(RecruitStudentFamilySchema.TABLE_NAME, DbConnection.getConnection());
+			recruitFamilyContainer = new SQLContainer(tQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return recruitFamilyContainer;
 	}
 
-	public SQLContainer getBuildingContainer() {
+	public static SQLContainer getBuildingContainer() {
+		TableQuery tQuery;
+    	SQLContainer buildingContainer = null;;
+		try {
+			tQuery = new TableQuery(BuildingSchema.TABLE_NAME, DbConnection.getConnection());
+			buildingContainer = new SQLContainer(tQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return buildingContainer;
 	}
 	
-	public SQLContainer getClassRoomContainer() {
+	public static SQLContainer getClassRoomContainer() {
+		TableQuery tQuery;
+    	SQLContainer classRoomContainer = null;;
+		try {
+			tQuery = new TableQuery(ClassRoomSchema.TABLE_NAME, DbConnection.getConnection());
+			classRoomContainer = new SQLContainer(tQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return classRoomContainer;
 	}
-
-	public SQLContainer getFreeFormContainer() {
-		return freeFormContainer;
-	}
-
-	public SQLContainer getStudentContainer() {
+	
+	public static SQLContainer getStudentContainer() {
+		TableQuery tQuery;
+    	SQLContainer studentContainer = null;;
+		try {
+			tQuery = new TableQuery(StudentSchema.TABLE_NAME, DbConnection.getConnection());
+			studentContainer = new SQLContainer(tQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return studentContainer;
 	}
 
-	public SQLContainer getStudentStudyContainer() {
+	public static SQLContainer getStudentStudyContainer() {
+		TableQuery tQuery;
+    	SQLContainer studentStudyContainer = null;;
+		try {
+			tQuery = new TableQuery(StudentStudySchema.TABLE_NAME, DbConnection.getConnection());
+			studentStudyContainer = new SQLContainer(tQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return studentStudyContainer;
 	}
 
-	public SQLContainer getFamilyContainer() {
+	public static SQLContainer getFamilyContainer() {
+		TableQuery tQuery;
+    	SQLContainer familyContainer = null;;
+		try {
+			tQuery = new TableQuery(FamilySchema.TABLE_NAME, DbConnection.getConnection());
+			familyContainer = new SQLContainer(tQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return familyContainer;
 	}
 	
-	public SQLContainer getStudentClassRoomContainer() {
+	public static SQLContainer getStudentClassRoomContainer() {
+		TableQuery tQuery;
+    	SQLContainer studentClassRoomContainer = null;;
+		try {
+			tQuery = new TableQuery(StudentClassRoomSchema.TABLE_NAME, DbConnection.getConnection());
+			studentClassRoomContainer = new SQLContainer(tQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return studentClassRoomContainer;
 	}
 	
-	public SQLContainer getPersonnelContainer() {
+	public static SQLContainer getPersonnelContainer() {
+		TableQuery tQuery;
+    	SQLContainer personnelContainer = null;;
+		try {
+			tQuery = new TableQuery(PersonnelSchema.TABLE_NAME, DbConnection.getConnection());
+			personnelContainer = new SQLContainer(tQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return personnelContainer;
 	}
 	
-	public SQLContainer getPersonnelGraduatedHistoryContainer() {
+	public static SQLContainer getPersonnelGraduatedHistoryContainer() {
+		TableQuery tQuery;
+    	SQLContainer personnelGraduatedHistoryContainer = null;;
+		try {
+			tQuery = new TableQuery(PersonnelGraduatedHistorySchema.TABLE_NAME, DbConnection.getConnection());
+			personnelGraduatedHistoryContainer = new SQLContainer(tQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return personnelGraduatedHistoryContainer;
 	}
 	
-	public SQLContainer getSubjectContainer() {
+	public static SQLContainer getSubjectContainer() {
+		TableQuery tQuery;
+    	SQLContainer subjectContainer = null;;
+		try {
+			tQuery = new TableQuery(SubjectSchema.TABLE_NAME, DbConnection.getConnection());
+			subjectContainer = new SQLContainer(tQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return subjectContainer;
 	}
 	
-	public SQLContainer getLessonPlanContainer() {
+	public static SQLContainer getLessonPlanContainer() {
+		TableQuery tQuery;
+    	SQLContainer lessonPlanContainer = null;;
+		try {
+			tQuery = new TableQuery(LessonPlanSchema.TABLE_NAME, DbConnection.getConnection());
+			lessonPlanContainer = new SQLContainer(tQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return lessonPlanContainer;
 	}
 	
-	public SQLContainer getLessonPlanSubjectContainer() {
+	public static SQLContainer getLessonPlanSubjectContainer() {
+		TableQuery tQuery;
+    	SQLContainer lessonPlanSubjectContainer = null;;
+		try {
+			tQuery = new TableQuery(LessonPlanSubjectSchema.TABLE_NAME, DbConnection.getConnection());
+			lessonPlanSubjectContainer = new SQLContainer(tQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return lessonPlanSubjectContainer;
 	}
 	
-	public SQLContainer getClassRoomLessonPlanContainer() {
+	public static SQLContainer getClassRoomLessonPlanContainer() {
+		TableQuery tQuery;
+    	SQLContainer classRoomLessonPlanContainer = null;;
+		try {
+			tQuery = new TableQuery(ClassRoomLessonPlanSchema.TABLE_NAME, DbConnection.getConnection());
+			classRoomLessonPlanContainer = new SQLContainer(tQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return classRoomLessonPlanContainer;
 	}
 	
-	public SQLContainer getTeachingContainer() {
+	public static SQLContainer getTeachingContainer() {
+		TableQuery tQuery;
+    	SQLContainer teachingContainer = null;;
+		try {
+			tQuery = new TableQuery(TeachingSchema.TABLE_NAME, DbConnection.getConnection());
+			teachingContainer = new SQLContainer(tQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return teachingContainer;
 	}
 	
-	public SQLContainer getTimetableContainer() {
+	/* TableQuery และ SQLContainer สำหรับตาราง อาจารย์ผ้สอน */
+	public static SQLContainer getTimetableContainer() {
+    	TableQuery qTimetable;
+    	SQLContainer timetableContainer = null;;
+		try {
+			qTimetable = new TableQuery(TimetableSchema.TABLE_NAME, DbConnection.getConnection());
+			timetableContainer = new SQLContainer(qTimetable);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return timetableContainer;
 	}
 	

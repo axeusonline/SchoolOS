@@ -12,7 +12,7 @@ public class Subject extends IndexedContainer{
 
 	private static final long serialVersionUID = 1L;
 	
-	private Container sContainer = Container.getInstance();
+	private SQLContainer container = Container.getSubjectContainer();
 	
 	public Subject() {
 		addContainerProperty("name", String.class,null);
@@ -21,7 +21,6 @@ public class Subject extends IndexedContainer{
  
 	@SuppressWarnings("unchecked")
 	private void initContainer(){
-		SQLContainer container = sContainer.getSubjectContainer();
 		container.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, Integer.parseInt(SessionSchema.getSchoolID().toString())));
 		
 		for (int i = 0; i < container.size(); i++) {

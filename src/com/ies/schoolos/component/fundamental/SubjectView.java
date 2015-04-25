@@ -44,7 +44,7 @@ public class SubjectView extends ContentPage{
 
 	private boolean editMode = false;
 	
-	private SQLContainer sContainer = Container.getInstance().getSubjectContainer();
+	private SQLContainer sContainer = Container.getSubjectContainer();
 	
 	private Item item;
 

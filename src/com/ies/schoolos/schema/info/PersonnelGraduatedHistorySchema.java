@@ -1,6 +1,6 @@
 package com.ies.schoolos.schema.info;
 
-public class PersonnelGraduatedHistory implements java.io.Serializable{
+public class PersonnelGraduatedHistorySchema implements java.io.Serializable{
 	private static final long serialVersionUID = 1L;
 	
 	public static final String TABLE_NAME = "personnel_graduated_history";

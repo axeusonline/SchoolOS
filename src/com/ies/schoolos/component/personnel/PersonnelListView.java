@@ -35,8 +35,8 @@ public class PersonnelListView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 	
-	private SQLContainer pContainer = Container.getInstance().getPersonnelContainer();
-	private SQLContainer fContainer = Container.getInstance().getFamilyContainer();
+	private SQLContainer pContainer = Container.getPersonnelContainer();
+	private SQLContainer fContainer = Container.getFamilyContainer();
 	
 	private HorizontalLayout toolbar;
 	private Button add;	

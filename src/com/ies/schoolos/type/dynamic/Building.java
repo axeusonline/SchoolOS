@@ -11,9 +11,7 @@ import com.vaadin.data.util.sqlcontainer.SQLContainer;
 public class Building extends IndexedContainer{
 
 	private static final long serialVersionUID = 1L;
-	
-	private Container bContainer = Container.getInstance();
-	
+
 	public Building() {
 		addContainerProperty("name", String.class,null);
 		initContainer();
@@ -21,7 +19,7 @@ public class Building extends IndexedContainer{
  
 	@SuppressWarnings("unchecked")
 	private void initContainer(){
-		SQLContainer container = bContainer.getBuildingContainer();
+		SQLContainer container = Container.getBuildingContainer();
 		container.addContainerFilter(new Equal(BuildingSchema.SCHOOL_ID, Integer.parseInt(SessionSchema.getSchoolID().toString())));
 		
 		for (int i = 0; i < container.size(); i++) {

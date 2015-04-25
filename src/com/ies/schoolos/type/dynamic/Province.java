@@ -10,8 +10,6 @@ public class Province extends IndexedContainer{
 
 	private static final long serialVersionUID = 1L;
 	
-	private Container pContainer = Container.getInstance();
-	
 	public Province() {
 		addContainerProperty("name", String.class,null);
 		initContainer();
@@ -19,7 +17,7 @@ public class Province extends IndexedContainer{
  
 	@SuppressWarnings("unchecked")
 	private void initContainer(){
-		SQLContainer container = pContainer.getProvinceContainer();
+		SQLContainer container = Container.getProvinceContainer();
 		for (int i = 0; i < container.size(); i++) {
 			Object itemId = container.getIdByIndex(i);
 			Item item = addItem(Integer.parseInt(itemId.toString()));

@@ -32,7 +32,6 @@ import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.util.sqlcontainer.query.OrderBy;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.UI;
 
 public class RecruitStudentToExcel extends Table{
 	private static final long serialVersionUID = 1L;
@@ -176,18 +175,18 @@ public class RecruitStudentToExcel extends Table{
 			RecruitStudentSchema.EXAM_BUILDING_ID,
 			RecruitStudentSchema.CLASS_ROOM_ID);
 		
-		SQLContainer sContainer = Container.getInstance().getRecruitStudentContainer();
+		SQLContainer sContainer = Container.getRecruitStudentContainer();
 		sContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.SCHOOL_ID,SessionSchema.getSchoolID()),
 				new Greater(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getFirstDateOfYear()),
 				new Less(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getLastDateOfYear())));
 		sContainer.addOrderBy(new OrderBy(RecruitStudentSchema.RECRUIT_CODE, true));	
 		
-		SQLContainer examBuildingContainer = Container.getInstance().getBuildingContainer();
-		SQLContainer classRoomContainer = Container.getInstance().getClassRoomContainer();
-		SQLContainer provinceContainer = Container.getInstance().getProvinceContainer();
-		SQLContainer districtContainer = Container.getInstance().getDistrictContainer();
-		SQLContainer cityContainer = Container.getInstance().getCityContainer();
-		SQLContainer postcodeContainer = Container.getInstance().getPostcodeContainer();
+		SQLContainer examBuildingContainer = Container.getBuildingContainer();
+		SQLContainer classRoomContainer = Container.getClassRoomContainer();
+		SQLContainer provinceContainer = Container.getProvinceContainer();
+		SQLContainer districtContainer = Container.getDistrictContainer();
+		SQLContainer cityContainer = Container.getCityContainer();
+		SQLContainer postcodeContainer = Container.getPostcodeContainer();
 		
 		for(Object itemId:sContainer.getItemIds()){
 			Item item = sContainer.getItem(itemId);
@@ -223,7 +222,7 @@ public class RecruitStudentToExcel extends Table{
 						familySQL.append(" FROM " + RecruitStudentFamilySchema.TABLE_NAME);
 						familySQL.append(" WHERE " + RecruitStudentFamilySchema.REG_FAMILY_ID + "=");
 						
-						SQLContainer familyContainer = Container.getInstance().getFreeFormContainer(familySQL.toString() + value, RecruitStudentFamilySchema.REG_FAMILY_ID);						
+						SQLContainer familyContainer = Container.getFreeFormContainer(familySQL.toString() + value, RecruitStudentFamilySchema.REG_FAMILY_ID);						
 						
 						Item familyItem = familyContainer.getItem(new RowId(value));
 						value = familyItem.getItemProperty(RecruitStudentFamilySchema.FIRSTNAME).getValue().toString() + " " +
@@ -235,7 +234,17 @@ public class RecruitStudentToExcel extends Table{
 					/* อาคารสอบ*/ 
 					if(value != null){
 						Item buildingItem = examBuildingContainer.getItem(new RowId(value));
-						
+						System.err.println("Building:"+value + "," + value.getClass());
+						if(buildingItem == null)
+							System.err.println("Building Item NULL");
+						else{
+							System.err.println("Session:" + SessionSchema.getEmail() + "," + SessionSchema.getFirstname() + "," + 
+									SessionSchema.getIsRoot() + "," + SessionSchema.getSchoolID() + "," + SessionSchema.getSchoolName() + "," +
+									SessionSchema.getUserID());
+							System.err.println("Building Name:" + buildingItem.getItemProperty(BuildingSchema.NAME).getValue().toString());
+							System.err.println("Building Room Number:" + buildingItem.getItemProperty(BuildingSchema.ROOM_NUMBER).getValue().toString());
+						}
+							
 						value = buildingItem.getItemProperty(BuildingSchema.NAME).getValue().toString() + " "
 								+ "(" + buildingItem.getItemProperty(BuildingSchema.ROOM_NUMBER).getValue().toString() + ")";
 					}else{

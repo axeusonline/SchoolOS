@@ -37,7 +37,7 @@ public class Teaching extends IndexedContainer{
 		teachingBuilder.append(" WHERE tc."+ TeachingSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		teachingBuilder.append(" AND tc." + TeachingSchema.ACADEMIC_YEAR + "=" + DateTimeUtil.getBuddishYear());
 		
-		tContainer = Container.getInstance().getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
+		tContainer = Container.getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
 		for (int i = 0; i < tContainer.size(); i++) {
 			Object teachingItemId = tContainer.getIdByIndex(i);
 			
@@ -101,7 +101,7 @@ public class Teaching extends IndexedContainer{
 		teachingBuilder.append(" WHERE " + LessonPlanSubjectSchema.CLASS_YEAR + "=" + classYear);
 		teachingBuilder.append(" AND " + LessonPlanSubjectSchema.SEMESTER + "=" + semester +")");
 		
-		tContainer = Container.getInstance().getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
+		tContainer = Container.getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
 		for (int i = 0; i < tContainer.size(); i++) {
 			Object teachingItemId = tContainer.getIdByIndex(i);
 			

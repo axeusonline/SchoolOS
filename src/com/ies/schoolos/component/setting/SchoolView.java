@@ -43,7 +43,7 @@ import com.vaadin.ui.Window;
 public class SchoolView extends ContentPage{
 	private static final long serialVersionUID = 1L;
 	
-	private SQLContainer schoolContainer = Container.getInstance().getSchoolContainer();
+	private SQLContainer schoolContainer = Container.getSchoolContainer();
 	
 	private Item schoolItem = null;
 	private String passwordHash = null;

@@ -73,7 +73,7 @@ public class RecruitStudentReport {
 		try {
 			final Connection con = DbConnection.getConnection().reserveConnection();
 			final Map<String, Object> paramMap = new HashMap<String, Object>();
-			Item studentItem = Container.getInstance().getRecruitStudentContainer().getItem(new RowId(studentId));
+			Item studentItem = Container.getRecruitStudentContainer().getItem(new RowId(studentId));
 			
 			contertoMap(paramMap, studentItem);
 			
@@ -193,7 +193,7 @@ public class RecruitStudentReport {
 		
 		/* FATHER */
 		Object fatherId = item.getItemProperty(RecruitStudentSchema.FATHER_ID).getValue();
-		Item fatherItem = Container.getInstance().getRecruitFamilyContainer().getItem(new RowId(fatherId));
+		Item fatherItem = Container.getRecruitFamilyContainer().getItem(new RowId(fatherId));
 		
 		paramMap.put("f_" + RecruitStudentFamilySchema.REG_FAMILY_ID,fatherItem.getItemProperty(RecruitStudentFamilySchema.REG_FAMILY_ID).getValue());
 		paramMap.put("f_" + RecruitStudentFamilySchema.PEOPLE_ID,fatherItem.getItemProperty(RecruitStudentFamilySchema.PEOPLE_ID).getValue());
@@ -225,7 +225,7 @@ public class RecruitStudentReport {
 		
 		/* Mother */
 		Object motherId = item.getItemProperty(RecruitStudentSchema.MOTHER_ID).getValue();
-		Item motherItem = Container.getInstance().getRecruitFamilyContainer().getItem(new RowId(motherId));
+		Item motherItem = Container.getRecruitFamilyContainer().getItem(new RowId(motherId));
 		
 		paramMap.put("m_" + RecruitStudentFamilySchema.REG_FAMILY_ID,motherItem.getItemProperty(RecruitStudentFamilySchema.REG_FAMILY_ID).getValue());
 		paramMap.put("m_" + RecruitStudentFamilySchema.PEOPLE_ID,motherItem.getItemProperty(RecruitStudentFamilySchema.PEOPLE_ID).getValue());
@@ -257,7 +257,7 @@ public class RecruitStudentReport {
 				
 		/* Guardian */
 		Object guardianId = item.getItemProperty(RecruitStudentSchema.GUARDIAN_ID).getValue();
-		Item guardianItem = Container.getInstance().getRecruitFamilyContainer().getItem(new RowId(guardianId));
+		Item guardianItem = Container.getRecruitFamilyContainer().getItem(new RowId(guardianId));
 		
 		paramMap.put("g_" + RecruitStudentFamilySchema.REG_FAMILY_ID,guardianItem.getItemProperty(RecruitStudentFamilySchema.REG_FAMILY_ID).getValue());
 		paramMap.put("g_" + RecruitStudentFamilySchema.PEOPLE_ID,guardianItem.getItemProperty(RecruitStudentFamilySchema.PEOPLE_ID).getValue());
@@ -290,7 +290,7 @@ public class RecruitStudentReport {
 	}
 
 	private String getProvinceName(int itemId){
-		SQLContainer provinceCon = Container.getInstance().getProvinceContainer();
+		SQLContainer provinceCon = Container.getProvinceContainer();
 		provinceCon.addContainerFilter(new Equal(ProvinceSchema.PROVINCE_ID,itemId));
 		String name = provinceCon.getItem(new RowId(itemId)).getItemProperty(ProvinceSchema.NAME).getValue().toString();
 		provinceCon.removeAllContainerFilters();
@@ -299,7 +299,7 @@ public class RecruitStudentReport {
 	}
 
 	private String getDistrictName(int itemId){
-		SQLContainer districtCon = Container.getInstance().getDistrictContainer();
+		SQLContainer districtCon = Container.getDistrictContainer();
 		districtCon.addContainerFilter(new Equal(DistrictSchema.DISTRICT_ID,itemId));
 		String name = districtCon.getItem(new RowId(itemId)).getItemProperty(DistrictSchema.NAME).getValue().toString();
 		districtCon.removeAllContainerFilters();
@@ -308,7 +308,7 @@ public class RecruitStudentReport {
 	}
 
 	private String getCityName(int itemId){
-		SQLContainer cityCon = Container.getInstance().getCityContainer();
+		SQLContainer cityCon = Container.getCityContainer();
 		cityCon.addContainerFilter(new Equal(CitySchema.CITY_ID,itemId));
 		String name = cityCon.getItem(new RowId(itemId)).getItemProperty(CitySchema.NAME).getValue().toString();
 		cityCon.removeAllContainerFilters();
@@ -317,7 +317,7 @@ public class RecruitStudentReport {
 	}
 
 	private String getPostcodeName(int itemId){
-		SQLContainer postcodeCon = Container.getInstance().getPostcodeContainer();
+		SQLContainer postcodeCon = Container.getPostcodeContainer();
 		postcodeCon.addContainerFilter(new Equal(PostcodeSchema.POSTCODE_ID,itemId));
 		String code = postcodeCon.getItem(new RowId(itemId)).getItemProperty(PostcodeSchema.CODE).getValue().toString();
 		postcodeCon.removeAllContainerFilters();

@@ -46,7 +46,7 @@ import com.vaadin.ui.Window;
 public class LoginView extends VerticalLayout{
 	private static final long serialVersionUID = 1L;
 	
-	private SQLContainer schoolContainer = Container.getInstance().getSchoolContainer();
+	private SQLContainer schoolContainer = Container.getSchoolContainer();
 	private Item schoolItem;
 	
 	private GridLayout headerLayout;

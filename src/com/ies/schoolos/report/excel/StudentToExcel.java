@@ -28,7 +28,6 @@ import com.vaadin.data.Item;
 import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.UI;
 
 public class StudentToExcel extends Table{
 	private static final long serialVersionUID = 1L;
@@ -164,7 +163,7 @@ public class StudentToExcel extends Table{
 				StudentStudySchema.RECRUIT_DATE
 				);
 		
-		SQLContainer freeFormContainer = Container.getInstance().getFreeFormContainer(""
+		SQLContainer freeFormContainer = Container.getFreeFormContainer(""
 				+ "SELECT * FROM student_class_room scr "
 				+ "INNER JOIN class_room cr ON scr.class_room_id = cr.class_room_id "
 				+ "INNER JOIN student_study ss ON scr.student_study_id = ss.student_study_id "
@@ -208,25 +207,25 @@ public class StudentToExcel extends Table{
 				}else if(propertyId.equals(StudentStudySchema.GRADUATED_SCHOOL_PROVINCE_ID)){
 					value = item.getItemProperty(ClassRoomSchema.NAME).getValue();
 				}else if(propertyId.equals(StudentStudySchema.CURRENT_CITY_ID)){
-					SQLContainer cityContainer = Container.getInstance().getCityContainer();
+					SQLContainer cityContainer = Container.getCityContainer();
 					Item cityItem = cityContainer.getItem(new RowId(value));
 					value = cityItem.getItemProperty(CitySchema.NAME).getValue();
 				}else if(propertyId.equals(StudentStudySchema.CURRENT_DISTRICT_ID)){
-					SQLContainer districtContainer = Container.getInstance().getDistrictContainer();
+					SQLContainer districtContainer = Container.getDistrictContainer();
 					Item districtItem = districtContainer.getItem(new RowId(value));
 					value = districtItem.getItemProperty(DistrictSchema.NAME).getValue();
 				}else if(propertyId.equals(StudentStudySchema.CURRENT_PROVINCE_ID)){
-					SQLContainer provinceContainer = Container.getInstance().getProvinceContainer();
+					SQLContainer provinceContainer = Container.getProvinceContainer();
 					Item provinceItem = provinceContainer.getItem(new RowId(value));
 					value = provinceItem.getItemProperty(ProvinceSchema.NAME).getValue();
 				}else if(propertyId.equals(StudentStudySchema.CURRENT_POSTCODE_ID)){
-					SQLContainer postcodeContainer = Container.getInstance().getPostcodeContainer();
+					SQLContainer postcodeContainer = Container.getPostcodeContainer();
 					Item postcodeItem = postcodeContainer.getItem(new RowId(value));
 					value = postcodeItem.getItemProperty(PostcodeSchema.CODE).getValue();
 				}else if(propertyId.equals(StudentSchema.FATHER_ID) ||
 						propertyId.equals(StudentSchema.MOTHER_ID) ||
 						propertyId.equals(StudentStudySchema.GUARDIAN_ID)){
-					SQLContainer fContainer = Container.getInstance().getFamilyContainer();
+					SQLContainer fContainer = Container.getFamilyContainer();
 					Item familyItem = fContainer.getItem(new RowId(value));
 					value = familyItem.getItemProperty(FamilySchema.FIRSTNAME).getValue() + " " + familyItem.getItemProperty(FamilySchema.LASTNAME).getValue();
 				}

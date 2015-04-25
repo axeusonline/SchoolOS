@@ -39,7 +39,7 @@ public class AddLessonPlanSubject extends VerticalLayout {
 	private Object classRange;
 	
 	private SQLContainer sContainer;
-	private SQLContainer lessonPlanSubjectContainer = Container.getInstance().getLessonPlanSubjectContainer();
+	private SQLContainer lessonPlanSubjectContainer = Container.getLessonPlanSubjectContainer();
 	
 	private ComboBox classYear;
 	private ComboBox semester;
@@ -163,7 +163,7 @@ public class AddLessonPlanSubject extends VerticalLayout {
 		subject.append(" AND " + LessonPlanSubjectSchema.SEMESTER + "=" + semester.getValue());
 		subject.append(" AND " + LessonPlanSubjectSchema.LESSON_PLAN_ID + "=" + lessonPlanId + ")");
 
-		sContainer = Container.getInstance().getFreeFormContainer(subject.toString(), SubjectSchema.SUBJECT_ID);
+		sContainer = Container.getFreeFormContainer(subject.toString(), SubjectSchema.SUBJECT_ID);
 		for(final Object itemId:sContainer.getItemIds()){
 			Item item = sContainer.getItem(itemId);
 			addItemData(twinSelect.getLeftTable(), itemId, item);
@@ -181,7 +181,7 @@ public class AddLessonPlanSubject extends VerticalLayout {
 		subject.append(" WHERE lps."+ LessonPlanSubjectSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		subject.append(" AND lps." + LessonPlanSubjectSchema.LESSON_PLAN_ID + "=" + lessonPlanId);
 		
-		sContainer = Container.getInstance().getFreeFormContainer(subject.toString(), LessonPlanSubjectSchema.LESSON_PLAN_SUBJECT_ID);
+		sContainer = Container.getFreeFormContainer(subject.toString(), LessonPlanSubjectSchema.LESSON_PLAN_SUBJECT_ID);
 		for(Object itemId: sContainer.getItemIds()){
 			Item item = sContainer.getItem(itemId);
 			addItemData(twinSelect.getRightTable(), itemId, item);

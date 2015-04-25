@@ -43,7 +43,7 @@ public class ClassRoomView extends ContentPage{
 
 	private boolean editMode = false;
 	
-	private SQLContainer classContainer = Container.getInstance().getClassRoomContainer();
+	private SQLContainer classContainer = Container.getClassRoomContainer();
 	
 	private Item item;
 
@@ -163,7 +163,7 @@ public class ClassRoomView extends ContentPage{
 					sqlBuilder.append(" AND " + ClassRoomSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 					
 					
-					SQLContainer freeContainer = Container.getInstance().getFreeFormContainer(sqlBuilder.toString(),ClassRoomSchema.NUMBER);
+					SQLContainer freeContainer = Container.getFreeFormContainer(sqlBuilder.toString(),ClassRoomSchema.NUMBER);
 					
 					Item item = freeContainer.getItem(freeContainer.getIdByIndex(0));
 					

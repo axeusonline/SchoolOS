@@ -38,7 +38,7 @@ public class BuildingView extends ContentPage{
 	private static final long serialVersionUID = 1L;
 
 	private boolean editMode = false;
-	private SQLContainer bContainer = Container.getInstance().getBuildingContainer();
+	private SQLContainer bContainer = Container.getBuildingContainer();
 	
 	private Item item;
 

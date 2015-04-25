@@ -45,7 +45,7 @@ public class LessonPlanView extends VerticalLayout{
 
 	private boolean editMode = false;
 	
-	private SQLContainer lContainer = Container.getInstance().getLessonPlanContainer();
+	private SQLContainer lContainer = Container.getLessonPlanContainer();
 	
 	private Item item;
 
@@ -62,7 +62,10 @@ public class LessonPlanView extends VerticalLayout{
 	public LessonPlanView() {
 		lContainer.refresh();
 		lContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
-		
+		System.err.println("Session:" + SessionSchema.getEmail() + "," + SessionSchema.getFirstname() + "," + 
+				SessionSchema.getIsRoot() + "," + SessionSchema.getSchoolID() + "," + SessionSchema.getSchoolName() + "," +
+				SessionSchema.getUserID());
+		System.err.println(lContainer.size());
 		setSpacing(true);
 		setMargin(true);
 		buildMainLayout();

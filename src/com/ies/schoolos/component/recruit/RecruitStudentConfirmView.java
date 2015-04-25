@@ -30,8 +30,8 @@ import com.vaadin.ui.Button.ClickListener;
 public class RecruitStudentConfirmView extends VerticalLayout{
 	private static final long serialVersionUID = 1L;
 
-	private SQLContainer sContainer = Container.getInstance().getRecruitStudentContainer();
-	private SQLContainer classContainer = Container.getInstance().getClassRoomContainer();
+	private SQLContainer sContainer = Container.getRecruitStudentContainer();
+	private SQLContainer classContainer = Container.getClassRoomContainer();
 	
 	private TwinSelectTable twinSelect; 
 	

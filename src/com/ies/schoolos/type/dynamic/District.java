@@ -11,15 +11,13 @@ public class District extends IndexedContainer{
 
 	private static final long serialVersionUID = 1L;
 	
-	private Container dContainer = Container.getInstance();
-		
 	public District(int provinceId) {
 		initContainer(provinceId);
 	}
  
 	@SuppressWarnings("unchecked")
 	private void initContainer(int provinceId){			
-		SQLContainer container = dContainer.getDistrictContainer();
+		SQLContainer container = Container.getDistrictContainer();
 		container.addContainerFilter(new Equal(DistrictSchema.PROVINCE_ID, provinceId));
 		addContainerProperty("name", String.class,null);
 		for (int i = 0; i < container.size(); i++) {

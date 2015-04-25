@@ -42,8 +42,8 @@ public class EditPersonnelView extends PersonnelLayout {
 	private Item motherItem;
 	private Item spouseItem;
 	
-	public SQLContainer pSqlContainer = Container.getInstance().getPersonnelContainer();
-	public SQLContainer fSqlContainer = Container.getInstance().getFamilyContainer();
+	public SQLContainer pSqlContainer = Container.getPersonnelContainer();
+	public SQLContainer fSqlContainer = Container.getFamilyContainer();
 	
 	public EditPersonnelView(Object personnelId) {
 		this.personnelId = personnelId;

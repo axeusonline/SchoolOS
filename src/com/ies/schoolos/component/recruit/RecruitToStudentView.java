@@ -68,13 +68,13 @@ public class RecruitToStudentView extends VerticalLayout{
 	private ArrayList<Object> idStore = new ArrayList<Object>();
 	private HashMap<Object, HashMap<Object, Object>> summarizes = new HashMap<Object, HashMap<Object, Object>>();
 	
-	private SQLContainer rsContainer = Container.getInstance().getRecruitStudentContainer();
-	private SQLContainer rsFamilyContainer = Container.getInstance().getRecruitFamilyContainer();
-	private SQLContainer schoolContainer = Container.getInstance().getSchoolContainer();
-	private SQLContainer studentContainer = Container.getInstance().getStudentContainer();
-	private SQLContainer studentStudyContainer = Container.getInstance().getStudentStudyContainer();
-	private SQLContainer familyContainer = Container.getInstance().getFamilyContainer();
-	private SQLContainer studentClassRoomContainer = Container.getInstance().getStudentClassRoomContainer();
+	private SQLContainer rsContainer = Container.getRecruitStudentContainer();
+	private SQLContainer rsFamilyContainer = Container.getRecruitFamilyContainer();
+	private SQLContainer schoolContainer = Container.getSchoolContainer();
+	private SQLContainer studentContainer = Container.getStudentContainer();
+	private SQLContainer studentStudyContainer = Container.getStudentStudyContainer();
+	private SQLContainer familyContainer = Container.getFamilyContainer();
+	private SQLContainer studentClassRoomContainer = Container.getStudentClassRoomContainer();
 	
 	private HorizontalLayout toolbar;
 	private Button confirm;	
@@ -552,13 +552,13 @@ public class RecruitToStudentView extends VerticalLayout{
 	    *   กรณีตั้งค่าแบบกำหนดเอง*/
 	   if(generateCodeType == 0){
 		   /* ค้นรหัสนักเรียนที่มากสุดของแต่ละชั้นปี เพื่อทำการบวกรหัสนักเรียน */
-		   freeFormContainer = Container.getInstance().getFreeFormContainer(StatStudentCodeSchema.getQuery(classYear), StatStudentCodeSchema.MAX_STUDENT_CODE);
+		   freeFormContainer = Container.getFreeFormContainer(StatStudentCodeSchema.getQuery(classYear), StatStudentCodeSchema.MAX_STUDENT_CODE);
 		   
 		   maxCode = new Date().getYear()+2443;
 		   studentCode = Integer.toString(maxCode).substring(2)+maxCode+"001";
 	   }else if(generateCodeType == 1){
 		   /* ค้นรหัสนักเรียนที่มากสุด เพื่อบวกค่าเรื่อย ๆ เพื่อทำการบวกรหัสนักเรียน */
-		   freeFormContainer = Container.getInstance().getFreeFormContainer(StatStudentCodeSchema.getQuery(), StatStudentCodeSchema.MAX_STUDENT_CODE);
+		   freeFormContainer = Container.getFreeFormContainer(StatStudentCodeSchema.getQuery(), StatStudentCodeSchema.MAX_STUDENT_CODE);
 		   
 		   Item schoolItem = schoolContainer.getItem(new RowId(SessionSchema.getSchoolID()));
 		   /* ตรวจสอบ รหัสนักเรียนที่มากสุดของแต่ละชั้นปีว่ามีการกำหนดหรือยัง
@@ -600,7 +600,7 @@ public class RecruitToStudentView extends VerticalLayout{
 		builder.append(" GROUP BY " +  RecruitStudentSchema.CLASS_RANGE + "," + RecruitStudentSchema.GENDER);
 		builder.append(" ORDER BY " +  RecruitStudentSchema.CLASS_RANGE + " ASC");
 
-		SQLContainer freeCon = Container.getInstance().getFreeFormContainer(builder.toString(), RecruitStudentSchema.STUDENT_ID);
+		SQLContainer freeCon = Container.getFreeFormContainer(builder.toString(), RecruitStudentSchema.STUDENT_ID);
 		
 		HashMap<Object, Object> genderMap = null;
 		StringBuilder sumStr = new StringBuilder();

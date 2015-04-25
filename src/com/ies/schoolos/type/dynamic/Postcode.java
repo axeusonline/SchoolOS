@@ -11,15 +11,13 @@ public class Postcode extends IndexedContainer{
 
 	private static final long serialVersionUID = 1L;
 	
-	private Container pContainer = Container.getInstance();
-	
 	public Postcode(int districtId) {
 		initContainer(districtId);
 	}
  
 	@SuppressWarnings("unchecked")
 	private void initContainer(int districtId){		
-		SQLContainer container = pContainer.getPostcodeContainer();
+		SQLContainer container = Container.getPostcodeContainer();
 		container.addContainerFilter(new Equal(PostcodeSchema.DISTRICT_ID, districtId));
 		addContainerProperty("name", String.class,null);
 		for (int i = 0; i < container.size(); i++) {

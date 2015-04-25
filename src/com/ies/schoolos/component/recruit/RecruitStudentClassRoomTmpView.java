@@ -43,8 +43,8 @@ public class RecruitStudentClassRoomTmpView extends VerticalLayout{
 
 	private int capacity = 0;
 	
-	private SQLContainer sContainer = Container.getInstance().getRecruitStudentContainer();
-	private SQLContainer classContainer = Container.getInstance().getClassRoomContainer();
+	private SQLContainer sContainer = Container.getRecruitStudentContainer();
+	private SQLContainer classContainer = Container.getClassRoomContainer();
 	
 	private ComboBox classRoom;
 	private Label capacityLabel;

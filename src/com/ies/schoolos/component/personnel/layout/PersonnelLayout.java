@@ -76,8 +76,8 @@ private static final long serialVersionUID = 1L;
 	 * */
 	public ArrayList<Object> idStore = new ArrayList<Object>();
 
-	public SQLContainer pSqlContainer = Container.getInstance().getPersonnelContainer();
-	public SQLContainer fSqlContainer = Container.getInstance().getFamilyContainer();
+	public SQLContainer pSqlContainer = Container.getPersonnelContainer();
+	public SQLContainer fSqlContainer = Container.getFamilyContainer();
 	
 	public FieldGroup personnelBinder;
 	public FieldGroup fatherBinder;
@@ -2035,7 +2035,7 @@ private static final long serialVersionUID = 1L;
 
 			personalCode += "01";
 			
-			SQLContainer freeContainer = Container.getInstance().getFreeFormContainer(sqlBuilder.toString(), PersonnelSchema.PERSONEL_CODE);
+			SQLContainer freeContainer = Container.getFreeFormContainer(sqlBuilder.toString(), PersonnelSchema.PERSONEL_CODE);
 			Item item = freeContainer.getItem(freeContainer.getIdByIndex(0));
 			
 			if(item.getItemProperty(PersonnelSchema.PERSONEL_CODE).getValue() != null){

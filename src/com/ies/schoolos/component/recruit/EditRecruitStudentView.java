@@ -39,8 +39,8 @@ public class EditRecruitStudentView extends RecruitStudentLayout {
 	private Item motherItem;
 	private Item guardianItem;
 	
-	public SQLContainer sSqlContainer = Container.getInstance().getRecruitStudentContainer();
-	public SQLContainer fSqlContainer = Container.getInstance().getRecruitFamilyContainer();
+	public SQLContainer sSqlContainer = Container.getRecruitStudentContainer();
+	public SQLContainer fSqlContainer = Container.getRecruitFamilyContainer();
 	
 	public EditRecruitStudentView(Object studentId) {
 		this.studentId = studentId;

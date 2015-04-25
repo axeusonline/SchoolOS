@@ -43,7 +43,7 @@ public class TeachingView extends VerticalLayout {
 	private static final long serialVersionUID = 1L;
 	
 	private SQLContainer tContainer;
-	private SQLContainer teachingContainer = Container.getInstance().getTeachingContainer();
+	private SQLContainer teachingContainer = Container.getTeachingContainer();
 
 	private ComboBox subject;
 	private Button addition;
@@ -231,7 +231,7 @@ public class TeachingView extends VerticalLayout {
 		
 		System.err.println(subjectBuilder.toString());
 		
-		tContainer = Container.getInstance().getFreeFormContainer(subjectBuilder.toString(), PersonnelSchema.PERSONNEL_ID);
+		tContainer = Container.getFreeFormContainer(subjectBuilder.toString(), PersonnelSchema.PERSONNEL_ID);
 		for(final Object itemId:tContainer.getItemIds()){
 			Item item = tContainer.getItem(itemId);
 			addItemData(twinSelect.getLeftTable(), itemId, item);
@@ -249,7 +249,7 @@ public class TeachingView extends VerticalLayout {
 		teachingBuilder.append(" WHERE tc."+ TeachingSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		teachingBuilder.append(" AND tc." + TeachingSchema.ACADEMIC_YEAR + "=" + DateTimeUtil.getBuddishYear());
 
-		tContainer = Container.getInstance().getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
+		tContainer = Container.getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
 		for(Object itemId: tContainer.getItemIds()){
 			Item item = tContainer.getItem(itemId);
 			addItemData(twinSelect.getRightTable(), itemId, item);

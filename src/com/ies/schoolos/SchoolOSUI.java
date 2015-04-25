@@ -23,7 +23,7 @@ import com.vaadin.ui.UI;
 @Theme("schoolos")
 public class SchoolOSUI extends UI {
 
-	private SQLContainer schoolContainer = Container.getInstance().getSchoolContainer();
+	private SQLContainer schoolContainer = Container.getSchoolContainer();
 	
 	@WebServlet(value = "/*", asyncSupported = true)
 	@VaadinServletConfiguration(productionMode = false, ui = SchoolOSUI.class, widgetset = "com.ies.schoolos.widgetset.SchoolosWidgetset")

@@ -36,7 +36,7 @@ import com.vaadin.ui.Notification.Type;
 public class RecruitStudentExamScore extends ContentPage {
 private static final long serialVersionUID = 1L;
 	
-	private SQLContainer sContainer = Container.getInstance().getRecruitStudentContainer();
+	private SQLContainer sContainer = Container.getRecruitStudentContainer();
 	
 	private Item item;
 	

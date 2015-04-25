@@ -48,9 +48,9 @@ public class RecruitStudentListView extends VerticalLayout{
 
 	private static final long serialVersionUID = 1L;
 	
-	private SQLContainer sContainer = Container.getInstance().getRecruitStudentContainer();
-	private SQLContainer fContainer = Container.getInstance().getRecruitFamilyContainer();
-	private SQLContainer bContainer = Container.getInstance().getBuildingContainer();
+	private SQLContainer sContainer = Container.getRecruitStudentContainer();
+	private SQLContainer fContainer = Container.getRecruitFamilyContainer();
+	private SQLContainer bContainer = Container.getBuildingContainer();
 	
 	private HashMap<Object, HashMap<Object, Object>> summarizes = new HashMap<Object, HashMap<Object, Object>>();
 	
@@ -282,7 +282,7 @@ public class RecruitStudentListView extends VerticalLayout{
 		builder.append(" GROUP BY " +  RecruitStudentSchema.CLASS_RANGE + "," + RecruitStudentSchema.GENDER);
 		builder.append(" ORDER BY " +  RecruitStudentSchema.CLASS_RANGE + " ASC");
 
-		SQLContainer freeCon = Container.getInstance().getFreeFormContainer(builder.toString(), RecruitStudentSchema.STUDENT_ID);
+		SQLContainer freeCon = Container.getFreeFormContainer(builder.toString(), RecruitStudentSchema.STUDENT_ID);
 		
 		HashMap<Object, Object> genderMap = null;
 		StringBuilder sumStr = new StringBuilder();

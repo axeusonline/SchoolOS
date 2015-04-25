@@ -31,7 +31,6 @@ import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.util.sqlcontainer.query.OrderBy;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.UI;
 
 public class RecruitStudentConfirmedToExcel extends Table{
 	private static final long serialVersionUID = 1L;
@@ -42,7 +41,7 @@ public class RecruitStudentConfirmedToExcel extends Table{
 	}
 	
 	public void setData(){
-		SQLContainer sContainer = Container.getInstance().getRecruitStudentContainer();
+		SQLContainer sContainer = Container.getRecruitStudentContainer();
 		sContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.SCHOOL_ID,SessionSchema.getSchoolID()),
 				new Greater(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getFirstDateOfYear()),
 				new Less(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getLastDateOfYear()),
@@ -184,14 +183,14 @@ public class RecruitStudentConfirmedToExcel extends Table{
 		
 		for(Object itemId:sContainer.getItemIds()){
 			Item item = sContainer.getItem(itemId);
-			SQLContainer examBuildingContainer = Container.getInstance().getBuildingContainer();
-			SQLContainer classRoomContainer = Container.getInstance().getClassRoomContainer();
+			SQLContainer examBuildingContainer = Container.getBuildingContainer();
+			SQLContainer classRoomContainer = Container.getClassRoomContainer();
 			
-			SQLContainer fContainer = Container.getInstance().getRecruitFamilyContainer();
-			SQLContainer provinceContainer = Container.getInstance().getProvinceContainer();
-			SQLContainer districtContainer = Container.getInstance().getDistrictContainer();
-			SQLContainer cityContainer = Container.getInstance().getCityContainer();
-			SQLContainer postcodeContainer = Container.getInstance().getPostcodeContainer();
+			SQLContainer fContainer = Container.getRecruitFamilyContainer();
+			SQLContainer provinceContainer = Container.getProvinceContainer();
+			SQLContainer districtContainer = Container.getDistrictContainer();
+			SQLContainer cityContainer = Container.getCityContainer();
+			SQLContainer postcodeContainer = Container.getPostcodeContainer();
 			
 			/* จังหวัดโรงเรียนที่จบ */
 			String graduatedProvince = provinceContainer.

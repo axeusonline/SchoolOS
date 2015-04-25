@@ -49,8 +49,8 @@ public class RecruitStudentExamRoom extends VerticalLayout{
 	
 	private TwinSelectTable twinSelect;
 	
-	private SQLContainer sContainer = Container.getInstance().getRecruitStudentContainer();
-	private SQLContainer bContainer = Container.getInstance().getBuildingContainer();
+	private SQLContainer sContainer = Container.getRecruitStudentContainer();
+	private SQLContainer bContainer = Container.getBuildingContainer();
 
 	public RecruitStudentExamRoom() {		
 		sContainer.refresh();

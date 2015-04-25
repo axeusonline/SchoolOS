@@ -37,7 +37,7 @@ public class AddClassRoomLessonPlan extends VerticalLayout {
 	private Object classRange;
 	
 	private SQLContainer crlContainer;
-	private SQLContainer classRoomLessonPlanContainer = Container.getInstance().getClassRoomLessonPlanContainer();
+	private SQLContainer classRoomLessonPlanContainer = Container.getClassRoomLessonPlanContainer();
 	
 	private ComboBox classYear;
 	private TextField academicYear;
@@ -156,7 +156,7 @@ public class AddClassRoomLessonPlan extends VerticalLayout {
 		subject.append(" AND " + ClassRoomLessonPlanSchema.LESSON_PLAN_ID + "=" + lessonPlanId);
 		subject.append(" AND " + ClassRoomLessonPlanSchema.ACADEMIC_YEAR + "=" + DateTimeUtil.getBuddishYear() + ")");
 
-		crlContainer = Container.getInstance().getFreeFormContainer(subject.toString(), ClassRoomSchema.CLASS_ROOM_ID);
+		crlContainer = Container.getFreeFormContainer(subject.toString(), ClassRoomSchema.CLASS_ROOM_ID);
 		for(final Object itemId:crlContainer.getItemIds()){
 			Item item = crlContainer.getItem(itemId);
 			addItemData(twinSelect.getLeftTable(), itemId, item);
@@ -175,7 +175,7 @@ public class AddClassRoomLessonPlan extends VerticalLayout {
 		subject.append(" AND crl." + ClassRoomLessonPlanSchema.LESSON_PLAN_ID + "=" + lessonPlanId);
 		subject.append(" AND crl." + ClassRoomLessonPlanSchema.ACADEMIC_YEAR + "=" + DateTimeUtil.getBuddishYear());
 		
-		crlContainer = Container.getInstance().getFreeFormContainer(subject.toString(), ClassRoomLessonPlanSchema.CLASS_ROOM_LESSON_PLAN_ID);
+		crlContainer = Container.getFreeFormContainer(subject.toString(), ClassRoomLessonPlanSchema.CLASS_ROOM_LESSON_PLAN_ID);
 		for(Object itemId: crlContainer.getItemIds()){
 			Item item = crlContainer.getItem(itemId);
 			addItemData(twinSelect.getRightTable(), itemId, item);
