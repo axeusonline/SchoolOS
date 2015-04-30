@@ -80,7 +80,6 @@ public class TimetableView extends VerticalLayout {
 	private FilterTable allTimeteachingTable;
 	
 	public TimetableView() {
-		//setSizeFull();
 		setSpacing(true);
 		setMargin(true);
 		buildMainLayout();
@@ -225,8 +224,6 @@ public class TimetableView extends VerticalLayout {
 		allTimeteachingTable.setSelectable(true);
 		allTimeteachingTable.setFooterVisible(true);  
 		setTableStyle(allTimeteachingTable);
-		teachingLayout.addComponent(allTimeteachingTable);
-		teachingLayout.setExpandRatio(allTimeteachingTable, 2);
 		allTimeteachingTable.setFilterDecorator(new TableFilterDecorator());
 		allTimeteachingTable.setFilterGenerator(new TableFilterGenerator());
         allTimeteachingTable.setFilterBarVisible(true);
@@ -378,7 +375,7 @@ public class TimetableView extends VerticalLayout {
 										getItem(new RowId(timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue())).
 										getItemProperty("name").getValue().toString()) + "\n" +										
 										classRoomItem.getItemProperty(ClassRoomSchema.NAME).getValue();
-								System.err.println(caption);
+
 								button.setCaption(caption);
 								button.setId(timetableId.toString());
 								button.setStyleName("red-button");
@@ -732,7 +729,8 @@ public class TimetableView extends VerticalLayout {
 			* SELECT * FROM timetable tt 
 			* INNER JOIN teaching t ON tt.teaching_id=t.teaching_id 
 			* INNER JOIN personnel p ON p.personnel_id=t.personnel_id 
-			* WHERE p.personnel_id=? */
+			* WHERE p.personnel_id=? 
+			* AND tt.school_id = ?*/
 					 
 			sql.append(" SELECT * FROM " + TimetableSchema.TABLE_NAME +" tt");
 			sql.append(" INNER JOIN " + TeachingSchema.TABLE_NAME + " t ON tt." + TeachingSchema.TEACHING_ID + "=" + "t." + TimetableSchema.TEACHING_ID);
@@ -742,13 +740,16 @@ public class TimetableView extends VerticalLayout {
 			/*SQL สำหรับดึงข้อมูล
 			 * SELECT * FROM timetable tt 
 			 * INNER JOIN teaching t ON tt.teaching_id=t.teaching_id 
-			 * WHERE t.personnel_name_tmp=?*/
+			 * WHERE t.personnel_name_tmp=?
+			 * AND tt.school_id = ?*/
 			
 			sql.append(" SELECT * FROM " + TimetableSchema.TABLE_NAME +" tt");
 			sql.append(" INNER JOIN " + TeachingSchema.TABLE_NAME + " t ON tt." + TeachingSchema.TEACHING_ID + "=" + "t." + TimetableSchema.TEACHING_ID);
 			sql.append(" WHERE t." + TeachingSchema.PERSONNEL_NAME_TMP + "='" + item.getItemProperty(TeachingSchema.PERSONNEL_NAME_TMP).getValue()+"'");
 		}
 
+		sql.append(" AND tt." + TeachingSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
+		
 		return sql.toString();
 	}
 	
@@ -786,6 +787,7 @@ public class TimetableView extends VerticalLayout {
 		sql.append(" WHERE lps." + LessonPlanSubjectSchema.CLASS_YEAR + "=" + classYear.getValue());
 		sql.append(" AND lps." + LessonPlanSubjectSchema.SEMESTER + "=" + semester.getValue());
 		sql.append(" AND tc." + TeachingSchema.ACADEMIC_YEAR + "=" + DateTimeUtil.getBuddishYear());	
+		sql.append(" AND tc." + TimetableSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());	
 		
 		return sql.toString();
 	}
@@ -805,9 +807,10 @@ public class TimetableView extends VerticalLayout {
 	/* ตัดคำ จากชื่อของผู้สอน ซึ่งอยู่ในรูปของ 
 	 *  ท1101:ภาษาไทย1 (อ.ทดลอง ทดสอบ) หรือ
 	 *  แนะแนว (อ.ทดลอง ทดสอบ) 
-	 *  ให้อยู่ในรํปของ 
-	 *    - ถ้ามีรหัสวิชา ท1101 \n อ.ทดลอง ทดสอบ
-	 *    - ถ้าไม่มีรหัสวิชา แนะแนว อ.ทดลอง ทดสอบ */
+	 *  ให้อยู่ในรํปของ
+	 *    - ถ้าไม่มีรหัสวิชา แนะแนว  
+	 *    - ถ้ามีรหัสวิชา ท1101
+	 */
 	private String getTeachingName(String name){
 		String styles = "";
 		if(name.indexOf(":") == -1)

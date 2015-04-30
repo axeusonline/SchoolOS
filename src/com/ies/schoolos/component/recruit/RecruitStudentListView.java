@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.tepi.filtertable.FilterTable;
 import org.vaadin.dialogs.ConfirmDialog;
-import org.vaadin.haijian.ExcelExporter;
 
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
@@ -18,6 +17,7 @@ import com.ies.schoolos.type.ClassRange;
 import com.ies.schoolos.type.Gender;
 import com.ies.schoolos.type.Prename;
 import com.ies.schoolos.utility.DateTimeUtil;
+import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.filter.And;
 import com.vaadin.data.util.filter.Compare.Equal;
@@ -37,6 +37,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.Table;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.VerticalLayout;
@@ -109,10 +110,26 @@ public class RecruitStudentListView extends VerticalLayout{
 		});
 		toolbar.addComponent(add);
 		
-		ExcelExporter excelExporter = new ExcelExporter(new RecruitStudentToExcel());
-		excelExporter.setIcon(FontAwesome.FILE_EXCEL_O);
-		excelExporter.setCaption("ส่งออกไฟล์ Excel");
-		toolbar.addComponent(excelExporter);
+		Button excelExport = new Button("ส่งออกไฟล์ Excel", FontAwesome.FILE_EXCEL_O);
+		excelExport.addClickListener(new ClickListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				final Table tableEx = new RecruitStudentToExcel();
+				tableEx.setVisible(false);
+				addComponent(tableEx);
+				
+				ExcelExport excelExport = new ExcelExport(tableEx,"student");
+                excelExport.excludeCollapsedColumns();
+                excelExport.setReportTitle("Recruit Student");
+				excelExport.setExportFileName("recruit_student.xls");
+                excelExport.export();
+                
+                removeComponent(tableEx);
+			}
+		});
+		toolbar.addComponent(excelExport);		
 		
 		/* Content */
 		HorizontalLayout studentsLayout = new HorizontalLayout();

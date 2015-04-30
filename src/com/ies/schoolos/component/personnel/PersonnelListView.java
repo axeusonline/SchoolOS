@@ -6,11 +6,13 @@ import org.vaadin.dialogs.ConfirmDialog;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
+import com.ies.schoolos.report.excel.RecruitStudentToExcel;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.info.PersonnelSchema;
 import com.ies.schoolos.type.Prename;
 import com.ies.schoolos.type.dynamic.JobPosition;
 import com.ies.schoolos.utility.Notification;
+import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.filter.And;
 import com.vaadin.data.util.filter.Compare.Equal;
@@ -19,6 +21,7 @@ import com.vaadin.data.util.sqlcontainer.TemporaryRowId;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CustomTable;
@@ -89,10 +92,26 @@ public class PersonnelListView extends VerticalLayout {
 		});
 		toolbar.addComponent(add);
 		
-		/*ExcelExporter excelExporter = new ExcelExporter(new PersonnelToExcel());
-		excelExporter.setIcon(FontAwesome.FILE_EXCEL_O);
-		excelExporter.setCaption("ส่งออกไฟล์ Excel");
-		toolbar.addComponent(excelExporter);*/
+		Button excelExport = new Button("ส่งออกไฟล์ Excel", FontAwesome.FILE_EXCEL_O);
+		excelExport.addClickListener(new ClickListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				final Table tableEx = new RecruitStudentToExcel();
+				tableEx.setVisible(false);
+				addComponent(tableEx);
+				
+				ExcelExport excelExport = new ExcelExport(tableEx,"student");
+                excelExport.excludeCollapsedColumns();
+                excelExport.setReportTitle("Personnel");
+				excelExport.setExportFileName("personnel.xls");
+                excelExport.export();
+                
+                removeComponent(tableEx);
+			}
+		});
+		//toolbar.addComponent(excelExport);	
 		
 		/* Content */
 		table = new FilterTable();
