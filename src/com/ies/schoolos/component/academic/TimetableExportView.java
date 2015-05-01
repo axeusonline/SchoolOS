@@ -56,7 +56,6 @@ public class TimetableExportView extends VerticalLayout {
 	 *     > Object[] แสดง index ของคาบ โดยภายในเก็บ timetableId */
 	private HashMap<Object, HashMap<Object, Object[]>> timetables;
 
-	private SQLContainer timetableContainer = Container.getTimetableContainer();
 	private SQLContainer freeFormContainer;
 	
 	private FormLayout settingForm;
@@ -248,7 +247,7 @@ public class TimetableExportView extends VerticalLayout {
 									}else{
 										Object timetableId = timetableIdArray[j];
 
-										Item timetableItem = timetableContainer.getItem(new RowId(timetableId));
+										Item timetableItem = freeFormContainer.getItem(new RowId(timetableId));
 										String caption = new Teaching().
 												getItem(new RowId(timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue())).
 												getItemProperty("name").getValue().toString();
@@ -280,6 +279,8 @@ public class TimetableExportView extends VerticalLayout {
 			}
 			
 			HSSFSheet sheet = workbook.createSheet(roomNumber); 
+			sheet.autoSizeColumn(0);
+			
 			HSSFRow header = sheet.createRow(0);
 			/* ใส่หัวตาราง */
 			int column = 0;
@@ -294,6 +295,7 @@ public class TimetableExportView extends VerticalLayout {
 			int rowIndex = 1;
 			for(Object exportId: exportTable.getItemIds()){
 				Item item = exportTable.getItem(exportId);
+				sheet.autoSizeColumn(rowIndex);
 				HSSFRow row = sheet.createRow(rowIndex);
 				row.setHeightInPoints((2*sheet.getDefaultRowHeightInPoints()));
 				
@@ -308,7 +310,7 @@ public class TimetableExportView extends VerticalLayout {
 			}
 		}
 		
-		try{
+		try{			
 			FileOutputStream fos = null; 
 			File file = new File("ตารางสอน.xls"); 
 			fos = new FileOutputStream(file); 
@@ -402,6 +404,7 @@ public class TimetableExportView extends VerticalLayout {
 		* INNER JOIN teaching tc ON tc.teaching_id = tt.teaching_id
 		* INNER JOIN lesson_plan_subject lps ON lps.subject_id = tc.subject_id
 		* WHERE lps.class_year = ? 
+		* AND cr.class_year = ? 
 		* AND lps.semester = ?
 		* AND tc.academic_year = ?; */
 		
@@ -411,6 +414,7 @@ public class TimetableExportView extends VerticalLayout {
 		sql.append(" INNER JOIN " + TeachingSchema.TABLE_NAME + " tc ON tc." + TeachingSchema.TEACHING_ID + "=" + "tt." + TimetableSchema.TEACHING_ID);
 		sql.append(" INNER JOIN " + LessonPlanSubjectSchema.TABLE_NAME + " lps ON lps." + LessonPlanSubjectSchema.SUBJECT_ID + "=" + "tc." + TeachingSchema.SUBJECT_ID);
 		sql.append(" WHERE lps." + LessonPlanSubjectSchema.CLASS_YEAR + "=" + classYear.getValue());
+		sql.append(" AND cr." + LessonPlanSubjectSchema.CLASS_YEAR + "=" + classYear.getValue());
 		sql.append(" AND lps." + LessonPlanSubjectSchema.SEMESTER + "=" + semester.getValue());
 		sql.append(" AND tc." + TeachingSchema.ACADEMIC_YEAR + "=" + DateTimeUtil.getBuddishYear());	
 		sql.append(" AND tc." + TimetableSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());	
@@ -437,13 +441,9 @@ public class TimetableExportView extends VerticalLayout {
 	 *    - ถ้ามีรหัสวิชา ท1101 \n อ.ทดลอง ทดสอบ
 	 *    - ถ้าไม่มีรหัสวิชา แนะแนว อ.ทดลอง ทดสอบ */
 	private String getTeachingNameHtml(String name){
-		String styles = "";
-		if(name.indexOf(":") == -1)
-			styles = name.substring(0, name.indexOf("("))+"\n" +
-    				name.substring(name.indexOf("(")+1, name.lastIndexOf(" "));
-    	else
-    		styles = name.substring(0, name.indexOf(":"))+"\n" +
-    				name.substring(name.indexOf("(")+1, name.lastIndexOf(" "));
+		String styles = name.substring(0, name.indexOf("("))+"\n" +
+				name.substring(name.indexOf("(")+1, name.lastIndexOf(")"));
+
 		return styles;
 	}
 }

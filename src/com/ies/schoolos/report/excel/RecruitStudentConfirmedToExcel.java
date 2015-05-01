@@ -120,7 +120,7 @@ public class RecruitStudentConfirmedToExcel extends Table{
 		setColumnHeader(RecruitStudentSchema.GRADUATED_YEAR, "ปีการศึกษา");
 		setColumnHeader(RecruitStudentSchema.TEL, "โทร");
 		setColumnHeader(RecruitStudentSchema.MOBILE, "มือถือ");
-		setColumnHeader(RecruitStudentSchema.EMAIL, "อีเมลล์");
+		setColumnHeader(RecruitStudentSchema.EMAIL, "อีเมล์");
 		setColumnHeader(RecruitStudentSchema.CURRENT_ADDRESS, "ที่อยู่ปัจจุบัน");
 		setColumnHeader(RecruitStudentSchema.CURRENT_CITY_ID, "ตำบล");
 		setColumnHeader(RecruitStudentSchema.CURRENT_DISTRICT_ID, "อำเภอ");

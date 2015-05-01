@@ -114,7 +114,7 @@ public class RecruitStudentToExcel extends Table{
 		setColumnHeader(RecruitStudentSchema.GRADUATED_YEAR, "ปีการศึกษา");
 		setColumnHeader(RecruitStudentSchema.TEL, "โทร");
 		setColumnHeader(RecruitStudentSchema.MOBILE, "มือถือ");
-		setColumnHeader(RecruitStudentSchema.EMAIL, "อีเมลล์");
+		setColumnHeader(RecruitStudentSchema.EMAIL, "อีเมล์");
 		setColumnHeader(RecruitStudentSchema.CURRENT_ADDRESS, "ที่อยู่ปัจจุบัน");
 		setColumnHeader(RecruitStudentSchema.CURRENT_CITY_ID, "ตำบล");
 		setColumnHeader(RecruitStudentSchema.CURRENT_DISTRICT_ID, "อำเภอ");
@@ -233,18 +233,7 @@ public class RecruitStudentToExcel extends Table{
 				}else if(propertyId.equals(RecruitStudentSchema.EXAM_BUILDING_ID)){
 					/* อาคารสอบ*/ 
 					if(value != null){
-						Item buildingItem = examBuildingContainer.getItem(new RowId(value));
-						System.err.println("Building:"+value + "," + value.getClass());
-						if(buildingItem == null)
-							System.err.println("Building Item NULL");
-						else{
-							System.err.println("Session:" + SessionSchema.getEmail() + "," + SessionSchema.getFirstname() + "," + 
-									SessionSchema.getIsRoot() + "," + SessionSchema.getSchoolID() + "," + SessionSchema.getSchoolName() + "," +
-									SessionSchema.getUserID());
-							System.err.println("Building Name:" + buildingItem.getItemProperty(BuildingSchema.NAME).getValue().toString());
-							System.err.println("Building Room Number:" + buildingItem.getItemProperty(BuildingSchema.ROOM_NUMBER).getValue().toString());
-						}
-							
+						Item buildingItem = examBuildingContainer.getItem(new RowId(value));													
 						value = buildingItem.getItemProperty(BuildingSchema.NAME).getValue().toString() + " "
 								+ "(" + buildingItem.getItemProperty(BuildingSchema.ROOM_NUMBER).getValue().toString() + ")";
 					}else{

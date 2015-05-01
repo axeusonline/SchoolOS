@@ -8,6 +8,7 @@ import com.ies.schoolos.schema.DistrictSchema;
 import com.ies.schoolos.schema.PostcodeSchema;
 import com.ies.schoolos.schema.ProvinceSchema;
 import com.ies.schoolos.schema.SchoolSchema;
+import com.ies.schoolos.schema.UserSchema;
 import com.ies.schoolos.schema.academic.ClassRoomLessonPlanSchema;
 import com.ies.schoolos.schema.academic.LessonPlanSchema;
 import com.ies.schoolos.schema.academic.LessonPlanSubjectSchema;
@@ -102,6 +103,18 @@ public class Container implements Serializable {
 			e.printStackTrace();
 		}
 		return schoolContainer;
+	}
+	
+	public static SQLContainer getUserContainer() {
+		TableQuery tQuery;
+    	SQLContainer userContainer = null;;
+		try {
+			tQuery = new TableQuery(UserSchema.TABLE_NAME, DbConnection.getConnection());
+			userContainer = new SQLContainer(tQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return userContainer;
 	}
 
 	public static SQLContainer getRecruitStudentContainer() {

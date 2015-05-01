@@ -18,7 +18,11 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 
+import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.SessionSchema;
+import com.ies.schoolos.schema.UserSchema;
+import com.vaadin.data.Item;
+import com.vaadin.data.util.sqlcontainer.SQLContainer;
 
 public class EmailSender {
 	public EmailSender(String to, String subject, String description, String filename, InputStream inputStream) {
@@ -26,7 +30,20 @@ public class EmailSender {
 		final String password = "!IeSP@ssw0rd?";
 		
 	    // Sender's email ID needs to be mentioned
-	    String from = SessionSchema.getEmail().toString();
+	    String from = "";
+	    if(SessionSchema.getEmail() == null){
+	    	StringBuilder builder = new StringBuilder();
+	    	builder.append(" SELECT * FROM " + UserSchema.TABLE_NAME);
+	    	builder.append(" WHERE " + UserSchema.REF_USER_ID + "=" + SessionSchema.getSchoolID());
+	    	
+	    	SQLContainer userContainer = Container.getFreeFormContainer(builder.toString(), UserSchema.USER_ID);
+	    	Item userItem = userContainer.getItem(userContainer.getIdByIndex(0));
+	    	
+	    	from = userItem.getItemProperty(UserSchema.EMAIL).getValue().toString();
+
+	    }else{
+	    	from = SessionSchema.getEmail().toString();
+	    }
 
 	    // Get system properties
 	    Properties properties = System.getProperties();
@@ -71,14 +88,17 @@ public class EmailSender {
 	       // Set text message part
 	       multipart.addBodyPart(messageBodyPart);
 	
-	       // Part two is attachment
-	       messageBodyPart = new MimeBodyPart();
-	
-	       ByteArrayDataSource ds = new ByteArrayDataSource(inputStream, "application/pdf"); 
-	       
-	       messageBodyPart.setDataHandler(new DataHandler(ds));
-	       messageBodyPart.setFileName(filename);
-	       multipart.addBodyPart(messageBodyPart);
+	       if(filename != null || inputStream != null){
+	    	   // Part two is attachment
+		       messageBodyPart = new MimeBodyPart();
+		
+		       ByteArrayDataSource ds = new ByteArrayDataSource(inputStream, "application/pdf"); 
+		       
+		       messageBodyPart.setDataHandler(new DataHandler(ds));
+		       messageBodyPart.setFileName(filename);
+		       multipart.addBodyPart(messageBodyPart);
+	       }
+	      
 	
 	       // Send the complete message parts
 	       message.setContent(multipart );
@@ -91,7 +111,5 @@ public class EmailSender {
 	    } catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	
+	}	
 }

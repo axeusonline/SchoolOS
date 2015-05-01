@@ -62,10 +62,7 @@ public class LessonPlanView extends VerticalLayout{
 	public LessonPlanView() {
 		lContainer.refresh();
 		lContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
-		System.err.println("Session:" + SessionSchema.getEmail() + "," + SessionSchema.getFirstname() + "," + 
-				SessionSchema.getIsRoot() + "," + SessionSchema.getSchoolID() + "," + SessionSchema.getSchoolName() + "," +
-				SessionSchema.getUserID());
-		System.err.println(lContainer.size());
+
 		setSpacing(true);
 		setMargin(true);
 		buildMainLayout();
@@ -220,7 +217,7 @@ public class LessonPlanView extends VerticalLayout{
 						else if("".equals(propertyId))
 							value = initButtonLayout(item, itemId);
 					}
-					System.err.println(value);
+
 					return value;
 				}
 			});

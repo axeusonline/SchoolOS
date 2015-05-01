@@ -110,14 +110,14 @@ public class RecruitStudentReport {
 		}
 	}
 	
-	/* ส่งอีเมลล์ใบสมัคร */
+	/* ส่งอีเมล์ใบสมัคร */
 	private void sendEmail(){
 		String subject = "ใบสมัคร"+SessionSchema.getSchoolName().toString();
 		String description = "อีเมล์ฉบับนี้ส่งมา เพื่อยืนยันว่าคุณได้สมัครเรียนเรียบร้อยแล้ว สำหรับ" + SessionSchema.getSchoolName().toString() + System.getProperty("line.separator") +
 				"กรุณาพิมพ์หลักฐานการสมัครที่แนบด้านล่างนี้ ในการประกอบเอกสารการรับสมัคร" + System.getProperty("line.separator") +
 				"หากมีข้อสงสัยกรุณาติดต่อกลับที่ " + SessionSchema.getEmail().toString() + System.getProperty("line.separator") +
 				System.getProperty("line.separator") +
-				"กรุณาอย่าส่งกลับมาอีเมลล์ที่ใช้ในการส่งนี้ " + System.getProperty("line.separator") +
+				"กรุณาอย่าส่งกลับมาอีเมล์ที่ใช้ในการส่งนี้ " + System.getProperty("line.separator") +
 				"โดย ทีมงาน SchoolOS ";
 		
 		

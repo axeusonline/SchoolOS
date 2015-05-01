@@ -107,7 +107,7 @@ public class StudentToExcel extends Table{
 		setColumnHeader(StudentStudySchema.GRADUATED_YEAR, "ปีการศึกษา");
 		setColumnHeader(StudentStudySchema.TEL, "โทร");
 		setColumnHeader(StudentStudySchema.MOBILE, "มือถือ");
-		setColumnHeader(StudentStudySchema.EMAIL, "อีเมลล์");
+		setColumnHeader(StudentStudySchema.EMAIL, "อีเมล์");
 		setColumnHeader(StudentStudySchema.CURRENT_ADDRESS, "ที่อยู่ปัจจุบัน");
 		setColumnHeader(StudentStudySchema.CURRENT_CITY_ID, "ตำบล");
 		setColumnHeader(StudentStudySchema.CURRENT_DISTRICT_ID, "อำเภอ");

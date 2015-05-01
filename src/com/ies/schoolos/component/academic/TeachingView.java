@@ -21,6 +21,8 @@ import com.ies.schoolos.utility.Notification;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.data.util.filter.And;
+import com.vaadin.data.util.filter.Compare.Equal;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.util.sqlcontainer.query.FreeformQuery;
 import com.vaadin.server.FontAwesome;
@@ -118,6 +120,16 @@ public class TeachingView extends VerticalLayout {
 							if(name.isValid()){
 								try {
 									if(name.getValue().split(" ").length > 1){
+										teachingContainer.addContainerFilter(new And(
+											new Equal(TeachingSchema.SCHOOL_ID,SessionSchema.getSchoolID())	,
+											new Equal(TeachingSchema.SUBJECT_ID,Integer.parseInt(subject.getValue().toString())),
+											new Equal(TeachingSchema.PERSONNEL_NAME_TMP,name.getValue())));
+										
+										if(teachingContainer.size() > 0){
+											Notification.show("อาจารย์ซ้ำ กรุณาตรวจสอบชื่ออีกครั้ง", Type.WARNING_MESSAGE);
+											return;
+										}
+										
 										/* ก่อนแก้ไข เพิ่มต้องลบ Filter ก่อนหน้า */
 										teachingContainer.removeAllContainerFilters();
 										
@@ -228,8 +240,6 @@ public class TeachingView extends VerticalLayout {
 		subjectBuilder.append(" WHERE "+ TeachingSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		subjectBuilder.append(" AND "+ TeachingSchema.SUBJECT_ID + "=" + subject.getValue());
 		subjectBuilder.append(" AND "+ TeachingSchema.PERSONNEL_ID + " IS NOT NULL )");
-		
-		System.err.println(subjectBuilder.toString());
 		
 		tContainer = Container.getFreeFormContainer(subjectBuilder.toString(), PersonnelSchema.PERSONNEL_ID);
 		for(final Object itemId:tContainer.getItemIds()){

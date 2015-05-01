@@ -106,7 +106,7 @@ private static final long serialVersionUID = 1L;
 	private NumberField weight;
 	private TextField congenitalDisease;
 	private Button workNext;
-
+	
 	/*private FormLayout graduatedForm;
 	private TextField institute;
 	private ComboBox graduatedLevelId;
@@ -346,8 +346,8 @@ private static final long serialVersionUID = 1L;
 		lastnameNd.setNullRepresentation("");
 		generalForm.addComponent(lastnameNd);
 		
-		firstnameRd = new TextField("สกุลภาษาที่สาม");
-		firstnameRd.setInputPrompt("สกุลภาษาที่สาม");
+		firstnameRd = new TextField("ชื่อภาษาที่สาม");
+		firstnameRd.setInputPrompt("ชื่อภาษาที่สาม");
 		firstnameRd.setImmediate(false);
 		firstnameRd.setWidth("-1px");
 		firstnameRd.setHeight("-1px");
@@ -777,11 +777,12 @@ private static final long serialVersionUID = 1L;
 		mobile.setNullRepresentation("");
 		addressForm.addComponent(mobile);
 		
-		email = new TextField("อีเมลล์");
-		email.setInputPrompt("อีเมลล์");
+		email = new TextField("อีเมล์");
+		email.setInputPrompt("อีเมล์");
 		email.setImmediate(false);
 		email.setWidth("-1px");
 		email.setHeight("-1px");
+		email.setRequired(true);
 		email.addValidator(new EmailValidator("ข้อมูลไม่ถูกต้อง"));
 		email.setNullRepresentation("");
 		addressForm.addComponent(email);
@@ -1151,8 +1152,8 @@ private static final long serialVersionUID = 1L;
 		fMobile.setNullRepresentation("");
 		fatherForm.addComponent(fMobile);
 		
-		fEmail = new TextField("อีเมลล์");
-		fEmail.setInputPrompt("อีเมลล์");
+		fEmail = new TextField("อีเมล์");
+		fEmail.setInputPrompt("อีเมล์");
 		fEmail.setImmediate(false);
 		fEmail.setWidth("-1px");
 		fEmail.setHeight("-1px");
@@ -1449,8 +1450,8 @@ private static final long serialVersionUID = 1L;
 		mMobile.setNullRepresentation("");
 		motherForm.addComponent(mMobile);
 		
-		mEmail = new TextField("อีเมลล์");
-		mEmail.setInputPrompt("อีเมลล์");
+		mEmail = new TextField("อีเมล์");
+		mEmail.setInputPrompt("อีเมล์");
 		mEmail.setImmediate(false);
 		mEmail.setWidth("-1px");
 		mEmail.setHeight("-1px");
@@ -1748,8 +1749,8 @@ private static final long serialVersionUID = 1L;
 		sMobile.setNullRepresentation("");
 		spouseForm.addComponent(sMobile);
 		
-		sEmail = new TextField("อีเมลล์");
-		sEmail.setInputPrompt("อีเมลล์");
+		sEmail = new TextField("อีเมล์");
+		sEmail.setInputPrompt("อีเมล์");
 		sEmail.setImmediate(false);
 		sEmail.setWidth("-1px");
 		sEmail.setHeight("-1px");
@@ -1899,7 +1900,7 @@ private static final long serialVersionUID = 1L;
 		personnelBinder.bind(firstnameNd, PersonnelSchema.FIRSTNAME_ND);
 		personnelBinder.bind(lastnameNd, PersonnelSchema.LASTNAME_ND);
 		personnelBinder.bind(firstnameRd, PersonnelSchema.FIRSTNAME_RD);
-		personnelBinder.bind(lastnameNd, PersonnelSchema.LASTNAME_RD);		
+		personnelBinder.bind(lastnameRd, PersonnelSchema.LASTNAME_RD);		
 		personnelBinder.bind(nickname, PersonnelSchema.NICKNAME);
 		personnelBinder.bind(gender, PersonnelSchema.GENDER);
 		personnelBinder.bind(religion, PersonnelSchema.RELIGION);
@@ -2072,6 +2073,17 @@ private static final long serialVersionUID = 1L;
 		for(Field<?> field: spouseBinder.getFields()){
 			field.setEnabled(false);
 		}
+		workNext.setEnabled(false);
+		generalBack.setEnabled(false);
+		addressNext.setEnabled(false);
+		workBack.setEnabled(false);
+		fatherNext.setEnabled(false);
+		addressBack.setEnabled(false);
+		motherNext.setEnabled(false);
+		fatherBack.setEnabled(false);
+		spouseNext.setEnabled(false);
+		motherBack.setEnabled(false);
+		finish.setEnabled(false);
 	}
 	
 	/* เปีดการกรอกข้อมูลหากข้อมูล ประชาชนยังไม่ได้ถูกใช้งาน */
@@ -2088,6 +2100,17 @@ private static final long serialVersionUID = 1L;
 		for(Field<?> field: spouseBinder.getFields()){
 			field.setEnabled(true);
 		}
+		workNext.setEnabled(true);
+		generalBack.setEnabled(true);
+		addressNext.setEnabled(true);
+		workBack.setEnabled(true);
+		fatherNext.setEnabled(true);
+		addressBack.setEnabled(true);
+		motherNext.setEnabled(true);
+		fatherBack.setEnabled(true);
+		spouseNext.setEnabled(true);
+		motherBack.setEnabled(true);
+		finish.setEnabled(true);
 	}
 
 	/*กรณีทดสอบ ของการเพิ่มข้อมูล*/

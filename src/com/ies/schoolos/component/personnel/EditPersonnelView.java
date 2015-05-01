@@ -26,8 +26,8 @@ import com.vaadin.ui.UI;
 public class EditPersonnelView extends PersonnelLayout {
 	private static final long serialVersionUID = 1L;
 
-	private Object familyStore[] = new Object[4];
-	private int fIndex = 0;
+	private Object pkStore[] = new Object[4];
+	private int pkIndex = 0;
 	
 	private String maritalStr = "";
 	private boolean printMode = false;
@@ -74,15 +74,15 @@ public class EditPersonnelView extends PersonnelLayout {
 		
 		if(fatherId != null){
 			fatherItem = fSqlContainer.getItem(new RowId(fatherId));
-			familyStore[0] = fatherId;
+			pkStore[0] = fatherId;
 		}
 		if(motherId != null){
 			motherItem = fSqlContainer.getItem(new RowId(motherId));
-			familyStore[1] = motherId;
+			pkStore[1] = motherId;
 		}
 		if(spouseId != null){
 			spouseItem = fSqlContainer.getItem(new RowId(spouseId));
-			familyStore[2] = spouseId;
+			pkStore[2] = spouseId;
 		}
 
 		fatherBinder.setItemDataSource(fatherItem);
@@ -137,7 +137,7 @@ public class EditPersonnelView extends PersonnelLayout {
 					 *  ถ้า id = null แปลว่าเพิ่ม
 					 *  ถ้า id != null แปลว่าแก้ไข  */
 					if(personnelBinder.getItemDataSource().getItemProperty(PersonnelSchema.FATHER_ID).getValue() == null){
-						fIndex = 0;
+						pkIndex = 0;
 						/* เพิ่มบิดา โดยตรวจสอบว่าบิดาดังกล่าวไม่ซ้ำ และถูกบันทึกข้อมูลใหม่  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
 						if(!isDuplicateFather &&  !saveFormData(fSqlContainer, fatherBinder))
 							return;	
@@ -151,7 +151,7 @@ public class EditPersonnelView extends PersonnelLayout {
 					 *  ถ้า id = null แปลว่าเพิ่ม
 					 *  ถ้า id != null แปลว่าแก้ไข  */
 					if(personnelBinder.getItemDataSource().getItemProperty(PersonnelSchema.MOTHER_ID).getValue() == null){
-						fIndex = 1;
+						pkIndex = 1;
 						/* เพิ่มบิดา โดยตรวจสอบว่ามารดาดังกล่าวไม่ซ้ำ และถูกบันทึกข้อมูลใหม่  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
 						if(!isDuplicateMother && !saveFormData(fSqlContainer, motherBinder))
 								return;
@@ -183,7 +183,7 @@ public class EditPersonnelView extends PersonnelLayout {
 					if(maritalStr.equals("1") && spouseId == null){
 						/* เพิ่มบิดา โดยตรวจสอบว่าคู่สมรสดังกล่าวไม่ซ้ำ และถูกบันทึกข้อมูลใหม่  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
 						if(personnelBinder.getItemDataSource().getItemProperty(PersonnelSchema.SPOUSE_ID).getValue() == null){
-							fIndex = 2;
+							pkIndex = 2;
 							if(!isDuplicateSpouse &&  !saveFormData(fSqlContainer, spouseBinder))
 								return;
 							setSpouseIdToPersonnelForm();
@@ -251,7 +251,7 @@ public class EditPersonnelView extends PersonnelLayout {
 
 			@Override
 			public void rowIdChange(RowIdChangeEvent arg0) {
-				familyStore[fIndex] = arg0.getNewRowId();
+				pkStore[pkIndex] = arg0.getNewRowId();
 			}
 		});
 	}
@@ -291,7 +291,7 @@ public class EditPersonnelView extends PersonnelLayout {
 					value = fieldGroup.getField(fieldGroup.getPropertyId(field)).getValue();
 				}
 				Object data = Class.forName(className).cast(value);
-				System.err.println(fieldGroup.getPropertyId(field) + "," + data);
+
 				item.getItemProperty(fieldGroup.getPropertyId(field)).setValue(data);
 			}
 			sqlContainer.commit();
@@ -308,16 +308,16 @@ public class EditPersonnelView extends PersonnelLayout {
 	
 	@SuppressWarnings("unchecked")
 	private void setFatherIdToPersonnelForm(){
-		personnelItem.getItemProperty(PersonnelSchema.FATHER_ID).setValue(Integer.parseInt(familyStore[0].toString()));
+		personnelItem.getItemProperty(PersonnelSchema.FATHER_ID).setValue(Integer.parseInt(pkStore[0].toString()));
 	}
 	
 	@SuppressWarnings("unchecked")
 	private void setMotherIdToPersonnelForm(){
-		personnelItem.getItemProperty(PersonnelSchema.MOTHER_ID).setValue(Integer.parseInt(familyStore[1].toString()));
+		personnelItem.getItemProperty(PersonnelSchema.MOTHER_ID).setValue(Integer.parseInt(pkStore[1].toString()));
 	}
 	
 	@SuppressWarnings("unchecked")
 	private void setSpouseIdToPersonnelForm(){
-		personnelItem.getItemProperty(PersonnelSchema.SPOUSE_ID).setValue(Integer.parseInt(familyStore[2].toString()));
+		personnelItem.getItemProperty(PersonnelSchema.SPOUSE_ID).setValue(Integer.parseInt(pkStore[2].toString()));
 	}
 }

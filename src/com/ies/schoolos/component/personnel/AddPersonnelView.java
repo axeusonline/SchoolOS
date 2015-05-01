@@ -3,25 +3,39 @@ package com.ies.schoolos.component.personnel;
 import java.util.Date;
 
 import com.ies.schoolos.component.personnel.layout.PersonnelLayout;
+import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.CreateModifiedSchema;
+import com.ies.schoolos.schema.SchoolSchema;
 import com.ies.schoolos.schema.SessionSchema;
+import com.ies.schoolos.schema.UserSchema;
 import com.ies.schoolos.schema.info.PersonnelSchema;
+import com.ies.schoolos.utility.BCrypt;
 import com.ies.schoolos.utility.Notification;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.FieldGroup;
+import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.util.sqlcontainer.query.QueryDelegate.RowIdChangeEvent;
 import com.vaadin.data.util.sqlcontainer.query.QueryDelegate.RowIdChangeListener;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Field;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 
 public class AddPersonnelView extends PersonnelLayout {
 	private static final long serialVersionUID = 1L;
 
+	private Object pkStore[] = new Object[4];
+	private int pkIndex = 0;
+	private SQLContainer userContainer = Container.getUserContainer();
+	
 	private String maritalStr = "";
 	private boolean printMode = false;
 	
@@ -86,16 +100,19 @@ public class AddPersonnelView extends PersonnelLayout {
 				if(isInsertParents){
 					try {				
 						/* เพิ่มบิดา  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
+						pkIndex = 0;
 						if(!saveFormData(fSqlContainer, fatherBinder))
 							return;	
 						
 						/* เพิ่มมารดา  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
+						pkIndex = 1;
 						if(!saveFormData(fSqlContainer, motherBinder))
 							return;
 						
 						/* ตรวจสอบ คู่สมรส 
 						 *  กรณีเป็น "สมรส (1)"จะบันทึกข้อมูลคู่สมรส
 						 * */
+						pkIndex = 2;
 						if(maritalStr.equals("1")){
 							/* เพิ่มคู่สมรส  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
 							if(!saveFormData(fSqlContainer, spouseBinder))
@@ -108,10 +125,14 @@ public class AddPersonnelView extends PersonnelLayout {
 				}
 				
 				/* เพิ่มบุคลากร หากบันทึกไม่ผ่านจะหยุดการทำงานทันที*/
+				pkIndex = 3;
 				if(!saveFormData(pSqlContainer, personnelBinder))
 					return;
 				else
 					Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
+				
+				
+				generateUser();
 				
 				/* ตรวจสอบสถานะการพิมพ์*/
 				if(printMode){
@@ -119,7 +140,7 @@ public class AddPersonnelView extends PersonnelLayout {
 					/*WorkThread thread = new WorkThread();
 			        thread.start();
 			        UI.getCurrent().setPollInterval(500);*/
-					//new PersonnelReport(Integer.parseInt(idStore.get(3).toString()),emailMode);
+					//new PersonnelReport(Integer.parseInt(pkStore[3).toString()),emailMode);
 				}
 			}else{
 				Notification.show("ข้อมูลถูกบันทึกแล้วไม่สามารถแก้ไขได้", Type.WARNING_MESSAGE);
@@ -135,7 +156,7 @@ public class AddPersonnelView extends PersonnelLayout {
 
 			@Override
 			public void rowIdChange(RowIdChangeEvent arg0) {
-				idStore.add(arg0.getNewRowId());
+				pkStore[pkIndex] = arg0.getNewRowId();
 			}
 		});
 		
@@ -145,7 +166,7 @@ public class AddPersonnelView extends PersonnelLayout {
 
 			@Override
 			public void rowIdChange(RowIdChangeEvent arg0) {
-				idStore.add(arg0.getNewRowId());
+				pkStore[pkIndex] = arg0.getNewRowId();
 			}
 		});
 	}
@@ -183,7 +204,7 @@ public class AddPersonnelView extends PersonnelLayout {
 				}
 				
 				Object data = Class.forName(className).cast(value);
-				System.err.println(fieldGroup.getPropertyId(field) + "," + data);
+
 				item.getItemProperty(fieldGroup.getPropertyId(field)).setValue(data);
 			}
 			
@@ -191,15 +212,19 @@ public class AddPersonnelView extends PersonnelLayout {
 			if(sqlContainer == pSqlContainer){
 				
 				if(isInsertParents){
-					item.getItemProperty(PersonnelSchema.FATHER_ID).setValue(Integer.parseInt(idStore.get(0).toString()));
-					item.getItemProperty(PersonnelSchema.MOTHER_ID).setValue(Integer.parseInt(idStore.get(1).toString()));
+					item.getItemProperty(PersonnelSchema.FATHER_ID).setValue(Integer.parseInt(pkStore[0].toString()));
+					item.getItemProperty(PersonnelSchema.MOTHER_ID).setValue(Integer.parseInt(pkStore[1].toString()));
 					/* กรณีบันทึกคู่สมรส */
 					if(maritalStr.equals("1"))
-						item.getItemProperty(PersonnelSchema.SPOUSE_ID).setValue(Integer.parseInt(idStore.get(2).toString()));
+						item.getItemProperty(PersonnelSchema.SPOUSE_ID).setValue(Integer.parseInt(pkStore[2].toString()));
 				}
 				
 				item.getItemProperty(PersonnelSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
-				item.getItemProperty(PersonnelSchema.RECRUIT_BY_ID).setValue(SessionSchema.getUserID());
+				if(SessionSchema.getUserID() != null)
+					item.getItemProperty(PersonnelSchema.RECRUIT_BY_ID).setValue(SessionSchema.getUserID());
+				else
+					item.getItemProperty(PersonnelSchema.RECRUIT_BY_ID).setValue(SessionSchema.getSchoolID());
+				
 				item.getItemProperty(PersonnelSchema.RECRUIT_DATE).setValue(new Date());
 				item.getItemProperty(PersonnelSchema.START_WORK_DATE).setValue(new Date());
 				
@@ -214,5 +239,64 @@ public class AddPersonnelView extends PersonnelLayout {
 			e.printStackTrace();
 			return false;
 		}
+	}
+
+	/* สร้าง User */
+	@SuppressWarnings("unchecked")
+	private void generateUser(){
+		try{
+			Object userTmpId = userContainer.addItem();
+			Item userItem = userContainer.getItem(userTmpId);
+			userItem.getItemProperty(UserSchema.SCHOOL_ID).setValue(Integer.parseInt(SessionSchema.getSchoolID().toString()));
+			userItem.getItemProperty(UserSchema.FIRSTNAME).setValue(personnelBinder.getField(PersonnelSchema.FIRSTNAME).getValue());
+			userItem.getItemProperty(UserSchema.LASTNAME).setValue(personnelBinder.getField(PersonnelSchema.LASTNAME).getValue());
+			userItem.getItemProperty(UserSchema.EMAIL).setValue(personnelBinder.getField(PersonnelSchema.EMAIL).getValue());
+			userItem.getItemProperty(UserSchema.PASSWORD).setValue(BCrypt.hashpw(personnelBinder.getField(PersonnelSchema.PEOPLE_ID).getValue().toString(), BCrypt.gensalt()));
+			userItem.getItemProperty(UserSchema.STATUS).setValue(0);
+			userItem.getItemProperty(UserSchema.REF_USER_ID).setValue(Integer.parseInt(pkStore[3].toString()));
+			userItem.getItemProperty(UserSchema.REF_USER_TYPE).setValue(1);
+			userItem.getItemProperty(CreateModifiedSchema.CREATED_BY_ID).setValue(Integer.parseInt(pkStore[3].toString()));
+			userItem.getItemProperty(CreateModifiedSchema.CREATED_DATE).setValue(new Date());
+			userContainer.commit();
+			
+			/* ปิดหน้าต่างทั้งหมด */
+			for(Window window:UI.getCurrent().getWindows()){
+				window.close();
+			}
+			
+			final Window window = new Window("รหัสเข้าใช้ระบบ กรุณาจดบันทึก");
+			window.setWidth("400px");
+			window.setHeight("150px");
+			window.center();
+			UI.getCurrent().addWindow(window);
+			
+			VerticalLayout labelLayout = new VerticalLayout();
+			labelLayout.setWidth("100%");
+			labelLayout.setMargin(true);
+			window.setContent(labelLayout);
+			
+			StringBuilder builder = new StringBuilder();
+			String schoolName = "";
+			if(SessionSchema.getSchoolName() == null){
+				Item item = Container.getSchoolContainer().getItem(new RowId(SessionSchema.getSchoolID()));
+				schoolName += item.getItemProperty(SchoolSchema.NAME).getValue().toString();
+			}else{
+				schoolName = SessionSchema.getSchoolName().toString();
+			}
+			builder.append(schoolName + "<br/>");
+			builder.append("บัญชีผู้ใช้ :" + personnelBinder.getField(PersonnelSchema.EMAIL).getValue() + "<br/>");
+			builder.append("รหัสผ่าน:" + personnelBinder.getField(PersonnelSchema.PEOPLE_ID).getValue());
+			
+			Label username = new Label(builder.toString());
+			username.setContentMode(ContentMode.HTML);
+			labelLayout.addComponent(username);
+			
+			//new EmailSender(personnelBinder.getField(PersonnelSchema.EMAIL).getValue().toString(), "บัญชีผู้ใช้งาน", builder.toString(), null, null);
+			
+		}catch(Exception e){
+			Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
+			e.printStackTrace();
+		}
+		
 	}
 }

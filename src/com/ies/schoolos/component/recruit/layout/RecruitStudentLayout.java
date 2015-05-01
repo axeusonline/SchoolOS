@@ -533,8 +533,8 @@ public class RecruitStudentLayout extends TabSheet {
 		mobile.setNullRepresentation("");
 		addressForm.addComponent(mobile);
 		
-		email = new TextField("อีเมลล์");
-		email.setInputPrompt("อีเมลล์");
+		email = new TextField("อีเมล์");
+		email.setInputPrompt("อีเมล์");
 		email.setImmediate(false);
 		email.setRequired(true);
 		email.setWidth("-1px");
@@ -782,8 +782,8 @@ public class RecruitStudentLayout extends TabSheet {
 		fMobile.setNullRepresentation("");
 		fatherForm.addComponent(fMobile);
 		
-		fEmail = new TextField("อีเมลล์");
-		fEmail.setInputPrompt("อีเมลล์");
+		fEmail = new TextField("อีเมล์");
+		fEmail.setInputPrompt("อีเมล์");
 		fEmail.setImmediate(false);
 		fEmail.setWidth("-1px");
 		fEmail.setHeight("-1px");
@@ -1066,8 +1066,8 @@ public class RecruitStudentLayout extends TabSheet {
 		mMobile.setNullRepresentation("");
 		motherForm.addComponent(mMobile);
 		
-		mEmail = new TextField("อีเมลล์");
-		mEmail.setInputPrompt("อีเมลล์");
+		mEmail = new TextField("อีเมล์");
+		mEmail.setInputPrompt("อีเมล์");
 		mEmail.setImmediate(false);
 		mEmail.setWidth("-1px");
 		mEmail.setHeight("-1px");
@@ -1373,8 +1373,8 @@ public class RecruitStudentLayout extends TabSheet {
 		gMobile.setNullRepresentation("");
 		guardianForm.addComponent(gMobile);
 		
-		gEmail = new TextField("อีเมลล์");
-		gEmail.setInputPrompt("อีเมลล์");
+		gEmail = new TextField("อีเมล์");
+		gEmail.setInputPrompt("อีเมล์");
 		gEmail.setImmediate(false);
 		gEmail.setWidth("-1px");
 		gEmail.setHeight("-1px");

@@ -350,7 +350,7 @@ public class TimetableView extends VerticalLayout {
 							final int section =j;
 							NativeButton button = new NativeButton();
 							button.setWidth("80px");
-							button.setHeight("50px");
+							button.setHeight("-1px");
 							/* ตรวจสอบว่า คาบดังกล่่าวถูกระบุ timetableId ใว้หรือยัง
 							 *  กรณียังว่าง จะกำหนด Caption เป็นว่าง
 							 *  กรณี ระบุและว จะกำหนด Caption เป็นชื่อวิชา (อจ) พร้อมตั้งค่า id บนปุ่ม*/
@@ -373,7 +373,7 @@ public class TimetableView extends VerticalLayout {
 								/* แสดง ชื่ออาจารย์ /n ห้องเรียน*/
 								String caption = getTeachingName(new Teaching().
 										getItem(new RowId(timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue())).
-										getItemProperty("name").getValue().toString()) + "\n" +										
+										getItemProperty("name").getValue().toString()) + " \n" +										
 										classRoomItem.getItemProperty(ClassRoomSchema.NAME).getValue();
 
 								button.setCaption(caption);
@@ -396,8 +396,9 @@ public class TimetableView extends VerticalLayout {
 					data.add(Days.getNameTh(weekDay));	
 					for(int j=0; j < 10; j++){
 						final int section =j;
-						Button button = new Button("ว่าง");
+						NativeButton button = new NativeButton("ว่าง");
 						button.setWidth("80px");
+						button.setHeight("-1px");
 						button.setStyleName("green-button");
 						button.addClickListener(new ClickListener() {
 							private static final long serialVersionUID = 1L;
@@ -776,6 +777,7 @@ public class TimetableView extends VerticalLayout {
 		* INNER JOIN teaching tc ON tc.teaching_id = tt.teaching_id
 		* INNER JOIN lesson_plan_subject lps ON lps.subject_id = tc.subject_id
 		* WHERE lps.class_year = ? 
+		* AND cr.class_year = ? 
 		* AND lps.semester = ?
 		* AND tc.academic_year = ?; */
 		
@@ -785,6 +787,7 @@ public class TimetableView extends VerticalLayout {
 		sql.append(" INNER JOIN " + TeachingSchema.TABLE_NAME + " tc ON tc." + TeachingSchema.TEACHING_ID + "=" + "tt." + TimetableSchema.TEACHING_ID);
 		sql.append(" INNER JOIN " + LessonPlanSubjectSchema.TABLE_NAME + " lps ON lps." + LessonPlanSubjectSchema.SUBJECT_ID + "=" + "tc." + TeachingSchema.SUBJECT_ID);
 		sql.append(" WHERE lps." + LessonPlanSubjectSchema.CLASS_YEAR + "=" + classYear.getValue());
+		sql.append(" AND cr." + LessonPlanSubjectSchema.CLASS_YEAR + "=" + classYear.getValue());
 		sql.append(" AND lps." + LessonPlanSubjectSchema.SEMESTER + "=" + semester.getValue());
 		sql.append(" AND tc." + TeachingSchema.ACADEMIC_YEAR + "=" + DateTimeUtil.getBuddishYear());	
 		sql.append(" AND tc." + TimetableSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());	
@@ -814,9 +817,12 @@ public class TimetableView extends VerticalLayout {
 	private String getTeachingName(String name){
 		String styles = "";
 		if(name.indexOf(":") == -1)
-			styles = name.substring(0, name.indexOf("("));
+			styles = name.substring(0, name.indexOf("("))+" \n" +
+    				name.substring(name.indexOf("(")+1, name.lastIndexOf(" "));
     	else
-    		styles = name.substring(0, name.indexOf(":"));
+    		styles = //name.substring(0, name.indexOf(":"))+" \n"  +
+    				name.substring(name.indexOf(":")+1, name.indexOf("("))+" \n"  +
+    				name.substring(name.indexOf("(")+1, name.lastIndexOf(" "));
 		return styles;
 	}
 	
@@ -824,8 +830,8 @@ public class TimetableView extends VerticalLayout {
 	 *  ท1101:ภาษาไทย1 (อ.ทดลอง ทดสอบ) หรือ
 	 *  แนะแนว (อ.ทดลอง ทดสอบ) 
 	 *  ให้อยู่ในรํปของ 
-	 *    - ถ้ามีรหัสวิชา ท1101 \n อ.ทดลอง ทดสอบ
-	 *    - ถ้าไม่มีรหัสวิชา แนะแนว อ.ทดลอง ทดสอบ */
+	 *    - กรณีไม่มีรหัสวิชา แสดง  ชื่อวิชา <br/> อ.ทดลอง ทดสอบ
+	 *    - ถ้ามีรหัสวิชา แสดง รหัส <br/>  ชื่อวิชา <br/> อ.ทดลอง ทดสอบ */
 	private String getTeachingNameHtml(String name){
 		String styles = "";
 		if(name.indexOf(":") == -1)
@@ -833,6 +839,7 @@ public class TimetableView extends VerticalLayout {
     				name.substring(name.indexOf("(")+1, name.lastIndexOf(" "));
     	else
     		styles = name.substring(0, name.indexOf(":"))+"<br/>" +
+    				name.substring(name.indexOf(":")+1, name.indexOf("("))+"<br/>" +
     				name.substring(name.indexOf("(")+1, name.lastIndexOf(" "));
 		return styles;
 	}

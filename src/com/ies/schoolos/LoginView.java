@@ -7,11 +7,14 @@ import javax.servlet.http.Cookie;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.ies.schoolos.component.SchoolOSView;
+import com.ies.schoolos.component.personnel.AddPersonnelView;
 import com.ies.schoolos.component.recruit.AddRecruitStudentView;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.CookieSchema;
+import com.ies.schoolos.schema.CreateModifiedSchema;
 import com.ies.schoolos.schema.SchoolSchema;
 import com.ies.schoolos.schema.SessionSchema;
+import com.ies.schoolos.schema.UserSchema;
 import com.ies.schoolos.type.dynamic.Province;
 import com.ies.schoolos.utility.BCrypt;
 import com.ies.schoolos.utility.DateTimeUtil;
@@ -21,7 +24,10 @@ import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.util.filter.Compare.Equal;
 import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
+import com.vaadin.data.util.sqlcontainer.query.QueryDelegate.RowIdChangeEvent;
+import com.vaadin.data.util.sqlcontainer.query.QueryDelegate.RowIdChangeListener;
 import com.vaadin.data.validator.EmailValidator;
+import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.VaadinService;
 import com.vaadin.shared.ui.combobox.FilteringMode;
@@ -46,8 +52,13 @@ import com.vaadin.ui.Window;
 public class LoginView extends VerticalLayout{
 	private static final long serialVersionUID = 1L;
 	
+	private Object schoolId;
+	
 	private SQLContainer schoolContainer = Container.getSchoolContainer();
+	private SQLContainer userContainer = Container.getUserContainer();
+	
 	private Item schoolItem;
+	private Item userItem;
 	
 	private GridLayout headerLayout;
 	private Label branding;
@@ -66,6 +77,7 @@ public class LoginView extends VerticalLayout{
 	
 	//REGISTRATION BOX
 	private FieldGroup registrationBinder;
+	private FieldGroup userBinder;
 	
 	private VerticalLayout schoolRecruit;
 	private Label freeNotice;
@@ -78,6 +90,12 @@ public class LoginView extends VerticalLayout{
 	private PasswordField passwordSignupAgain;
 	private Button signup;
 	
+	//REGISTRATION BOX	
+	private VerticalLayout studentAndPersonnelLayout;
+	private Label signupNotice;
+	private Button studentSignup;
+	private Button personnelSignup;
+	
 	public LoginView() {
 		buildMainLayout();
 	}
@@ -89,6 +107,9 @@ public class LoginView extends VerticalLayout{
 		initHeader();
 		initContent();
 		getCriteriaLogin();
+		initSqlContainerRowIdChange();
+		initSchoolFieldGroup();
+		initUserFieldGroup();
 		Responsive.makeResponsive(contentLayout);
 	}
 	
@@ -153,6 +174,11 @@ public class LoginView extends VerticalLayout{
 		righContentLayout.addComponent(schoolRecruit);
 		righContentLayout.setComponentAlignment(schoolRecruit, Alignment.MIDDLE_CENTER);	
 		righContentLayout.setExpandRatio(schoolRecruit, 1);
+		
+		initStudentAndPersonnel();
+		righContentLayout.addComponent(studentAndPersonnelLayout);
+		righContentLayout.setComponentAlignment(studentAndPersonnelLayout, Alignment.MIDDLE_CENTER);	
+		righContentLayout.setExpandRatio(studentAndPersonnelLayout, 1);
 	}
 	
 	private void initLoginBox(){		
@@ -167,7 +193,7 @@ public class LoginView extends VerticalLayout{
 		
 		email = new TextField();
 		email.setStyleName("input-form");
-		email.setInputPrompt("อีเมลล์");
+		email.setInputPrompt("อีเมล์");
 		email.addValidator(new EmailValidator("ข้อมูลไม่ถูกต้อง"));
 		loginLayout.addComponent(email);
 		loginLayout.setComponentAlignment(email, Alignment.MIDDLE_CENTER);
@@ -262,7 +288,7 @@ public class LoginView extends VerticalLayout{
 		
 		emailRecruit = new TextField();
 		emailRecruit.setStyleName("input-form");
-		emailRecruit.setInputPrompt("อีเมลล์");
+		emailRecruit.setInputPrompt("อีเมล์");
 		emailRecruit.setNullRepresentation("");
 		emailRecruit.addValidator(new EmailValidator("ข้อมูลไม่ถูกต้อง"));
 		schoolRecruit.addComponent(emailRecruit);
@@ -293,38 +319,57 @@ public class LoginView extends VerticalLayout{
 			@SuppressWarnings("unchecked")
 			@Override
 			public void buttonClick(ClickEvent event) {
+				/* ตรวจสอบ Email */
+				if(!emailRecruit.isValid()){
+					Notification.show("อีเมล์ไม่ถูกต้อง", Type.WARNING_MESSAGE);
+					return ;
+				}
+				
 				//สมัครสมาชิก
 				if(registrationBinder.getField(SchoolSchema.NAME).getValue() != null &&
 					registrationBinder.getField(SchoolSchema.PROVINCE_ID).getValue() != null &&
-					registrationBinder.getField(SchoolSchema.FIRSTNAME).getValue() != null &&
-					registrationBinder.getField(SchoolSchema.LASTNAME).getValue() != null &&
-					registrationBinder.getField(SchoolSchema.EMAIL).getValue() != null &&
-					registrationBinder.getField(SchoolSchema.PASSWORD).getValue() != null){
+					userBinder.getField(UserSchema.FIRSTNAME).getValue() != null &&
+					userBinder.getField(UserSchema.LASTNAME).getValue() != null &&
+					userBinder.getField(UserSchema.EMAIL).getValue() != null &&
+					userBinder.getField(UserSchema.PASSWORD).getValue() != null){
 					
-					schoolContainer.addContainerFilter(new Equal(SchoolSchema.EMAIL, registrationBinder.getField(SchoolSchema.EMAIL).getValue().toString()));
+					userContainer.addContainerFilter(new Equal(UserSchema.EMAIL, userBinder.getField(UserSchema.EMAIL).getValue().toString()));
 					/* ตรวจสอบ Email ซ้ำ */
-					if(schoolContainer.size() > 0){
-						Notification.show("ไม่สามารถใช้ Email ดังกล่าว เนื่องจากมีผู้ใช้ในการสมัครแล้ว", Type.WARNING_MESSAGE);
+					if(userContainer.size() > 0){
+						Notification.show("ไม่สามารถใช้อีเมล์ดังกล่าว เนื่องจากมีผู้ใช้ในการสมัครแล้ว", Type.WARNING_MESSAGE);
 						return;
 					}					
 					/* ลบ WHERE ออกจาก Query เพื่อป้องกันการค้างของคำสั่่งจากการทำงานอื่นที่เรียกตัวแปรไปใช้ */
-					schoolContainer.removeAllContainerFilters();
+					userContainer.removeAllContainerFilters();
 					
 					if(passwordSignup.getValue().equals(passwordSignupAgain.getValue())){
 							try {								
-								/* เพิ่มข้อมูล */
-								Object tmpItem = schoolContainer.addItem();
-								schoolItem = schoolContainer.getItem(tmpItem);
+								/* เพิ่มข้อมูลโรงเรียน */
+								Object schoolTmpId = schoolContainer.addItem();
+								schoolItem = schoolContainer.getItem(schoolTmpId);
 								schoolItem.getItemProperty(SchoolSchema.NAME).setValue(registrationBinder.getField(SchoolSchema.NAME).getValue());
 								schoolItem.getItemProperty(SchoolSchema.PROVINCE_ID).setValue(registrationBinder.getField(SchoolSchema.PROVINCE_ID).getValue());
-								schoolItem.getItemProperty(SchoolSchema.FIRSTNAME).setValue(registrationBinder.getField(SchoolSchema.FIRSTNAME).getValue());
-								schoolItem.getItemProperty(SchoolSchema.LASTNAME).setValue(registrationBinder.getField(SchoolSchema.LASTNAME).getValue());
-								schoolItem.getItemProperty(SchoolSchema.EMAIL).setValue(registrationBinder.getField(SchoolSchema.EMAIL).getValue());
-								schoolItem.getItemProperty(SchoolSchema.PASSWORD).setValue(BCrypt.hashpw(registrationBinder.getField(SchoolSchema.PASSWORD).getValue().toString(), BCrypt.gensalt()));
 								initSchoolFieldGroup();
-								
 								registrationBinder.commit();
 								schoolContainer.commit();
+								
+								/* เพิ่มข้อมูลโรงเรียน */
+								Object userTmpId = userContainer.addItem();
+								userItem = userContainer.getItem(userTmpId);
+								userItem.getItemProperty(UserSchema.SCHOOL_ID).setValue(Integer.parseInt(schoolId.toString()));
+								userItem.getItemProperty(UserSchema.FIRSTNAME).setValue(userBinder.getField(UserSchema.FIRSTNAME).getValue());
+								userItem.getItemProperty(UserSchema.LASTNAME).setValue(userBinder.getField(UserSchema.LASTNAME).getValue());
+								userItem.getItemProperty(UserSchema.EMAIL).setValue(userBinder.getField(UserSchema.EMAIL).getValue());
+								userItem.getItemProperty(UserSchema.PASSWORD).setValue(BCrypt.hashpw(userBinder.getField(UserSchema.PASSWORD).getValue().toString(), BCrypt.gensalt()));
+								userItem.getItemProperty(UserSchema.STATUS).setValue(0);
+								userItem.getItemProperty(UserSchema.REF_USER_ID).setValue(Integer.parseInt(schoolId.toString()));
+								userItem.getItemProperty(UserSchema.REF_USER_TYPE).setValue(0);
+								userItem.getItemProperty(CreateModifiedSchema.CREATED_BY_ID).setValue(Integer.parseInt(schoolId.toString()));
+								userItem.getItemProperty(CreateModifiedSchema.CREATED_DATE).setValue(new Date());
+								initUserFieldGroup();
+								userBinder.commit();
+								userContainer.commit();
+								
 								ConfirmDialog.show(UI.getCurrent(),"สมัครสมาชิก", "การสมัครเสร็จสิ้น พร้อมใช้งาน SchoolOS. คุณต้องการเข้าใช้งานขณะนี้ใช่หรือไม่?", "ตกลง", "ยกเลิก", new ConfirmDialog.Listener() {
 									private static final long serialVersionUID = 1L;
 									public void onClose(ConfirmDialog dialog) {
@@ -333,8 +378,9 @@ public class LoginView extends VerticalLayout{
 						                }
 						            }
 						        });
+								
 							} catch (Exception e) {
-								Notification.show("สมัครไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+								Notification.show("สมัครไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", Type.WARNING_MESSAGE);
 								e.printStackTrace();
 							}
 					}else{
@@ -342,44 +388,188 @@ public class LoginView extends VerticalLayout{
 					}			
 				}else{
 					Notification.show("กรุณากรอกข้อมูลให้ครบถ้วน", Type.WARNING_MESSAGE);
-				}
+				}	
 			}
 		});
 		schoolRecruit.addComponent(signup);
 		schoolRecruit.setComponentAlignment(signup, Alignment.MIDDLE_CENTER);
-		
-		initSchoolFieldGroup();
 	}
 	
+	private void initStudentAndPersonnel(){
+		studentAndPersonnelLayout = new VerticalLayout();
+		studentAndPersonnelLayout.setSpacing(true);
+		studentAndPersonnelLayout.setMargin(true);
+		studentAndPersonnelLayout.setVisible(false);
+		studentAndPersonnelLayout.setStyleName("school-sigon");
+		studentAndPersonnelLayout.setWidth("90%");
+
+		signupNotice = new Label("ลงทะเบียน");
+		signupNotice.setWidth("90%");
+		signupNotice.setStyleName("free-notice");
+		studentAndPersonnelLayout.addComponent(signupNotice);
+		studentAndPersonnelLayout.setComponentAlignment(signupNotice, Alignment.MIDDLE_CENTER);
+		
+		/*studentSignup = new Button("สำหรับนักเรียน", FontAwesome.CUBE);
+		studentSignup.setWidth("300px");
+		studentSignup.addClickListener(new ClickListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				final Window window = new Window("กรุณาพิมพ์รหัสผ่าน");
+				window.setWidth("400px");
+				window.setHeight("150px");
+				window.center();
+				UI.getCurrent().addWindow(window);
+				
+				VerticalLayout passwordLayout = new VerticalLayout();
+				passwordLayout.setSpacing(true);
+				passwordLayout.setMargin(true);
+				window.setContent(passwordLayout);
+				
+				final TextField passwordStudent = new TextField();
+				passwordStudent.setInputPrompt("พิมพ์รหัสผ่าน");
+				passwordLayout.addComponent(passwordStudent);
+				passwordLayout.setComponentAlignment(passwordStudent, Alignment.MIDDLE_CENTER);
+				
+				Button accepButton = new Button("ตกลง", FontAwesome.SEND);
+				accepButton.addClickListener(new ClickListener() {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void buttonClick(ClickEvent event) {
+						Item item = schoolContainer.getItem(new RowId(SessionSchema.getSchoolID()));
+						if(item.getItemProperty(SchoolSchema.STUDENT_SIGNUP_PASS).getValue().equals(passwordStudent.getValue())){
+							window.close();
+							
+							final Window addPersonnelWindow = new Window("กรุณาพิมพ์รหัสผ่าน");
+							addPersonnelWindow.setSizeFull();
+							addPersonnelWindow.setContent(new AddPersonnelView());
+							UI.getCurrent().addWindow(addPersonnelWindow);
+						}else{
+							Notification.show("รหัสไม่ถูกต้อง", Type.WARNING_MESSAGE);
+						}
+					}
+				});
+				passwordLayout.addComponent(accepButton);
+				passwordLayout.setComponentAlignment(accepButton, Alignment.MIDDLE_CENTER);
+			}
+		});
+		studentAndPersonnelLayout.addComponent(studentSignup);
+		studentAndPersonnelLayout.setComponentAlignment(studentSignup, Alignment.MIDDLE_CENTER);*/
+		
+		personnelSignup = new Button("สำหรับเจ้าหน้าที่", FontAwesome.CUBE);
+		personnelSignup.setWidth("300px");
+		personnelSignup.addClickListener(new ClickListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				final Window window = new Window("กรุณาพิมพ์รหัสผ่าน");
+				window.setWidth("400px");
+				window.setHeight("150px");
+				window.center();
+				UI.getCurrent().addWindow(window);
+				
+				VerticalLayout passwordLayout = new VerticalLayout();
+				passwordLayout.setSpacing(true);
+				passwordLayout.setMargin(true);
+				window.setContent(passwordLayout);
+				
+				final TextField passwordPersonnel = new TextField();
+				passwordPersonnel.setInputPrompt("พิมพ์รหัสผ่าน");
+				passwordLayout.addComponent(passwordPersonnel);
+				passwordLayout.setComponentAlignment(passwordPersonnel, Alignment.MIDDLE_CENTER);
+				
+				Button accepButton = new Button("ตกลง", FontAwesome.SEND);
+				accepButton.addClickListener(new ClickListener() {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void buttonClick(ClickEvent event) {
+						ConfirmDialog.show(UI.getCurrent(), "อีเมล์จะถูกใช้เป็นบัญชีเข้าใช้งาน","คุณมีอีเมล์ใช่แล้วหรือไม่?","มีอีเมล์","ไม่มีอีเมล์",
+					        new ConfirmDialog.Listener() {
+								private static final long serialVersionUID = 1L;
+								public void onClose(ConfirmDialog dialog) {
+					                if (dialog.isConfirmed()) {
+										Item item = schoolContainer.getItem(new RowId(SessionSchema.getSchoolID()));
+										if(item.getItemProperty(SchoolSchema.PERSONNEL_SIGNUP_PASS).getValue().equals(passwordPersonnel.getValue())){
+											window.close();
+											
+											final Window addPersonnelWindow = new Window("ประวัติส่วนตัว");
+											addPersonnelWindow.setSizeFull();
+											addPersonnelWindow.setPositionX(0);
+											addPersonnelWindow.setPositionY(0);
+											addPersonnelWindow.setContent(new AddPersonnelView());
+											UI.getCurrent().addWindow(addPersonnelWindow);						
+										}else{
+											Notification.show("รหัสไม่ถูกต้อง", Type.WARNING_MESSAGE);
+										}
+					                }else{
+					                	window.close();
+					                }
+					            }
+					        });
+					
+					}
+				});
+				passwordLayout.addComponent(accepButton);
+				passwordLayout.setComponentAlignment(accepButton, Alignment.MIDDLE_CENTER);
+			}
+		});
+		studentAndPersonnelLayout.addComponent(personnelSignup);
+		studentAndPersonnelLayout.setComponentAlignment(personnelSignup, Alignment.MIDDLE_CENTER);
+	}
+
+	/* กำหนดค่า PK Auto Increment หลังการบันทึก */
+	private void initSqlContainerRowIdChange(){
+		/* นักเรียน */
+		schoolContainer.addRowIdChangeListener(new RowIdChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void rowIdChange(RowIdChangeEvent arg0) {
+				schoolId = arg0.getNewRowId();
+			}
+		});
+		
+	}
+
 	//จัดกลุ่มสำหรับ Field สมัครสมาชิก
 	private void initSchoolFieldGroup(){			
 		registrationBinder = new FieldGroup(schoolItem);
 		registrationBinder.setBuffered(true);
 		registrationBinder.bind(schoolName, SchoolSchema.NAME);
 		registrationBinder.bind(schoolProvinceId, SchoolSchema.PROVINCE_ID);
-		registrationBinder.bind(firstname, SchoolSchema.FIRSTNAME);
-		registrationBinder.bind(lastname, SchoolSchema.LASTNAME);
-		registrationBinder.bind(emailRecruit, SchoolSchema.EMAIL);
-		registrationBinder.bind(passwordSignup, SchoolSchema.PASSWORD);
 	}	
+	
+	//จัดกลุ่มสำหรับ Field ผุ้ใช้
+	private void initUserFieldGroup(){
+		userBinder = new FieldGroup(userItem);
+		userBinder.setBuffered(true);
+		userBinder.bind(firstname, UserSchema.FIRSTNAME);
+		userBinder.bind(lastname, UserSchema.LASTNAME);
+		userBinder.bind(emailRecruit, UserSchema.EMAIL);
+		userBinder.bind(passwordSignup, UserSchema.PASSWORD);
+	}
 	
 	//เข้าสู่ระบบ
 	private void login(String username, String password){	
-		schoolContainer.addContainerFilter(new Equal(SchoolSchema.EMAIL,username));
+		userContainer.addContainerFilter(new Equal(UserSchema.EMAIL,username));
 
-		if(schoolContainer.size() != 0){
-			Item item = schoolContainer.getItem(schoolContainer.getIdByIndex(0));
-			String passwordHash = item.getItemProperty(SchoolSchema.PASSWORD).getValue().toString();
+		if(userContainer.size() != 0){
+			Item userItem = userContainer.getItem(userContainer.getIdByIndex(0));
+			Item schoolItem = schoolContainer.getItem(new RowId(userItem.getItemProperty(SchoolSchema.SCHOOL_ID).getValue()));
 
+			String passwordHash = userItem.getItemProperty(UserSchema.PASSWORD).getValue().toString();
 			if(BCrypt.checkpw(password, passwordHash)){
 				UI ui = UI.getCurrent();
 				SessionSchema.setSession(
-						true,
-						item.getItemProperty(SchoolSchema.SCHOOL_ID).getValue(),
-						item.getItemProperty(SchoolSchema.SCHOOL_ID).getValue(),
-						item.getItemProperty(SchoolSchema.NAME).getValue(),
-						item.getItemProperty(SchoolSchema.FIRSTNAME).getValue(),
-						item.getItemProperty(SchoolSchema.EMAIL).getValue());
+						Integer.parseInt(userItem.getItemProperty(UserSchema.SCHOOL_ID).getValue().toString()),
+						Integer.parseInt(userItem.getItemProperty(UserSchema.USER_ID).getValue().toString()),
+						schoolItem.getItemProperty(SchoolSchema.NAME).getValue(),
+						userItem.getItemProperty(UserSchema.FIRSTNAME).getValue(),
+						userItem.getItemProperty(UserSchema.EMAIL).getValue());
 				ui.setContent(new SchoolOSView());	
 				/* จำบัญชีผู้ใช้และรหัสผ่าน */
 				if(rememberPass.getValue()){
@@ -420,9 +610,10 @@ public class LoginView extends VerticalLayout{
 		/* ถ้าเข้ากับ Url โรงเรียนให้ทำการปิดรับสมัคร แล้วขึ้นชื่อโรงเรียนแทน */
 		if(SessionSchema.getSchoolID() != null){
 			schoolRecruit.setVisible(false);
-			signonTopic.setValue(SessionSchema.getSchoolName().toString());
-			
+			studentAndPersonnelLayout.setVisible(true);
+
 			Item item = schoolContainer.getItem(new RowId(SessionSchema.getSchoolID()));
+			signonTopic.setValue(item.getItemProperty(SchoolSchema.NAME).getValue().toString());
 			
 			/* ตรวจสอบว่า อยู่ช่วงรับสมัครใหม */
 			if(item.getItemProperty(SchoolSchema.RECRUIT_START_DATE).getValue() != null &&

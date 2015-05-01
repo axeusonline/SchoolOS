@@ -292,3 +292,42 @@ CHANGE  `current_city_id`  `current_city_id` INT( 11 ) NULL COMMENT  'ตำบ�
 CHANGE  `current_district_id`  `current_district_id` INT( 11 ) NULL COMMENT  'อำเภอ สถานที่อยู่ปัจจุบัน',
 CHANGE  `current_province_id`  `current_province_id` INT( 11 ) NULL COMMENT  'จังหวัด สถานที่อยู่ปัจจุบัน',
 CHANGE  `current_postcode_id`  `current_postcode_id` INT( 11 ) NULL COMMENT  'ไปรษณีย์ สถานที่อยู่ปัจจุบัน';
+
+/*
+  Description: ผู้ใช้งาน
+  Date: 30/04/2015
+*/
+CREATE TABLE IF NOT EXISTS `user` (
+  `user_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'PK ตารางผู้ใช้',
+  `school_id` int(11) NOT NULL COMMENT 'FK โรงเรียน',
+  `firstname` varchar(250) NOT NULL COMMENT 'ชื่อ',
+  `lastname` varchar(250) NOT NULL COMMENT 'สกุล',
+  `email` varchar(128) NOT NULL COMMENT 'อีเมลล์',
+  `password` varchar(128) NOT NULL COMMENT 'รหัสผ่าน',
+  `status` tinyint(4) NOT NULL COMMENT '*Fix สถานะการใช้งาน',
+  `ref_user_id` int(11) NOT NULL COMMENT 'FK นักเรียน บุคลากร',
+  `ref_user_type` tinyint(4) NOT NULL COMMENT '*Fix ประเภทผู้ใช้',
+  `permission` text COMMENT 'สิทธิ์การใช้งาน',
+  `created_by_id` int(11) DEFAULT NULL COMMENT 'FK ผู้เพิ่มข้อมูล',
+  `created_date` datetime DEFAULT NULL COMMENT 'วันเดือนปีที่เพิ่ม',
+  `modified_by_id` int(11) DEFAULT NULL COMMENT 'FL ผู้แก้ไขข้อมูล',
+  `modified_date` datetime DEFAULT NULL COMMENT 'วันเดือนปีที่แก้ไขข้อมูล',
+  PRIMARY KEY (`user_id`),
+  KEY `fk_user_has_school_idx` (`school_id`),
+  CONSTRAINT `fk_user_has_school` FOREIGN KEY (`school_id`) REFERENCES `school` (`school_id`),
+  UNIQUE KEY `username_UNIQUE` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='บัญชีผู้ใช้งาน';
+
+INSERT INTO user (school_id,firstname,lastname,email,password,status,ref_user_id,ref_user_type,permission,created_by_id,created_date)
+SELECT school_id,firstname,lastname,email,password,0,school_id,0,null,school_id,now() FROM school;
+
+ALTER TABLE `school`
+  DROP `firstname`,
+  DROP `lastname`,
+  DROP `email`,
+  DROP `password`;
+  
+
+ALTER TABLE `school` ADD `student_signup_pass` VARCHAR(10) NULL COMMENT 'รหัสสมัครสำหรับนักเรียน' AFTER `short_url`, ADD `personnel_signup_pass` VARCHAR(10) NULL COMMENT 'รหัสสมัครสำหรับบุคคลากร' AFTER `student_signup_pass`;
+
+  
