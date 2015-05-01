@@ -3,23 +3,19 @@ package com.ies.schoolos.component;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
-import com.ies.schoolos.component.academic.LessonPlanView;
-import com.ies.schoolos.component.academic.TeachingView;
-import com.ies.schoolos.component.academic.TeachingtableExportView;
-import com.ies.schoolos.component.academic.TimetableExportView;
-import com.ies.schoolos.component.academic.TimetableView;
+import com.ies.schoolos.component.registration.StudentListView;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.TabSheet.CloseHandler;
-import com.vaadin.ui.TabSheet.Tab;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.TabSheet.CloseHandler;
+import com.vaadin.ui.TabSheet.Tab;
 
-public class AcademicMainView extends VerticalLayout {
+public class RegistrationMainView extends VerticalLayout {
 	private static final long serialVersionUID = 1L;
 	
 	ArrayList<String> addedTab = new ArrayList<String>();
@@ -27,7 +23,7 @@ public class AcademicMainView extends VerticalLayout {
 	private GridLayout dashboar;
 	private TabSheet tabSheet;
 	
-	public AcademicMainView() {
+	public RegistrationMainView() {
 		setSizeFull();
 		setSpacing(true);
 		
@@ -41,30 +37,10 @@ public class AcademicMainView extends VerticalLayout {
 		dashboar.setWidth("100%");
 		addComponent(dashboar);
 		
-		Button lessonPlan = new Button("1.แผนการเรียน", FontAwesome.CUBE);
-		lessonPlan.setSizeFull();
-		dashboar.addComponent(lessonPlan);
-		addClickListener(lessonPlan, LessonPlanView.class);
-		
-		Button teaching = new Button("2.กำหนดผู้สอน", FontAwesome.CUBE);
-		teaching.setSizeFull();
-		dashboar.addComponent(teaching);
-		addClickListener(teaching, TeachingView.class);
-		
-		Button timetable = new Button("3.ตารางสอน", FontAwesome.CUBE);
-		timetable.setSizeFull();
-		dashboar.addComponent(timetable);
-		addClickListener(timetable, TimetableView.class);
-		
-		Button timetableExcel = new Button("4.Excel ตารางเรียน", FontAwesome.FILE_EXCEL_O);
-		timetableExcel.setSizeFull();
-		dashboar.addComponent(timetableExcel);
-		addClickListener(timetableExcel, TimetableExportView.class);
-		
-		Button studytableExcel = new Button("5.Excel ตารางสอน", FontAwesome.FILE_EXCEL_O);
-		studytableExcel.setSizeFull();
-		dashboar.addComponent(studytableExcel);
-		addClickListener(studytableExcel, TeachingtableExportView.class);
+		Button student = new Button("1.ข้อมูลนักเรียน", FontAwesome.CUBE);
+		student.setSizeFull();
+		dashboar.addComponent(student);
+		addClickListener(student, StudentListView.class);
 		
 		tabSheet = new TabSheet();
 		tabSheet.setWidth("95%");
@@ -80,8 +56,8 @@ public class AcademicMainView extends VerticalLayout {
 		        addedTab.remove(tab.getCaption());
 		    }
 		});
-		initTab(new LessonPlanView(), lessonPlan.getCaption());
-		addedTab.add(lessonPlan.getCaption());
+		initTab(new StudentListView(), student.getCaption());
+		addedTab.add(student.getCaption());
 		
 		addComponent(tabSheet);
 		setExpandRatio(tabSheet, 1);

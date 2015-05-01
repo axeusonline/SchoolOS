@@ -1,20 +1,25 @@
-package com.ies.schoolos.component.personnel;
+package com.ies.schoolos.component.registration;
 
 import java.util.Date;
 
-import com.ies.schoolos.component.personnel.layout.PersonnelLayout;
+import com.ies.schoolos.component.registration.layout.StudentLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.CreateModifiedSchema;
 import com.ies.schoolos.schema.SchoolSchema;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.UserSchema;
+import com.ies.schoolos.schema.info.FamilySchema;
 import com.ies.schoolos.schema.info.PersonnelSchema;
+import com.ies.schoolos.schema.info.StudentSchema;
+import com.ies.schoolos.schema.info.StudentStudySchema;
 import com.ies.schoolos.utility.BCrypt;
 import com.ies.schoolos.utility.Notification;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.FieldGroup;
+import com.vaadin.data.util.ObjectProperty;
+import com.vaadin.data.util.PropertysetItem;
 import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.util.sqlcontainer.query.QueryDelegate.RowIdChangeEvent;
@@ -29,55 +34,63 @@ import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-public class AddPersonnelView extends PersonnelLayout {
+public class AddStudentView extends StudentLayout {
 	private static final long serialVersionUID = 1L;
 
 	private int pkIndex = 0;
-	private boolean isSaved = false;
+	
 	private SQLContainer userContainer = Container.getUserContainer();
 	
-	private String maritalStr = "";
+	private String gParentsStr = "";
 	private boolean printMode = false;
+	private boolean isSaved = false;
 	
-	public AddPersonnelView() {
-		initAddPersonnel();
+	public AddStudentView() {
+		initAddStudent();
 		//setDebugMode(true);
 	}
 	
-	public AddPersonnelView(boolean printMode) {
+	public AddStudentView(boolean printMode) {
 		this.printMode = printMode;
-		initAddPersonnel();
+		initAddStudent();
 		//setDebugMode(true);
 	}
 	
-	private void initAddPersonnel(){
-		pSqlContainer.removeAllContainerFilters();
+	private void initAddStudent(){
+		sSqlContainer.removeAllContainerFilters();
 		fSqlContainer.removeAllContainerFilters();
 		
-		setMaritalValueChange(maritalValueChange);
+		setGParentsValueChange(gParensValueChange);
 		setFinishhClick(finishClick);
 		initSqlContainerRowIdChange();
 	}
 	
-	/* Event บุคคล ที่ถูกเลือกเป็น คู่สมรส */
-	private ValueChangeListener maritalValueChange = new ValueChangeListener() {
+	/* Event บุคคล ที่ถูกเลือกเป็น ผู้ปกครอง */
+	private ValueChangeListener gParensValueChange = new ValueChangeListener() {
 		private static final long serialVersionUID = 1L;
 
 		@Override
 		public void valueChange(ValueChangeEvent event) {
 			if(event.getProperty().getValue() != null){
-				enableSpouseBinder();
-				maritalStr = event.getProperty().getValue().toString();
+				enableGuardianBinder();
+				PropertysetItem item = new PropertysetItem();
+				gParentsStr = event.getProperty().getValue().toString();
 
-				/*กำหนดข้อมูลตามความสัมพันธ์ของคู่สมรส
-				 * กรณี เลือกเป็น "โสด (0)" ข้อมูลคู่สมรสจะถูกปิดไม่ให้เพิ่ม
-				 * กรณี เลือกเป็น "สมรส (1)" ข้อมูลสมรสจะถูกเปิดเพื่อทำการกรอกในฟอร์ม
+				/*กำหนดข้อมูลตามความสัมพันธ์ของผู้ปกครอง
+				 * กรณี เลือกเป็น "บิดา (0)" ข้อมูลบิดาจะถูกนำมาตั้งค่าภายในฟอร์ม
+				 * กรณี เลือกเป็น "มารดา (1)" ข้อมูลมารดาจะถูกนำมาตั้งค่าภายในฟอร์ม
+				 * กรณี เลือกเป็น "อื่น ๆ (2)" ข้อมูลผู้ปกครองจะอนุญาติให้พิมพ์เอง
 				 * */
-				if(maritalStr.equals("0")){
-					resetSpouse();
-					disableSpouseBinder();
-				}else if(maritalStr.equals("1")){
-					resetSpouse();
+				if(gParentsStr.equals("0")){
+					item = getFatherItem();
+					guardianBinder.setItemDataSource(item);
+					disableGuardianBinder();
+				}else if(gParentsStr.equals("1")){
+					item = getMotherItem();
+					guardianBinder.setItemDataSource(item);
+					disableGuardianBinder();
+				}else if(gParentsStr.equals("2")){
+					resetGuardian();
 				}
 			}
 		}
@@ -113,24 +126,32 @@ public class AddPersonnelView extends PersonnelLayout {
 						if(pkStore[1] != null){
 							fatherBinder.commit();
 							motherBinder.commit();
+							System.err.println("แม่มี");
 						}else{
 							/* เพิ่มมารดา  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
 							pkIndex = 1;
 							if(!saveFormData(fSqlContainer, motherBinder))
 								return;	
+							System.err.println("แม่ไม่มี");
 						}
-						
-						/* ตรวจสอบ คู่สมรส 
-						 *  กรณีเป็น "สมรส (1)"จะบันทึกข้อมูลคู่สมรส
+																		
+						/* ตรวจสอบ ผู้ปกครอง 
+						 *  กรณีเป็น "บิดา (0)"จะนำ id ที่ได้มาใส่เป็นผู้ครอง
+						 *  กรณีเป็น "มารดา (1)"จะนำ id ที่ได้มาใส่เป็นผู้ครอง
+						 *  กรณีเป็น "อื่น ๆ (2)" จะอนุญาติให้เพิ่มผู้ปกครองคนใหม่
 						 * */
-						if(maritalStr.equals("1")){
+						pkIndex = 2;
+						if(gParentsStr.equals("0")){
+							pkStore[pkIndex] = pkStore[0];
+						}else if(gParentsStr.equals("1")){
+							pkStore[pkIndex] = pkStore[1];
+						}else if(gParentsStr.equals("2")){
 							if(pkStore[2] != null){
-								spouseBinder.commit();
+								guardianBinder.commit();
 								fSqlContainer.commit();
 							}else{
-								/* เพิ่มคู่สมรส  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
-								pkIndex = 2;
-								if(!saveFormData(fSqlContainer, spouseBinder))
+								/* เพิ่มผู้ปกครอง  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
+								if(!saveFormData(fSqlContainer, guardianBinder))
 									return;
 							}
 						}
@@ -140,15 +161,23 @@ public class AddPersonnelView extends PersonnelLayout {
 					}
 				}
 				
-				/* เพิ่มบุคลากร หากบันทึกไม่ผ่านจะหยุดการทำงานทันที*/
+				/* เพิ่มนักเรียน หากบันทึกไม่ผ่านจะหยุดการทำงานทันที*/
 				pkIndex = 3;
-				if(!saveFormData(pSqlContainer, personnelBinder))
+				if(!saveFormData(sSqlContainer, studentBinder))
 					return;
 				else
 					Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 				
-				generateUser();
+				/* เพิ่มนักเรียน หากบันทึกไม่ผ่านจะหยุดการทำงานทันที*/
+				pkIndex = 4;
+				if(!saveFormData(ssSqlContainer, studentStudyBinder))
+					return;
+				else
+					Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
+				
 				isSaved = true;
+				
+				generateUser();
 				
 				/* ตรวจสอบสถานะการพิมพ์*/
 				if(printMode){
@@ -156,7 +185,7 @@ public class AddPersonnelView extends PersonnelLayout {
 					/*WorkThread thread = new WorkThread();
 			        thread.start();
 			        UI.getCurrent().setPollInterval(500);*/
-					//new PersonnelReport(Integer.parseInt(pkStore[3).toString()),emailMode);
+					//new StudentReport(Integer.parseInt(pkStore[3).toString()),emailMode);
 				}
 			}else{
 				Notification.show("ข้อมูลถูกบันทึกแล้วไม่สามารถแก้ไขได้", Type.WARNING_MESSAGE);
@@ -166,8 +195,8 @@ public class AddPersonnelView extends PersonnelLayout {
 
 	/* กำหนดค่า PK Auto Increment หลังการบันทึก */
 	private void initSqlContainerRowIdChange(){
-		/* บุคลากร */
-		pSqlContainer.addRowIdChangeListener(new RowIdChangeListener() {
+		/* นักเรียน */
+		sSqlContainer.addRowIdChangeListener(new RowIdChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -176,7 +205,17 @@ public class AddPersonnelView extends PersonnelLayout {
 			}
 		});
 		
-		/* บิดา แม่ คู่สมรส */
+		/* นักเรียน */
+		ssSqlContainer.addRowIdChangeListener(new RowIdChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void rowIdChange(RowIdChangeEvent arg0) {
+				pkStore[pkIndex] = arg0.getNewRowId();
+			}
+		});
+		
+		/* บิดา แม่ ผู้ปกครอง */
 		fSqlContainer.addRowIdChangeListener(new RowIdChangeListener() {
 			private static final long serialVersionUID = 1L;
 
@@ -187,6 +226,30 @@ public class AddPersonnelView extends PersonnelLayout {
 		});
 	}
 
+	/* ดึงค่า Item จากฟอรฺ์มบิดา */
+	private PropertysetItem getFatherItem(){
+		PropertysetItem item = new PropertysetItem();
+		for(Field<?> field: fatherBinder.getFields()){
+			if(fatherBinder.getField(fatherBinder.getPropertyId(field)).getValue() != null)
+				item.addItemProperty(fatherBinder.getPropertyId(field), new ObjectProperty<Object>(fatherBinder.getField(fatherBinder.getPropertyId(field)).getValue()));
+			else
+				item.addItemProperty(fatherBinder.getPropertyId(field), new ObjectProperty<Object>(""));
+		}
+		return item;
+	}
+	
+	/* ดึงค่า Item จากฟอรฺ์มมารดา */
+	private PropertysetItem getMotherItem(){
+		PropertysetItem item = new PropertysetItem();
+		for(Field<?> field: motherBinder.getFields()){
+			if(motherBinder.getField(motherBinder.getPropertyId(field)).getValue() != null)
+				item.addItemProperty(motherBinder.getPropertyId(field), new ObjectProperty<Object>(motherBinder.getField(motherBinder.getPropertyId(field)).getValue()));
+			else
+				item.addItemProperty(motherBinder.getPropertyId(field), new ObjectProperty<Object>(""));
+		}
+		return item;
+	}
+	
 	/* กำหนดค่าภายใน FieldGroup ไปยัง Item */
 	@SuppressWarnings({ "unchecked"})
 	private boolean saveFormData(SQLContainer sqlContainer, FieldGroup fieldGroup){
@@ -196,6 +259,9 @@ public class AddPersonnelView extends PersonnelLayout {
 			Item item = sqlContainer.getItem(tmpItem);
 			for(Field<?> field: fieldGroup.getFields()){
 				/* หาชนิดตัวแปร ของข้อมูลภายใน Database ของแต่ละ Field */
+				System.err.println(fieldGroup.getPropertyId(field));
+				if(item == null)
+					System.err.println("NULL");
 				Class<?> clazz = item.getItemProperty(fieldGroup.getPropertyId(field)).getType();			
 
 				String className = clazz.getName();;
@@ -217,6 +283,18 @@ public class AddPersonnelView extends PersonnelLayout {
 					}else{
 						value = fieldGroup.getField(fieldGroup.getPropertyId(field)).getValue();
 					}
+					
+					if(sqlContainer == fSqlContainer){
+						if(fieldGroup.getPropertyId(field).equals(FamilySchema.PEOPLE_ID)){
+							value = value.toString().replace(" ", "");
+							value = value.toString().replace("-", "");
+						}
+					}else if(sqlContainer == sSqlContainer){
+						if(fieldGroup.getPropertyId(field).equals(PersonnelSchema.PEOPLE_ID)){
+							value = value.toString().replace(" ", "");
+							value = value.toString().replace("-", "");
+						}
+					}
 				}
 				
 				Object data = Class.forName(className).cast(value);
@@ -225,25 +303,21 @@ public class AddPersonnelView extends PersonnelLayout {
 			}
 			
 			/* ถ้าเป็นนักเรียนจะมีการเพิ่มข้อมูลเพิ่มเติมภายในจาก ข้อมูลก่อนหน้า */
-			if(sqlContainer == pSqlContainer){
+			if(sqlContainer == sSqlContainer){
 				
 				if(isInsertParents){
-					item.getItemProperty(PersonnelSchema.FATHER_ID).setValue(Integer.parseInt(pkStore[0].toString()));
-					item.getItemProperty(PersonnelSchema.MOTHER_ID).setValue(Integer.parseInt(pkStore[1].toString()));
-					/* กรณีบันทึกคู่สมรส */
-					if(maritalStr.equals("1"))
-						item.getItemProperty(PersonnelSchema.SPOUSE_ID).setValue(Integer.parseInt(pkStore[2].toString()));
+					item.getItemProperty(StudentSchema.FATHER_ID).setValue(Integer.parseInt(pkStore[0].toString()));
+					item.getItemProperty(StudentSchema.MOTHER_ID).setValue(Integer.parseInt(pkStore[1].toString()));
 				}
-				
-				item.getItemProperty(PersonnelSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
-				if(SessionSchema.getUserID() != null)
-					item.getItemProperty(PersonnelSchema.RECRUIT_BY_ID).setValue(SessionSchema.getUserID());
-				else
-					item.getItemProperty(PersonnelSchema.RECRUIT_BY_ID).setValue(SessionSchema.getSchoolID());
-				
-				item.getItemProperty(PersonnelSchema.RECRUIT_DATE).setValue(new Date());
-				item.getItemProperty(PersonnelSchema.START_WORK_DATE).setValue(new Date());
-				
+				item.getItemProperty(StudentSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
+				CreateModifiedSchema.setCreateAndModified(item);
+			}else if(sqlContainer == ssSqlContainer){
+
+				if(isInsertParents){
+					item.getItemProperty(StudentStudySchema.GUARDIAN_ID).setValue(Integer.parseInt(pkStore[2].toString()));
+				}
+				item.getItemProperty(StudentStudySchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
+				item.getItemProperty(StudentStudySchema.STUDENT_ID).setValue(Integer.parseInt(pkStore[3].toString()));
 				CreateModifiedSchema.setCreateAndModified(item);
 			}
 				
@@ -256,7 +330,7 @@ public class AddPersonnelView extends PersonnelLayout {
 			return false;
 		}
 	}
-
+	
 	/* สร้าง User */
 	@SuppressWarnings("unchecked")
 	private void generateUser(){
@@ -264,13 +338,13 @@ public class AddPersonnelView extends PersonnelLayout {
 			Object userTmpId = userContainer.addItem();
 			Item userItem = userContainer.getItem(userTmpId);
 			userItem.getItemProperty(UserSchema.SCHOOL_ID).setValue(Integer.parseInt(SessionSchema.getSchoolID().toString()));
-			userItem.getItemProperty(UserSchema.FIRSTNAME).setValue(personnelBinder.getField(PersonnelSchema.FIRSTNAME).getValue());
-			userItem.getItemProperty(UserSchema.LASTNAME).setValue(personnelBinder.getField(PersonnelSchema.LASTNAME).getValue());
-			userItem.getItemProperty(UserSchema.EMAIL).setValue(personnelBinder.getField(PersonnelSchema.EMAIL).getValue());
-			userItem.getItemProperty(UserSchema.PASSWORD).setValue(BCrypt.hashpw(personnelBinder.getField(PersonnelSchema.PEOPLE_ID).getValue().toString(), BCrypt.gensalt()));
+			userItem.getItemProperty(UserSchema.FIRSTNAME).setValue(studentBinder.getField(StudentSchema.FIRSTNAME).getValue());
+			userItem.getItemProperty(UserSchema.LASTNAME).setValue(studentBinder.getField(StudentSchema.LASTNAME).getValue());
+			userItem.getItemProperty(UserSchema.EMAIL).setValue(studentStudyBinder.getField(StudentStudySchema.EMAIL).getValue());
+			userItem.getItemProperty(UserSchema.PASSWORD).setValue(BCrypt.hashpw(studentBinder.getField(StudentSchema.PEOPLE_ID).getValue().toString(), BCrypt.gensalt()));
 			userItem.getItemProperty(UserSchema.STATUS).setValue(0);
 			userItem.getItemProperty(UserSchema.REF_USER_ID).setValue(Integer.parseInt(pkStore[3].toString()));
-			userItem.getItemProperty(UserSchema.REF_USER_TYPE).setValue(1);
+			userItem.getItemProperty(UserSchema.REF_USER_TYPE).setValue(2);
 			userItem.getItemProperty(CreateModifiedSchema.CREATED_BY_ID).setValue(Integer.parseInt(pkStore[3].toString()));
 			userItem.getItemProperty(CreateModifiedSchema.CREATED_DATE).setValue(new Date());
 			userContainer.commit();
@@ -300,19 +374,18 @@ public class AddPersonnelView extends PersonnelLayout {
 				schoolName = SessionSchema.getSchoolName().toString();
 			}
 			builder.append(schoolName + "<br/>");
-			builder.append("บัญชีผู้ใช้ :" + personnelBinder.getField(PersonnelSchema.EMAIL).getValue() + "<br/>");
-			builder.append("รหัสผ่าน:" + personnelBinder.getField(PersonnelSchema.PEOPLE_ID).getValue());
+			builder.append("บัญชีผู้ใช้ :" + studentStudyBinder.getField(StudentStudySchema.EMAIL).getValue() + "<br/>");
+			builder.append("รหัสผ่าน:" + studentBinder.getField(StudentSchema.PEOPLE_ID).getValue());
 			
 			Label username = new Label(builder.toString());
 			username.setContentMode(ContentMode.HTML);
 			labelLayout.addComponent(username);
-			
-			//new EmailSender(personnelBinder.getField(PersonnelSchema.EMAIL).getValue().toString(), "บัญชีผู้ใช้งาน", builder.toString(), null, null);
+
+			//new EmailSender(studentBinder.getField(StudentStudySchema.EMAIL).getValue().toString(), "บัญชีผู้ใช้งาน", builder.toString(), null, null);
 			
 		}catch(Exception e){
-			Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
+			Notification.show("บันทึกไม่สำเร็จ", Type.WARNING_MESSAGE);
 			e.printStackTrace();
 		}
-		
 	}
 }

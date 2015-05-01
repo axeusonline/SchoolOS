@@ -139,6 +139,12 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		menuBoxContent.setComponentAlignment(academic, Alignment.MIDDLE_LEFT);
 		initMenu(academic, AcademicMainView.class);
 		
+		Button registration = new Button("ฝ่ายทะเบียน", FontAwesome.PENCIL_SQUARE_O);
+		registration.setWidth("100%");
+		menuBoxContent.addComponent(registration);
+		menuBoxContent.setComponentAlignment(registration, Alignment.MIDDLE_LEFT);
+		initMenu(registration, RegistrationMainView.class);
+		
 		Button admin = new Button("ผู้ดูแลระบบ", FontAwesome.DESKTOP);
 		admin.setWidth("100%");
 		menuBoxContent.addComponent(admin);

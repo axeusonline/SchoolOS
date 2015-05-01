@@ -1,10 +1,15 @@
-package com.ies.schoolos.component.recruit.layout;
+package com.ies.schoolos.component.registration.layout;
 
 import java.util.Date;
 
+import org.vaadin.dialogs.ConfirmDialog;
+
 import com.ies.schoolos.component.ui.NumberField;
-import com.ies.schoolos.schema.recruit.RecruitStudentFamilySchema;
-import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
+import com.ies.schoolos.container.Container;
+import com.ies.schoolos.schema.SessionSchema;
+import com.ies.schoolos.schema.info.FamilySchema;
+import com.ies.schoolos.schema.info.StudentSchema;
+import com.ies.schoolos.schema.info.StudentStudySchema;
 import com.ies.schoolos.type.AliveStatus;
 import com.ies.schoolos.type.Blood;
 import com.ies.schoolos.type.ClassRange;
@@ -15,42 +20,77 @@ import com.ies.schoolos.type.Nationality;
 import com.ies.schoolos.type.Occupation;
 import com.ies.schoolos.type.Parents;
 import com.ies.schoolos.type.PeopleIdType;
+import com.ies.schoolos.type.StudentCodeGenerateType;
+import com.ies.schoolos.type.StudentComeWith;
+import com.ies.schoolos.type.StudentPayerCourse;
+import com.ies.schoolos.type.StudentStatus;
 import com.ies.schoolos.type.Prename;
 import com.ies.schoolos.type.Race;
 import com.ies.schoolos.type.Religion;
+import com.ies.schoolos.type.StudentStayWith;
 import com.ies.schoolos.type.dynamic.City;
 import com.ies.schoolos.type.dynamic.District;
 import com.ies.schoolos.type.dynamic.Postcode;
 import com.ies.schoolos.type.dynamic.Province;
+import com.ies.schoolos.utility.DateTimeUtil;
+import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.FieldGroup;
+import com.vaadin.data.util.filter.Compare.Equal;
+import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.validator.EmailValidator;
 import com.vaadin.data.validator.StringLengthValidator;
+import com.vaadin.event.FieldEvents.TextChangeEvent;
+import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Field;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 
-public class RecruitStudentLayout extends TabSheet {
-	private static final long serialVersionUID = 1L;
+public class StudentLayout extends TabSheet {
+private static final long serialVersionUID = 1L;
+	
+	public boolean isInsertParents = true;
+	public boolean isDuplicateFather = false;
+	public boolean isDuplicateMother = false;
+	public boolean isDuplicateGuardian = false;
+	
+	/* ที่เก็บ Id Auto Increment เมื่อมีการ Commit SQLContainer 
+	 * 0 แทนถึง id บิดา
+	 * 1 แทนถึง id มารดา
+	 * 2 แทนถึง id ผู้ปกครอง
+	 * 3 แทนถึง id นักเรียน
+	 * 4 แทนถึง id ข้อมูลการเรียนนักเรียน
+	 * */
+	public Object pkStore[] = new Object[5];
+
+	public SQLContainer sSqlContainer = Container.getStudentContainer();
+	public SQLContainer ssSqlContainer = Container.getStudentStudyContainer();
+	public SQLContainer fSqlContainer = Container.getFamilyContainer();
 	
 	public FieldGroup studentBinder;
+	public FieldGroup studentStudyBinder;
 	public FieldGroup fatherBinder;
 	public FieldGroup motherBinder;
 	public FieldGroup guardianBinder;
 
 	private FormLayout generalForm;
-	private ComboBox classRange;
 	private OptionGroup peopleIdType;
 	private TextField peopleId;
 	private ComboBox prename;
@@ -58,6 +98,8 @@ public class RecruitStudentLayout extends TabSheet {
 	private TextField lastname;
 	private TextField firstnameNd;
 	private TextField lastnameNd;
+	private TextField firstnameRd;
+	private TextField lastnameRd;
 	private TextField nickname;
 	private OptionGroup gender;
 	private ComboBox religion;
@@ -72,14 +114,27 @@ public class RecruitStudentLayout extends TabSheet {
 	private NumberField siblingQty;
 	private NumberField siblingSequence;
 	private NumberField siblingInSchoolQty;
+	private Button studyNext;
+	
+	private FormLayout studyForm;
+	private ComboBox classRange;
+	private OptionGroup autoGenerate;
+	private TextField studentCode;
+	private ComboBox studentStatus;
+	private ComboBox studentComeWith;
+	private TextField studentComeDescription;
+	private ComboBox studentPayerCourse;
+	private ComboBox studentStayWith;
+	private Button generalBack;
 	private Button graduatedNext;
-
+	
 	private FormLayout graduatedForm;
 	private TextField graduatedSchool;
 	private ComboBox graduatedSchoolProvinceId;
 	private NumberField graduatedGpa;
 	private TextField graduatedYear;
-	private Button generalBack;
+	private ComboBox graduatedClassRange;
+	private Button studyBack;
 	private Button addressNext;
 	
 	private FormLayout addressForm;
@@ -89,8 +144,20 @@ public class RecruitStudentLayout extends TabSheet {
 	private TextArea currentAddress;
 	private ComboBox currentCity;
 	private ComboBox currentDistrict;
-	private ComboBox currentProvinceId;
+	private ComboBox currentProvince;
 	private ComboBox currentPostcode;
+	private CheckBox isSameCurrentAddress;
+	private TextArea censusAddress;
+	private ComboBox censusCity;
+	private ComboBox censusDistrict;
+	private ComboBox censusProvince;
+	private ComboBox censusPostcode;
+	private CheckBox isBirthSameCurrentAddress;
+	private TextArea birthAddress;
+	private ComboBox birthCity;
+	private ComboBox birthDistrict;
+	private ComboBox birthProvince;
+	private ComboBox birthPostcode;
 	private Button graduatedBack;
 	private Button fatherNext;
 	
@@ -182,7 +249,7 @@ public class RecruitStudentLayout extends TabSheet {
 	private Button finish;
 	private Button print;
 	
-	public RecruitStudentLayout() {
+	public StudentLayout() {
 		buildMainLayout();
 	}
 	
@@ -190,6 +257,7 @@ public class RecruitStudentLayout extends TabSheet {
 		setWidth("100%");
 		setHeight("100%");
 		generalInfoLayout();
+		studyForm();
 		graduatedForm();
 		addressForm();
 		fatherForm();
@@ -204,17 +272,6 @@ public class RecruitStudentLayout extends TabSheet {
 		generalForm.setSizeUndefined();
 		generalForm.setMargin(true);
 		addTab(generalForm,"ข้อมูลทั่วไป", FontAwesome.CHILD);
-		
-		classRange = new ComboBox("ระดับชั้นที่สมัคร",new ClassRange());
-		classRange.setInputPrompt("กรุณาเลือก");
-		classRange.setItemCaptionPropertyId("name");
-		classRange.setImmediate(true);
-		classRange.setNullSelectionAllowed(false);
-		classRange.setRequired(true);
-		classRange.setWidth("-1px");
-		classRange.setHeight("-1px");
-		classRange.setFilteringMode(FilteringMode.CONTAINS);
-		generalForm.addComponent(classRange);
 		
 		peopleIdType = new OptionGroup("ประเภทบัตร",new PeopleIdType());
 		peopleIdType.setItemCaptionPropertyId("name");
@@ -233,6 +290,25 @@ public class RecruitStudentLayout extends TabSheet {
 		peopleId.setHeight("-1px");
 		peopleId.setNullRepresentation("");
 		peopleId.addValidator(new StringLengthValidator("ข้อมูลไม่ถูกต้อง", 13, 20, false));
+		peopleId.addTextChangeListener(new TextChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void textChange(TextChangeEvent event) {
+				if(event.getText() != null){
+					if(event.getText().length() >= 13){
+						sSqlContainer.addContainerFilter(new Equal(StudentSchema.PEOPLE_ID,event.getText()));
+						if(sSqlContainer.size() > 0){
+							disableDuplicatePeopleIdForm();
+							Notification.show("หมายเลขประชาชนถูกใช้งานแล้ว กรุณาระบุใหม่อีกครั้ง", Type.WARNING_MESSAGE);
+						}else{
+							enableDuplicatePeopleIdForm();
+						}
+						sSqlContainer.removeAllContainerFilters();
+					}
+				}
+			}
+		});
 		generalForm.addComponent(peopleId);
 		
 		prename = new ComboBox("ชื่อต้น",new Prename());
@@ -267,7 +343,6 @@ public class RecruitStudentLayout extends TabSheet {
 		firstnameNd = new TextField("ชื่ออังกฤษ");
 		firstnameNd.setInputPrompt("ชื่ออังกฤษ");
 		firstnameNd.setImmediate(false);
-		firstnameNd.setRequired(true);
 		firstnameNd.setWidth("-1px");
 		firstnameNd.setHeight("-1px");
 		firstnameNd.setNullRepresentation("");
@@ -276,11 +351,26 @@ public class RecruitStudentLayout extends TabSheet {
 		lastnameNd = new TextField("สกุลอังกฤษ");
 		lastnameNd.setInputPrompt("สกุลอังกฤษ");
 		lastnameNd.setImmediate(false);
-		lastnameNd.setRequired(true);
 		lastnameNd.setWidth("-1px");
 		lastnameNd.setHeight("-1px");
 		lastnameNd.setNullRepresentation("");
 		generalForm.addComponent(lastnameNd);
+		
+		firstnameRd = new TextField("ชื่อภาษาที่สาม");
+		firstnameRd.setInputPrompt("ชื่อภาษาที่สาม");
+		firstnameRd.setImmediate(false);
+		firstnameRd.setWidth("-1px");
+		firstnameRd.setHeight("-1px");
+		firstnameRd.setNullRepresentation("");
+		generalForm.addComponent(firstnameRd);
+		
+		lastnameRd = new TextField("สกุลภาษาที่สาม");
+		lastnameRd.setInputPrompt("สกุลภาษาที่สาม");
+		lastnameRd.setImmediate(false);
+		lastnameRd.setWidth("-1px");
+		lastnameRd.setHeight("-1px");
+		lastnameRd.setNullRepresentation("");
+		generalForm.addComponent(lastnameRd);
 		
 		nickname = new TextField("ชื่อเล่น");
 		nickname.setInputPrompt("ชื่อเล่น");
@@ -418,16 +508,161 @@ public class RecruitStudentLayout extends TabSheet {
 		buttonLayout.setWidth("100%");
 		generalForm.addComponent(buttonLayout);
 		
+		studyNext = new Button(FontAwesome.ARROW_RIGHT);
+		studyNext.setWidth("100%");
+		studyNext.addClickListener(new ClickListener() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void buttonClick(ClickEvent event) {
+				setSelectedTab(studyForm);
+			}
+		});
+		buttonLayout.addComponent(studyNext);	
+	}
+	
+	/* สร้าง Layout สำหรับข้อมูลการเรียน */
+	private void studyForm(){
+		studyForm = new FormLayout();
+		studyForm.setSizeUndefined();
+		studyForm.setMargin(true);
+		addTab(studyForm,"ข้อมูลการเรียน", FontAwesome.GRADUATION_CAP);
+				
+
+		classRange = new ComboBox("ช่วงชั้นปัจจุบัน",new ClassRange());
+		classRange.setInputPrompt("กรุณาเลือก");
+		classRange.setItemCaptionPropertyId("name");
+		classRange.setImmediate(true);
+		classRange.setNullSelectionAllowed(false);
+		classRange.setRequired(true);
+		classRange.setWidth("-1px");
+		classRange.setHeight("-1px");
+		classRange.setFilteringMode(FilteringMode.CONTAINS);
+		classRange.addValueChangeListener(new ValueChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				if(event.getProperty().getValue() != null){
+					if(autoGenerate.getValue() != null){
+						generateStudentCode(event.getProperty().getValue().toString(), autoGenerate.getValue().toString());
+					}
+				}
+			}
+		});
+		studyForm.addComponent(classRange);
+		
+		
+		autoGenerate = new OptionGroup("กำหนดรหัสประจำตัว",new StudentCodeGenerateType());
+		autoGenerate.setItemCaptionPropertyId("name");
+		autoGenerate.setImmediate(true);
+		autoGenerate.setRequired(true);
+		autoGenerate.setNullSelectionAllowed(false);
+		autoGenerate.setWidth("-1px");
+		autoGenerate.setHeight("-1px");
+		autoGenerate.addValueChangeListener(new ValueChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				if(event.getProperty().getValue() != null){
+					if(classRange.getValue() != null){
+						generateStudentCode(classRange.getValue().toString(), event.getProperty().getValue().toString());
+					}else{
+						if(event.getProperty().getValue().equals("0"))
+							Notification.show("กรุณาระบุุตำแหน่งเพื่อสร้างรหัสประจำตัวอัตโนมัติ", Type.WARNING_MESSAGE);
+					}
+				}
+					
+			}
+		});
+		studyForm.addComponent(autoGenerate);
+		
+		studentCode = new TextField("รหัสประจำตัว");
+		studentCode.setInputPrompt("รหัสประจำตัว");
+		studentCode.setImmediate(false);
+		studentCode.setRequired(true);
+		studentCode.setEnabled(false);
+		studentCode.setWidth("-1px");
+		studentCode.setHeight("-1px");
+		studentCode.setNullRepresentation("");
+		studyForm.addComponent(studentCode);
+		
+		studentStatus = new ComboBox("สถานะนักเรียน",new StudentStatus());
+		studentStatus.setInputPrompt("กรุณาเลือก");
+		studentStatus.setItemCaptionPropertyId("name");
+		studentStatus.setImmediate(true);
+		studentStatus.setNullSelectionAllowed(false);
+		studentStatus.setRequired(true);
+		studentStatus.setWidth("-1px");
+		studentStatus.setHeight("-1px");
+		studentStatus.setFilteringMode(FilteringMode.CONTAINS);
+		studyForm.addComponent(studentStatus);
+		
+		studentComeWith = new ComboBox("การมาโรงเรียน",new StudentComeWith());
+		studentComeWith.setInputPrompt("กรุณาเลือก");
+		studentComeWith.setItemCaptionPropertyId("name");
+		studentComeWith.setImmediate(true);
+		studentComeWith.setNullSelectionAllowed(false);
+		studentComeWith.setRequired(true);
+		studentComeWith.setWidth("-1px");
+		studentComeWith.setHeight("-1px");
+		studentComeWith.setFilteringMode(FilteringMode.CONTAINS);
+		studyForm.addComponent(studentComeWith);
+		
+		studentComeDescription = new TextField("รายละเอียดการมา");
+		studentComeDescription.setInputPrompt("รายละเอียดการมา");
+		studentComeDescription.setImmediate(false);
+		studentComeDescription.setWidth("-1px");
+		studentComeDescription.setHeight("-1px");
+		studentComeDescription.setNullRepresentation("");
+		studyForm.addComponent(studentComeDescription);
+
+		studentPayerCourse = new ComboBox("ผู้ดูแลค่าเล่าเรียน",new StudentPayerCourse());
+		studentPayerCourse.setInputPrompt("กรุณาเลือก");
+		studentPayerCourse.setItemCaptionPropertyId("name");
+		studentPayerCourse.setImmediate(true);
+		studentPayerCourse.setNullSelectionAllowed(false);
+		studentPayerCourse.setWidth("-1px");
+		studentPayerCourse.setHeight("-1px");
+		studentPayerCourse.setFilteringMode(FilteringMode.CONTAINS);
+		studyForm.addComponent(studentPayerCourse);
+
+		studentStayWith = new ComboBox("การพักอาศัย",new StudentStayWith());
+		studentStayWith.setInputPrompt("กรุณาเลือก");
+		studentStayWith.setItemCaptionPropertyId("name");
+		studentStayWith.setImmediate(true);
+		studentStayWith.setNullSelectionAllowed(false);
+		studentStayWith.setWidth("-1px");
+		studentStayWith.setHeight("-1px");
+		studentStayWith.setFilteringMode(FilteringMode.CONTAINS);
+		studyForm.addComponent(studentStayWith);
+		
+		HorizontalLayout buttonLayout = new HorizontalLayout();
+		buttonLayout.setWidth("100%");
+		buttonLayout.setSpacing(true);
+		studyForm.addComponent(buttonLayout);
+		
+		generalBack = new Button(FontAwesome.ARROW_LEFT);
+		generalBack.setWidth("100%");
+		generalBack.addClickListener(new ClickListener() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void buttonClick(ClickEvent event) {
+				setSelectedTab(generalForm);
+			}
+		});
+		buttonLayout.addComponents(generalBack);
+		
 		graduatedNext = new Button(FontAwesome.ARROW_RIGHT);
 		graduatedNext.setWidth("100%");
 		graduatedNext.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(graduatedForm);
+				setSelectedTab(graduatedForm);				
 			}
 		});
-		buttonLayout.addComponent(graduatedNext);	
+		buttonLayout.addComponents(graduatedNext);
 	}
 	
 	/*สร้าง Layout สำหรับประวัติการศึกษาของนักเรียน*/
@@ -474,22 +709,33 @@ public class RecruitStudentLayout extends TabSheet {
 		graduatedYear.setHeight("-1px");
 		graduatedYear.setNullRepresentation("");
 		graduatedForm.addComponent(graduatedYear);
+				
+		graduatedClassRange = new ComboBox("ช่วงชั้นที่จบ",new ClassRange());
+		graduatedClassRange.setInputPrompt("กรุณาเลือก");
+		graduatedClassRange.setItemCaptionPropertyId("name");
+		graduatedClassRange.setImmediate(true);
+		graduatedClassRange.setNullSelectionAllowed(false);
+		graduatedClassRange.setRequired(true);
+		graduatedClassRange.setWidth("-1px");
+		graduatedClassRange.setHeight("-1px");
+		graduatedClassRange.setFilteringMode(FilteringMode.CONTAINS);
+		graduatedForm.addComponent(graduatedClassRange);
 		
 		HorizontalLayout buttonLayout = new HorizontalLayout();
 		buttonLayout.setWidth("100%");
 		buttonLayout.setSpacing(true);
 		graduatedForm.addComponent(buttonLayout);
-		
-		generalBack = new Button(FontAwesome.ARROW_LEFT);
-		generalBack.setWidth("100%");
-		generalBack.addClickListener(new ClickListener() {
+
+		studyBack = new Button(FontAwesome.ARROW_LEFT);
+		studyBack.setWidth("100%");
+		studyBack.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(generalForm);
+				setSelectedTab(studyForm);
 			}
 		});
-		buttonLayout.addComponents(generalBack);
+		buttonLayout.addComponents(studyBack);
 		
 		addressNext = new Button(FontAwesome.ARROW_RIGHT);
 		addressNext.setWidth("100%");
@@ -522,7 +768,6 @@ public class RecruitStudentLayout extends TabSheet {
 		mobile = new TextField("มือถือ");
 		mobile.setInputPrompt("มือถือ");
 		mobile.setImmediate(false);
-		mobile.setRequired(true);
 		mobile.setWidth("-1px");
 		mobile.setHeight("-1px");
 		mobile.setNullRepresentation("");
@@ -531,12 +776,15 @@ public class RecruitStudentLayout extends TabSheet {
 		email = new TextField("อีเมล์");
 		email.setInputPrompt("อีเมล์");
 		email.setImmediate(false);
-		email.setRequired(true);
 		email.setWidth("-1px");
 		email.setHeight("-1px");
+		email.setRequired(true);
 		email.addValidator(new EmailValidator("ข้อมูลไม่ถูกต้อง"));
 		email.setNullRepresentation("");
 		addressForm.addComponent(email);
+		
+		Label currentLabel = new Label("ที่อยู่ปัจจุบัน");
+		addressForm.addComponent(currentLabel);
 		
 		currentAddress = new TextArea("ที่อยู่ปัจจุบัน");
 		currentAddress.setInputPrompt("บ้านเลขที่ ซอย ถนน");
@@ -547,16 +795,16 @@ public class RecruitStudentLayout extends TabSheet {
 		currentAddress.setNullRepresentation("");
 		addressForm.addComponent(currentAddress);
 		
-		currentProvinceId = new ComboBox("จังหวัด",new Province());
-		currentProvinceId.setInputPrompt("กรุณาเลือก");
-		currentProvinceId.setItemCaptionPropertyId("name");
-		currentProvinceId.setImmediate(true);
-		currentProvinceId.setNullSelectionAllowed(false);
-		currentProvinceId.setRequired(true);
-		currentProvinceId.setWidth("-1px");
-		currentProvinceId.setHeight("-1px");
-		currentProvinceId.setFilteringMode(FilteringMode.CONTAINS);
-		currentProvinceId.addValueChangeListener(new ValueChangeListener() {
+		currentProvince = new ComboBox("จังหวัด",new Province());
+		currentProvince.setInputPrompt("กรุณาเลือก");
+		currentProvince.setItemCaptionPropertyId("name");
+		currentProvince.setImmediate(true);
+		currentProvince.setNullSelectionAllowed(false);
+		currentProvince.setRequired(true);
+		currentProvince.setWidth("-1px");
+		currentProvince.setHeight("-1px");
+		currentProvince.setFilteringMode(FilteringMode.CONTAINS);
+		currentProvince.addValueChangeListener(new ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void valueChange(ValueChangeEvent event) {
@@ -564,7 +812,7 @@ public class RecruitStudentLayout extends TabSheet {
 					currentDistrict.setContainerDataSource(new District(Integer.parseInt(event.getProperty().getValue().toString())));
 			}
 		});
-		addressForm.addComponent(currentProvinceId);
+		addressForm.addComponent(currentProvince);
 		
 		currentDistrict = new ComboBox("อำเภอ");
 		currentDistrict.setInputPrompt("กรุณาเลือก");
@@ -609,7 +857,194 @@ public class RecruitStudentLayout extends TabSheet {
 		currentPostcode.setFilteringMode(FilteringMode.CONTAINS);
 		addressForm.addComponent(currentPostcode);
 		
+		isSameCurrentAddress = new CheckBox("ข้อมูลเดียวกับที่อยู่ปัจจุบัน");
+		isSameCurrentAddress.setImmediate(true);
+		isSameCurrentAddress.setWidth("-1px");
+		isSameCurrentAddress.setHeight("-1px");
+		isSameCurrentAddress.addValueChangeListener(new ValueChangeListener() {
+			private static final long serialVersionUID = 1L;
 
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				if(event.getProperty().getValue() != null){
+					if((boolean)event.getProperty().getValue()){
+						censusAddress.setValue(currentAddress.getValue());
+						censusProvince.setValue(currentProvince.getValue());
+						censusDistrict.setValue(currentDistrict.getValue());
+						censusCity.setValue(currentCity.getValue());
+						censusPostcode.setValue(currentPostcode.getValue());
+					}else{
+						censusAddress.setValue(null);
+						censusProvince.setValue(null);
+						censusDistrict.setValue(null);
+						censusCity.setValue(null);
+						censusPostcode.setValue(null);
+					}
+				}
+			}
+		});
+		addressForm.addComponent(isSameCurrentAddress);
+		
+		censusAddress = new TextArea("ที่อยู่ตามทะเบียนบ้าน");
+		censusAddress.setInputPrompt("บ้านเลขที่ ซอย ถนน");
+		censusAddress.setImmediate(false);
+		censusAddress.setWidth("-1px");
+		censusAddress.setHeight("-1px");
+		censusAddress.setNullRepresentation("");
+		addressForm.addComponent(censusAddress);
+		
+		censusProvince = new ComboBox("จังหวัดตามทะเบียนบ้าน",new Province());
+		censusProvince.setInputPrompt("กรุณาเลือก");
+		censusProvince.setItemCaptionPropertyId("name");
+		censusProvince.setImmediate(true);
+		censusProvince.setNullSelectionAllowed(false);
+		censusProvince.setWidth("-1px");
+		censusProvince.setHeight("-1px");
+		censusProvince.setFilteringMode(FilteringMode.CONTAINS);
+		censusProvince.addValueChangeListener(new ValueChangeListener() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				if(event.getProperty().getValue() != null)
+					censusDistrict.setContainerDataSource(new District(Integer.parseInt(event.getProperty().getValue().toString())));
+			}
+		});
+		addressForm.addComponent(censusProvince);
+		
+		censusDistrict = new ComboBox("อำเภอตามทะเบียนบ้าน");
+		censusDistrict.setInputPrompt("กรุณาเลือก");
+		censusDistrict.setItemCaptionPropertyId("name");
+		censusDistrict.setImmediate(true);
+		censusDistrict.setNullSelectionAllowed(false);
+		censusDistrict.setWidth("-1px");
+		censusDistrict.setHeight("-1px");
+		censusDistrict.setFilteringMode(FilteringMode.CONTAINS);
+		censusDistrict.addValueChangeListener(new ValueChangeListener() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				if(event.getProperty().getValue() != null){
+					censusCity.setContainerDataSource(new City(Integer.parseInt(event.getProperty().getValue().toString())));
+					censusPostcode.setContainerDataSource(new Postcode(Integer.parseInt(event.getProperty().getValue().toString())));
+				}
+			}
+		});
+		addressForm.addComponent(censusDistrict);
+		
+		censusCity = new ComboBox("ตำบลตามทะเบียนบ้าน");
+		censusCity.setInputPrompt("กรุณาเลือก");
+		censusCity.setItemCaptionPropertyId("name");
+		censusCity.setImmediate(true);
+		censusCity.setNullSelectionAllowed(false);
+		censusCity.setWidth("-1px");
+		censusCity.setHeight("-1px");
+		censusCity.setFilteringMode(FilteringMode.CONTAINS);
+		addressForm.addComponent(censusCity);
+		
+		censusPostcode = new ComboBox("รหัสไปรษณีย์ตามทะเบียนบ้าน");
+		censusPostcode.setInputPrompt("กรุณาเลือก");
+		censusPostcode.setItemCaptionPropertyId("name");
+		censusPostcode.setImmediate(true);
+		censusPostcode.setNullSelectionAllowed(false);
+		censusPostcode.setWidth("-1px");
+		censusPostcode.setHeight("-1px");
+		censusPostcode.setFilteringMode(FilteringMode.CONTAINS);
+		addressForm.addComponent(censusPostcode);
+		
+		isBirthSameCurrentAddress = new CheckBox("ข้อมูลเดียวกับที่อยู่ปัจจุบัน");
+		isBirthSameCurrentAddress.setImmediate(true);
+		isBirthSameCurrentAddress.setWidth("-1px");
+		isBirthSameCurrentAddress.setHeight("-1px");
+		isBirthSameCurrentAddress.addValueChangeListener(new ValueChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				if(event.getProperty().getValue() != null){
+					if((boolean)event.getProperty().getValue()){
+						birthAddress.setValue(currentAddress.getValue());
+						birthProvince.setValue(currentProvince.getValue());
+						birthDistrict.setValue(currentDistrict.getValue());
+						birthCity.setValue(currentCity.getValue());
+						birthPostcode.setValue(currentPostcode.getValue());
+					}else{
+						birthAddress.setValue(null);
+						birthProvince.setValue(null);
+						birthDistrict.setValue(null);
+						birthCity.setValue(null);
+						birthPostcode.setValue(null);
+					}
+				}
+			}
+		});
+		addressForm.addComponent(isBirthSameCurrentAddress);
+		
+		birthAddress = new TextArea("ที่อยู่สถานที่เกิด");
+		birthAddress.setInputPrompt("บ้านเลขที่ ซอย ถนน");
+		birthAddress.setImmediate(false);
+		birthAddress.setWidth("-1px");
+		birthAddress.setHeight("-1px");
+		birthAddress.setNullRepresentation("");
+		addressForm.addComponent(birthAddress);
+		
+		birthProvince = new ComboBox("จังหวัดสถานที่เกิด",new Province());
+		birthProvince.setInputPrompt("กรุณาเลือก");
+		birthProvince.setItemCaptionPropertyId("name");
+		birthProvince.setImmediate(true);
+		birthProvince.setNullSelectionAllowed(false);
+		birthProvince.setWidth("-1px");
+		birthProvince.setHeight("-1px");
+		birthProvince.setFilteringMode(FilteringMode.CONTAINS);
+		birthProvince.addValueChangeListener(new ValueChangeListener() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				if(event.getProperty().getValue() != null)
+					birthDistrict.setContainerDataSource(new District(Integer.parseInt(event.getProperty().getValue().toString())));
+			}
+		});
+		addressForm.addComponent(birthProvince);
+		
+		birthDistrict = new ComboBox("อำเภอสถานที่เกิด");
+		birthDistrict.setInputPrompt("กรุณาเลือก");
+		birthDistrict.setItemCaptionPropertyId("name");
+		birthDistrict.setImmediate(true);
+		birthDistrict.setNullSelectionAllowed(false);
+		birthDistrict.setWidth("-1px");
+		birthDistrict.setHeight("-1px");
+		birthDistrict.setFilteringMode(FilteringMode.CONTAINS);
+		birthDistrict.addValueChangeListener(new ValueChangeListener() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				if(event.getProperty().getValue() != null){
+					birthCity.setContainerDataSource(new City(Integer.parseInt(event.getProperty().getValue().toString())));
+					birthPostcode.setContainerDataSource(new Postcode(Integer.parseInt(event.getProperty().getValue().toString())));
+				}
+			}
+		});
+		addressForm.addComponent(birthDistrict);
+		
+		birthCity = new ComboBox("ตำบลสถานที่เกิด");
+		birthCity.setInputPrompt("กรุณาเลือก");
+		birthCity.setItemCaptionPropertyId("name");
+		birthCity.setImmediate(true);
+		birthCity.setNullSelectionAllowed(false);
+		birthCity.setWidth("-1px");
+		birthCity.setHeight("-1px");
+		birthCity.setFilteringMode(FilteringMode.CONTAINS);
+		addressForm.addComponent(birthCity);
+		
+		birthPostcode = new ComboBox("รหัสไปรษณีย์สถานที่เกิด");
+		birthPostcode.setInputPrompt("กรุณาเลือก");
+		birthPostcode.setItemCaptionPropertyId("name");
+		birthPostcode.setImmediate(true);
+		birthPostcode.setNullSelectionAllowed(false);
+		birthPostcode.setWidth("-1px");
+		birthPostcode.setHeight("-1px");
+		birthPostcode.setFilteringMode(FilteringMode.CONTAINS);
+		addressForm.addComponent(birthPostcode);
+		
 		HorizontalLayout buttonLayout = new HorizontalLayout();
 		buttonLayout.setSpacing(true);
 		buttonLayout.setWidth("100%");
@@ -626,16 +1061,31 @@ public class RecruitStudentLayout extends TabSheet {
 		});
 		buttonLayout.addComponents(graduatedBack);
 		
-		fatherNext = new Button(FontAwesome.ARROW_RIGHT);
+		fatherNext = new Button(FontAwesome.SAVE);
 		fatherNext.setWidth("100%");
 		fatherNext.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(fatherForm);
+				ConfirmDialog.show(UI.getCurrent(), "ความพร้อมข้อมูล", "คุณต้องการเพิ่มข้อมูล บิดา มารดา ผู้ปกครอง ใช่หรือไม่?", "ใช่", "ไม่", new ConfirmDialog.Listener() {
+					private static final long serialVersionUID = 1L;
+					public void onClose(ConfirmDialog dialog) {
+						/* ตรวจสอบว่ามีข้อมูลบิดา มารดา ผู้ปกครองหรือไม่?
+						 *  กรณี มีก็จะเข้าไปหน้าเพิ่มข้อมูลเจ้าหน้าที่
+						 *  กรณี ไม่มี ก็จะบันทึกข้อมูลเลย */
+		                if (dialog.isConfirmed()) {
+		                	isInsertParents = true;
+		            		familyStatus.setRequired(true);
+		                	setSelectedTab(fatherForm);
+		                }else{
+		                	isInsertParents = false;
+		            		familyStatus.setRequired(false);
+		                	finish.click();
+		                }
+		            }
+		        });
 			}
 		});
-		
 		buttonLayout.addComponents(fatherNext);
 	}
 	
@@ -663,6 +1113,26 @@ public class RecruitStudentLayout extends TabSheet {
 		fPeopleid.setHeight("-1px");
 		fPeopleid.setNullRepresentation("");
 		fPeopleid.addValidator(new StringLengthValidator("ข้อมูลไม่ถูกต้อง", 13, 20, false));
+		fPeopleid.addTextChangeListener(new TextChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void textChange(TextChangeEvent event) {
+				if(event.getText() != null){
+					if(event.getText().length() >= 13){
+						fSqlContainer.addContainerFilter(new Equal(FamilySchema.PEOPLE_ID,event.getText()));
+						if(fSqlContainer.size() > 0){
+							Item item = fSqlContainer.getItem(fSqlContainer.getIdByIndex(0));
+							fatherBinder.setItemDataSource(item);
+							pkStore[0] = item.getItemProperty(FamilySchema.FAMILY_ID).getValue();
+							fatherBinder.setEnabled(false);
+							isDuplicateFather = true;
+						}
+						fSqlContainer.removeAllContainerFilters();
+					}
+				}
+			}
+		});
 		fatherForm.addComponent(fPeopleid);
 		
 		fPrename = new ComboBox("ชื่อต้น",new Prename());
@@ -827,7 +1297,6 @@ public class RecruitStudentLayout extends TabSheet {
 		fCurrentAddress = new TextArea("ที่อยู่ปัจจุบัน");
 		fCurrentAddress.setInputPrompt("บ้านเลขที่ ซอย ถนน");
 		fCurrentAddress.setImmediate(false);
-		fCurrentAddress.setRequired(true);
 		fCurrentAddress.setWidth("-1px");
 		fCurrentAddress.setHeight("-1px");
 		fCurrentAddress.setNullRepresentation("");
@@ -838,7 +1307,6 @@ public class RecruitStudentLayout extends TabSheet {
 		fCurrentProvinceId.setItemCaptionPropertyId("name");
 		fCurrentProvinceId.setImmediate(true);
 		fCurrentProvinceId.setNullSelectionAllowed(false);
-		fCurrentProvinceId.setRequired(true);
 		fCurrentProvinceId.setWidth("-1px");
 		fCurrentProvinceId.setHeight("-1px");
 		fCurrentProvinceId.setFilteringMode(FilteringMode.CONTAINS);
@@ -857,7 +1325,6 @@ public class RecruitStudentLayout extends TabSheet {
 		fCurrentDistrict.setItemCaptionPropertyId("name");
 		fCurrentDistrict.setImmediate(true);
 		fCurrentDistrict.setNullSelectionAllowed(false);
-		fCurrentDistrict.setRequired(true);
 		fCurrentDistrict.setWidth("-1px");
 		fCurrentDistrict.setHeight("-1px");
 		fCurrentDistrict.setFilteringMode(FilteringMode.CONTAINS);
@@ -878,7 +1345,6 @@ public class RecruitStudentLayout extends TabSheet {
 		fCurrentCity.setItemCaptionPropertyId("name");
 		fCurrentCity.setImmediate(true);
 		fCurrentCity.setNullSelectionAllowed(false);
-		fCurrentCity.setRequired(true);
 		fCurrentCity.setWidth("-1px");
 		fCurrentCity.setHeight("-1px");
 		fCurrentCity.setFilteringMode(FilteringMode.CONTAINS);
@@ -889,7 +1355,6 @@ public class RecruitStudentLayout extends TabSheet {
 		fCurrentPostcode.setItemCaptionPropertyId("name");
 		fCurrentPostcode.setImmediate(true);
 		fCurrentPostcode.setNullSelectionAllowed(false);
-		fCurrentPostcode.setRequired(true);
 		fCurrentPostcode.setWidth("-1px");
 		fCurrentPostcode.setHeight("-1px");
 		fCurrentPostcode.setFilteringMode(FilteringMode.CONTAINS);
@@ -947,6 +1412,26 @@ public class RecruitStudentLayout extends TabSheet {
 		mPeopleid.setHeight("-1px");
 		mPeopleid.setNullRepresentation("");
 		mPeopleid.addValidator(new StringLengthValidator("ข้อมูลไม่ถูกต้อง", 13, 20, false));
+		mPeopleid.addTextChangeListener(new TextChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void textChange(TextChangeEvent event) {
+				if(event.getText() != null){
+					if(event.getText().length() >= 13){
+						fSqlContainer.addContainerFilter(new Equal(FamilySchema.PEOPLE_ID,event.getText()));
+						if(fSqlContainer.size() > 0){
+							Item item = fSqlContainer.getItem(fSqlContainer.getIdByIndex(0));
+							motherBinder.setItemDataSource(item);
+							pkStore[1] = item.getItemProperty(FamilySchema.FAMILY_ID).getValue();
+							motherBinder.setEnabled(false);
+							isDuplicateMother = true;
+						}
+						fSqlContainer.removeAllContainerFilters();
+					}
+				}
+			}
+		});
 		motherForm.addComponent(mPeopleid);
 		
 		mPrename = new ComboBox("ชื่อต้น",new Prename());
@@ -1110,7 +1595,6 @@ public class RecruitStudentLayout extends TabSheet {
 		mCurrentAddress = new TextArea("ที่อยู่ปัจจุบัน");
 		mCurrentAddress.setInputPrompt("บ้านเลขที่ ซอย ถนน");
 		mCurrentAddress.setImmediate(false);
-		mCurrentAddress.setRequired(true);
 		mCurrentAddress.setWidth("-1px");
 		mCurrentAddress.setHeight("-1px");
 		mCurrentAddress.setNullRepresentation("");
@@ -1121,7 +1605,6 @@ public class RecruitStudentLayout extends TabSheet {
 		mCurrentProvinceId.setItemCaptionPropertyId("name");
 		mCurrentProvinceId.setImmediate(true);
 		mCurrentProvinceId.setNullSelectionAllowed(false);
-		mCurrentProvinceId.setRequired(true);
 		mCurrentProvinceId.setWidth("-1px");
 		mCurrentProvinceId.setHeight("-1px");
 		mCurrentProvinceId.setFilteringMode(FilteringMode.CONTAINS);
@@ -1140,7 +1623,6 @@ public class RecruitStudentLayout extends TabSheet {
 		mCurrentDistrict.setItemCaptionPropertyId("name");
 		mCurrentDistrict.setImmediate(true);
 		mCurrentDistrict.setNullSelectionAllowed(false);
-		mCurrentDistrict.setRequired(true);
 		mCurrentDistrict.setWidth("-1px");
 		mCurrentDistrict.setHeight("-1px");
 		mCurrentDistrict.setFilteringMode(FilteringMode.CONTAINS);
@@ -1161,7 +1643,6 @@ public class RecruitStudentLayout extends TabSheet {
 		mCurrentCity.setItemCaptionPropertyId("name");
 		mCurrentCity.setImmediate(true);
 		mCurrentCity.setNullSelectionAllowed(false);
-		mCurrentCity.setRequired(true);
 		mCurrentCity.setWidth("-1px");
 		mCurrentCity.setHeight("-1px");
 		mCurrentCity.setFilteringMode(FilteringMode.CONTAINS);
@@ -1172,18 +1653,16 @@ public class RecruitStudentLayout extends TabSheet {
 		mCurrentPostcode.setItemCaptionPropertyId("name");
 		mCurrentPostcode.setImmediate(true);
 		mCurrentPostcode.setNullSelectionAllowed(false);
-		mCurrentPostcode.setRequired(true);
 		mCurrentPostcode.setWidth("-1px");
 		mCurrentPostcode.setHeight("-1px");
 		mCurrentPostcode.setFilteringMode(FilteringMode.CONTAINS);
 		motherForm.addComponent(mCurrentPostcode);
-		
+				
 		familyStatus = new ComboBox("สถานะครอบครัว",new FamilyStatus());
 		familyStatus.setInputPrompt("กรุณาเลือก");
 		familyStatus.setItemCaptionPropertyId("name");
 		familyStatus.setImmediate(true);
 		familyStatus.setNullSelectionAllowed(false);
-		familyStatus.setRequired(true);
 		familyStatus.setWidth("-1px");
 		familyStatus.setHeight("-1px");
 		familyStatus.setFilteringMode(FilteringMode.CONTAINS);
@@ -1253,6 +1732,26 @@ public class RecruitStudentLayout extends TabSheet {
 		gPeopleid.setHeight("-1px");
 		gPeopleid.setNullRepresentation("");
 		gPeopleid.addValidator(new StringLengthValidator("ข้อมูลไม่ถูกต้อง", 13, 20, false));
+		gPeopleid.addTextChangeListener(new TextChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void textChange(TextChangeEvent event) {
+				if(event.getText() != null){
+					if(event.getText().length() >= 13){
+						fSqlContainer.addContainerFilter(new Equal(FamilySchema.PEOPLE_ID,event.getText()));
+						if(fSqlContainer.size() > 0){
+							Item item = fSqlContainer.getItem(fSqlContainer.getIdByIndex(0));
+							guardianBinder.setItemDataSource(item);
+							pkStore[2] = item.getItemProperty(FamilySchema.FAMILY_ID).getValue();
+							guardianBinder.setEnabled(false);
+							isDuplicateFather = true;
+						}
+						fSqlContainer.removeAllContainerFilters();
+					}
+				}
+			}
+		});
 		guardianForm.addComponent(gPeopleid);
 		
 		gPrename = new ComboBox("ชื่อต้น",new Prename());
@@ -1533,125 +2032,201 @@ public class RecruitStudentLayout extends TabSheet {
 	private void initFieldGroup(){		
 		studentBinder = new FieldGroup();
 		studentBinder.setBuffered(true);
-		studentBinder.bind(classRange, RecruitStudentSchema.CLASS_RANGE);
-		studentBinder.bind(peopleIdType, RecruitStudentSchema.PEOPLE_ID_TYPE);
-		studentBinder.bind(peopleId, RecruitStudentSchema.PEOPLE_ID);
-		studentBinder.bind(prename, RecruitStudentSchema.PRENAME);
-		studentBinder.bind(firstname, RecruitStudentSchema.FIRSTNAME);
-		studentBinder.bind(lastname, RecruitStudentSchema.LASTNAME);
-		studentBinder.bind(firstnameNd, RecruitStudentSchema.FIRSTNAME_ND);
-		studentBinder.bind(lastnameNd, RecruitStudentSchema.LASTNAME_ND);
-		studentBinder.bind(nickname, RecruitStudentSchema.NICKNAME);
-		studentBinder.bind(gender, RecruitStudentSchema.GENDER);
-		studentBinder.bind(religion, RecruitStudentSchema.RELIGION);
-		studentBinder.bind(race, RecruitStudentSchema.RACE);
-		studentBinder.bind(nationality, RecruitStudentSchema.NATIONALITY);
-		studentBinder.bind(birthDate, RecruitStudentSchema.BIRTH_DATE);
-		studentBinder.bind(blood, RecruitStudentSchema.BLOOD);
-		studentBinder.bind(height, RecruitStudentSchema.HEIGHT);
-		studentBinder.bind(weight, RecruitStudentSchema.WEIGHT);
-		studentBinder.bind(congenitalDisease, RecruitStudentSchema.CONGENITAL_DISEASE);
-		studentBinder.bind(interested, RecruitStudentSchema.INTERESTED);
-		studentBinder.bind(siblingQty, RecruitStudentSchema.SIBLING_QTY);
-		studentBinder.bind(siblingSequence, RecruitStudentSchema.SIBLING_SEQUENCE);
-		studentBinder.bind(siblingInSchoolQty, RecruitStudentSchema.SIBLING_INSCHOOL_QTY);
-		studentBinder.bind(graduatedSchool, RecruitStudentSchema.GRADUATED_SCHOOL);
-		studentBinder.bind(graduatedSchoolProvinceId, RecruitStudentSchema.GRADUATED_SCHOOL_PROVINCE_ID);
-		studentBinder.bind(graduatedGpa, RecruitStudentSchema.GRADUATED_GPA);
-		studentBinder.bind(graduatedYear, RecruitStudentSchema.GRADUATED_YEAR);
-		studentBinder.bind(tel, RecruitStudentSchema.TEL);
-		studentBinder.bind(mobile, RecruitStudentSchema.MOBILE);
-		studentBinder.bind(email, RecruitStudentSchema.EMAIL);
-		studentBinder.bind(currentAddress, RecruitStudentSchema.CURRENT_ADDRESS);
-		studentBinder.bind(currentProvinceId, RecruitStudentSchema.CURRENT_PROVINCE_ID);
-		studentBinder.bind(currentDistrict, RecruitStudentSchema.CURRENT_DISTRICT_ID);
-		studentBinder.bind(currentCity, RecruitStudentSchema.CURRENT_CITY_ID);
-		studentBinder.bind(currentPostcode, RecruitStudentSchema.CURRENT_POSTCODE_ID);
-		studentBinder.bind(familyStatus, RecruitStudentSchema.FAMILY_STATUS);
-		studentBinder.bind(guardianRelation, RecruitStudentSchema.GUARDIAN_RELATION);
+		studentBinder.bind(peopleIdType, StudentSchema.PEOPLE_ID_TYPE);
+		studentBinder.bind(peopleId, StudentSchema.PEOPLE_ID);
+		studentBinder.bind(prename, StudentSchema.PRENAME);
+		studentBinder.bind(firstname, StudentSchema.FIRSTNAME);
+		studentBinder.bind(lastname, StudentSchema.LASTNAME);
+		studentBinder.bind(firstnameNd, StudentSchema.FIRSTNAME_ND);
+		studentBinder.bind(lastnameNd, StudentSchema.LASTNAME_ND);
+		studentBinder.bind(firstnameRd, StudentSchema.FIRSTNAME_RD);
+		studentBinder.bind(lastnameRd, StudentSchema.LASTNAME_RD);		
+		studentBinder.bind(nickname, StudentSchema.NICKNAME);
+		studentBinder.bind(gender, StudentSchema.GENDER);
+		studentBinder.bind(religion, StudentSchema.RELIGION);
+		studentBinder.bind(race, StudentSchema.RACE);
+		studentBinder.bind(nationality, StudentSchema.NATIONALITY);
+		studentBinder.bind(birthDate, StudentSchema.BIRTH_DATE);
+		studentBinder.bind(blood, StudentSchema.BLOOD);
+		studentBinder.bind(height, StudentSchema.HEIGHT);
+		studentBinder.bind(weight, StudentSchema.WEIGHT);
+		studentBinder.bind(congenitalDisease, StudentSchema.CONGENITAL_DISEASE);
+		studentBinder.bind(interested, StudentSchema.INTERESTED);
+		studentBinder.bind(siblingQty, StudentSchema.SIBLING_QTY);
+		studentBinder.bind(siblingSequence, StudentSchema.SIBLING_SEQUENCE);
+		studentBinder.bind(siblingInSchoolQty, StudentSchema.SIBLING_INSCHOOL_QTY);
+		studentBinder.bind(familyStatus, StudentSchema.FAMILY_STATUS);
+		
+		studentStudyBinder = new FieldGroup();
+		studentStudyBinder.setBuffered(true);
+		studentStudyBinder.bind(studentCode, StudentStudySchema.STUDENT_CODE);
+		studentStudyBinder.bind(studentStatus, StudentStudySchema.STUDENT_STATUS);
+		studentStudyBinder.bind(studentComeWith, StudentStudySchema.STUDENT_COME_WITH);
+		studentStudyBinder.bind(studentComeDescription, StudentStudySchema.STUDENT_COME_DESCRIPTION);
+		studentStudyBinder.bind(studentPayerCourse, StudentStudySchema.STUDENT_PAYER_COURSE);
+		studentStudyBinder.bind(studentStayWith, StudentStudySchema.STUDENT_STAY_WITH);
+		studentStudyBinder.bind(graduatedSchool, StudentStudySchema.GRADUATED_SCHOOL);
+		studentStudyBinder.bind(graduatedSchoolProvinceId, StudentStudySchema.GRADUATED_SCHOOL_PROVINCE_ID);
+		studentStudyBinder.bind(graduatedGpa, StudentStudySchema.GRADUATED_GPA);
+		studentStudyBinder.bind(graduatedYear, StudentStudySchema.GRADUATED_YEAR);
+		studentStudyBinder.bind(graduatedClassRange, StudentStudySchema.GRADUATED_CLASS_RANGE);
+		studentStudyBinder.bind(tel, StudentStudySchema.TEL);
+		studentStudyBinder.bind(mobile, StudentStudySchema.MOBILE);
+		studentStudyBinder.bind(email, StudentStudySchema.EMAIL);
+		studentStudyBinder.bind(currentAddress, StudentStudySchema.CURRENT_ADDRESS);
+		studentStudyBinder.bind(currentCity, StudentStudySchema.CURRENT_CITY_ID);
+		studentStudyBinder.bind(currentDistrict, StudentStudySchema.CURRENT_DISTRICT_ID);
+		studentStudyBinder.bind(currentProvince, StudentStudySchema.CURRENT_PROVINCE_ID);
+		studentStudyBinder.bind(currentPostcode, StudentStudySchema.CURRENT_POSTCODE_ID);
+		studentStudyBinder.bind(censusAddress, StudentStudySchema.CENSUS_ADDRESS);
+		studentStudyBinder.bind(censusCity, StudentStudySchema.CENSUS_CITY_ID);
+		studentStudyBinder.bind(censusDistrict, StudentStudySchema.CENSUS_DISTRICT_ID);
+		studentStudyBinder.bind(censusProvince, StudentStudySchema.CENSUS_PROVINCE_ID);
+		studentStudyBinder.bind(censusPostcode, StudentStudySchema.CENSUS_POSTCODE_ID);
+		studentStudyBinder.bind(birthAddress, StudentStudySchema.BIRTH_ADDRESS);
+		studentStudyBinder.bind(birthCity, StudentStudySchema.BIRTH_CITY_ID);
+		studentStudyBinder.bind(birthDistrict, StudentStudySchema.BIRTH_DISTRICT_ID);
+		studentStudyBinder.bind(birthProvince, StudentStudySchema.BIRTH_PROVINCE_ID);
+		studentStudyBinder.bind(birthPostcode, StudentStudySchema.BIRTH_POSTCODE_ID);
 		
 		fatherBinder = new FieldGroup();
 		fatherBinder.setBuffered(true);
-		fatherBinder.bind(fPeopleIdType, RecruitStudentFamilySchema.PEOPLE_ID_TYPE);
-		fatherBinder.bind(fPeopleid, RecruitStudentFamilySchema.PEOPLE_ID);
-		fatherBinder.bind(fPrename, RecruitStudentFamilySchema.PRENAME);
-		fatherBinder.bind(fFirstname, RecruitStudentFamilySchema.FIRSTNAME);
-		fatherBinder.bind(fLastname, RecruitStudentFamilySchema.LASTNAME);
-		fatherBinder.bind(fFirstnameNd, RecruitStudentFamilySchema.FIRSTNAME_ND);
-		fatherBinder.bind(fLastnameNd, RecruitStudentFamilySchema.LASTNAME_ND);
-		fatherBinder.bind(fGender, RecruitStudentFamilySchema.GENDER);
-		fatherBinder.bind(fReligion, RecruitStudentFamilySchema.RELIGION);
-		fatherBinder.bind(fRace, RecruitStudentFamilySchema.RACE);
-		fatherBinder.bind(fNationality, RecruitStudentFamilySchema.NATIONALITY);
-		fatherBinder.bind(fBirthDate, RecruitStudentFamilySchema.BIRTH_DATE);
-		fatherBinder.bind(fTel, RecruitStudentFamilySchema.TEL);
-		fatherBinder.bind(fMobile, RecruitStudentFamilySchema.MOBILE);
-		fatherBinder.bind(fEmail, RecruitStudentFamilySchema.EMAIL);
-		fatherBinder.bind(fSalary, RecruitStudentFamilySchema.SALARY);
-		fatherBinder.bind(fAliveStatus, RecruitStudentFamilySchema.ALIVE_STATUS);
-		fatherBinder.bind(fOccupation, RecruitStudentFamilySchema.OCCUPATION);
-		fatherBinder.bind(fJobAddress, RecruitStudentFamilySchema.JOB_ADDRESS);
-		fatherBinder.bind(fCurrentAddress, RecruitStudentFamilySchema.CURRENT_ADDRESS);
-		fatherBinder.bind(fCurrentProvinceId, RecruitStudentFamilySchema.CURRENT_PROVINCE_ID);
-		fatherBinder.bind(fCurrentDistrict, RecruitStudentFamilySchema.CURRENT_DISTRICT_ID);
-		fatherBinder.bind(fCurrentCity, RecruitStudentFamilySchema.CURRENT_CITY_ID);
-		fatherBinder.bind(fCurrentPostcode, RecruitStudentFamilySchema.CURRENT_POSTCODE_ID);
+		fatherBinder.bind(fPeopleIdType, FamilySchema.PEOPLE_ID_TYPE);
+		fatherBinder.bind(fPeopleid, FamilySchema.PEOPLE_ID);
+		fatherBinder.bind(fPrename, FamilySchema.PRENAME);
+		fatherBinder.bind(fFirstname, FamilySchema.FIRSTNAME);
+		fatherBinder.bind(fLastname, FamilySchema.LASTNAME);
+		fatherBinder.bind(fFirstnameNd, FamilySchema.FIRSTNAME_ND);
+		fatherBinder.bind(fLastnameNd, FamilySchema.LASTNAME_ND);
+		fatherBinder.bind(fGender, FamilySchema.GENDER);
+		fatherBinder.bind(fReligion, FamilySchema.RELIGION);
+		fatherBinder.bind(fRace, FamilySchema.RACE);
+		fatherBinder.bind(fNationality, FamilySchema.NATIONALITY);
+		fatherBinder.bind(fBirthDate, FamilySchema.BIRTH_DATE);
+		fatherBinder.bind(fTel, FamilySchema.TEL);
+		fatherBinder.bind(fMobile, FamilySchema.MOBILE);
+		fatherBinder.bind(fEmail, FamilySchema.EMAIL);
+		fatherBinder.bind(fSalary, FamilySchema.SALARY);
+		fatherBinder.bind(fAliveStatus, FamilySchema.ALIVE_STATUS);
+		fatherBinder.bind(fOccupation, FamilySchema.OCCUPATION);
+		fatherBinder.bind(fJobAddress, FamilySchema.JOB_ADDRESS);
+		fatherBinder.bind(fCurrentAddress, FamilySchema.CURRENT_ADDRESS);
+		fatherBinder.bind(fCurrentProvinceId, FamilySchema.CURRENT_PROVINCE_ID);
+		fatherBinder.bind(fCurrentDistrict, FamilySchema.CURRENT_DISTRICT_ID);
+		fatherBinder.bind(fCurrentCity, FamilySchema.CURRENT_CITY_ID);
+		fatherBinder.bind(fCurrentPostcode, FamilySchema.CURRENT_POSTCODE_ID);
 		
 		motherBinder = new FieldGroup();
 		motherBinder.setBuffered(true);
-		motherBinder.bind(mPeopleIdType, RecruitStudentFamilySchema.PEOPLE_ID_TYPE);
-		motherBinder.bind(mPeopleid, RecruitStudentFamilySchema.PEOPLE_ID);
-		motherBinder.bind(mPrename, RecruitStudentFamilySchema.PRENAME);
-		motherBinder.bind(mFirstname, RecruitStudentFamilySchema.FIRSTNAME);
-		motherBinder.bind(mLastname, RecruitStudentFamilySchema.LASTNAME);
-		motherBinder.bind(mFirstnameNd, RecruitStudentFamilySchema.FIRSTNAME_ND);
-		motherBinder.bind(mLastnameNd, RecruitStudentFamilySchema.LASTNAME_ND);
-		motherBinder.bind(mGender, RecruitStudentFamilySchema.GENDER);
-		motherBinder.bind(mReligion, RecruitStudentFamilySchema.RELIGION);
-		motherBinder.bind(mRace, RecruitStudentFamilySchema.RACE);
-		motherBinder.bind(mNationality, RecruitStudentFamilySchema.NATIONALITY);
-		motherBinder.bind(mBirthDate, RecruitStudentFamilySchema.BIRTH_DATE);
-		motherBinder.bind(mTel, RecruitStudentFamilySchema.TEL);
-		motherBinder.bind(mMobile, RecruitStudentFamilySchema.MOBILE);
-		motherBinder.bind(mEmail, RecruitStudentFamilySchema.EMAIL);
-		motherBinder.bind(mSalary, RecruitStudentFamilySchema.SALARY);
-		motherBinder.bind(mAliveStatus, RecruitStudentFamilySchema.ALIVE_STATUS);
-		motherBinder.bind(mOccupation, RecruitStudentFamilySchema.OCCUPATION);
-		motherBinder.bind(mJobAddress, RecruitStudentFamilySchema.JOB_ADDRESS);
-		motherBinder.bind(mCurrentAddress, RecruitStudentFamilySchema.CURRENT_ADDRESS);
-		motherBinder.bind(mCurrentProvinceId, RecruitStudentFamilySchema.CURRENT_PROVINCE_ID);
-		motherBinder.bind(mCurrentDistrict, RecruitStudentFamilySchema.CURRENT_DISTRICT_ID);
-		motherBinder.bind(mCurrentCity, RecruitStudentFamilySchema.CURRENT_CITY_ID);
-		motherBinder.bind(mCurrentPostcode, RecruitStudentFamilySchema.CURRENT_POSTCODE_ID);
+		motherBinder.bind(mPeopleIdType, FamilySchema.PEOPLE_ID_TYPE);
+		motherBinder.bind(mPeopleid, FamilySchema.PEOPLE_ID);
+		motherBinder.bind(mPrename, FamilySchema.PRENAME);
+		motherBinder.bind(mFirstname, FamilySchema.FIRSTNAME);
+		motherBinder.bind(mLastname, FamilySchema.LASTNAME);
+		motherBinder.bind(mFirstnameNd, FamilySchema.FIRSTNAME_ND);
+		motherBinder.bind(mLastnameNd, FamilySchema.LASTNAME_ND);
+		motherBinder.bind(mGender, FamilySchema.GENDER);
+		motherBinder.bind(mReligion, FamilySchema.RELIGION);
+		motherBinder.bind(mRace, FamilySchema.RACE);
+		motherBinder.bind(mNationality, FamilySchema.NATIONALITY);
+		motherBinder.bind(mBirthDate, FamilySchema.BIRTH_DATE);
+		motherBinder.bind(mTel, FamilySchema.TEL);
+		motherBinder.bind(mMobile, FamilySchema.MOBILE);
+		motherBinder.bind(mEmail, FamilySchema.EMAIL);
+		motherBinder.bind(mSalary, FamilySchema.SALARY);
+		motherBinder.bind(mAliveStatus, FamilySchema.ALIVE_STATUS);
+		motherBinder.bind(mOccupation, FamilySchema.OCCUPATION);
+		motherBinder.bind(mJobAddress, FamilySchema.JOB_ADDRESS);
+		motherBinder.bind(mCurrentAddress, FamilySchema.CURRENT_ADDRESS);
+		motherBinder.bind(mCurrentProvinceId, FamilySchema.CURRENT_PROVINCE_ID);
+		motherBinder.bind(mCurrentDistrict, FamilySchema.CURRENT_DISTRICT_ID);
+		motherBinder.bind(mCurrentCity, FamilySchema.CURRENT_CITY_ID);
+		motherBinder.bind(mCurrentPostcode, FamilySchema.CURRENT_POSTCODE_ID);
 		
 		guardianBinder = new FieldGroup();
 		guardianBinder.setBuffered(true);
-		guardianBinder.bind(gPeopleIdType, RecruitStudentFamilySchema.PEOPLE_ID_TYPE);
-		guardianBinder.bind(gPeopleid, RecruitStudentFamilySchema.PEOPLE_ID);
-		guardianBinder.bind(gPrename, RecruitStudentFamilySchema.PRENAME);
-		guardianBinder.bind(gFirstname, RecruitStudentFamilySchema.FIRSTNAME);
-		guardianBinder.bind(gLastname, RecruitStudentFamilySchema.LASTNAME);
-		guardianBinder.bind(gFirstnameNd, RecruitStudentFamilySchema.FIRSTNAME_ND);
-		guardianBinder.bind(gLastnameNd, RecruitStudentFamilySchema.LASTNAME_ND);
-		guardianBinder.bind(gGender, RecruitStudentFamilySchema.GENDER);
-		guardianBinder.bind(gReligion, RecruitStudentFamilySchema.RELIGION);
-		guardianBinder.bind(gRace, RecruitStudentFamilySchema.RACE);
-		guardianBinder.bind(gNationality, RecruitStudentFamilySchema.NATIONALITY);
-		guardianBinder.bind(gBirthDate, RecruitStudentFamilySchema.BIRTH_DATE);
-		guardianBinder.bind(gTel, RecruitStudentFamilySchema.TEL);
-		guardianBinder.bind(gMobile, RecruitStudentFamilySchema.MOBILE);
-		guardianBinder.bind(gEmail, RecruitStudentFamilySchema.EMAIL);
-		guardianBinder.bind(gSalary, RecruitStudentFamilySchema.SALARY);
-		guardianBinder.bind(gAliveStatus, RecruitStudentFamilySchema.ALIVE_STATUS);
-		guardianBinder.bind(gOccupation, RecruitStudentFamilySchema.OCCUPATION);
-		guardianBinder.bind(gJobAddress, RecruitStudentFamilySchema.JOB_ADDRESS);
-		guardianBinder.bind(gCurrentAddress, RecruitStudentFamilySchema.CURRENT_ADDRESS);
-		guardianBinder.bind(gCurrentProvinceId, RecruitStudentFamilySchema.CURRENT_PROVINCE_ID);
-		guardianBinder.bind(gCurrentDistrict, RecruitStudentFamilySchema.CURRENT_DISTRICT_ID);
-		guardianBinder.bind(gCurrentCity, RecruitStudentFamilySchema.CURRENT_CITY_ID);
-		guardianBinder.bind(gCurrentPostcode, RecruitStudentFamilySchema.CURRENT_POSTCODE_ID);
+		guardianBinder.bind(gPeopleIdType, FamilySchema.PEOPLE_ID_TYPE);
+		guardianBinder.bind(gPeopleid, FamilySchema.PEOPLE_ID);
+		guardianBinder.bind(gPrename, FamilySchema.PRENAME);
+		guardianBinder.bind(gFirstname, FamilySchema.FIRSTNAME);
+		guardianBinder.bind(gLastname, FamilySchema.LASTNAME);
+		guardianBinder.bind(gFirstnameNd, FamilySchema.FIRSTNAME_ND);
+		guardianBinder.bind(gLastnameNd, FamilySchema.LASTNAME_ND);
+		guardianBinder.bind(gGender, FamilySchema.GENDER);
+		guardianBinder.bind(gReligion, FamilySchema.RELIGION);
+		guardianBinder.bind(gRace, FamilySchema.RACE);
+		guardianBinder.bind(gNationality, FamilySchema.NATIONALITY);
+		guardianBinder.bind(gBirthDate, FamilySchema.BIRTH_DATE);
+		guardianBinder.bind(gTel, FamilySchema.TEL);
+		guardianBinder.bind(gMobile, FamilySchema.MOBILE);
+		guardianBinder.bind(gEmail, FamilySchema.EMAIL);
+		guardianBinder.bind(gSalary, FamilySchema.SALARY);
+		guardianBinder.bind(gAliveStatus, FamilySchema.ALIVE_STATUS);
+		guardianBinder.bind(gOccupation, FamilySchema.OCCUPATION);
+		guardianBinder.bind(gJobAddress, FamilySchema.JOB_ADDRESS);
+		guardianBinder.bind(gCurrentAddress, FamilySchema.CURRENT_ADDRESS);
+		guardianBinder.bind(gCurrentProvinceId, FamilySchema.CURRENT_PROVINCE_ID);
+		guardianBinder.bind(gCurrentDistrict, FamilySchema.CURRENT_DISTRICT_ID);
+		guardianBinder.bind(gCurrentCity, FamilySchema.CURRENT_CITY_ID);
+		guardianBinder.bind(gCurrentPostcode, FamilySchema.CURRENT_POSTCODE_ID);
+	}
+			
+	/* ปีดการกรอกข้อมูลหากข้อมูล ประชาชนซ้ำหรือยังไม่ได้ตรวจสอบ */
+	private void disableDuplicatePeopleIdForm(){
+		for(Field<?> field: studentBinder.getFields()){
+			if(!studentBinder.getPropertyId(field).equals(StudentSchema.PEOPLE_ID) &&
+					!studentBinder.getPropertyId(field).equals(StudentSchema.PEOPLE_ID_TYPE))
+				field.setEnabled(false);
+		}
+		for(Field<?> field: fatherBinder.getFields()){
+			field.setEnabled(false);
+		}
+		for(Field<?> field: motherBinder.getFields()){
+			field.setEnabled(false);
+		}
+		for(Field<?> field: guardianBinder.getFields()){
+			field.setEnabled(false);
+		}
+		studyNext.setEnabled(false);
+		generalBack.setEnabled(false);
+		addressNext.setEnabled(false);
+		studyBack.setEnabled(false);
+		fatherNext.setEnabled(false);
+		addressBack.setEnabled(false);
+		motherNext.setEnabled(false);
+		fatherBack.setEnabled(false);
+		guardianNext.setEnabled(false);
+		motherBack.setEnabled(false);
+		finish.setEnabled(false);
 	}
 	
+	/* เปีดการกรอกข้อมูลหากข้อมูล ประชาชนยังไม่ได้ถูกใช้งาน */
+	private void enableDuplicatePeopleIdForm(){
+		for(Field<?> field: studentBinder.getFields()){
+			field.setEnabled(true);
+		}
+		for(Field<?> field: fatherBinder.getFields()){
+			field.setEnabled(true);
+		}
+		for(Field<?> field: motherBinder.getFields()){
+			field.setEnabled(true);
+		}
+		for(Field<?> field: guardianBinder.getFields()){
+			field.setEnabled(true);
+		}
+		studyNext.setEnabled(true);
+		generalBack.setEnabled(true);
+		addressNext.setEnabled(true);
+		studyBack.setEnabled(true);
+		fatherNext.setEnabled(true);
+		addressBack.setEnabled(true);
+		motherNext.setEnabled(true);
+		fatherBack.setEnabled(true);
+		guardianNext.setEnabled(true);
+		motherBack.setEnabled(true);
+		finish.setEnabled(true);
+	}
+
 	/*กรณีทดสอบ ของการเพิ่มข้อมูล*/
 	private void testData(){
 		classRange.setValue(0);
@@ -1684,11 +2259,21 @@ public class RecruitStudentLayout extends TabSheet {
 		mobile.setValue("0897375348");
 		email.setValue("axeusonline@gmail.com");
 		currentAddress.setValue("aasdfadsf");
-		currentProvinceId.setValue(8);
+		currentProvince.setValue(8);
 		currentDistrict.setValue(109);
 		currentCity.setValue(860);
 		currentPostcode.setValue(119);
-
+		
+		classRange.setValue(2);
+		autoGenerate.setValue(1);;
+		studentCode.setValue("123456");;
+		studentStatus.setValue(0);;
+		studentComeWith.setValue(0);;
+		studentComeDescription.setValue("");;
+		studentPayerCourse.setValue(0);;
+		studentStayWith.setValue(0);;
+		graduatedClassRange.setValue(1);
+		
 		fPeopleIdType.setValue(0);
 		fPeopleid.setValue("1959900163320");
 		fPrename.setValue(0);
@@ -1771,6 +2356,9 @@ public class RecruitStudentLayout extends TabSheet {
 
 	/* ==================== PUBLIC ==================== */
 	
+	public void selectGuardianFormTab(){
+		setSelectedTab(guardianForm);
+	}
 	/* ตั้งค่า Mode ว่าต้องการให้กำหนดข้อมูลเริ่มต้นให้เลยไหม*/
 	public void setDebugMode(boolean debugMode){
 		if(debugMode)
@@ -1793,20 +2381,14 @@ public class RecruitStudentLayout extends TabSheet {
 	public void enableGuardianBinder(){
 		guardianBinder.setEnabled(true);
 		guardianBinder.setReadOnly(false);
-		guardianRelation.setEnabled(true);
-		guardianRelation.setReadOnly(false);
-		guardianRelation.setValue(null);
 	}
 	
 	/*ปิดการแก้ไขฟอร์ม ผู้ปกครอง
 	 * กรณี เลือกผู้ปกครองเป็น บิดา มารดา
 	 * */
 	public void disableGuardianBinder(){
-		guardianRelation.setValue(0);
 		guardianBinder.setEnabled(false);
 		guardianBinder.setReadOnly(true);
-		guardianRelation.setEnabled(false);
-		guardianRelation.setReadOnly(true);
 	}
 	
 	/* Reset ค่าภายในฟอร์ม ผู้ปกครอง กรณีเลือก เป็นอื่น ๆ */
@@ -1838,14 +2420,14 @@ public class RecruitStudentLayout extends TabSheet {
 		guardianRelation.setValue(null);
 	}
 
-	/* พิมพ์เอกสารการสมัคร*/
-	public void visiblePrintButton(){
-		print.setVisible(true);
-	}
-	
 	/* ตั้งค่า บุคคลที่เป็นผู้ปกครอง */
 	public void setGParentsValue(int value){
 		gParents.setValue(value);
+	}
+	
+	/* พิมพ์เอกสารการสมัคร*/
+	public void visiblePrintButton(){
+		print.setVisible(true);
 	}
 	
 	/* ความสัมพันธ์ของผู้ปกครอง เช่น พ่อ/แม่ พี่ ป้า น้า อา */
@@ -1855,13 +2437,80 @@ public class RecruitStudentLayout extends TabSheet {
 	
 	/* ตรวจสอบข้อมูลครบถ้วน */
 	public boolean validateForms(){
-		boolean completeStatus = false;
-		if(studentBinder.isValid() &&
-				fatherBinder.isValid() &&
-				motherBinder.isValid() &&
-				guardianBinder.isValid()){
-			completeStatus = true;
+		/* ตรวจสอบว่าต้องการใส่ข้อมูลบิดา มาร หรือไม่*/
+		if(isInsertParents){
+			/* ตรวจสอบว่าข้อมูลบิดา มารดา ผู้ปกครอง ครบถ้วนหรือไม่*/
+			if(fatherBinder.isValid() && motherBinder.isValid() && guardianBinder.isValid())
+				return true;
+		}else{
+			if(studentBinder.isValid())
+				System.err.println("STUDENT");
+			if(studentStudyBinder.isValid())
+				System.err.println("STUDENT STUDY");
+			
+			/* ตรวจสอบว่าข้อมูลนักเรียน ครบถ้วนหรือไม่*/
+			if(studentBinder.isValid() && studentStudyBinder.isValid()){
+				return true;
+			}
 		}
-		return completeStatus;
+
+		return false;
+	}
+	
+	private void generateStudentCode(String classRange, String autoGenerate){
+		studentCode.setEnabled(true);
+		if(autoGenerate.equals("0")){
+			/* รหัสเริ่มต้น 5801*/
+			String studentCodeStr = DateTimeUtil.getBuddishYear().substring(2) + classRange;
+			
+			/* ดึง รหัสที่มาทที่สุด SELECT MAX(student_code) FROM student WHERE student_code LIKE 'ตำแหน่ง%' */
+			StringBuilder sqlBuilder = new StringBuilder();
+			sqlBuilder.append(" SELECT MAX(" + StudentStudySchema.STUDENT_CODE + ") AS " + StudentStudySchema.STUDENT_CODE);
+			sqlBuilder.append(" FROM " + StudentStudySchema.TABLE_NAME);
+			sqlBuilder.append(" WHERE " + StudentStudySchema.STUDENT_CODE + " LIKE '" + studentCodeStr + "%'");
+			sqlBuilder.append(" AND " + StudentStudySchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
+
+			studentCodeStr += "001";
+			
+			SQLContainer freeContainer = Container.getFreeFormContainer(sqlBuilder.toString(), StudentStudySchema.STUDENT_CODE);
+						
+			if(freeContainer.size() > 0){
+				Item item = freeContainer.getItem(freeContainer.getIdByIndex(0));
+				
+				if(item.getItemProperty(StudentStudySchema.STUDENT_CODE).getValue() != null){
+					studentCodeStr = (Integer.parseInt(item.getItemProperty(StudentStudySchema.STUDENT_CODE).getValue().toString()) + 1) + "";
+					
+				}
+			}
+			
+			freeContainer.removeAllContainerFilters();
+			studentCode.setValue(studentCodeStr);
+			studentCode.setEnabled(false);
+		}else{
+			if(studentBinder.getItemDataSource() == null){
+				studentCode.setValue(null);
+				StringBuilder sqlBuilder = new StringBuilder();
+				sqlBuilder.append(" SELECT MAX(" + StudentStudySchema.STUDENT_CODE + ") AS " + StudentStudySchema.STUDENT_CODE);
+				sqlBuilder.append(" FROM " + StudentStudySchema.TABLE_NAME);
+				sqlBuilder.append(" WHERE " + StudentStudySchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
+				SQLContainer freeContainer = Container.getFreeFormContainer(sqlBuilder.toString(), StudentStudySchema.STUDENT_CODE);
+				
+				String studentCodeStr = null;
+				if(freeContainer.size() > 0){
+					Item item = freeContainer.getItem(freeContainer.getIdByIndex(0));
+					
+					if(item.getItemProperty(StudentStudySchema.STUDENT_CODE).getValue() != null){
+						studentCodeStr = (Integer.parseInt(item.getItemProperty(StudentStudySchema.STUDENT_CODE).getValue().toString()) + 1) + "";
+					}
+				}
+				studentCode.setValue(studentCodeStr);
+				
+				freeContainer.removeAllContainerFilters();
+			}
+			else{
+				Item item = studentBinder.getItemDataSource();
+				studentCode.setValue(item.getItemProperty(StudentStudySchema.STUDENT_CODE).getValue().toString());
+			}
+		}
 	}
 }

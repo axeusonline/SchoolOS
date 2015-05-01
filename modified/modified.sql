@@ -1,6 +1,6 @@
 /* 
-   Description:  เพิ่มตารางสำหรับห้องบุคลากร เพื่อให้การีมได้ใช้เป็นข้อมูลพื้นฐาน
-   Date: 04/04/2015
+ *  Description:  เพิ่มตารางสำหรับห้องบุคลากร เพื่อให้การีมได้ใช้เป็นข้อมูลพื้นฐาน
+ *  Date: 04/04/2015
 */
 
 CREATE TABLE IF NOT EXISTS `department` (
@@ -128,8 +128,8 @@ CREATE TABLE IF NOT EXISTS `personnel_graduated_history` (
 ALTER TABLE `recruit_student` CHANGE `father_id` `father_id` INT(11) NULL COMMENT 'FK รหัสบิดา', CHANGE `mother_id` `mother_id` INT(11) NULL COMMENT 'FK รหัสมารดา',CHANGE `guardian_id` `guardian_id` INT(11) NULL COMMENT 'FK ผู้ปกครอง';
 
 /* 
-   Description:  เพิ่มตารางสำหรับงานแผนการเรียน
-   Date: 05/04/2015
+ *  Description:  เพิ่มตารางสำหรับงานแผนการเรียน
+ * Date: 05/04/2015
 */
 CREATE TABLE IF NOT EXISTS `subject_type` (
   `subject_type_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'PK ตารางประเภทวิชา',
@@ -238,8 +238,8 @@ ALTER TABLE `building` ADD `created_by_id` INT NULL AFTER `capacity`, ADD `creat
 ALTER TABLE `class_room` ADD `created_by_id` INT NULL AFTER `capacity`, ADD `created_date` DATETIME NULL AFTER `created_by_id`, ADD `modified_by_id` INT NULL AFTER `created_date`, ADD `modified_date` DATETIME NULL AFTER `modified_by_id`;
 
 /* 
-   Description:  แก้ไขโครงสร้างตาราง และเพิ่มตารางผู้สอน
-   Date: 16/04/2015
+ *  Description:  แก้ไขโครงสร้างตาราง และเพิ่มตารางผู้สอน
+ *  Date: 16/04/2015
 */
 ALTER TABLE `class_room_lesson_plan` CHANGE `academic_year` `academic_year` VARCHAR(4) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'ปีการศึกษา';
 
@@ -264,8 +264,8 @@ CREATE TABLE IF NOT EXISTS `teaching` (
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='อาจารย์ผู้สอน';
   
 /* 
-   Description:  เพิ่มตารางสอน
-   Date: 17/04/2015
+ *  Description:  เพิ่มตารางสอน
+ *  Date: 17/04/2015
 */
  CREATE TABLE IF NOT EXISTS `timetable` (
   `timetable_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'PK ตารางสอน',
@@ -294,8 +294,8 @@ CHANGE  `current_province_id`  `current_province_id` INT( 11 ) NULL COMMENT  '�
 CHANGE  `current_postcode_id`  `current_postcode_id` INT( 11 ) NULL COMMENT  'ไปรษณีย์ สถานที่อยู่ปัจจุบัน';
 
 /*
-  Description: ผู้ใช้งาน
-  Date: 30/04/2015
+ * Description: เพิ่มผู้ใช้งาน
+ * Date: 30/04/2015
 */
 CREATE TABLE IF NOT EXISTS `user` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'PK ตารางผู้ใช้',
@@ -330,4 +330,19 @@ ALTER TABLE `school`
 
 ALTER TABLE `school` ADD `student_signup_pass` VARCHAR(10) NULL COMMENT 'รหัสสมัครสำหรับนักเรียน' AFTER `short_url`, ADD `personnel_signup_pass` VARCHAR(10) NULL COMMENT 'รหัสสมัครสำหรับบุคคลากร' AFTER `student_signup_pass`;
 
+/*
+ * Description: แก้ไขข้อมูลการเรียน
+ * Date: 01/05/2015
+ */ 
+ ALTER TABLE `student_study`
+  DROP `boarding_type`,
+  DROP `recruit_by_id`,
+  DROP `recruit_date`,
+  DROP `recruit_type`,
+  DROP `recruit_class_year`,
+  DROP `recruit_year`,
+  DROP `recruit_semester`,
+  DROP `recruit_description`;
+  
+  ALTER TABLE `student` CHANGE `family_status` `family_status` TINYINT(4) NULL COMMENT '*Fix สถานภา';
   

@@ -1,6 +1,5 @@
 package com.ies.schoolos.component.personnel.layout;
 
-import java.util.ArrayList;
 import java.util.Date;
 
 import org.vaadin.dialogs.ConfirmDialog;
@@ -74,7 +73,7 @@ private static final long serialVersionUID = 1L;
 	 * 2 แทนถึง id คู่สมรส
 	 * 3 แทนถึง id เจ้าหน้าที่
 	 * */
-	public ArrayList<Object> idStore = new ArrayList<Object>();
+	public Object pkStore[] = new Object[4];
 
 	public SQLContainer pSqlContainer = Container.getPersonnelContainer();
 	public SQLContainer fSqlContainer = Container.getFamilyContainer();
@@ -528,7 +527,7 @@ private static final long serialVersionUID = 1L;
 			public void valueChange(ValueChangeEvent event) {
 				if(event.getProperty().getValue() != null){
 					if(jobPosition.getValue() != null){
-						generatePersonnelCode(event.getProperty().getValue().toString(), autoGenerate.getValue().toString());
+						generatePersonnelCode(jobPosition.getValue().toString(), event.getProperty().getValue().toString());
 					}else{
 						if(event.getProperty().getValue().equals("0"))
 							Notification.show("กรุณาระบุุตำแหน่งเพื่อสร้างรหัสประจำตัวอัตโนมัติ", Type.WARNING_MESSAGE);
@@ -1029,7 +1028,7 @@ private static final long serialVersionUID = 1L;
 						if(fSqlContainer.size() > 0){
 							Item item = fSqlContainer.getItem(fSqlContainer.getIdByIndex(0));
 							fatherBinder.setItemDataSource(item);
-							idStore.add(item.getItemProperty(FamilySchema.FAMILY_ID).getValue());
+							pkStore[0] = item.getItemProperty(FamilySchema.FAMILY_ID).getValue();
 							fatherBinder.setEnabled(false);
 							isDuplicateFather = true;
 						}
@@ -1328,7 +1327,7 @@ private static final long serialVersionUID = 1L;
 						if(fSqlContainer.size() > 0){
 							Item item = fSqlContainer.getItem(fSqlContainer.getIdByIndex(0));
 							motherBinder.setItemDataSource(item);
-							idStore.add(item.getItemProperty(FamilySchema.FAMILY_ID).getValue());
+							pkStore[1] = item.getItemProperty(FamilySchema.FAMILY_ID).getValue();
 							motherBinder.setEnabled(false);
 							isDuplicateMother = true;
 						}
@@ -1627,7 +1626,7 @@ private static final long serialVersionUID = 1L;
 						if(fSqlContainer.size() > 0){
 							Item item = fSqlContainer.getItem(fSqlContainer.getIdByIndex(0));
 							spouseBinder.setItemDataSource(item);
-							idStore.add(item.getItemProperty(FamilySchema.FAMILY_ID).getValue());
+							pkStore[2] = item.getItemProperty(FamilySchema.FAMILY_ID).getValue();
 							spouseBinder.setEnabled(false);
 							isDuplicateSpouse = true;
 						}
@@ -2037,13 +2036,15 @@ private static final long serialVersionUID = 1L;
 			personalCode += "01";
 			
 			SQLContainer freeContainer = Container.getFreeFormContainer(sqlBuilder.toString(), PersonnelSchema.PERSONEL_CODE);
-			Item item = freeContainer.getItem(freeContainer.getIdByIndex(0));
-			
-			if(item.getItemProperty(PersonnelSchema.PERSONEL_CODE).getValue() != null){
-				personalCode = (Integer.parseInt(item.getItemProperty(PersonnelSchema.PERSONEL_CODE).getValue().toString()) + 1) + "";
+			if(freeContainer.size() > 0){
+				Item item = freeContainer.getItem(freeContainer.getIdByIndex(0));
 				
+				if(item.getItemProperty(PersonnelSchema.PERSONEL_CODE).getValue() != null){
+					personalCode = (Integer.parseInt(item.getItemProperty(PersonnelSchema.PERSONEL_CODE).getValue().toString()) + 1) + "";
+					
+				}
 			}
-			
+
 			freeContainer.removeAllContainerFilters();
 			personnelCode.setValue(personalCode);
 			personnelCode.setEnabled(false);

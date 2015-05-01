@@ -1,4 +1,4 @@
-package com.ies.schoolos.component.personnel;
+package com.ies.schoolos.component.registration;
 
 import org.tepi.filtertable.FilterTable;
 import org.vaadin.dialogs.ConfirmDialog;
@@ -6,26 +6,19 @@ import org.vaadin.dialogs.ConfirmDialog;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
-import com.ies.schoolos.report.excel.RecruitStudentToExcel;
 import com.ies.schoolos.schema.SessionSchema;
-import com.ies.schoolos.schema.info.PersonnelSchema;
+import com.ies.schoolos.schema.info.StudentSchema;
+import com.ies.schoolos.schema.info.StudentStudySchema;
 import com.ies.schoolos.type.Prename;
-import com.ies.schoolos.type.dynamic.JobPosition;
 import com.ies.schoolos.utility.Notification;
-import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
-import com.vaadin.data.util.filter.And;
-import com.vaadin.data.util.filter.Compare.Equal;
+import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
-import com.vaadin.data.util.sqlcontainer.TemporaryRowId;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.CustomTable;
-import com.vaadin.ui.CustomTable.ColumnGenerator;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.UI;
@@ -34,28 +27,23 @@ import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseListener;
 
-public class PersonnelListView extends VerticalLayout {
+public class StudentListView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 	
-	private SQLContainer pContainer = Container.getPersonnelContainer();
+	private SQLContainer freeContainer;
 	
 	private HorizontalLayout toolbar;
 	private Button add;	
-	private FilterTable  table;
+	private FilterTable table;
 	
-	public PersonnelListView() {	
-		pContainer.refresh();
-		
-		pContainer.removeAllContainerFilters();
-		pContainer.addContainerFilter(new And(
-				new Equal(PersonnelSchema.SCHOOL_ID,SessionSchema.getSchoolID()),
-				new Equal(PersonnelSchema.PERSONEL_STATUS, 0)));
-		
+	public StudentListView() {			
 		setSizeFull();
 		setSpacing(true);
 		setMargin(true);
 		buildMainLayout();
+		fetchData();
+		setFooterData();
 	}	
 	
 	private void buildMainLayout(){
@@ -72,16 +60,14 @@ public class PersonnelListView extends VerticalLayout {
 			public void buttonClick(ClickEvent event) {
 				Window addLayout = new Window();
 				addLayout.setSizeFull();
-				addLayout.setContent(new AddPersonnelView());
+				addLayout.setContent(new AddStudentView());
 				addLayout.addCloseListener(new CloseListener() {
 					private static final long serialVersionUID = 1L;
 
 					@Override
 					public void windowClose(CloseEvent e) {
-						pContainer.addContainerFilter(new And(
-								new Equal(PersonnelSchema.SCHOOL_ID,SessionSchema.getSchoolID()),
-								new Equal(PersonnelSchema.PERSONEL_STATUS, 0)));
-						pContainer.refresh();
+						table.removeAllItems();
+						fetchData();
 						setFooterData();
 					}
 				});
@@ -96,17 +82,17 @@ public class PersonnelListView extends VerticalLayout {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				final Table tableEx = new RecruitStudentToExcel();
+			/*	final Table tableEx = new RecruitStudentToExcel();
 				tableEx.setVisible(false);
 				addComponent(tableEx);
 				
 				ExcelExport excelExport = new ExcelExport(tableEx,"student");
                 excelExport.excludeCollapsedColumns();
-                excelExport.setReportTitle("Personnel");
-				excelExport.setExportFileName("personnel.xls");
+                excelExport.setReportTitle("Student");
+				excelExport.setExportFileName("student.xls");
                 excelExport.export();
                 
-                removeComponent(tableEx);
+                removeComponent(tableEx);*/
 			}
 		});
 		//toolbar.addComponent(excelExport);	
@@ -121,10 +107,8 @@ public class PersonnelListView extends VerticalLayout {
 		table.setFilterGenerator(new TableFilterGenerator());
         table.setFilterBarVisible(true);
 
-		table.setContainerDataSource(pContainer);
-	    setFooterData();
 		initTableStyle();
-		table.sort(new Object[]{PersonnelSchema.PERSONEL_CODE}, new boolean[]{true});
+		table.sort(new Object[]{StudentStudySchema.STUDENT_CODE}, new boolean[]{true});
 
 		table.setColumnReorderingAllowed(true);
 		table.setColumnCollapsingAllowed(true);
@@ -135,43 +119,42 @@ public class PersonnelListView extends VerticalLayout {
 	
 	/* ตั้งค่ารูปแบบแสดงของตาราง */
 	private void initTableStyle(){		
-		table.setColumnHeader(PersonnelSchema.PERSONEL_CODE, "หมายเลขประจำตัว");
-		table.setColumnHeader(PersonnelSchema.PRENAME, "ชื่อต้น");
-		table.setColumnHeader(PersonnelSchema.FIRSTNAME, "ชื่อ");
-		table.setColumnHeader(PersonnelSchema.LASTNAME, "สกุล");
-		table.setColumnHeader(PersonnelSchema.JOB_POSITION, "ตำแหน่ง");
+		table.addContainerProperty(StudentStudySchema.STUDENT_CODE, String.class, null);
+		table.addContainerProperty(StudentSchema.PRENAME, String.class, null);
+		table.addContainerProperty(StudentSchema.FIRSTNAME, String.class, null);
+		table.addContainerProperty(StudentSchema.LASTNAME, String.class, null);
+		table.addContainerProperty("", HorizontalLayout.class, null);
+		
+		table.setColumnHeader(StudentStudySchema.STUDENT_CODE, "หมายเลขประจำตัว");
+		table.setColumnHeader(StudentSchema.PRENAME, "ชื่อต้น");
+		table.setColumnHeader(StudentSchema.FIRSTNAME, "ชื่อ");
+		table.setColumnHeader(StudentSchema.LASTNAME, "สกุล");
+		table.setColumnHeader("", "");
 		
 		table.setVisibleColumns(
-				PersonnelSchema.PERSONEL_CODE, 
-				PersonnelSchema.PRENAME,
-				PersonnelSchema.FIRSTNAME, 
-				PersonnelSchema.LASTNAME,
-				PersonnelSchema.JOB_POSITION);
-		
-		setColumnGenerator(PersonnelSchema.PRENAME, PersonnelSchema.JOB_POSITION, "");
+				StudentStudySchema.STUDENT_CODE, 
+				StudentSchema.PRENAME,
+				StudentSchema.FIRSTNAME, 
+				StudentSchema.LASTNAME,
+				"");
 	}
 	
-	/* ตั้งค่ารูปแบบข้อมูลของค่า Fix */
-	private void setColumnGenerator(Object... propertyIds){
-		for(final Object propertyId:propertyIds){
-			table.addGeneratedColumn(propertyId, new ColumnGenerator() {
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public Object generateCell(CustomTable source, Object itemId, Object columnId) {
-					Object value = null;
-					Item item = source.getItem(itemId);
-					if(item != null && itemId.getClass() != TemporaryRowId.class){
-						if(PersonnelSchema.PRENAME.equals(propertyId))
-							value = Prename.getNameTh(Integer.parseInt(item.getItemProperty(propertyId).getValue().toString()));
-						else if(PersonnelSchema.JOB_POSITION.equals(propertyId))
-							value = JobPosition.getNameTh(Integer.parseInt(item.getItemProperty(propertyId).getValue().toString()));
-						else if("".equals(propertyId))
-							value = initButtonLayout(item, itemId);
-					}
-					return value;
-				}
-			});
+	private void fetchData(){		
+		StringBuilder builder = new StringBuilder();
+		builder.append(" SELECT * FROM " + StudentStudySchema.TABLE_NAME + " ss");
+		builder.append(" INNER JOIN " + StudentSchema.TABLE_NAME + " s ON s." + StudentSchema.STUDENT_ID + "= ss." + StudentStudySchema.STUDENT_ID);
+		builder.append(" WHERE ss." + StudentSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
+		System.err.println(builder.toString());
+		freeContainer = Container.getFreeFormContainer(builder.toString(), StudentStudySchema.STUDENT_STUDY_ID);
+		for(final Object itemId:freeContainer.getItemIds()){
+			Item item = freeContainer.getItem(itemId);
+			table.addItem(new Object[]{
+				item.getItemProperty(StudentStudySchema.STUDENT_CODE).getValue(),
+				Prename.getNameTh((int)item.getItemProperty(StudentSchema.PRENAME).getValue()),
+				item.getItemProperty(StudentSchema.FIRSTNAME).getValue(),
+				item.getItemProperty(StudentSchema.LASTNAME).getValue(),
+				initButtonLayout(item, itemId)
+			}, itemId);
 		}
 	}
 	
@@ -187,7 +170,7 @@ public class PersonnelListView extends VerticalLayout {
 				
 				Window editLayout = new Window();
 				editLayout.setSizeFull();
-				editLayout.setContent(new EditPersonnelView(item.getItemProperty(PersonnelSchema.PERSONNEL_ID).getValue()));
+				editLayout.setContent(new EditStudentView(itemId));
 				UI.getCurrent().addWindow(editLayout);
 			}
 		});
@@ -205,14 +188,28 @@ public class PersonnelListView extends VerticalLayout {
 						private static final long serialVersionUID = 1L;
 						public void onClose(ConfirmDialog dialog) {
 			                if (dialog.isConfirmed()) {
-			                	if(pContainer.removeItem(itemId)){
+			                	SQLContainer studyContainer = Container.getStudentStudyContainer();
+			                	SQLContainer ssontainer = Container.getStudentContainer();
+			                	System.err.println(itemId.toString() + "," + itemId.getClass());
+			                	Object studentId = studyContainer.getItem(itemId).getItemProperty(StudentStudySchema.STUDENT_ID).getValue();
+
+			                	System.err.println(studentId.toString() + "," + studentId.getClass());
+			                	if(studyContainer.removeItem(itemId)){
 			                		try {
-			                			pContainer.commit();
-			                			setFooterData();
+			                			studyContainer.commit();
+			                			if(ssontainer.removeItem(new RowId(studentId))){
+			                				ssontainer.commit();
+			                				table.removeAllItems();
+				                			fetchData();
+				                			setFooterData();
+			                			}
+			                			
 									}catch (Exception e1) {
 										Notification.show("บันทึกไม่สำเร็จ กรุณาลองอีกครั้ง" , Type.WARNING_MESSAGE);
 										e1.printStackTrace();
 									}
+			                	}else{
+			                		System.err.println("ไม่สำเร็จ");
 			                	}
 			                }
 			            }
@@ -226,6 +223,6 @@ public class PersonnelListView extends VerticalLayout {
 	
 	/*นำจำนวนที่นับ มาใส่ค่าในส่วนท้ายตาราง*/
 	private void setFooterData(){
-		table.setColumnFooter(PersonnelSchema.PERSONEL_CODE, "ทั้งหมด: "+ table.size() + " คน");
+		table.setColumnFooter(StudentStudySchema.STUDENT_CODE, "ทั้งหมด: "+ table.size() + " คน");
 	}
 }

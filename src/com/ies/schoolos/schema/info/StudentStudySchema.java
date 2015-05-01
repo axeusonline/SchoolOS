@@ -13,7 +13,6 @@ public class StudentStudySchema {
 	public static final String STUDENT_COME_DESCRIPTION = "student_come_description";
 	public static final String STUDENT_PAYER_COURSE = "student_payer_course";
 	public static final String STUDENT_STAY_WITH = "student_stay_with";
-	public static final String BOARDING_TYPE = "boarding_type";
 	public static final String TEL = "tel";
 	public static final String MOBILE = "mobile";
 	public static final String EMAIL = "email";
