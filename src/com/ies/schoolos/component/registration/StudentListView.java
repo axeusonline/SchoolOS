@@ -103,11 +103,18 @@ public class StudentListView extends VerticalLayout {
 		table.setSelectable(true);
 		table.setFooterVisible(true);        
 		
+        table.addContainerProperty(StudentStudySchema.STUDENT_CODE, String.class, null);
+		table.addContainerProperty(StudentSchema.PRENAME, String.class, null);
+		table.addContainerProperty(StudentSchema.FIRSTNAME, String.class, null);
+		table.addContainerProperty(StudentSchema.LASTNAME, String.class, null);
+		table.addContainerProperty("", HorizontalLayout.class, null);
+		
 		table.setFilterDecorator(new TableFilterDecorator());
 		table.setFilterGenerator(new TableFilterGenerator());
         table.setFilterBarVisible(true);
-
+	
 		initTableStyle();
+		
 		table.sort(new Object[]{StudentStudySchema.STUDENT_CODE}, new boolean[]{true});
 
 		table.setColumnReorderingAllowed(true);
@@ -119,12 +126,6 @@ public class StudentListView extends VerticalLayout {
 	
 	/* ตั้งค่ารูปแบบแสดงของตาราง */
 	private void initTableStyle(){		
-		table.addContainerProperty(StudentStudySchema.STUDENT_CODE, String.class, null);
-		table.addContainerProperty(StudentSchema.PRENAME, String.class, null);
-		table.addContainerProperty(StudentSchema.FIRSTNAME, String.class, null);
-		table.addContainerProperty(StudentSchema.LASTNAME, String.class, null);
-		table.addContainerProperty("", HorizontalLayout.class, null);
-		
 		table.setColumnHeader(StudentStudySchema.STUDENT_CODE, "หมายเลขประจำตัว");
 		table.setColumnHeader(StudentSchema.PRENAME, "ชื่อต้น");
 		table.setColumnHeader(StudentSchema.FIRSTNAME, "ชื่อ");

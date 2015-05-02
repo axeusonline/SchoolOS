@@ -7,6 +7,7 @@ import org.vaadin.dialogs.ConfirmDialog;
 import com.ies.schoolos.component.ui.NumberField;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.SessionSchema;
+import com.ies.schoolos.schema.UserSchema;
 import com.ies.schoolos.schema.info.FamilySchema;
 import com.ies.schoolos.schema.info.StudentSchema;
 import com.ies.schoolos.schema.info.StudentStudySchema;
@@ -83,6 +84,7 @@ private static final long serialVersionUID = 1L;
 	public SQLContainer sSqlContainer = Container.getStudentContainer();
 	public SQLContainer ssSqlContainer = Container.getStudentStudyContainer();
 	public SQLContainer fSqlContainer = Container.getFamilyContainer();
+	public SQLContainer userfSqlContainer = Container.getUserContainer();
 	
 	public FieldGroup studentBinder;
 	public FieldGroup studentStudyBinder;
@@ -781,6 +783,26 @@ private static final long serialVersionUID = 1L;
 		email.setRequired(true);
 		email.addValidator(new EmailValidator("ข้อมูลไม่ถูกต้อง"));
 		email.setNullRepresentation("");
+		email.addTextChangeListener(new TextChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void textChange(TextChangeEvent event) {
+				if(event.getText() != null){
+					if(event.getText().length() >= 13){
+						
+						userfSqlContainer.addContainerFilter(new Equal(UserSchema.EMAIL,event.getText()));
+						if(userfSqlContainer.size() > 0){
+							disableDuplicateEmailForm();
+							Notification.show("อีเมล์ถูกใช้งานแล้ว กรุณาระบุใหม่อีกครั้ง", Type.WARNING_MESSAGE);
+						}else{
+							enableDuplicateEmailForm();
+						}
+						userfSqlContainer.removeAllContainerFilters();
+					}
+				}
+			}
+		});
 		addressForm.addComponent(email);
 		
 		Label currentLabel = new Label("ที่อยู่ปัจจุบัน");
@@ -2178,6 +2200,9 @@ private static final long serialVersionUID = 1L;
 					!studentBinder.getPropertyId(field).equals(StudentSchema.PEOPLE_ID_TYPE))
 				field.setEnabled(false);
 		}
+		for(Field<?> field: studentStudyBinder.getFields()){
+			field.setEnabled(false);
+		}
 		for(Field<?> field: fatherBinder.getFields()){
 			field.setEnabled(false);
 		}
@@ -2189,8 +2214,10 @@ private static final long serialVersionUID = 1L;
 		}
 		studyNext.setEnabled(false);
 		generalBack.setEnabled(false);
-		addressNext.setEnabled(false);
+		graduatedNext.setEnabled(false);
 		studyBack.setEnabled(false);
+		addressNext.setEnabled(false);
+		graduatedBack.setEnabled(false);
 		fatherNext.setEnabled(false);
 		addressBack.setEnabled(false);
 		motherNext.setEnabled(false);
@@ -2198,11 +2225,40 @@ private static final long serialVersionUID = 1L;
 		guardianNext.setEnabled(false);
 		motherBack.setEnabled(false);
 		finish.setEnabled(false);
+		print.setEnabled(false);
+	}
+	
+	/* ปีดการกรอกข้อมูลหากข้อมูล ประชาชนซ้ำหรือยังไม่ได้ตรวจสอบ */
+	private void disableDuplicateEmailForm(){
+		for(Field<?> field: studentStudyBinder.getFields()){
+			if(!studentStudyBinder.getPropertyId(field).equals(StudentStudySchema.EMAIL))
+				field.setEnabled(false);
+		}
+		for(Field<?> field: fatherBinder.getFields()){
+			field.setEnabled(false);
+		}
+		for(Field<?> field: motherBinder.getFields()){
+			field.setEnabled(false);
+		}
+		for(Field<?> field: guardianBinder.getFields()){
+			field.setEnabled(false);
+		}
+		fatherNext.setEnabled(false);
+		addressBack.setEnabled(false);
+		motherNext.setEnabled(false);
+		fatherBack.setEnabled(false);
+		guardianNext.setEnabled(false);
+		motherBack.setEnabled(false);
+		finish.setEnabled(false);
+		print.setEnabled(false);
 	}
 	
 	/* เปีดการกรอกข้อมูลหากข้อมูล ประชาชนยังไม่ได้ถูกใช้งาน */
 	private void enableDuplicatePeopleIdForm(){
 		for(Field<?> field: studentBinder.getFields()){
+			field.setEnabled(true);
+		}
+		for(Field<?> field: studentStudyBinder.getFields()){
 			field.setEnabled(true);
 		}
 		for(Field<?> field: fatherBinder.getFields()){
@@ -2216,8 +2272,10 @@ private static final long serialVersionUID = 1L;
 		}
 		studyNext.setEnabled(true);
 		generalBack.setEnabled(true);
-		addressNext.setEnabled(true);
+		graduatedNext.setEnabled(true);
 		studyBack.setEnabled(true);
+		addressNext.setEnabled(true);
+		graduatedBack.setEnabled(true);
 		fatherNext.setEnabled(true);
 		addressBack.setEnabled(true);
 		motherNext.setEnabled(true);
@@ -2225,6 +2283,31 @@ private static final long serialVersionUID = 1L;
 		guardianNext.setEnabled(true);
 		motherBack.setEnabled(true);
 		finish.setEnabled(true);
+		print.setEnabled(true);
+	}
+	
+	/* ปีดการกรอกข้อมูลหากข้อมูล ประชาชนซ้ำหรือยังไม่ได้ตรวจสอบ */
+	private void enableDuplicateEmailForm(){
+		for(Field<?> field: studentStudyBinder.getFields()){
+			field.setEnabled(true);
+		}
+		for(Field<?> field: fatherBinder.getFields()){
+			field.setEnabled(true);
+		}
+		for(Field<?> field: motherBinder.getFields()){
+			field.setEnabled(true);
+		}
+		for(Field<?> field: guardianBinder.getFields()){
+			field.setEnabled(true);
+		}
+		fatherNext.setEnabled(true);
+		addressBack.setEnabled(true);
+		motherNext.setEnabled(true);
+		fatherBack.setEnabled(true);
+		guardianNext.setEnabled(true);
+		motherBack.setEnabled(true);
+		finish.setEnabled(true);
+		print.setEnabled(true);
 	}
 
 	/*กรณีทดสอบ ของการเพิ่มข้อมูล*/

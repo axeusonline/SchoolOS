@@ -9,6 +9,7 @@ import org.vaadin.dialogs.ConfirmDialog;
 import com.ies.schoolos.component.SchoolOSView;
 import com.ies.schoolos.component.personnel.AddPersonnelView;
 import com.ies.schoolos.component.recruit.AddRecruitStudentView;
+import com.ies.schoolos.component.registration.AddStudentView;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.CookieSchema;
 import com.ies.schoolos.schema.CreateModifiedSchema;
@@ -409,7 +410,7 @@ public class LoginView extends VerticalLayout{
 		studentAndPersonnelLayout.addComponent(signupNotice);
 		studentAndPersonnelLayout.setComponentAlignment(signupNotice, Alignment.MIDDLE_CENTER);
 		
-		/*studentSignup = new Button("สำหรับนักเรียน", FontAwesome.CUBE);
+		studentSignup = new Button("สำหรับนักเรียน", FontAwesome.CUBE);
 		studentSignup.setWidth("300px");
 		studentSignup.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 1L;
@@ -442,10 +443,10 @@ public class LoginView extends VerticalLayout{
 						if(item.getItemProperty(SchoolSchema.STUDENT_SIGNUP_PASS).getValue().equals(passwordStudent.getValue())){
 							window.close();
 							
-							final Window addPersonnelWindow = new Window("กรุณาพิมพ์รหัสผ่าน");
-							addPersonnelWindow.setSizeFull();
-							addPersonnelWindow.setContent(new AddPersonnelView());
-							UI.getCurrent().addWindow(addPersonnelWindow);
+							final Window addStudentWindow = new Window("กรุณาพิมพ์รหัสผ่าน");
+							addStudentWindow.setSizeFull();
+							addStudentWindow.setContent(new AddStudentView());
+							UI.getCurrent().addWindow(addStudentWindow);
 						}else{
 							Notification.show("รหัสไม่ถูกต้อง", Type.WARNING_MESSAGE);
 						}
@@ -456,7 +457,7 @@ public class LoginView extends VerticalLayout{
 			}
 		});
 		studentAndPersonnelLayout.addComponent(studentSignup);
-		studentAndPersonnelLayout.setComponentAlignment(studentSignup, Alignment.MIDDLE_CENTER);*/
+		studentAndPersonnelLayout.setComponentAlignment(studentSignup, Alignment.MIDDLE_CENTER);
 		
 		personnelSignup = new Button("สำหรับเจ้าหน้าที่", FontAwesome.CUBE);
 		personnelSignup.setWidth("300px");

@@ -2,8 +2,6 @@ package com.ies.schoolos.component.registration;
 
 import java.util.Date;
 
-import org.vaadin.dialogs.ConfirmDialog;
-
 import com.ies.schoolos.component.registration.layout.StudentLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.info.StudentSchema;
@@ -23,7 +21,6 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Field;
-import com.vaadin.ui.UI;
 
 public class EditStudentView extends StudentLayout {
 	private static final long serialVersionUID = 1L;
@@ -73,8 +70,7 @@ public class EditStudentView extends StudentLayout {
 	private void initEditData(){
 		studyItem = ssSqlContainer.getItem(studyId);
 		studentItem = sSqlContainer.getItem(new RowId(studyItem.getItemProperty(StudentStudySchema.STUDENT_ID).getValue()));
-		if(studentItem == null)
-			System.err.println("NULL:" + studyItem.getItemProperty(StudentStudySchema.STUDENT_ID).getValue() + "," + studyItem.getItemProperty(StudentStudySchema.STUDENT_ID).getValue().getClass());
+
 		fatherId = studentItem.getItemProperty(StudentSchema.FATHER_ID).getValue();
 		motherId = studentItem.getItemProperty(StudentSchema.MOTHER_ID).getValue();
 		guardianId = studyItem.getItemProperty(StudentStudySchema.GUARDIAN_ID).getValue();
@@ -201,7 +197,7 @@ public class EditStudentView extends StudentLayout {
 					if(studentStudyBinder.getItemDataSource().getItemProperty(StudentStudySchema.GUARDIAN_ID).getValue() == null){
 						pkIndex = 2;
 						/* เพิ่มบิดา โดยตรวจสอบว่ามารดาดังกล่าวไม่ซ้ำ และถูกบันทึกข้อมูลใหม่  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
-						if(!isDuplicateGuardian && !saveFormData(fSqlContainer, guardianBinder))
+						if((!isDuplicateGuardian || isNewGuardian) && !saveFormData(fSqlContainer, guardianBinder))
 								return;
 						setGuardianIdToStudentForm();
 					}else{

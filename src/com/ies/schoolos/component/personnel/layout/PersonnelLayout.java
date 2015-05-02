@@ -6,6 +6,7 @@ import org.vaadin.dialogs.ConfirmDialog;
 
 import com.ies.schoolos.component.ui.NumberField;
 import com.ies.schoolos.container.Container;
+import com.ies.schoolos.schema.UserSchema;
 import com.ies.schoolos.schema.info.FamilySchema;
 import com.ies.schoolos.schema.info.PersonnelSchema;
 import com.ies.schoolos.type.AliveStatus;
@@ -77,6 +78,7 @@ private static final long serialVersionUID = 1L;
 
 	public SQLContainer pSqlContainer = Container.getPersonnelContainer();
 	public SQLContainer fSqlContainer = Container.getFamilyContainer();
+	public SQLContainer userfSqlContainer = Container.getUserContainer();
 	
 	public FieldGroup personnelBinder;
 	public FieldGroup fatherBinder;
@@ -784,6 +786,26 @@ private static final long serialVersionUID = 1L;
 		email.setRequired(true);
 		email.addValidator(new EmailValidator("ข้อมูลไม่ถูกต้อง"));
 		email.setNullRepresentation("");
+		email.addTextChangeListener(new TextChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void textChange(TextChangeEvent event) {
+				if(event.getText() != null){
+					if(event.getText().length() >= 13){
+						
+						userfSqlContainer.addContainerFilter(new Equal(UserSchema.EMAIL,event.getText()));
+						if(userfSqlContainer.size() > 0){
+							disableDuplicateEmailForm();
+							Notification.show("อีเมล์ถูกใช้งานแล้ว กรุณาระบุใหม่อีกครั้ง", Type.WARNING_MESSAGE);
+						}else{
+							enableDuplicateEmailForm();
+						}
+						userfSqlContainer.removeAllContainerFilters();
+					}
+				}
+			}
+		});
 		addressForm.addComponent(email);
 		
 		Label currentLabel = new Label("ที่อยู่ปัจจุบัน");
@@ -2087,6 +2109,30 @@ private static final long serialVersionUID = 1L;
 		finish.setEnabled(false);
 	}
 	
+	/* ปีดการกรอกข้อมูลหากข้อมูล อีเมล์หรือยังไม่ได้ตรวจสอบ */
+	private void disableDuplicateEmailForm(){
+		for(Field<?> field: personnelBinder.getFields()){
+			if(!personnelBinder.getPropertyId(field).equals(PersonnelSchema.EMAIL))
+				field.setEnabled(false);
+		}
+		for(Field<?> field: fatherBinder.getFields()){
+			field.setEnabled(false);
+		}
+		for(Field<?> field: motherBinder.getFields()){
+			field.setEnabled(false);
+		}
+		for(Field<?> field: spouseBinder.getFields()){
+			field.setEnabled(false);
+		}
+		fatherNext.setEnabled(false);
+		addressBack.setEnabled(false);
+		motherNext.setEnabled(false);
+		fatherBack.setEnabled(false);
+		spouseNext.setEnabled(false);
+		motherBack.setEnabled(false);
+		finish.setEnabled(false);
+	}
+	
 	/* เปีดการกรอกข้อมูลหากข้อมูล ประชาชนยังไม่ได้ถูกใช้งาน */
 	private void enableDuplicatePeopleIdForm(){
 		for(Field<?> field: personnelBinder.getFields()){
@@ -2114,6 +2160,29 @@ private static final long serialVersionUID = 1L;
 		finish.setEnabled(true);
 	}
 
+	/* ปีดการกรอกข้อมูลหากข้อมูล อีเมล์หรือยังไม่ได้ตรวจสอบ */
+	private void enableDuplicateEmailForm(){
+		for(Field<?> field: personnelBinder.getFields()){
+			field.setEnabled(true);
+		}
+		for(Field<?> field: fatherBinder.getFields()){
+			field.setEnabled(true);
+		}
+		for(Field<?> field: motherBinder.getFields()){
+			field.setEnabled(true);
+		}
+		for(Field<?> field: spouseBinder.getFields()){
+			field.setEnabled(true);
+		}
+		fatherNext.setEnabled(true);
+		addressBack.setEnabled(true);
+		motherNext.setEnabled(true);
+		fatherBack.setEnabled(true);
+		spouseNext.setEnabled(true);
+		motherBack.setEnabled(true);
+		finish.setEnabled(true);
+	}
+	
 	/*กรณีทดสอบ ของการเพิ่มข้อมูล*/
 	private void testData(){
 		 peopleIdType.setValue(0);
