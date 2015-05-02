@@ -16,6 +16,7 @@ import com.ies.schoolos.schema.academic.TeachingSchema;
 import com.ies.schoolos.schema.academic.TimetableSchema;
 import com.ies.schoolos.schema.fundamental.BuildingSchema;
 import com.ies.schoolos.schema.fundamental.ClassRoomSchema;
+import com.ies.schoolos.schema.fundamental.DepartmentSchema;
 import com.ies.schoolos.schema.fundamental.SubjectSchema;
 import com.ies.schoolos.schema.info.FamilySchema;
 import com.ies.schoolos.schema.info.PersonnelGraduatedHistorySchema;
@@ -310,5 +311,17 @@ public class Container implements Serializable {
 		return timetableContainer;
 	}
 	
+	/* TableQuery และ SQLContainer สำหรับแผนก */
+	public static SQLContainer getDepartmentContainer() {
+    	TableQuery qDepartment;
+    	SQLContainer departmentContainer = null;;
+		try {
+			qDepartment = new TableQuery(DepartmentSchema.TABLE_NAME, DbConnection.getConnection());
+			departmentContainer = new SQLContainer(qDepartment);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return departmentContainer;
+	}
 	
 }

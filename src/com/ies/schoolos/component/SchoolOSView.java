@@ -13,6 +13,7 @@ import com.ies.schoolos.LoginView;
 import com.ies.schoolos.component.fundamental.BuildingView;
 import com.ies.schoolos.component.fundamental.ClassRoomView;
 import com.ies.schoolos.component.fundamental.SubjectView;
+import com.ies.schoolos.component.setting.DepartmentView;
 import com.ies.schoolos.component.setting.SchoolView;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.SessionSchema;
@@ -188,6 +189,12 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		settingBoxContent.addComponent(general);
 		settingBoxContent.setComponentAlignment(general, Alignment.MIDDLE_LEFT);
 		initMenu(general, SchoolView.class);
+		
+		Button department = new Button("จัดการแผนก", FontAwesome.BUILDING_O);
+		department.setWidth(100.0f,Unit.PERCENTAGE);
+		settingBoxContent.addComponent(department);
+		settingBoxContent.setComponentAlignment(department, Alignment.MIDDLE_LEFT);
+		initMenu(department, DepartmentView.class);
 	}
 	
 	/* เนื้อหาทางขวามือ */
