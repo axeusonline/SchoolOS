@@ -39,12 +39,15 @@ public class AddPersonnelView extends PersonnelLayout {
 	private String maritalStr = "";
 	private boolean printMode = false;
 	
+	
 	public AddPersonnelView() {
+		isEdit = false;
 		initAddPersonnel();
 		//setDebugMode(true);
 	}
 	
 	public AddPersonnelView(boolean printMode) {
+		isEdit = false;
 		this.printMode = printMode;
 		initAddPersonnel();
 		//setDebugMode(true);

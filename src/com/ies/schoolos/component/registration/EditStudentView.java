@@ -49,11 +49,13 @@ public class EditStudentView extends StudentLayout {
 	public SQLContainer fSqlContainer = Container.getFamilyContainer();
 	
 	public EditStudentView(Object studyId) {
+		isEdit = true;
 		this.studyId = studyId;
 		initEdtiStudent();
 	}
 	
 	public EditStudentView(Object studyId, boolean printMode) {
+		isEdit = true;
 		this.studyId = studyId;
 		this.printMode = printMode;
 		initEdtiStudent();

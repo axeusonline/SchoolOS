@@ -12,8 +12,8 @@ import org.vaadin.dialogs.ConfirmDialog;
 import com.ies.schoolos.LoginView;
 import com.ies.schoolos.component.fundamental.BuildingView;
 import com.ies.schoolos.component.fundamental.ClassRoomView;
+import com.ies.schoolos.component.fundamental.DepartmentView;
 import com.ies.schoolos.component.fundamental.SubjectView;
-import com.ies.schoolos.component.setting.DepartmentView;
 import com.ies.schoolos.component.setting.SchoolView;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.SessionSchema;
@@ -177,6 +177,12 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		fundamentalBoxContent.setComponentAlignment(subject, Alignment.MIDDLE_LEFT);
 		initMenu(subject, SubjectView.class);
 		
+		/*Button department = new Button("แผนก", FontAwesome.SITEMAP);
+		department.setWidth("100%");
+		fundamentalBoxContent.addComponent(department);
+		fundamentalBoxContent.setComponentAlignment(department, Alignment.MIDDLE_LEFT);
+		initMenu(department, DepartmentView.class);*/
+		
 		/* ตั้งค่า */
 		VerticalLayout settingBoxContent = new VerticalLayout();
 		settingBoxContent.setCaption("ตั้งค่าการใช้งาน");
@@ -189,12 +195,6 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		settingBoxContent.addComponent(general);
 		settingBoxContent.setComponentAlignment(general, Alignment.MIDDLE_LEFT);
 		initMenu(general, SchoolView.class);
-		
-		Button department = new Button("จัดการแผนก", FontAwesome.BUILDING_O);
-		department.setWidth(100.0f,Unit.PERCENTAGE);
-		settingBoxContent.addComponent(department);
-		settingBoxContent.setComponentAlignment(department, Alignment.MIDDLE_LEFT);
-		initMenu(department, DepartmentView.class);
 	}
 	
 	/* เนื้อหาทางขวามือ */
@@ -485,9 +485,8 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		schoolForm.addComponent(userSave);
 	}
 
-	private void initialDataBinding(){	
-		userContainer.getItem(new RowId(SessionSchema.getUserID()));
-		userItem = userContainer.getItem(userContainer.getIdByIndex(0));
+	private void initialDataBinding(){
+		userItem = userContainer.getItem(new RowId(SessionSchema.getUserID()));
 		
 		userBinder = new FieldGroup(userItem);
 		userBinder.setBuffered(true);

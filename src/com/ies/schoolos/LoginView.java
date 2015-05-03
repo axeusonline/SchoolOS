@@ -305,7 +305,7 @@ public class LoginView extends VerticalLayout{
 		
 		passwordSignupAgain = new PasswordField();
 		passwordSignupAgain.setWidth("90%");
-		passwordSignupAgain.setInputPrompt("รหัสผ่าน");
+		passwordSignupAgain.setInputPrompt("รหัสผ่านอีกครั้ง");
 		passwordSignupAgain.setStyleName("input-form");
 		passwordSignupAgain.setNullRepresentation("");
 		schoolRecruit.addComponent(passwordSignupAgain);
@@ -445,6 +445,8 @@ public class LoginView extends VerticalLayout{
 							
 							final Window addStudentWindow = new Window("กรุณาพิมพ์รหัสผ่าน");
 							addStudentWindow.setSizeFull();
+							addStudentWindow.setPositionX(0);
+							addStudentWindow.setPositionY(0);
 							addStudentWindow.setContent(new AddStudentView());
 							UI.getCurrent().addWindow(addStudentWindow);
 						}else{

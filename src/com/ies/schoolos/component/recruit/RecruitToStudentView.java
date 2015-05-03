@@ -516,7 +516,7 @@ public class RecruitToStudentView extends VerticalLayout{
 	}
 	
 	/* บันทึกข้อมูลใหม่ ของข้อมูลห้องเรียนนักเรียน */
-	@SuppressWarnings({ "unchecked", "deprecation" })
+	@SuppressWarnings({ "unchecked" })
 	private void newStudentClassRoom(Item oldItem){
 		try {
     		Object studentStudyIdTemp = studentClassRoomContainer.addItem();
@@ -533,7 +533,7 @@ public class RecruitToStudentView extends VerticalLayout{
 			}
 		    
 		    newItem.getItemProperty(StudentClassRoomSchema.STUDENT_STUDY_ID).setValue(Integer.parseInt(idStore.get(4).toString()));
-		    newItem.getItemProperty(StudentClassRoomSchema.ACADEMIC_YEAR).setValue(Integer.toString(1900 + new Date().getYear()));
+		    newItem.getItemProperty(StudentClassRoomSchema.ACADEMIC_YEAR).setValue(Integer.parseInt(DateTimeUtil.getBuddishYear()));
 		    
 		    /* กำหนด ผู้ใส่ หรือ แก้ไขข้อมูล*/
 		    CreateModifiedSchema.setCreateAndModified(newItem);

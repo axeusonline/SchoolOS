@@ -45,11 +45,13 @@ public class EditPersonnelView extends PersonnelLayout {
 	public SQLContainer fSqlContainer = Container.getFamilyContainer();
 	
 	public EditPersonnelView(Object personnelId) {
+		isEdit = true;
 		this.personnelId = personnelId;
 		initEdtiPersonnel();
 	}
 	
 	public EditPersonnelView(Object personnelId, boolean printMode) {
+		isEdit = true;
 		this.personnelId = personnelId;
 		this.printMode = printMode;
 		initEdtiPersonnel();
@@ -197,10 +199,6 @@ public class EditPersonnelView extends PersonnelLayout {
 							fSqlContainer.commit();
 						}
 					}
-					/* เพิ่มนักเรียน หากบันทึกไม่ผ่านจะหยุดการทำงานทันที*/					
-					personnelBinder.commit();
-					pSqlContainer.commit();
-					Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 				}else{
 					/* กรณีเลือกสถานะเป็นสมรส ต้องตรวจสอบว่าจะเพิ่มข้อมูลหรือไม้่?
 					 *  หากตอบใช่ แปลว่าเข้าช่้อมูลไม่ครบ 
@@ -213,23 +211,17 @@ public class EditPersonnelView extends PersonnelLayout {
 								public void onClose(ConfirmDialog dialog) {
 					                if (dialog.isConfirmed()) {
 					                	selectSpouseFormTab();
-					                }else{
-					                	try{
-					                		/* เพิ่มนักเรียน หากบันทึกไม่ผ่านจะหยุดการทำงานทันที*/					
-						    				personnelBinder.commit();
-						    				pSqlContainer.commit();
-						    				Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
-						    				
-					                	}catch (Exception e) {
-					        				Notification.show("บันทึกไม่สำเร็จ", Type.WARNING_MESSAGE);
-					        				e.printStackTrace();
-					        			}
+					                	return;
 					                }
 					            }
 				        });
 					}
 				}
 				
+				/* เพิ่มนักเรียน หากบันทึกไม่ผ่านจะหยุดการทำงานทันที*/					
+				personnelBinder.commit();
+				pSqlContainer.commit();
+				Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 				/* ตรวจสอบสถานะการพิมพ์*/
 				if(printMode){
 					//visiblePrintButton();

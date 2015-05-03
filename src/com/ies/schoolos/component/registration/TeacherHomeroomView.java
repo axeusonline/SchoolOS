@@ -1,4 +1,4 @@
-package com.ies.schoolos.component.academic;
+package com.ies.schoolos.component.registration;
 
 import java.util.Collection;
 
@@ -12,10 +12,10 @@ import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
 import com.ies.schoolos.schema.CreateModifiedSchema;
 import com.ies.schoolos.schema.SessionSchema;
-import com.ies.schoolos.schema.academic.TeachingSchema;
-import com.ies.schoolos.schema.fundamental.SubjectSchema;
+import com.ies.schoolos.schema.academic.TeacherHomeroomSchema;
+import com.ies.schoolos.schema.fundamental.ClassRoomSchema;
 import com.ies.schoolos.schema.info.PersonnelSchema;
-import com.ies.schoolos.type.dynamic.Subject;
+import com.ies.schoolos.type.dynamic.ClassRoom;
 import com.ies.schoolos.utility.DateTimeUtil;
 import com.ies.schoolos.utility.Notification;
 import com.vaadin.data.Item;
@@ -40,19 +40,19 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
 
-public class TeachingView extends VerticalLayout {
+public class TeacherHomeroomView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 	
 	private SQLContainer tContainer;
-	private SQLContainer teachingContainer = Container.getTeachingContainer();
+	private SQLContainer teacherHomeroomContainer = Container.getTeacherHomeroomContainer();
 
-	private ComboBox subject;
+	private ComboBox classRoom;
 	private Button addition;
 	private TwinSelectTable twinSelect;
 	
-	public TeachingView() {
-		teachingContainer.refresh();
+	public TeacherHomeroomView() {
+		teacherHomeroomContainer.refresh();
 		
 		setSizeFull();
 		setSpacing(true);
@@ -71,18 +71,18 @@ public class TeachingView extends VerticalLayout {
 		toolStrip.setSpacing(true);
 		addComponent(toolStrip);
 		
-		subject = new ComboBox("รายวิชา",new Subject());
-		subject.setInputPrompt("กรุณาเลือก");
-		subject.setItemCaptionPropertyId("name");
-		subject.setImmediate(true);
-        subject.setNullSelectionAllowed(false);
-        subject.setRequired(true);
-		subject.setWidth("-1px");
-		subject.setHeight("-1px");
-		subject.setFilteringMode(FilteringMode.CONTAINS);
-		subject.addValueChangeListener(searchValueChange);
-		toolStrip.addComponent(subject);
-		toolStrip.setComponentAlignment(subject, Alignment.MIDDLE_LEFT);
+		classRoom = new ComboBox("ชั้นเรียน",new ClassRoom());
+		classRoom.setInputPrompt("กรุณาเลือก");
+		classRoom.setItemCaptionPropertyId("name");
+		classRoom.setImmediate(true);
+        classRoom.setNullSelectionAllowed(false);
+        classRoom.setRequired(true);
+		classRoom.setWidth("-1px");
+		classRoom.setHeight("-1px");
+		classRoom.setFilteringMode(FilteringMode.CONTAINS);
+		classRoom.addValueChangeListener(searchValueChange);
+		toolStrip.addComponent(classRoom);
+		toolStrip.setComponentAlignment(classRoom, Alignment.MIDDLE_LEFT);
 		
 		addition = new Button("เพิ่มอาจารย์ชั่วคราว", FontAwesome.USER);
 		addition.addClickListener(new ClickListener() {
@@ -90,7 +90,7 @@ public class TeachingView extends VerticalLayout {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				if(subject.getValue() != null){
+				if(classRoom.getValue() != null){
 					final Window window = new Window();
 					window.setSizeUndefined();
 					window.center();
@@ -120,29 +120,29 @@ public class TeachingView extends VerticalLayout {
 							if(name.isValid()){
 								try {
 									if(name.getValue().split(" ").length > 1){
-										teachingContainer.addContainerFilter(new And(
-											new Equal(TeachingSchema.SCHOOL_ID,SessionSchema.getSchoolID())	,
-											new Equal(TeachingSchema.SUBJECT_ID,Integer.parseInt(subject.getValue().toString())),
-											new Equal(TeachingSchema.PERSONNEL_NAME_TMP,name.getValue())));
+										teacherHomeroomContainer.addContainerFilter(new And(
+											new Equal(TeacherHomeroomSchema.SCHOOL_ID,SessionSchema.getSchoolID())	,
+											new Equal(TeacherHomeroomSchema.CLASS_ROOM_ID,Integer.parseInt(classRoom.getValue().toString())),
+											new Equal(TeacherHomeroomSchema.PERSONNEL_NAME_TMP,name.getValue())));
 										
-										if(teachingContainer.size() > 0){
+										if(teacherHomeroomContainer.size() > 0){
 											Notification.show("อาจารย์ซ้ำ กรุณาตรวจสอบชื่ออีกครั้ง", Type.WARNING_MESSAGE);
 											return;
 										}
 										
 										/* ก่อนแก้ไข เพิ่มต้องลบ Filter ก่อนหน้า */
-										teachingContainer.removeAllContainerFilters();
+										teacherHomeroomContainer.removeAllContainerFilters();
 										
-										Object tempId = teachingContainer.addItem();
+										Object tempId = teacherHomeroomContainer.addItem();
 										
-										Item teachingItem = teachingContainer.getItem(tempId);
-										teachingItem.getItemProperty(TeachingSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
-										teachingItem.getItemProperty(TeachingSchema.SUBJECT_ID).setValue(Integer.parseInt(subject.getValue().toString()));
-										teachingItem.getItemProperty(TeachingSchema.PERSONNEL_NAME_TMP).setValue(name.getValue());
-										teachingItem.getItemProperty(TeachingSchema.ACADEMIC_YEAR).setValue(DateTimeUtil.getBuddishYear());
+										Item teacherHomeroomItem = teacherHomeroomContainer.getItem(tempId);
+										teacherHomeroomItem.getItemProperty(TeacherHomeroomSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
+										teacherHomeroomItem.getItemProperty(TeacherHomeroomSchema.CLASS_ROOM_ID).setValue(Integer.parseInt(classRoom.getValue().toString()));
+										teacherHomeroomItem.getItemProperty(TeacherHomeroomSchema.PERSONNEL_NAME_TMP).setValue(name.getValue());
+										teacherHomeroomItem.getItemProperty(TeacherHomeroomSchema.ACADEMIC_YEAR).setValue(DateTimeUtil.getBuddishYear());
 										
-										CreateModifiedSchema.setCreateAndModified(teachingItem);
-										teachingContainer.commit();
+										CreateModifiedSchema.setCreateAndModified(teacherHomeroomItem);
+										teacherHomeroomContainer.commit();
 										
 										setRightData();
 										sortData();
@@ -165,7 +165,7 @@ public class TeachingView extends VerticalLayout {
 					});
 					form.addComponent(save);
 				}else{
-					Notification.show("กรุณาเลือกรายวิชา", Type.WARNING_MESSAGE);
+					Notification.show("กรุณาเลือกชั้นเรียน", Type.WARNING_MESSAGE);
 				}
 				
 			}
@@ -184,8 +184,8 @@ public class TeachingView extends VerticalLayout {
 		twinSelect.addContainerProperty(PersonnelSchema.PERSONEL_CODE, String.class, null);
 		twinSelect.addContainerProperty(PersonnelSchema.FIRSTNAME, String.class, null);
 		twinSelect.addContainerProperty(PersonnelSchema.LASTNAME, String.class, null);
-		twinSelect.getRightTable().addContainerProperty(TeachingSchema.ACADEMIC_YEAR, String.class, null);
-		twinSelect.getRightTable().addContainerProperty(TeachingSchema.SUBJECT_ID, Integer.class, null);
+		twinSelect.getRightTable().addContainerProperty(TeacherHomeroomSchema.ACADEMIC_YEAR, String.class, null);
+		twinSelect.getRightTable().addContainerProperty(TeacherHomeroomSchema.CLASS_ROOM_ID, Integer.class, null);
 		
 		twinSelect.setFilterDecorator(new TableFilterDecorator());
 		twinSelect.setFilterGenerator(new TableFilterGenerator());
@@ -194,8 +194,8 @@ public class TeachingView extends VerticalLayout {
 		twinSelect.setColumnHeader(PersonnelSchema.PERSONEL_CODE, "รหัสประจำตัว");
 		twinSelect.setColumnHeader(PersonnelSchema.FIRSTNAME,"ชื่อ");
 		twinSelect.setColumnHeader(PersonnelSchema.LASTNAME, "สกุล");
-		twinSelect.getRightTable().setColumnHeader(TeachingSchema.ACADEMIC_YEAR, "ปีการศึกษา");
-		twinSelect.getRightTable().setColumnHeader(TeachingSchema.SUBJECT_ID, "รายวิชา");
+		twinSelect.getRightTable().setColumnHeader(TeacherHomeroomSchema.ACADEMIC_YEAR, "ปีการศึกษา");
+		twinSelect.getRightTable().setColumnHeader(TeacherHomeroomSchema.CLASS_ROOM_ID, "ชั้นเรียน");
 		
 		twinSelect.getLeftTable().setVisibleColumns(
 				PersonnelSchema.PERSONEL_CODE, 
@@ -206,11 +206,11 @@ public class TeachingView extends VerticalLayout {
 				PersonnelSchema.PERSONEL_CODE, 
 				PersonnelSchema.FIRSTNAME,
 				PersonnelSchema.LASTNAME,
-				TeachingSchema.ACADEMIC_YEAR,
-				TeachingSchema.SUBJECT_ID);
+				TeacherHomeroomSchema.ACADEMIC_YEAR,
+				TeacherHomeroomSchema.CLASS_ROOM_ID);
 		
 		twinSelect.getRightTable().setColumnCollapsingAllowed(true);
-		twinSelect.getRightTable().setColumnCollapsed(TeachingSchema.SUBJECT_ID, true);
+		twinSelect.getRightTable().setColumnCollapsed(TeacherHomeroomSchema.CLASS_ROOM_ID, true);
 		
 		twinSelect.setAddClick(addListener);
 		twinSelect.setAddAllClick(addAllListener);
@@ -232,17 +232,16 @@ public class TeachingView extends VerticalLayout {
 	private void setLeftData(){		
 		twinSelect.removeAllLeftItem();
 		
-		StringBuilder subjectBuilder = new StringBuilder();
-		subjectBuilder.append(" SELECT * FROM " + PersonnelSchema.TABLE_NAME);
-		subjectBuilder.append(" WHERE "+ PersonnelSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
-		subjectBuilder.append(" AND "+ PersonnelSchema.PERSONNEL_ID + " NOT IN (");
-		subjectBuilder.append(" SELECT "+ TeachingSchema.PERSONNEL_ID + " FROM " + TeachingSchema.TABLE_NAME);
-		subjectBuilder.append(" WHERE "+ TeachingSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
-		subjectBuilder.append(" AND "+ TeachingSchema.SUBJECT_ID + "=" + subject.getValue());
-		subjectBuilder.append(" AND "+ TeachingSchema.ACADEMIC_YEAR + "='" + DateTimeUtil.getBuddishYear() + "'");
-		subjectBuilder.append(" AND "+ TeachingSchema.PERSONNEL_ID + " IS NOT NULL )");
+		StringBuilder classRoomBuilder = new StringBuilder();
+		classRoomBuilder.append(" SELECT * FROM " + PersonnelSchema.TABLE_NAME);
+		classRoomBuilder.append(" WHERE "+ PersonnelSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
+		classRoomBuilder.append(" AND "+ PersonnelSchema.PERSONNEL_ID + " NOT IN (");
+		classRoomBuilder.append(" SELECT "+ TeacherHomeroomSchema.PERSONNEL_ID + " FROM " + TeacherHomeroomSchema.TABLE_NAME);
+		classRoomBuilder.append(" WHERE "+ TeacherHomeroomSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
+		classRoomBuilder.append(" AND "+ TeacherHomeroomSchema.CLASS_ROOM_ID + "=" + classRoom.getValue());
+		classRoomBuilder.append(" AND "+ TeacherHomeroomSchema.PERSONNEL_ID + " IS NOT NULL )");
 		
-		tContainer = Container.getFreeFormContainer(subjectBuilder.toString(), PersonnelSchema.PERSONNEL_ID);
+		tContainer = Container.getFreeFormContainer(classRoomBuilder.toString(), PersonnelSchema.PERSONNEL_ID);
 		for(final Object itemId:tContainer.getItemIds()){
 			Item item = tContainer.getItem(itemId);
 			addItemData(twinSelect.getLeftTable(), itemId, item);
@@ -254,13 +253,13 @@ public class TeachingView extends VerticalLayout {
 	private void setRightData(){
 		twinSelect.removeAllRightItem();
 		
-		StringBuilder teachingBuilder = new StringBuilder();
-		teachingBuilder.append(" SELECT * FROM "+ TeachingSchema.TABLE_NAME + " tc");
-		teachingBuilder.append(" INNER JOIN "+ SubjectSchema.TABLE_NAME + " s ON s." + SubjectSchema.SUBJECT_ID + " = tc." + TeachingSchema.SUBJECT_ID);
-		teachingBuilder.append(" WHERE tc."+ TeachingSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
-		teachingBuilder.append(" AND tc." + TeachingSchema.ACADEMIC_YEAR + "='" + DateTimeUtil.getBuddishYear()+"'");
+		StringBuilder teacherHomeroomBuilder = new StringBuilder();
+		teacherHomeroomBuilder.append(" SELECT * FROM "+ TeacherHomeroomSchema.TABLE_NAME + " tc");
+		teacherHomeroomBuilder.append(" INNER JOIN "+ ClassRoomSchema.TABLE_NAME + " s ON s." + ClassRoomSchema.CLASS_ROOM_ID + " = tc." + TeacherHomeroomSchema.CLASS_ROOM_ID);
+		teacherHomeroomBuilder.append(" WHERE tc."+ TeacherHomeroomSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
+		teacherHomeroomBuilder.append(" AND tc." + TeacherHomeroomSchema.ACADEMIC_YEAR + "='" + DateTimeUtil.getBuddishYear()+"'");
 
-		tContainer = Container.getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
+		tContainer = Container.getFreeFormContainer(teacherHomeroomBuilder.toString(), TeacherHomeroomSchema.TEACHER_HOMEROOM_ID);
 		for(Object itemId: tContainer.getItemIds()){
 			Item item = tContainer.getItem(itemId);
 			addItemData(twinSelect.getRightTable(), itemId, item);
@@ -268,8 +267,8 @@ public class TeachingView extends VerticalLayout {
 		
 		twinSelect.setRightCountFooter(PersonnelSchema.PERSONEL_CODE);
 		
-		if(subject.getValue() == null){
-			twinSelect.getRightTable().setFilterFieldValue(TeachingSchema.SUBJECT_ID, new NumberInterval(null, null, "0"));
+		if(classRoom.getValue() == null){
+			twinSelect.getRightTable().setFilterFieldValue(TeacherHomeroomSchema.CLASS_ROOM_ID, new NumberInterval(null, null, "0"));
 			
 			twinSelect.setLeftCountFooter(PersonnelSchema.PERSONEL_CODE);
 			twinSelect.setRightCountFooter(PersonnelSchema.PERSONEL_CODE);
@@ -283,18 +282,18 @@ public class TeachingView extends VerticalLayout {
 		try {
 			for(Object itemId: itemIds){
 				/* ก่อนแก้ไข เพิ่มต้องลบ Filter ก่อนหน้า */
-				teachingContainer.removeAllContainerFilters();
+				teacherHomeroomContainer.removeAllContainerFilters();
 				
-				Object tempId = teachingContainer.addItem();
+				Object tempId = teacherHomeroomContainer.addItem();
 				
-				Item teachingItem = teachingContainer.getItem(tempId);
-				teachingItem.getItemProperty(TeachingSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
-				teachingItem.getItemProperty(TeachingSchema.SUBJECT_ID).setValue(Integer.parseInt(subject.getValue().toString()));
-				teachingItem.getItemProperty(TeachingSchema.PERSONNEL_ID).setValue(Integer.parseInt(itemId.toString()));
-				teachingItem.getItemProperty(TeachingSchema.ACADEMIC_YEAR).setValue(DateTimeUtil.getBuddishYear());
+				Item teacherHomeroomItem = teacherHomeroomContainer.getItem(tempId);
+				teacherHomeroomItem.getItemProperty(TeacherHomeroomSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
+				teacherHomeroomItem.getItemProperty(TeacherHomeroomSchema.CLASS_ROOM_ID).setValue(Integer.parseInt(classRoom.getValue().toString()));
+				teacherHomeroomItem.getItemProperty(TeacherHomeroomSchema.PERSONNEL_ID).setValue(Integer.parseInt(itemId.toString()));
+				teacherHomeroomItem.getItemProperty(TeacherHomeroomSchema.ACADEMIC_YEAR).setValue(DateTimeUtil.getBuddishYear());
 				
-				CreateModifiedSchema.setCreateAndModified(teachingItem);
-				teachingContainer.commit();
+				CreateModifiedSchema.setCreateAndModified(teacherHomeroomItem);
+				teacherHomeroomContainer.commit();
 			}
 			setLeftData();
 			setRightData();
@@ -313,18 +312,18 @@ public class TeachingView extends VerticalLayout {
 			Collection<?> itemIds = twinSelect.getLeftTable().getItemIds();
 			for(Object itemId: itemIds){				
 				/* ก่อนแก้ไข เพิ่มต้องลบ Filter ก่อนหน้า */
-				teachingContainer.removeAllContainerFilters();
+				teacherHomeroomContainer.removeAllContainerFilters();
 				
-				Object tempId = teachingContainer.addItem();
+				Object tempId = teacherHomeroomContainer.addItem();
 				
-				Item teachingItem = teachingContainer.getItem(tempId);
-				teachingItem.getItemProperty(TeachingSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
-				teachingItem.getItemProperty(TeachingSchema.SUBJECT_ID).setValue(Integer.parseInt(subject.getValue().toString()));
-				teachingItem.getItemProperty(TeachingSchema.PERSONNEL_ID).setValue(Integer.parseInt(itemId.toString()));
-				teachingItem.getItemProperty(TeachingSchema.ACADEMIC_YEAR).setValue(DateTimeUtil.getBuddishYear());
+				Item teacherHomeroomItem = teacherHomeroomContainer.getItem(tempId);
+				teacherHomeroomItem.getItemProperty(TeacherHomeroomSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
+				teacherHomeroomItem.getItemProperty(TeacherHomeroomSchema.CLASS_ROOM_ID).setValue(Integer.parseInt(classRoom.getValue().toString()));
+				teacherHomeroomItem.getItemProperty(TeacherHomeroomSchema.PERSONNEL_ID).setValue(Integer.parseInt(itemId.toString()));
+				teacherHomeroomItem.getItemProperty(TeacherHomeroomSchema.ACADEMIC_YEAR).setValue(DateTimeUtil.getBuddishYear());
 				
-				CreateModifiedSchema.setCreateAndModified(teachingItem);
-				teachingContainer.commit();
+				CreateModifiedSchema.setCreateAndModified(teacherHomeroomItem);
+				teacherHomeroomContainer.commit();
 			}
 			setLeftData();
 			setRightData();
@@ -340,8 +339,8 @@ public class TeachingView extends VerticalLayout {
 	private void removeData(Object... itemIds){
 		try {
 			for(Object itemId: itemIds){
-				teachingContainer.removeItem(itemId);
-				teachingContainer.commit();
+				teacherHomeroomContainer.removeItem(itemId);
+				teacherHomeroomContainer.commit();
 			}
 			setLeftData();
 			setRightData();
@@ -357,8 +356,8 @@ public class TeachingView extends VerticalLayout {
 	private void removeAllData(){
 		try {
 			for(Object itemId: twinSelect.getRightTable().getItemIds()){
-				teachingContainer.removeItem(itemId);
-				teachingContainer.commit();
+				teacherHomeroomContainer.removeItem(itemId);
+				teacherHomeroomContainer.commit();
 			}
 			setLeftData();
 			setRightData();
@@ -385,8 +384,8 @@ public class TeachingView extends VerticalLayout {
 			Object lastname = null;
 			
 			/* ตรวจสอบว่า เป็นอาจารย์ชั่วคราวไหม ถ้าใช่ แสดงว่า personnel_id = null จึงต้องดึงจากชื่อ Tmp มาแสดงแทน */
-			if(item.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue() == null){
-				String[] nameTmp = item.getItemProperty(TeachingSchema.PERSONNEL_NAME_TMP).getValue().toString().split(" ");
+			if(item.getItemProperty(TeacherHomeroomSchema.PERSONNEL_ID).getValue() == null){
+				String[] nameTmp = item.getItemProperty(TeacherHomeroomSchema.PERSONNEL_NAME_TMP).getValue().toString().split(" ");
 				firstname = nameTmp[0];
 				lastname = nameTmp[1];
 			}else{
@@ -394,7 +393,7 @@ public class TeachingView extends VerticalLayout {
 					StringBuilder builder = new StringBuilder();
 					builder.append(" SELECT " + PersonnelSchema.PERSONNEL_ID + "," + PersonnelSchema.PERSONEL_CODE + "," + PersonnelSchema.FIRSTNAME + "," + PersonnelSchema.LASTNAME);
 					builder.append(" FROM " + PersonnelSchema.TABLE_NAME);
-					builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + item.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue());
+					builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + item.getItemProperty(TeacherHomeroomSchema.PERSONNEL_ID).getValue());
 
 					FreeformQuery tq = new FreeformQuery(builder.toString(), DbConnection.getConnection(),PersonnelSchema.PERSONNEL_ID);
 					SQLContainer personnelContainer = new SQLContainer(tq);
@@ -411,8 +410,8 @@ public class TeachingView extends VerticalLayout {
 					personalCode, 
 					firstname, 
 					lastname,
-					item.getItemProperty(TeachingSchema.ACADEMIC_YEAR).getValue(),
-					item.getItemProperty(TeachingSchema.SUBJECT_ID).getValue()
+					item.getItemProperty(TeacherHomeroomSchema.ACADEMIC_YEAR).getValue(),
+					item.getItemProperty(TeacherHomeroomSchema.CLASS_ROOM_ID).getValue()
 			},itemId);
 		}
 	}
@@ -423,8 +422,8 @@ public class TeachingView extends VerticalLayout {
 
 		@Override
 		public void valueChange(ValueChangeEvent event) {
-			if(subject.getValue() != null){
-				twinSelect.getRightTable().setFilterFieldValue(TeachingSchema.SUBJECT_ID, new NumberInterval(null, null, subject.getValue().toString()));
+			if(classRoom.getValue() != null){
+				twinSelect.getRightTable().setFilterFieldValue(TeacherHomeroomSchema.CLASS_ROOM_ID, new NumberInterval(null, null, classRoom.getValue().toString()));
 				setLeftData();
 				
 				twinSelect.setLeftCountFooter(PersonnelSchema.PERSONEL_CODE);
@@ -438,8 +437,8 @@ public class TeachingView extends VerticalLayout {
 		private static final long serialVersionUID = 1L;
 		@Override
 		public void buttonClick(ClickEvent event) {
-			if(subject.getValue() == null){
-				Notification.show("กรุณาเลือกรายวิชา", Type.WARNING_MESSAGE);
+			if(classRoom.getValue() == null){
+				Notification.show("กรุณาเลือกชั้นเรียน", Type.WARNING_MESSAGE);
 				return;
 			}
 			
@@ -455,8 +454,8 @@ public class TeachingView extends VerticalLayout {
 		private static final long serialVersionUID = 1L;
 		@Override
 		public void buttonClick(ClickEvent event) {
-			if(subject.getValue() == null){
-				Notification.show("กรุณาเลือกรายวิชา", Type.WARNING_MESSAGE);
+			if(classRoom.getValue() == null){
+				Notification.show("กรุณาเลือกชั้นเรียน", Type.WARNING_MESSAGE);
 				return;
 			}
 		

@@ -8,6 +8,7 @@ import com.ies.schoolos.component.academic.TeachingView;
 import com.ies.schoolos.component.academic.TeachingtableExportView;
 import com.ies.schoolos.component.academic.TimetableExportView;
 import com.ies.schoolos.component.academic.TimetableView;
+import com.ies.schoolos.component.registration.TeacherHomeroomView;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -56,15 +57,20 @@ public class AcademicMainView extends VerticalLayout {
 		dashboar.addComponent(timetable);
 		addClickListener(timetable, TimetableView.class);
 		
-		Button timetableExcel = new Button("4.Excel ตารางเรียน", FontAwesome.FILE_EXCEL_O);
+		Button timetableExcel = new Button("3.1 Excel ตารางเรียน", FontAwesome.FILE_EXCEL_O);
 		timetableExcel.setSizeFull();
 		dashboar.addComponent(timetableExcel);
 		addClickListener(timetableExcel, TimetableExportView.class);
 		
-		Button studytableExcel = new Button("5.Excel ตารางสอน", FontAwesome.FILE_EXCEL_O);
+		Button studytableExcel = new Button("3.2 Excel ตารางสอน", FontAwesome.FILE_EXCEL_O);
 		studytableExcel.setSizeFull();
 		dashboar.addComponent(studytableExcel);
 		addClickListener(studytableExcel, TeachingtableExportView.class);
+		
+		Button teacherHomeroomExcel = new Button("4 อาจารย์ประจำชั้น", FontAwesome.CUBE);
+		teacherHomeroomExcel.setSizeFull();
+		dashboar.addComponent(teacherHomeroomExcel);
+		addClickListener(teacherHomeroomExcel, TeacherHomeroomView.class);
 		
 		tabSheet = new TabSheet();
 		tabSheet.setWidth("95%");

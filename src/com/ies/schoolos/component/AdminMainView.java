@@ -3,7 +3,7 @@ package com.ies.schoolos.component;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
-import com.ies.schoolos.component.academic.LessonPlanView;
+import com.ies.schoolos.component.admin.UserManagerView;
 import com.ies.schoolos.component.admin.SignupPasswordView;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
@@ -46,7 +46,12 @@ public class AdminMainView extends VerticalLayout {
 		Button permission = new Button("2.สิทธิ์การใช้งาน", FontAwesome.CUBE);
 		permission.setSizeFull();
 		dashboar.addComponent(permission);
-		addClickListener(permission, LessonPlanView.class);
+		//addClickListener(permission, LessonPlanView.class);
+		
+		Button users = new Button("3.ผู้ใช้งาน", FontAwesome.CUBE);
+		users.setSizeFull();
+		dashboar.addComponent(users);
+		addClickListener(users, UserManagerView.class);
 		
 		tabSheet = new TabSheet();
 		tabSheet.setWidth("95%");

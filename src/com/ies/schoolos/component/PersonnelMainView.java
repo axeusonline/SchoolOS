@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
 import com.ies.schoolos.component.personnel.PersonnelListView;
+import com.ies.schoolos.component.personnel.ResignPersonnelView;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -28,7 +29,6 @@ public class PersonnelMainView extends VerticalLayout {
 		setSpacing(true);
 		
 		buildMainLayout();
-		
 	}
 	
 	private void buildMainLayout(){
@@ -41,6 +41,11 @@ public class PersonnelMainView extends VerticalLayout {
 		personnelList.setSizeFull();
 		dashboar.addComponent(personnelList);
 		addClickListener(personnelList, PersonnelListView.class);
+		
+		Button resign = new Button("2. ลาออก-ไล่ออก", FontAwesome.CUBE);
+		resign.setSizeFull();
+		dashboar.addComponent(resign);
+		addClickListener(resign, ResignPersonnelView.class);
 		
 		tabSheet = new TabSheet();
 		tabSheet.setWidth("95%");

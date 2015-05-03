@@ -63,6 +63,7 @@ import com.vaadin.ui.Button.ClickListener;
 public class PersonnelLayout extends TabSheet {
 private static final long serialVersionUID = 1L;
 	
+	public boolean isEdit = false;
 	public boolean isInsertParents = true;
 	public boolean isDuplicateFather = false;
 	public boolean isDuplicateMother = false;
@@ -78,7 +79,7 @@ private static final long serialVersionUID = 1L;
 
 	public SQLContainer pSqlContainer = Container.getPersonnelContainer();
 	public SQLContainer fSqlContainer = Container.getFamilyContainer();
-	public SQLContainer userfSqlContainer = Container.getUserContainer();
+	public SQLContainer userSqlContainer = Container.getUserContainer();
 	
 	public FieldGroup personnelBinder;
 	public FieldGroup fatherBinder;
@@ -791,17 +792,19 @@ private static final long serialVersionUID = 1L;
 
 			@Override
 			public void textChange(TextChangeEvent event) {
-				if(event.getText() != null){
-					if(event.getText().length() >= 13){
-						
-						userfSqlContainer.addContainerFilter(new Equal(UserSchema.EMAIL,event.getText()));
-						if(userfSqlContainer.size() > 0){
-							disableDuplicateEmailForm();
-							Notification.show("อีเมล์ถูกใช้งานแล้ว กรุณาระบุใหม่อีกครั้ง", Type.WARNING_MESSAGE);
-						}else{
-							enableDuplicateEmailForm();
+				if(!isEdit){
+					if(event.getText() != null){
+						if(event.getText().length() >= 13){
+							
+							userSqlContainer.addContainerFilter(new Equal(UserSchema.EMAIL,event.getText()));
+							if(userSqlContainer.size() > 0){
+								disableDuplicateEmailForm();
+								Notification.show("อีเมล์ถูกใช้งานแล้ว กรุณาระบุใหม่อีกครั้ง", Type.WARNING_MESSAGE);
+							}else{
+								enableDuplicateEmailForm();
+							}
+							userSqlContainer.removeAllContainerFilters();
 						}
-						userfSqlContainer.removeAllContainerFilters();
 					}
 				}
 			}

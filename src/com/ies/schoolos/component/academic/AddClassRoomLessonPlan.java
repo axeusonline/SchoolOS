@@ -154,7 +154,7 @@ public class AddClassRoomLessonPlan extends VerticalLayout {
 		subject.append(" FROM "+ ClassRoomLessonPlanSchema.TABLE_NAME);
 		subject.append(" WHERE "+ ClassRoomLessonPlanSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		subject.append(" AND " + ClassRoomLessonPlanSchema.LESSON_PLAN_ID + "=" + lessonPlanId);
-		subject.append(" AND " + ClassRoomLessonPlanSchema.ACADEMIC_YEAR + "=" + DateTimeUtil.getBuddishYear() + ")");
+		subject.append(" AND " + ClassRoomLessonPlanSchema.ACADEMIC_YEAR + "='" + DateTimeUtil.getBuddishYear() + "')");
 
 		crlContainer = Container.getFreeFormContainer(subject.toString(), ClassRoomSchema.CLASS_ROOM_ID);
 		for(final Object itemId:crlContainer.getItemIds()){
@@ -173,7 +173,7 @@ public class AddClassRoomLessonPlan extends VerticalLayout {
 		subject.append(" INNER JOIN "+ ClassRoomSchema.TABLE_NAME + " cr ON cr." + ClassRoomSchema.CLASS_ROOM_ID + " = crl." + ClassRoomLessonPlanSchema.CLASS_ROOM_ID);
 		subject.append(" WHERE crl."+ ClassRoomLessonPlanSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		subject.append(" AND crl." + ClassRoomLessonPlanSchema.LESSON_PLAN_ID + "=" + lessonPlanId);
-		subject.append(" AND crl." + ClassRoomLessonPlanSchema.ACADEMIC_YEAR + "=" + DateTimeUtil.getBuddishYear());
+		subject.append(" AND crl." + ClassRoomLessonPlanSchema.ACADEMIC_YEAR + "='" + DateTimeUtil.getBuddishYear()+"'");
 		
 		crlContainer = Container.getFreeFormContainer(subject.toString(), ClassRoomLessonPlanSchema.CLASS_ROOM_LESSON_PLAN_ID);
 		for(Object itemId: crlContainer.getItemIds()){

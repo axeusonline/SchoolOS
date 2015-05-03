@@ -96,8 +96,7 @@ public class SignupPasswordView extends VerticalLayout {
 	}
 	
 	private void initFieldGroup(){
-		schoolContainer.getItem(new RowId(SessionSchema.getSchoolID()));
-		Item schoolItem = schoolContainer.getItem(schoolContainer.getIdByIndex(0));
+		Item schoolItem = schoolContainer.getItem(new RowId(SessionSchema.getSchoolID())); 
 		
 		schoolBinder = new FieldGroup(schoolItem);
 		schoolBinder.setBuffered(true);

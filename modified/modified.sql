@@ -344,5 +344,37 @@ ALTER TABLE `school` ADD `student_signup_pass` VARCHAR(10) NULL COMMENT 'รห�
   DROP `recruit_semester`,
   DROP `recruit_description`;
   
-  ALTER TABLE `student` CHANGE `family_status` `family_status` TINYINT(4) NULL COMMENT '*Fix สถานภา';
+  ALTER TABLE `student` CHANGE `family_status` `family_status` TINYINT(4) NULL COMMENT '*Fix สถานภาพ';
+ 
+  /*
+ * Description: อาจารย์ประจำชั้น
+ * Date: 03/05/2015
+ */ 
+  ALTER TABLE `personnel` ADD `resign_description` TEXT NULL COMMENT 'รายละเอียดการจำหน่ายออก' AFTER `resign_date`;
+  
+  CREATE TABLE IF NOT EXISTS `teacher_homeroom` (
+  `teacher_homeroom_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'PK อาจารย์ประจำชั้น',
+  `school_id` int(11) NOT NULL COMMENT 'FK โรงเรียน',
+  `personnel_id` int(11) DEFAULT NULL COMMENT 'FK บุคลากร',
+  `personnel_name_tmp` varchar(150) DEFAULT NULL COMMENT 'ชื่อชั่วคราวบุคลากร',
+  `class_room_id` int(11) NOT NULL COMMENT 'FK ชั้นเรียน',
+  `academic_year` varchar(4) NOT NULL COMMENT 'ปีการศึกษา',
+  `created_by_id` int(11) DEFAULT NULL COMMENT 'FK ผู้เพิ่มข้อมูล',
+  `created_date` datetime DEFAULT NULL COMMENT 'วันเวลาที่เพิ่ม',
+  `modified_by_id` int(11) DEFAULT NULL COMMENT 'FK ผู้แก้ไขข้อมูล',
+  `modified_date` datetime DEFAULT NULL COMMENT 'วันเวลาที่แก้ไข',
+  PRIMARY KEY (`teacher_homeroom_id`),
+  KEY `fk_teacher_homeroom_has_school_idx` (`school_id`),
+  KEY `fk_teacher_homeroom_has_personnel_idx` (`personnel_id`),
+  KEY `fk_teacher_homeroom_has_class_room_idx` (`class_room_id`),
+  CONSTRAINT `fk_teacher_homeroom_has_personnel` FOREIGN KEY (`personnel_id`) REFERENCES `personnel` (`personnel_id`),
+  CONSTRAINT `fk_teacher_homeroom_has_school` FOREIGN KEY (`school_id`) REFERENCES `school` (`school_id`),
+  CONSTRAINT `fk_teacher_homeroom_has_class_room` FOREIGN KEY (`class_room_id`) REFERENCES `class_room` (`class_room_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='อาจารย์ประจำชั้น';
+
+ALTER TABLE `student_study`
+  DROP `resign_class_year`,
+  DROP `resign_year`,
+  DROP `resign_semester`;
+
   

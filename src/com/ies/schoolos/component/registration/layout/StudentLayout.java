@@ -67,6 +67,7 @@ import com.vaadin.ui.Button.ClickListener;
 public class StudentLayout extends TabSheet {
 private static final long serialVersionUID = 1L;
 	
+	public boolean isEdit = false;
 	public boolean isInsertParents = true;
 	public boolean isDuplicateFather = false;
 	public boolean isDuplicateMother = false;
@@ -788,17 +789,19 @@ private static final long serialVersionUID = 1L;
 
 			@Override
 			public void textChange(TextChangeEvent event) {
-				if(event.getText() != null){
-					if(event.getText().length() >= 13){
-						
-						userfSqlContainer.addContainerFilter(new Equal(UserSchema.EMAIL,event.getText()));
-						if(userfSqlContainer.size() > 0){
-							disableDuplicateEmailForm();
-							Notification.show("อีเมล์ถูกใช้งานแล้ว กรุณาระบุใหม่อีกครั้ง", Type.WARNING_MESSAGE);
-						}else{
-							enableDuplicateEmailForm();
+				if(!isEdit){
+					if(event.getText() != null){
+						if(event.getText().length() >= 13){
+							
+							userfSqlContainer.addContainerFilter(new Equal(UserSchema.EMAIL,event.getText()));
+							if(userfSqlContainer.size() > 0){
+								disableDuplicateEmailForm();
+								Notification.show("อีเมล์ถูกใช้งานแล้ว กรุณาระบุใหม่อีกครั้ง", Type.WARNING_MESSAGE);
+							}else{
+								enableDuplicateEmailForm();
+							}
+							userfSqlContainer.removeAllContainerFilters();
 						}
-						userfSqlContainer.removeAllContainerFilters();
 					}
 				}
 			}

@@ -3,6 +3,9 @@ package com.ies.schoolos.component;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
+import com.ies.schoolos.component.personnel.StudentClassRoomForward;
+import com.ies.schoolos.component.registration.ResignStudentView;
+import com.ies.schoolos.component.registration.StudentClassRoomView;
 import com.ies.schoolos.component.registration.StudentListView;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
@@ -41,6 +44,21 @@ public class RegistrationMainView extends VerticalLayout {
 		student.setSizeFull();
 		dashboar.addComponent(student);
 		addClickListener(student, StudentListView.class);
+		
+		Button studentClassRoom = new Button("2.จัดชั้นเรียน", FontAwesome.CUBE);
+		studentClassRoom.setSizeFull();
+		dashboar.addComponent(studentClassRoom);
+		addClickListener(studentClassRoom, StudentClassRoomView.class);
+		
+		Button resignRoom = new Button("3.ลาออก-ไล่ออก", FontAwesome.CUBE);
+		resignRoom.setSizeFull();
+		dashboar.addComponent(resignRoom);
+		addClickListener(resignRoom, ResignStudentView.class);
+		
+		Button studentClassRoomForward = new Button("4.เลื่อนชั้นเรียน", FontAwesome.CUBE);
+		studentClassRoomForward.setSizeFull();
+		dashboar.addComponent(studentClassRoomForward);
+		addClickListener(studentClassRoomForward, StudentClassRoomForward.class);
 		
 		tabSheet = new TabSheet();
 		tabSheet.setWidth("95%");
