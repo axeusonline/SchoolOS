@@ -199,7 +199,6 @@ public class StudentClassRoomView extends VerticalLayout{
 		builder.append(" AND scr." + StudentClassRoomSchema.CLASS_ROOM_ID + "=" + classRoom.getValue());
 		builder.append(" AND scr." + StudentClassRoomSchema.ACADEMIC_YEAR + "='" + academicYear.getValue() + "'");
 
-		System.err.println(builder.toString());
 		freeContainer = Container.getFreeFormContainer(builder.toString(), StudentClassRoomSchema.STUDENT_CLASS_ROOM_ID);
 		for(final Object itemId:freeContainer.getItemIds()){
 			Item item = freeContainer.getItem(itemId);

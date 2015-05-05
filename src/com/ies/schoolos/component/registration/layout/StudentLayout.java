@@ -2529,10 +2529,6 @@ private static final long serialVersionUID = 1L;
 			if(fatherBinder.isValid() && motherBinder.isValid() && guardianBinder.isValid())
 				return true;
 		}else{
-			if(studentBinder.isValid())
-				System.err.println("STUDENT");
-			if(studentStudyBinder.isValid())
-				System.err.println("STUDENT STUDY");
 			
 			/* ตรวจสอบว่าข้อมูลนักเรียน ครบถ้วนหรือไม่*/
 			if(studentBinder.isValid() && studentStudyBinder.isValid()){

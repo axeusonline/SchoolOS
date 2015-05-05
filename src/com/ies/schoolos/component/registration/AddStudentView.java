@@ -9,10 +9,10 @@ import com.ies.schoolos.schema.SchoolSchema;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.UserSchema;
 import com.ies.schoolos.schema.info.FamilySchema;
-import com.ies.schoolos.schema.info.PersonnelSchema;
 import com.ies.schoolos.schema.info.StudentSchema;
 import com.ies.schoolos.schema.info.StudentStudySchema;
 import com.ies.schoolos.utility.BCrypt;
+import com.ies.schoolos.utility.EmailSender;
 import com.ies.schoolos.utility.Notification;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -259,9 +259,6 @@ public class AddStudentView extends StudentLayout {
 			Item item = sqlContainer.getItem(tmpItem);
 			for(Field<?> field: fieldGroup.getFields()){
 				/* หาชนิดตัวแปร ของข้อมูลภายใน Database ของแต่ละ Field */
-				System.err.println(fieldGroup.getPropertyId(field));
-				if(item == null)
-					System.err.println("NULL");
 				Class<?> clazz = item.getItemProperty(fieldGroup.getPropertyId(field)).getType();			
 
 				String className = clazz.getName();;
@@ -290,7 +287,7 @@ public class AddStudentView extends StudentLayout {
 							value = value.toString().replace("-", "");
 						}
 					}else if(sqlContainer == sSqlContainer){
-						if(fieldGroup.getPropertyId(field).equals(PersonnelSchema.PEOPLE_ID)){
+						if(fieldGroup.getPropertyId(field).equals(StudentSchema.PEOPLE_ID)){
 							value = value.toString().replace(" ", "");
 							value = value.toString().replace("-", "");
 						}
@@ -381,11 +378,31 @@ public class AddStudentView extends StudentLayout {
 			username.setContentMode(ContentMode.HTML);
 			labelLayout.addComponent(username);
 
-			//new EmailSender(studentBinder.getField(StudentStudySchema.EMAIL).getValue().toString(), "บัญชีผู้ใช้งาน", builder.toString(), null, null);
+			StringBuilder description = new StringBuilder();
+			description.append("เรียนคุณ " + studentBinder.getField(StudentSchema.FIRSTNAME).getValue());
+			description.append(System.getProperty("line.separator"));
+			description.append("ทางครอบครัว SchoolOS ได้ทำการจัดส่งบัญชีผู้ใช้จากการตั้งค่าของ เจ้าหน้าที่ IT โรงเรียน โดยรายละเอียดการเข้าใช้อธิบายดังข้างล่างนี้");
+			description.append(System.getProperty("line.separator"));
+			description.append("บัญชี:" + studentBinder.getField(StudentStudySchema.EMAIL).getValue());
+			description.append(System.getProperty("line.separator"));
+			description.append("รหัสผ่าน:" + studentBinder.getField(StudentSchema.PEOPLE_ID).getValue());
+			description.append(System.getProperty("line.separator"));
+			description.append("ทั้งนี้หากมีข้อสงสัยกรุณาส่งกลับที่ "+ SessionSchema.getEmail());
+			description.append(System.getProperty("line.separator"));
+			description.append("ด้วยความเคารพ");
+			description.append(System.getProperty("line.separator"));
+			description.append("ครอบครัว SchoolOS");
 			
+			sendEmail(studentBinder.getField(StudentStudySchema.EMAIL).getValue().toString(), description.toString());
 		}catch(Exception e){
 			Notification.show("บันทึกไม่สำเร็จ", Type.WARNING_MESSAGE);
 			e.printStackTrace();
 		}
+	}
+
+	/* ส่งอีเมล์ใบสมัคร */
+	private void sendEmail(String to, String description){
+		String subject = "บัญชีผู้ใช้งาน SchoolOS";		
+		new EmailSender(to,subject,description,null, null);	   
 	}
 }

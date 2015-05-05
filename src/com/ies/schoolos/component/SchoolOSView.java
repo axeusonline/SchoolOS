@@ -10,6 +10,7 @@ import org.vaadin.activelink.ActiveLink.LinkActivatedListener;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.ies.schoolos.LoginView;
+import com.ies.schoolos.component.fundamental.BehaviorView;
 import com.ies.schoolos.component.fundamental.BuildingView;
 import com.ies.schoolos.component.fundamental.ClassRoomView;
 import com.ies.schoolos.component.fundamental.DepartmentView;
@@ -146,6 +147,12 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		menuBoxContent.setComponentAlignment(registration, Alignment.MIDDLE_LEFT);
 		initMenu(registration, RegistrationMainView.class);
 		
+		Button studentAffairs = new Button("กิจการนักเรียน", FontAwesome.LEGAL);
+		studentAffairs.setWidth("100%");
+		menuBoxContent.addComponent(studentAffairs);
+		menuBoxContent.setComponentAlignment(studentAffairs, Alignment.MIDDLE_LEFT);
+		initMenu(studentAffairs, StudentAffairsMainView.class);
+		
 		Button admin = new Button("ผู้ดูแลระบบ", FontAwesome.DESKTOP);
 		admin.setWidth("100%");
 		menuBoxContent.addComponent(admin);
@@ -176,6 +183,12 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		fundamentalBoxContent.addComponent(subject);
 		fundamentalBoxContent.setComponentAlignment(subject, Alignment.MIDDLE_LEFT);
 		initMenu(subject, SubjectView.class);
+		
+		Button behavior = new Button("พฤติกรรม", FontAwesome.SHIELD);
+		behavior.setWidth("100%");
+		fundamentalBoxContent.addComponent(behavior);
+		fundamentalBoxContent.setComponentAlignment(behavior, Alignment.MIDDLE_LEFT);
+		initMenu(behavior, BehaviorView.class);
 		
 		/*Button department = new Button("แผนก", FontAwesome.SITEMAP);
 		department.setWidth("100%");

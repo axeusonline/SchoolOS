@@ -13,6 +13,7 @@ import com.ies.schoolos.schema.info.PersonnelSchema;
 import com.ies.schoolos.type.Prename;
 import com.ies.schoolos.type.dynamic.JobPosition;
 import com.ies.schoolos.utility.BCrypt;
+import com.ies.schoolos.utility.EmailSender;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -209,7 +210,7 @@ public class UserManagerView extends VerticalLayout {
 					userBinder.setItemDataSource(null);
 					fetchData();
 					
-					Notification.show("บันทึึกสำเร็จ", Type.HUMANIZED_MESSAGE);
+					Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 				} catch (Exception e) {
 					e.printStackTrace();
 					Notification.show("บันทึกไม่สำเร็จ", Type.HUMANIZED_MESSAGE);
@@ -243,7 +244,7 @@ public class UserManagerView extends VerticalLayout {
 		builder.append(" SELECT " + UserSchema.REF_USER_ID + " FROM " + UserSchema.TABLE_NAME);
 		builder.append(" WHERE " + UserSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		builder.append(" AND " + UserSchema.REF_USER_TYPE + "=" + 1 + ")");
-		System.err.println(builder.toString());
+
 		table.removeAllItems();
 		
 		freeContainer = Container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
@@ -324,11 +325,35 @@ public class UserManagerView extends VerticalLayout {
 			username.setContentMode(ContentMode.HTML);
 			labelLayout.addComponent(username);
 			
+			sendEmail(email.getValue(), firstname.getValue() + " " + lastname.getValue(), email.getValue(), password.getValue());
+			
 			return true;
 		} catch (Exception e) {
 			Notification.show("บันทึกไม่สำเร็จ", Type.WARNING_MESSAGE);
 			e.printStackTrace();
 			return false;
 		}
+	}
+	
+	/* ส่งอีเมล์ใบสมัคร */
+	private void sendEmail(String email,String person, String username, String password){
+		String subject = "บัญชีผู้ใช้งาน SchoolOS";
+		StringBuilder description = new StringBuilder();
+		description.append("เรียนคุณ " + person);
+		description.append(System.getProperty("line.separator"));
+		description.append("ทางครอบครัว SchoolOS ได้ทำการจัดส่งบัญชีผู้ใช้จากการตั้งค่าของ เจ้าหน้าที่ IT โรงเรียน โดยรายละเอียดการเข้าใช้อธิบายดังข้างล่างนี้");
+		description.append(System.getProperty("line.separator"));
+		description.append("บัญชี:" + username);
+		description.append(System.getProperty("line.separator"));
+		description.append("รหัสผ่าน:" + password);
+		description.append(System.getProperty("line.separator"));
+		description.append("ทั้งนี้หากมีข้อสงสัยกรุณาส่งกลับที่ " + SessionSchema.getEmail());
+		description.append(System.getProperty("line.separator"));
+		description.append("ด้วยความเคารพ");
+		description.append(System.getProperty("line.separator"));
+		description.append("ครอบครัว SchoolOS");
+		
+		
+		new EmailSender(email,subject,description.toString(),null, null);	   
 	}
 }

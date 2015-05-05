@@ -15,6 +15,7 @@ import com.ies.schoolos.schema.academic.LessonPlanSubjectSchema;
 import com.ies.schoolos.schema.academic.TeacherHomeroomSchema;
 import com.ies.schoolos.schema.academic.TeachingSchema;
 import com.ies.schoolos.schema.academic.TimetableSchema;
+import com.ies.schoolos.schema.fundamental.BehaviorSchema;
 import com.ies.schoolos.schema.fundamental.BuildingSchema;
 import com.ies.schoolos.schema.fundamental.ClassRoomSchema;
 import com.ies.schoolos.schema.fundamental.DepartmentSchema;
@@ -27,6 +28,7 @@ import com.ies.schoolos.schema.info.StudentSchema;
 import com.ies.schoolos.schema.info.StudentStudySchema;
 import com.ies.schoolos.schema.recruit.RecruitStudentFamilySchema;
 import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
+import com.ies.schoolos.schema.studentaffairs.StudentBehaviorSchema;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.util.sqlcontainer.query.FreeformQuery;
 import com.vaadin.data.util.sqlcontainer.query.TableQuery;
@@ -357,5 +359,31 @@ public class Container implements Serializable {
 			e.printStackTrace();
 		}
 		return departmentContainer;
+	}
+	
+	/* TableQuery และ SQLContainer สำหรับพฤติกรรม */
+	public static SQLContainer getBehaviorContainer() {
+    	TableQuery query;
+    	SQLContainer behaviorContainer = null;;
+		try {
+			query = new TableQuery(BehaviorSchema.TABLE_NAME, DbConnection.getConnection());
+			behaviorContainer = new SQLContainer(query);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return behaviorContainer;
+	}
+	
+	/* TableQuery และ SQLContainer สำหรับพฤติกรรมนักเรียน */
+	public static SQLContainer getStudentBehaviorContainer() {
+    	TableQuery query;
+    	SQLContainer studentBehaviorContainer = null;;
+		try {
+			query = new TableQuery(StudentBehaviorSchema.TABLE_NAME, DbConnection.getConnection());
+			studentBehaviorContainer = new SQLContainer(query);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return studentBehaviorContainer;
 	}
 }

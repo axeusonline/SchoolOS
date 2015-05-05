@@ -4,13 +4,15 @@ import org.tepi.filtertable.FilterTable;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.ies.schoolos.component.ui.ContentPage;
+import com.ies.schoolos.component.ui.NumberField;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
 import com.ies.schoolos.schema.CreateModifiedSchema;
 import com.ies.schoolos.schema.SessionSchema;
-import com.ies.schoolos.schema.fundamental.BuildingSchema;
-import com.ies.schoolos.schema.fundamental.SubjectSchema;
+import com.ies.schoolos.schema.fundamental.BehaviorSchema;
+import com.ies.schoolos.type.SeverityType;
+import com.ies.schoolos.utility.Notification;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -19,14 +21,16 @@ import com.vaadin.data.util.filter.Compare.Equal;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.util.sqlcontainer.TemporaryRowId;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomTable;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Notification;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
@@ -34,43 +38,49 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.CustomTable.ColumnGenerator;
 
-public class BuildingView extends ContentPage{
+public class BehaviorView extends ContentPage{
 	private static final long serialVersionUID = 1L;
 
 	private boolean editMode = false;
-	private SQLContainer bContainer = Container.getBuildingContainer();
+	
+	private SQLContainer sContainer = Container.getBehaviorContainer();
 	
 	private Item item;
 
-	private HorizontalLayout buildingLayout;
+	private HorizontalLayout behaviorLayout;
 	private FilterTable table;
 	
-	private FieldGroup buildingBinder;
-	private FormLayout buildingForm;
-	private TextField buildingName;
-	private TextField roomName;
-	private TextField capacity;
+	private FieldGroup behaviorBinder;
+	private FormLayout behaviorForm;
+	private TextField name;
+	private NumberField min_score;
+	private NumberField max_score;
+	private ComboBox severity_type;
+	private TextArea description;
 	private Button save;	
 	
-	public BuildingView() {
-		super("อาคารเรียน/สอบ");
+	public BehaviorView() {
+		super("พฤติกรรม");
 		
-		bContainer.refresh();
-		bContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
+		sContainer.refresh();
+		sContainer.addContainerFilter(new Equal(BehaviorSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
 		setSpacing(true);
 		setMargin(true);
+		
 		buildMainLayout();
 	}
 	
 	private void buildMainLayout(){
-		setSizeFull();
+
+		setWidth("100%");
+		setHeight("-1px");
 		setSpacing(true);
 
-		buildingLayout = new HorizontalLayout();
-		buildingLayout.setSizeFull();
-		buildingLayout.setSpacing(true);
-		addComponent(buildingLayout);
-		setExpandRatio(buildingLayout, 1);
+		behaviorLayout = new HorizontalLayout();
+		behaviorLayout.setSizeFull();
+		behaviorLayout.setSpacing(true);
+		addComponent(behaviorLayout);
+		setExpandRatio(behaviorLayout, 1);
 
 		//Table
 		table = new FilterTable();
@@ -85,7 +95,7 @@ public class BuildingView extends ContentPage{
 				if(event.getProperty().getValue() != null){
 					editMode = true;
 					save.setCaption("แก้ไข");
-					item = bContainer.getItem(event.getProperty().getValue());
+					item = sContainer.getItem(event.getProperty().getValue());
 					initFieldGroup();
 				}
 			}
@@ -95,46 +105,71 @@ public class BuildingView extends ContentPage{
 		table.setFilterGenerator(new TableFilterGenerator());
         table.setFilterBarVisible(true);
 
-		table.setContainerDataSource(bContainer);
+		table.setContainerDataSource(sContainer);
 	    setFooterData();
 		initTableStyle();
 
 		table.setColumnReorderingAllowed(true);
 		table.setColumnCollapsingAllowed(true);
-		buildingLayout.addComponent(table);
+		behaviorLayout.addComponent(table);
+		behaviorLayout.setExpandRatio(table,(float)2.2);
 		
 		//Form		
-		buildingForm = new FormLayout();
-		buildingForm.setSpacing(true);
-		buildingForm.setStyleName("border-white");
-		buildingLayout.addComponent(buildingForm);
+		behaviorForm = new FormLayout();
+		behaviorForm.setSpacing(true);
+		behaviorForm.setMargin(true);
+		behaviorForm.setStyleName("border-white");
+		behaviorLayout.addComponent(behaviorForm);
+		behaviorLayout.setExpandRatio(behaviorForm,1);
 		
-		Label formLab = new Label("ข้อมูลอาคาร");
-		buildingForm.addComponent(formLab);
+		Label formLab = new Label("พฤติกรรม");
+		behaviorForm.addComponent(formLab);
 		
-		buildingName = new TextField();
-		buildingName.setInputPrompt("ชื่ออาคาร");
-		buildingName.setNullRepresentation("");
-		buildingName.setImmediate(false);
-		buildingName.setWidth("-1px");
-		buildingName.setHeight("-1px");
-		buildingForm.addComponent(buildingName);
+		name = new TextField("ชื่อพฤติกรรม");
+		name.setInputPrompt("ชื่อพฤติกรรม");
+		name.setNullRepresentation("");
+		name.setImmediate(false);
+		name.setRequired(true);
+		name.setWidth("-1px");
+		name.setHeight("-1px");
+		behaviorForm.addComponent(name);
 		
-		roomName = new TextField();
-		roomName.setInputPrompt("ชื่อห้อง");
-		roomName.setNullRepresentation("");
-		roomName.setImmediate(false);
-		roomName.setWidth("-1px");
-		roomName.setHeight("-1px");
-		buildingForm.addComponent(roomName);
+		min_score = new NumberField("คะแนนต่ำสุด");
+		min_score.setInputPrompt("คะแนนความผิดต่ำสุด");
+		min_score.setNullRepresentation("");
+		min_score.setImmediate(false);
+		min_score.setRequired(true);
+		min_score.setWidth("-1px");
+		min_score.setHeight("-1px");
+		behaviorForm.addComponent(min_score);
 		
-		capacity = new TextField();
-		capacity.setInputPrompt("จำนวนคนสูงสุด");
-		capacity.setNullRepresentation("");
-		capacity.setImmediate(false);
-		capacity.setWidth("-1px");
-		capacity.setHeight("-1px");
-		buildingForm.addComponent(capacity);
+		max_score = new NumberField("คะแนนสูงสุด");
+		max_score.setInputPrompt("คะแนนความผิดต่ำสุด");
+		max_score.setNullRepresentation("");
+		max_score.setImmediate(false);
+		max_score.setRequired(true);
+		max_score.setWidth("-1px");
+		max_score.setHeight("-1px");
+		behaviorForm.addComponent(max_score);
+		
+		severity_type = new ComboBox("ระดับความรุนแรง",new SeverityType());
+		severity_type.setInputPrompt("กรุณาเลือก");
+		severity_type.setItemCaptionPropertyId("name");
+		severity_type.setImmediate(true);
+		severity_type.setNullSelectionAllowed(false);
+		severity_type.setRequired(true);
+		severity_type.setWidth("-1px");
+		severity_type.setHeight("-1px");
+		severity_type.setFilteringMode(FilteringMode.CONTAINS);
+		behaviorForm.addComponent(severity_type);
+		
+		description = new TextArea("รายละเอียด");
+		description.setInputPrompt("รายละเอียดเพิ่มเติม");
+		description.setImmediate(false);
+		description.setWidth("-1px");
+		description.setHeight("-1px");
+		description.setNullRepresentation("");
+		behaviorForm.addComponent(description);
 		
 		save = new Button("บันทึก", FontAwesome.SAVE);
 		save.addClickListener(new ClickListener() {
@@ -147,13 +182,13 @@ public class BuildingView extends ContentPage{
 					 *  กรณีเป็น แก้ไข จะทำการ Update โดยใช้ข้อมูลในฟอร์มเดิม
 					 *  กรณี เป็น เพิ่ม จะทำการ Inser โดยใช้ข้อมูลใหม่ที่กรอกในฟอร์ม */
 					if(editMode){
-						buildingBinder.commit();
-						bContainer.commit();
+						behaviorBinder.commit();
+						sContainer.commit();
 						editMode = false;
 						Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 					}else{
-						bContainer.removeAllContainerFilters();
-						if(!buildingBinder.isValid()){
+						sContainer.removeAllContainerFilters();
+						if(!behaviorBinder.isValid()){
 							Notification.show("กรุณากรอกข้อมูลให้ครบถ้วน", Type.WARNING_MESSAGE);
 							return;
 						}
@@ -161,7 +196,7 @@ public class BuildingView extends ContentPage{
 						if(!saveFormData())
 							return;
 						
-						bContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
+						sContainer.addContainerFilter(new Equal(BehaviorSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
 					}
 					item = null;
 					save.setCaption("บันทึก");
@@ -173,24 +208,25 @@ public class BuildingView extends ContentPage{
 				}
 			}
 		});
-		buildingForm.addComponent(save);
+		behaviorForm.addComponent(save);
 		
 		initFieldGroup();
-		
 	}
 	
 	/* ตั้งค่ารูปแบบแสดงของตาราง */
 	private void initTableStyle(){		
-		table.setColumnHeader(BuildingSchema.NAME, "อาคาร");
-		table.setColumnHeader(BuildingSchema.ROOM_NUMBER,"ชื่อห้อง");
-		table.setColumnHeader(BuildingSchema.CAPACITY, "จำนวนคนสูงสุด");
+		table.setColumnHeader(BehaviorSchema.NAME, "ชื่อ");
+		table.setColumnHeader(BehaviorSchema.MIN_SCORE, "คะแนนต่ำสุด");
+		table.setColumnHeader(BehaviorSchema.MAX_SCORE, "คะแนนสูงสุด");
+		table.setColumnHeader(BehaviorSchema.SEVERITY_TYPE, "ระดับความรุนแรง");
 		
 		table.setVisibleColumns(
-				BuildingSchema.NAME, 
-				BuildingSchema.ROOM_NUMBER,
-				BuildingSchema.CAPACITY);
+				BehaviorSchema.NAME, 
+				BehaviorSchema.MIN_SCORE,
+				BehaviorSchema.MAX_SCORE, 
+				BehaviorSchema.SEVERITY_TYPE);
 		
-		setColumnGenerator("");
+		setColumnGenerator(BehaviorSchema.SEVERITY_TYPE, "");
 	}
 	
 	/* ตั้งค่ารูปแบบข้อมูลของค่า Fix */
@@ -204,7 +240,9 @@ public class BuildingView extends ContentPage{
 					Object value = null;
 					Item item = source.getItem(itemId);
 					if(item != null && itemId.getClass() != TemporaryRowId.class){
-						if("".equals(propertyId))
+						if(BehaviorSchema.SEVERITY_TYPE.equals(propertyId))
+							value = SeverityType.getNameTh(Integer.parseInt(item.getItemProperty(propertyId).getValue().toString()));
+						else if("".equals(propertyId))
 							value = initButtonLayout(item, itemId);
 					}
 					return value;
@@ -222,14 +260,14 @@ public class BuildingView extends ContentPage{
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				ConfirmDialog.show(UI.getCurrent(), "ลบอาคารเรียน","คุณต้องการลบอาคารเรียนนี้ใช่หรือไม่?","ตกลง","ยกเลิก",
+				ConfirmDialog.show(UI.getCurrent(), "ลบพฤติกรรม","คุณต้องการลบพฤติกรรมนี้ใช่หรือไม่?","ตกลง","ยกเลิก",
 			        new ConfirmDialog.Listener() {
 						private static final long serialVersionUID = 1L;
 						public void onClose(ConfirmDialog dialog) {
 			                if (dialog.isConfirmed()) {
-			                	if(bContainer.removeItem(itemId)){
+			                	if(sContainer.removeItem(itemId)){
 			                		try {
-										bContainer.commit();
+										sContainer.commit();
 										setFooterData();
 									} catch (Exception e) {
 										Notification.show("ลบข้อมูลไม่สำเร็จ", Type.WARNING_MESSAGE);
@@ -249,53 +287,53 @@ public class BuildingView extends ContentPage{
 	
 	/*นำจำนวนที่นับ มาใส่ค่าในส่วนท้ายตาราง*/
 	private void setFooterData(){
-		table.setColumnFooter(BuildingSchema.NAME, "ทั้งหมด: "+ table.size() + " อาคาร");
+		table.setColumnFooter(BehaviorSchema.NAME, "ทั้งหมด: "+ table.size() + " พฤติกรรม");
 	}
 	
 	/* จัดกลุ่มของ ฟอร์มในการแก้ไข - เพิ่ม ข้อมูล */
 	private void initFieldGroup(){		
-		buildingBinder = new FieldGroup(item);
-		buildingBinder.setBuffered(true);
-		buildingBinder.bind(buildingName, BuildingSchema.NAME);
-		buildingBinder.bind(roomName, BuildingSchema.ROOM_NUMBER);
-		buildingBinder.bind(capacity, BuildingSchema.CAPACITY);
-	}	
+		behaviorBinder = new FieldGroup(item);
+		behaviorBinder.setBuffered(true);
+		behaviorBinder.bind(name, BehaviorSchema.NAME);
+		behaviorBinder.bind(min_score, BehaviorSchema.MIN_SCORE);
+		behaviorBinder.bind(max_score, BehaviorSchema.MAX_SCORE);
+		behaviorBinder.bind(severity_type, BehaviorSchema.SEVERITY_TYPE);
+		behaviorBinder.bind(description, BehaviorSchema.DESCRIPTION);
+	}
 	
 	/* กำหนดค่าภายใน FieldGroup ไปยัง Item */
 	@SuppressWarnings({ "unchecked"})
 	private boolean saveFormData(){
 		try {				
 			/* เพิ่มข้อมูล */
-			Object tmpItem = bContainer.addItem();
-			Item item = bContainer.getItem(tmpItem);
-			for(Field<?> field: buildingBinder.getFields()){
+			Object tmpItem = sContainer.addItem();
+			Item item = sContainer.getItem(tmpItem);
+			for(Field<?> field: behaviorBinder.getFields()){
 				/* หาชนิดตัวแปร ของข้อมูลภายใน Database ของแต่ละ Field */
-				Class<?> clazz = item.getItemProperty(buildingBinder.getPropertyId(field)).getType();		
+				Class<?> clazz = item.getItemProperty(behaviorBinder.getPropertyId(field)).getType();
 				String className = clazz.getName();;
 				Object value = null;
-				if(buildingBinder.getField(buildingBinder.getPropertyId(field)).getValue() != null && 
-						!buildingBinder.getField(buildingBinder.getPropertyId(field)).getValue().equals("")){
-					/* ตรวจสอบ Class ที่ต้องแปลงที่ได้จากการตรวจสอบภายใน Database จาก item.getItemProperty(buildingBinder.getPropertyId(field)).getType()
+				if(behaviorBinder.getField(behaviorBinder.getPropertyId(field)).getValue() != null && 
+						!behaviorBinder.getField(behaviorBinder.getPropertyId(field)).getValue().equals("")){
+					/* ตรวจสอบ Class ที่ต้องแปลงที่ได้จากการตรวจสอบภายใน Database จาก item.getItemProperty(behaviorBinder.getPropertyId(field)).getType()
 					 *  กรณั เป็น Double ก็แปลง Object ด้วย parseDouble ซึ่งค่าที่แปลงต้องไม่เป็น Null
 					 *  กรณั เป็น Integer ก็แปลง Object ด้วย parseInt ซึ่งค่าที่แปลงต้องไม่เป็น Null
 					 *    */
 
 					if(clazz == Double.class){
-						value = Double.parseDouble(buildingBinder.getField(buildingBinder.getPropertyId(field)).getValue().toString());
-					}else if(clazz == Integer.class){
-						value = Integer.parseInt(buildingBinder.getField(buildingBinder.getPropertyId(field)).getValue().toString());
+						value = Double.parseDouble(behaviorBinder.getField(behaviorBinder.getPropertyId(field)).getValue().toString());
 					}else{
-						value = buildingBinder.getField(buildingBinder.getPropertyId(field)).getValue();
+						value = behaviorBinder.getField(behaviorBinder.getPropertyId(field)).getValue();
 					}
 				}
 				
 				Object data = Class.forName(className).cast(value);
-				item.getItemProperty(buildingBinder.getPropertyId(field)).setValue(data);
+				item.getItemProperty(behaviorBinder.getPropertyId(field)).setValue(data);
 			}
-			item.getItemProperty(BuildingSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
+			item.getItemProperty(BehaviorSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
 			CreateModifiedSchema.setCreateAndModified(item);
-			bContainer.commit();
-			
+			sContainer.commit();
+			setFooterData();
 			return true;
 		} catch (Exception e) {
 			Notification.show("บันทึกไม่สำเร็จ", Type.WARNING_MESSAGE);

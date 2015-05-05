@@ -113,15 +113,16 @@ public class RecruitStudentReport {
 	/* ส่งอีเมล์ใบสมัคร */
 	private void sendEmail(){
 		String subject = "ใบสมัคร"+SessionSchema.getSchoolName().toString();
-		String description = "อีเมล์ฉบับนี้ส่งมา เพื่อยืนยันว่าคุณได้สมัครเรียนเรียบร้อยแล้ว สำหรับ" + SessionSchema.getSchoolName().toString() + System.getProperty("line.separator") +
-				"กรุณาพิมพ์หลักฐานการสมัครที่แนบด้านล่างนี้ ในการประกอบเอกสารการรับสมัคร" + System.getProperty("line.separator") +
-				"หากมีข้อสงสัยกรุณาติดต่อกลับที่ " + SessionSchema.getEmail().toString() + System.getProperty("line.separator") +
-				System.getProperty("line.separator") +
-				"กรุณาอย่าส่งกลับมาอีเมล์ที่ใช้ในการส่งนี้ " + System.getProperty("line.separator") +
-				"โดย ทีมงาน SchoolOS ";
+		StringBuilder description = new StringBuilder();
+		description.append("อีเมล์ฉบับนี้ส่งมา เพื่อยืนยันว่าคุณได้สมัครเรียนเรียบร้อยแล้ว สำหรับ" + SessionSchema.getSchoolName().toString());
+		description.append(System.getProperty("line.separator"));
+		description.append("กรุณาพิมพ์หลักฐานการสมัครที่แนบด้านล่างนี้ ในการประกอบเอกสารการรับสมัคร");
+		description.append(System.getProperty("line.separator"));
+		description.append("หากมีข้อสงสัยกรุณาติดต่อกลับที่ " + SessionSchema.getEmail());
+		description.append(System.getProperty("line.separator"));
+		description.append("โดย ทีมงาน SchoolOS ");		
 		
-		
-		new EmailSender(emailTo,subject,description,fileName, resource.getStream().getStream());	   
+		new EmailSender(emailTo,subject,description.toString(),fileName, resource.getStream().getStream());	   
 	}
 	
 	/* ดึงรูปภาพมาแสดง */

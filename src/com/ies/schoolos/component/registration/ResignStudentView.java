@@ -239,7 +239,7 @@ public class ResignStudentView extends VerticalLayout {
 					readOnlyMode();
 					
 					fetchData();
-					Notification.show("บันทึึกสำเร็จ", Type.HUMANIZED_MESSAGE);
+					Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 				} catch (Exception e) {
 					e.printStackTrace();
 					Notification.show("บันทึกไม่สำเร็จ", Type.WARNING_MESSAGE);
@@ -275,7 +275,7 @@ public class ResignStudentView extends VerticalLayout {
 		builder.append(" WHERE (" + StudentStudySchema.STUDENT_STATUS + "=" + 0);
 		builder.append(" OR " + StudentStudySchema.STUDENT_STATUS + "=" + 2 + ")");
 		builder.append(" AND ss." + StudentStudySchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
-		System.err.println(builder.toString());
+
 		freeContainer = Container.getFreeFormContainer(builder.toString(), StudentStudySchema.STUDENT_STUDY_ID);
 		for(final Object itemId:freeContainer.getItemIds()){
 			Item item = freeContainer.getItem(itemId);

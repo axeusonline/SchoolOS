@@ -376,5 +376,50 @@ ALTER TABLE `student_study`
   DROP `resign_class_year`,
   DROP `resign_year`,
   DROP `resign_semester`;
-
   
+/* 
+ * Description : รองรับข้อมูลไม่ครบของนักเรียน และ พฤติกรรม
+ * Date : 04/05/2013
+ */
+ALTER TABLE `student` CHANGE `gender` `gender` TINYINT(4) NULL COMMENT '*Fix เพศ ', CHANGE `religion` `religion` TINYINT(4) NULL COMMENT '*Fix ศาสนา ', CHANGE `race` `race` SMALLINT(6) NULL COMMENT '*Fix เชื่อชาติ ', CHANGE `nationality` `nationality` SMALLINT(6) NULL COMMENT '*Fix สัญชาติ', CHANGE `birth_date` `birth_date` DATE NULL COMMENT 'วันเกิด เก็บเป็น 01-12-2011', CHANGE `blood` `blood` TINYINT(4) NULL COMMENT '*Fix หมู่เลือด', CHANGE `sibling_qty` `sibling_qty` TINYINT(4) NULL DEFAULT '0' COMMENT 'จำนวนพี่น้อง', CHANGE `sibling_sequence` `sibling_sequence` TINYINT(4) NULL DEFAULT '0' COMMENT 'พี่น้องลำดับที่';
+
+ALTER TABLE `student_study` CHANGE `current_address` `current_address` VARCHAR(256) CHARACTER SET utf8 COLLATE utf8_general_ci NULL, CHANGE `current_city_id` `current_city_id` INT(11) NULL COMMENT 'ตำบล ที่อยู่ปัจจุบัน', CHANGE `current_district_id` `current_district_id` INT(11) NULL COMMENT 'อำเภอ ที่อยู่ปัจจุบัน', CHANGE `current_province_id` `current_province_id` INT(11) NULL COMMENT 'จังหวัด ที่อยู่ปัจจุบัน', CHANGE `current_postcode_id` `current_postcode_id` INT(11) NULL COMMENT 'ไปรษณีย์ ที่อยู่ปัจจุบัน', CHANGE `graduated_school` `graduated_school` VARCHAR(250) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT 'โรงเรียนที่จบ', CHANGE `graduated_school_province_id` `graduated_school_province_id` INT(11) NULL COMMENT 'จังหวัดโรงเรียนที่จบ', CHANGE `graduated_gpa` `graduated_gpa` DOUBLE NULL COMMENT 'เกรดเฉลี่ยที่จบ', CHANGE `graduated_year` `graduated_year` VARCHAR(4) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT 'ปีการศึกษา', CHANGE `graduated_class_range` `graduated_class_range` TINYINT(4) NULL COMMENT 'ช่วงชั้นทีจบ';
+ 
+ALTER TABLE `teaching` ADD `weekend` VARCHAR(15) NULL COMMENT 'วันหยุดอาจารย์' AFTER `subject_id`;
+
+CREATE TABLE IF NOT EXISTS `behavior` (
+  `behavior_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'PK ตารางพฤติกรรม',
+  `school_id` int(11) NOT NULL COMMENT 'FK โรงเรียน',
+  `name` varchar(128) NOT NULL COMMENT 'ชื่อพฤติกรรม',
+  `min_score` double NOT NULL COMMENT 'คะแนนต่ำสุด',
+  `max_score` double NOT NULL COMMENT 'คะแนนสูงสุด',
+  `severity_type` tinyint(4) NOT NULL COMMENT '*Fix ระดับความรุนแรง',
+  `description` varchar(256) DEFAULT NULL COMMENT 'ราบละเอียด',
+  `created_by_id` int(11) DEFAULT NULL COMMENT 'FK ผู้ใส่ข้อมูล',
+  `created_date` datetime DEFAULT NULL COMMENT 'วันที่ใส่ข้อมูล',
+  `modified_by_id` int(11) DEFAULT NULL COMMENT 'ผู้แก้ไขข้อมูล',
+ `modified_date` datetime DEFAULT NULL COMMENT 'วันที่แก้ไขข้อมูล',
+  PRIMARY KEY (`behavior_id`),
+  KEY `fk_behavior_has_school_idx` (`school_id`),
+  CONSTRAINT `fk_behavior_has_school` FOREIGN KEY (`school_id`) REFERENCES `school` (`school_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='ตารางพฤติกรรม';
+
+CREATE TABLE IF NOT EXISTS `student_behavior` (
+  `student_behavior_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'PK พฤติกรรมนักเรียน',
+  `school_id` int(11) NOT NULL COMMENT 'FK โรงเรียน',
+  `student_study_id` int(11) NOT NULL COMMENT 'FK ข้อมูลการเรียน',
+  `behavior_id` int(11) NOT NULL COMMENT 'FK พฤติกรรม',
+  `score` double NOT NULL COMMENT 'คะแนนที่หัก',
+  `date` date NOT NULL COMMENT 'วันที่หัก',
+  `description` text COMMENT 'รายละเอียด',
+  `created_by_id` int(10) DEFAULT NULL COMMENT 'FK ผู้ใส่ข้อมูล',
+  `created_date` datetime DEFAULT NULL COMMENT 'วันเดือนปีที่ใส่ข้อมูล',
+  `modified_by_id` int(11) DEFAULT NULL COMMENT 'FK ผู้แก้ไขข้อมูล',
+  `modified_date` datetime DEFAULT NULL COMMENT 'วันเดือนปีที่แก้ไขข้อมูล',
+  PRIMARY KEY (`student_behavior_id`),
+  KEY `fk_student_behavior_has__school_idx` (`school_id`),
+  KEY `fk_student_behavior_has_student_study_idx` (`student_study_id`),
+  KEY `fk_student_behavior_has_behavior_idx` (`behavior_id`),
+  CONSTRAINT `fk_student_behavior_has_behavior` FOREIGN KEY (`behavior_id`) REFERENCES `behavior` (`behavior_id`),
+  CONSTRAINT `fk_student_behavior_has_student_study` FOREIGN KEY (`student_study_id`) REFERENCES `student_study` (`student_study_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='พฤติกรรมนักเรียน';

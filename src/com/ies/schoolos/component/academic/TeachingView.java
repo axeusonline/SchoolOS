@@ -15,9 +15,12 @@ import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.academic.TeachingSchema;
 import com.ies.schoolos.schema.fundamental.SubjectSchema;
 import com.ies.schoolos.schema.info.PersonnelSchema;
+import com.ies.schoolos.type.Days;
 import com.ies.schoolos.type.dynamic.Subject;
+import com.ies.schoolos.type.dynamic.Teaching;
 import com.ies.schoolos.utility.DateTimeUtil;
 import com.ies.schoolos.utility.Notification;
+import com.ies.schoolos.utility.Utility;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -32,6 +35,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -44,11 +48,12 @@ public class TeachingView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 	
-	private SQLContainer tContainer;
+	private SQLContainer freeContainer;
 	private SQLContainer teachingContainer = Container.getTeachingContainer();
 
 	private ComboBox subject;
 	private Button addition;
+	private Button weekend;
 	private TwinSelectTable twinSelect;
 	
 	public TeachingView() {
@@ -173,6 +178,261 @@ public class TeachingView extends VerticalLayout {
 		toolStrip.addComponent(addition);
 		toolStrip.setComponentAlignment(addition, Alignment.MIDDLE_LEFT);
 		
+		weekend  = new Button("วันหยุดรายบุคคล", FontAwesome.CALENDAR);
+		weekend.addClickListener(new ClickListener() {
+			private static final long serialVersionUID = 1L;
+
+			private SQLContainer teachingContainer = Container.getTeachingContainer();
+			
+			private String FIELD_NAME = "name";
+			
+			private Teaching remainTeaching = new Teaching(null);
+			private OptionGroup days;
+			private TwinSelectTable weekendTwinSelect;
+			
+			@Override
+			public void buttonClick(ClickEvent event) {
+
+				final Window window = new Window("กำหนดวันหยุด");
+				window.setSizeFull();
+				window.center();
+				UI.getCurrent().addWindow(window);
+				
+				VerticalLayout weekendLayout = new VerticalLayout();
+				weekendLayout.setSizeFull();
+				weekendLayout.setSpacing(true);
+				weekendLayout.setMargin(true);
+				window.setContent(weekendLayout);
+
+				days = new OptionGroup("เลือกวันหยุด", new Days());
+				days.setMultiSelect(true);
+				days.setRequired(true);
+				days.setItemCaptionPropertyId("name");
+		        days.setNullSelectionAllowed(false);
+		        days.setHtmlContentAllowed(true);
+		        days.setImmediate(true);
+		        days.addValueChangeListener(new ValueChangeListener() {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void valueChange(ValueChangeEvent event) {
+						setRightData();
+					}
+				});
+		        weekendLayout.addComponent(days);
+		        
+		        weekendTwinSelect = new TwinSelectTable();
+		        weekendTwinSelect.setSizeFull();
+		        weekendTwinSelect.setSpacing(true);
+		        weekendTwinSelect.setSelectable(true);
+		        weekendTwinSelect.setMultiSelect(true);
+		        weekendTwinSelect.showFooterCount(true);
+		        weekendTwinSelect.setFooterUnit("คน");
+				
+		        weekendTwinSelect.addContainerProperty(FIELD_NAME, String.class, null);
+		        
+		        weekendTwinSelect.setFilterDecorator(new TableFilterDecorator());
+		        weekendTwinSelect.setFilterGenerator(new TableFilterGenerator());
+		        weekendTwinSelect.setFilterBarVisible(true);
+		        
+		        weekendTwinSelect.setColumnHeader(FIELD_NAME, "อาจารย์ผู้สอน");
+		        
+		        weekendTwinSelect.setVisibleColumns(FIELD_NAME);
+
+		        weekendTwinSelect.setAddClick(addWeekendListener);
+		        weekendTwinSelect.setAddAllClick(addAllWeekendListener);
+		        weekendTwinSelect.setRemoveClick(removeWeekendListener);
+		        weekendTwinSelect.setRemoveAllClick(removeAllWeekendListener);
+				
+		        weekendLayout.addComponent(weekendTwinSelect);
+		        weekendLayout.setExpandRatio(weekendTwinSelect, 1);
+		        
+		        setLeftData();	
+			}
+		
+			/* จำนวนนักเรียนทีี่ค้นฟา */
+			private void setLeftData(){
+				weekendTwinSelect.removeAllLeftItem();
+				
+				for(final Object itemId:remainTeaching.getItemIds()){
+					Item item = remainTeaching.getItem(itemId);
+					addItemData(weekendTwinSelect.getLeftTable(), itemId, item);
+				}
+				
+				weekendTwinSelect.setLeftCountFooter(FIELD_NAME);
+			}
+			
+			/* จำนวนนักเรียนที่ถูกเลือก */
+			private void setRightData(){
+				weekendTwinSelect.removeAllRightItem();
+
+				for(final Object itemId:new Teaching(Utility.sortOptionGroup(days.getValue())).getItemIds()){
+					Item item = new Teaching().getItem(itemId);
+					addItemData(weekendTwinSelect.getRightTable(), itemId, item);
+				}
+				
+				weekendTwinSelect.setLeftCountFooter(FIELD_NAME);
+			}
+			
+			/* ย้ายข้างจากซ้ายไปขวาจากที่ถูกเลือก */
+			@SuppressWarnings("unchecked")
+			private void selectData(Object... itemIds){
+				try {
+					for(Object itemId: itemIds){
+						Item leftData = weekendTwinSelect.getLeftTable().getItem(itemId);
+						addItemData(weekendTwinSelect.getRightTable(), itemId, leftData);
+						weekendTwinSelect.getLeftTable().removeItem(itemId);
+						
+						Item studentItem = teachingContainer.getItem(itemId);
+						studentItem.getItemProperty(TeachingSchema.WEEKEND).setValue(Utility.sortOptionGroup(days.getValue()));
+
+						teachingContainer.commit();
+					}
+					sortWeekendData();
+					weekendTwinSelect.setLeftCountFooter(FIELD_NAME);
+					weekendTwinSelect.setRightCountFooter(FIELD_NAME);
+				}catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+			}
+			
+			/* ย้ายข้างจากซ้ายไปขวาจากทั้งหมด*/
+			@SuppressWarnings("unchecked")
+			private void selectAllData(){
+				try {
+					Collection<?> itemIds = weekendTwinSelect.getLeftTable().getItemIds();
+					for(Object itemId: itemIds){
+						Item item = weekendTwinSelect.getLeftTable().getItem(itemId);
+						addItemData(weekendTwinSelect.getRightTable(), itemId, item);
+						
+						Item studentItem = teachingContainer.getItem(itemId);
+						studentItem.getItemProperty(TeachingSchema.WEEKEND).setValue(Utility.sortOptionGroup(days.getValue()));
+						teachingContainer.commit();
+					}
+					weekendTwinSelect.getLeftTable().removeAllItems();
+					sortWeekendData();
+					weekendTwinSelect.setLeftCountFooter(FIELD_NAME);
+					weekendTwinSelect.setRightCountFooter(FIELD_NAME);
+				}catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+
+			/* ย้ายข้างจากขวาไปซ้ายจากที่เลือก */
+			@SuppressWarnings("unchecked")
+			private void removeData(Object... itemIds){
+				try {
+					for(Object itemId: itemIds){
+							Item item = weekendTwinSelect.getRightTable().getItem(itemId);
+							addItemData(weekendTwinSelect.getLeftTable(), itemId, item);
+							weekendTwinSelect.getRightTable().removeItem(itemId);	
+							
+							Item studentItem = teachingContainer.getItem(itemId);
+							studentItem.getItemProperty(TeachingSchema.WEEKEND).setValue(null);
+							teachingContainer.commit();
+					}
+					sortWeekendData();
+					weekendTwinSelect.setLeftCountFooter(FIELD_NAME);
+					weekendTwinSelect.setRightCountFooter(FIELD_NAME);
+				}catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			
+			/* ย้ายข้างจากขวาไปซ้ายจากจำนวนทั้งหมด */
+			@SuppressWarnings("unchecked")
+			private void removeAllData(){
+				try {
+					for(Object itemId: weekendTwinSelect.getRightTable().getItemIds()){
+						Item item = weekendTwinSelect.getRightTable().getItem(itemId);
+						addItemData(weekendTwinSelect.getLeftTable(), itemId, item);
+						
+						Item studentItem = teachingContainer.getItem(itemId);
+						studentItem.getItemProperty(TeachingSchema.WEEKEND).setValue(null);
+						teachingContainer.commit();
+					}
+						
+					weekendTwinSelect.getRightTable().removeAllItems();
+					sortWeekendData();
+					weekendTwinSelect.setLeftCountFooter(FIELD_NAME);
+					weekendTwinSelect.setRightCountFooter(FIELD_NAME);
+				}catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			
+			/* ใส่ข้อมูลในตาราง */
+			private void addItemData(FilterTable table, Object itemId, Item item){
+				table.addItem(new Object[] {
+					item.getItemProperty(FIELD_NAME).getValue()
+				},itemId);
+			}
+			
+			/* เรียงอันดับข้อมูลของตาราง */
+			private void sortWeekendData(){
+				Object[] propLeft = {FIELD_NAME};
+				boolean[] boolLeft = {false};
+				twinSelect.getLeftTable().sort(propLeft, boolLeft);
+				
+				Object[] propRight = {FIELD_NAME};
+				boolean[] boolRight = {true};
+				twinSelect.getRightTable().sort(propRight, boolRight);
+			}
+			
+			/* ปุ่มเลือกนักเรียนจากซ้ายไปขวา จากนักเรียนที่เลือก */
+			private ClickListener addWeekendListener = new ClickListener() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public void buttonClick(ClickEvent event) {
+					if(days.getValue() == null){
+						Notification.show("กรุณาระบุวันหยุด", Type.WARNING_MESSAGE);
+						return;
+					}
+					Collection<?> itemIds = (Collection<?>)weekendTwinSelect.getLeftTable().getValue();
+					for(Object itemId:itemIds){
+						selectData(itemId);
+					}
+				}
+			};
+			
+			/* ปุ่มเลือกนักเรียนจากซ้ายไปขวา จากนักเรียนทั้งหมด */
+			private ClickListener addAllWeekendListener = new ClickListener() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public void buttonClick(ClickEvent event) {
+					if(days.getValue() == null){
+						Notification.show("กรุณาระบุวันหยุด", Type.WARNING_MESSAGE);
+						return;
+					}
+					selectAllData();
+				}
+			};
+			
+			/* ปุ่มเลือกนักเรียนจากขวาไปซ้าย จากนักเรียนที่เลือก */
+			private ClickListener removeWeekendListener = new ClickListener() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public void buttonClick(ClickEvent event) {
+					for(Object itemId:(Collection<?>)
+						weekendTwinSelect.getRightTable().getValue()){
+						removeData(itemId);
+					}
+				}
+			};
+			
+			/* ปุ่มเลือกนักเรียนจากขวาไปซ้าย จากนักเรียนทั้งหมด */
+			private ClickListener removeAllWeekendListener = new ClickListener() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public void buttonClick(ClickEvent event) {
+					removeAllData();
+				}
+			};
+		});
+		toolStrip.addComponent(weekend);
+		toolStrip.setComponentAlignment(weekend, Alignment.MIDDLE_LEFT);
+		
 		twinSelect = new TwinSelectTable();
 		twinSelect.setSizeFull();
 		twinSelect.setSpacing(true);
@@ -242,9 +502,9 @@ public class TeachingView extends VerticalLayout {
 		subjectBuilder.append(" AND "+ TeachingSchema.ACADEMIC_YEAR + "='" + DateTimeUtil.getBuddishYear() + "'");
 		subjectBuilder.append(" AND "+ TeachingSchema.PERSONNEL_ID + " IS NOT NULL )");
 		
-		tContainer = Container.getFreeFormContainer(subjectBuilder.toString(), PersonnelSchema.PERSONNEL_ID);
-		for(final Object itemId:tContainer.getItemIds()){
-			Item item = tContainer.getItem(itemId);
+		freeContainer = Container.getFreeFormContainer(subjectBuilder.toString(), PersonnelSchema.PERSONNEL_ID);
+		for(final Object itemId:freeContainer.getItemIds()){
+			Item item = freeContainer.getItem(itemId);
 			addItemData(twinSelect.getLeftTable(), itemId, item);
 		}
 		
@@ -260,9 +520,9 @@ public class TeachingView extends VerticalLayout {
 		teachingBuilder.append(" WHERE tc."+ TeachingSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		teachingBuilder.append(" AND tc." + TeachingSchema.ACADEMIC_YEAR + "='" + DateTimeUtil.getBuddishYear()+"'");
 
-		tContainer = Container.getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
-		for(Object itemId: tContainer.getItemIds()){
-			Item item = tContainer.getItem(itemId);
+		freeContainer = Container.getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
+		for(Object itemId: freeContainer.getItemIds()){
+			Item item = freeContainer.getItem(itemId);
 			addItemData(twinSelect.getRightTable(), itemId, item);
 		}
 		

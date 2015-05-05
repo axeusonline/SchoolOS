@@ -10,6 +10,7 @@ import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.UserSchema;
 import com.ies.schoolos.schema.info.PersonnelSchema;
 import com.ies.schoolos.utility.BCrypt;
+import com.ies.schoolos.utility.EmailSender;
 import com.ies.schoolos.utility.Notification;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -310,12 +311,32 @@ public class AddPersonnelView extends PersonnelLayout {
 			username.setContentMode(ContentMode.HTML);
 			labelLayout.addComponent(username);
 			
-			//new EmailSender(personnelBinder.getField(PersonnelSchema.EMAIL).getValue().toString(), "บัญชีผู้ใช้งาน", builder.toString(), null, null);
+			StringBuilder description = new StringBuilder();
+			description.append("เรียนคุณ " + personnelBinder.getField(PersonnelSchema.FIRSTNAME).getValue());
+			description.append(System.getProperty("line.separator"));
+			description.append("ทางครอบครัว SchoolOS ได้ทำการจัดส่งบัญชีผู้ใช้จากการตั้งค่าของ เจ้าหน้าที่ IT โรงเรียน โดยรายละเอียดการเข้าใช้อธิบายดังข้างล่างนี้");
+			description.append(System.getProperty("line.separator"));
+			description.append("บัญชี:" + personnelBinder.getField(PersonnelSchema.EMAIL).getValue());
+			description.append(System.getProperty("line.separator"));
+			description.append("รหัสผ่าน:" + personnelBinder.getField(PersonnelSchema.PEOPLE_ID).getValue());
+			description.append(System.getProperty("line.separator"));
+			description.append("ทั้งนี้หากมีข้อสงสัยกรุณาส่งกลับที่ " + SessionSchema.getEmail());
+			description.append(System.getProperty("line.separator"));
+			description.append("ด้วยความเคารพ");
+			description.append(System.getProperty("line.separator"));
+			description.append("ครอบครัว SchoolOS");
 			
+			sendEmail(personnelBinder.getField(PersonnelSchema.EMAIL).getValue().toString(), description.toString());
 		}catch(Exception e){
 			Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 			e.printStackTrace();
 		}
 		
+	}
+
+	/* ส่งอีเมล์ใบสมัคร */
+	private void sendEmail(String to, String description){
+		String subject = "บัญชีผู้ใช้งาน SchoolOS";		
+		new EmailSender(to,subject,description,null, null);	   
 	}
 }

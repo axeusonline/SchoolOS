@@ -95,10 +95,6 @@ public class EditStudentView extends StudentLayout {
 		guardianBinder.setItemDataSource(guardianItem);
 		studentBinder.setItemDataSource(studentItem);
 		studentStudyBinder.setItemDataSource(studyItem);
-		for (Object object: studyItem.getItemPropertyIds()) {
-			System.err.println(object.toString());
-		}
-
 	}
 
 	/* Event บุคคล ที่ถูกเลือกเป็น ผู้ปกครอง */

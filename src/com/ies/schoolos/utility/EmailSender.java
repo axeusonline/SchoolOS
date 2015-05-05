@@ -27,7 +27,7 @@ import com.vaadin.data.util.sqlcontainer.SQLContainer;
 public class EmailSender {
 	public EmailSender(String to, String subject, String description, String filename, InputStream inputStream) {
 		final String username = "administrator@schoolos.in.th";
-		final String password = "!IeSP@ssw0rd?";
+		final String password = "!IeSP@ssw0RD?";
 		
 	    // Sender's email ID needs to be mentioned
 	    String from = "";

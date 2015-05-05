@@ -26,6 +26,7 @@ import com.ies.schoolos.type.dynamic.ClassRoom;
 import com.ies.schoolos.type.dynamic.Teaching;
 import com.ies.schoolos.utility.DateTimeUtil;
 import com.ies.schoolos.utility.Notification;
+import com.ies.schoolos.utility.Utility;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -114,7 +115,7 @@ public class TimetableView extends VerticalLayout {
 				/* ดึงข้อมูล ผู้สอนตามวิชาที่ชั้นปีสอน*/
 				if(event.getProperty().getValue() != null &&
 						semester.getValue() != null){
-					teaching.setContainerDataSource(new Teaching(event.getProperty().getValue(), semester.getValue()));
+					teaching.setContainerDataSource(new Teaching(event.getProperty().getValue(), semester.getValue(),Utility.sortOptionGroup(days.getValue())));
 				}
 				/* ตรวจสอบ เงื่อนไขการค้นหาข้อมูล */
 				if(days.getValue() != null &&
@@ -143,7 +144,7 @@ public class TimetableView extends VerticalLayout {
 				/* ดึงข้อมูล ผู้สอนตามวิชาที่ชั้นปีสอน*/
 				if(event.getProperty().getValue() != null &&
 						classYear.getValue() != null){
-					teaching.setContainerDataSource(new Teaching(classYear.getValue(), event.getProperty().getValue()));
+					teaching.setContainerDataSource(new Teaching(classYear.getValue(), event.getProperty().getValue(),Utility.sortOptionGroup(days.getValue())));
 				}
 				/* ตรวจสอบ เงื่อนไขการค้นหาข้อมูล */
 				if(classYear.getValue() != null &&
@@ -169,6 +170,12 @@ public class TimetableView extends VerticalLayout {
 
 			@Override
 			public void valueChange(ValueChangeEvent event) {
+				/* ดึงข้อมูล ผู้สอนตามวิชาที่ชั้นปีสอน*/
+				if(semester.getValue() != null &&
+						classYear.getValue() != null){
+					teaching.setContainerDataSource(new Teaching(classYear.getValue(), semester.getValue(), Utility.sortOptionGroup(event.getProperty().getValue())));
+				}
+				
 				/* ตรวจสอบ เงื่อนไขการค้นหาข้อมูล */
 				if(classYear.getValue() != null &&
 						semester.getValue() != null && 

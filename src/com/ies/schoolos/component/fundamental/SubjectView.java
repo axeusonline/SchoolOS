@@ -239,7 +239,7 @@ public class SubjectView extends ContentPage{
 					item = null;
 					save.setCaption("บันทึก");
 					initFieldGroup();
-					Notification.show("บันทึึกสำเร็จ", Type.HUMANIZED_MESSAGE);
+					Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 				} catch (Exception e) {
 					e.printStackTrace();
 					Notification.show("บันทึกไม่สำเร็จ", Type.HUMANIZED_MESSAGE);

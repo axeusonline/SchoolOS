@@ -226,7 +226,7 @@ public class ResignPersonnelView extends VerticalLayout {
 					readOnlyMode();
 					
 					fetchData();
-					Notification.show("บันทึึกสำเร็จ", Type.HUMANIZED_MESSAGE);
+					Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 				} catch (Exception e) {
 					e.printStackTrace();
 					Notification.show("บันทึกไม่สำเร็จ", Type.WARNING_MESSAGE);

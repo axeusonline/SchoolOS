@@ -10,5 +10,6 @@ public class TeachingSchema implements java.io.Serializable{
 	public static final String PERSONNEL_ID = "personnel_id";
 	public static final String PERSONNEL_NAME_TMP = "personnel_name_tmp";
 	public static final String SUBJECT_ID = "subject_id";
+	public static final String WEEKEND = "weekend";
 	public static final String ACADEMIC_YEAR = "academic_year";
 }

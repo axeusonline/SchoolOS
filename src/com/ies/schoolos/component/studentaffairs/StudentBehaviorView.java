@@ -1,7 +1,6 @@
-package com.ies.schoolos.component.registration;
+package com.ies.schoolos.component.studentaffairs;
 
 import org.tepi.filtertable.FilterTable;
-import org.vaadin.dialogs.ConfirmDialog;
 
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
@@ -10,34 +9,27 @@ import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.info.StudentSchema;
 import com.ies.schoolos.schema.info.StudentStudySchema;
 import com.ies.schoolos.type.Prename;
-import com.ies.schoolos.utility.Notification;
 import com.vaadin.data.Item;
-import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Notification.Type;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.CloseListener;
 
-public class StudentListView extends VerticalLayout {
+public class StudentBehaviorView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 	
 	private SQLContainer freeContainer;
 	
-	private HorizontalLayout toolbar;
-	private Button add;	
 	private FilterTable table;
 	
-	public StudentListView() {			
+	public StudentBehaviorView() {			
 		setSizeFull();
 		setSpacing(true);
 		setMargin(true);
@@ -47,35 +39,6 @@ public class StudentListView extends VerticalLayout {
 	}	
 	
 	private void buildMainLayout(){
-		/* Toolbar */
-		toolbar = new HorizontalLayout();
-		toolbar.setSpacing(true);
-		addComponent(toolbar);
-				
-		add = new Button("เพิ่ม", FontAwesome.USER);
-		add.addClickListener(new ClickListener() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				Window addLayout = new Window();
-				addLayout.setSizeFull();
-				addLayout.setContent(new AddStudentView());
-				addLayout.addCloseListener(new CloseListener() {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void windowClose(CloseEvent e) {
-						table.removeAllItems();
-						fetchData();
-						setFooterData();
-					}
-				});
-				UI.getCurrent().addWindow(addLayout);
-			}
-		});
-		toolbar.addComponent(add);
-		
 		Button excelExport = new Button("ส่งออกไฟล์ Excel", FontAwesome.FILE_EXCEL_O);
 		excelExport.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 1L;
@@ -147,7 +110,7 @@ public class StudentListView extends VerticalLayout {
 		builder.append(" WHERE ss." + StudentSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		builder.append(" AND ( ss." + StudentStudySchema.STUDENT_STATUS + "=" + 0);
 		builder.append(" OR ss." + StudentStudySchema.STUDENT_STATUS + "=" + 2 + ")");
-		
+
 		freeContainer = Container.getFreeFormContainer(builder.toString(), StudentStudySchema.STUDENT_STUDY_ID);
 		for(final Object itemId:freeContainer.getItemIds()){
 			Item item = freeContainer.getItem(itemId);
@@ -164,60 +127,26 @@ public class StudentListView extends VerticalLayout {
 	private HorizontalLayout initButtonLayout(final Item item, final Object itemId){
 		final HorizontalLayout buttonLayout = new HorizontalLayout();
 			
-		Button editButton = new Button(FontAwesome.EDIT);
-		editButton.setId(itemId.toString());
-		editButton.addClickListener(new ClickListener() {
+		Button addBehavior = new Button("หักคะแนนพฤติกรรม", FontAwesome.EYE_SLASH);
+		addBehavior.setId(itemId.toString());
+		addBehavior.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				
 				Window editLayout = new Window();
 				editLayout.setSizeFull();
-				editLayout.setContent(new EditStudentView(itemId));
 				UI.getCurrent().addWindow(editLayout);
+				
+				VerticalLayout studentBehavior = new VerticalLayout();
+				studentBehavior.setSizeFull();
+				studentBehavior.addComponent(new AddStudentBehaviorView(itemId.toString()));
+				editLayout.setContent(studentBehavior);
 			}
 		});
-		buttonLayout.addComponent(editButton);
-		buttonLayout.setComponentAlignment(editButton, Alignment.MIDDLE_CENTER);
+		buttonLayout.addComponent(addBehavior);
+		buttonLayout.setComponentAlignment(addBehavior, Alignment.MIDDLE_CENTER);
 		
-		Button removeButton = new Button(FontAwesome.TRASH_O);
-		removeButton.setId(itemId.toString());
-		removeButton.addClickListener(new ClickListener() {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public void buttonClick(ClickEvent event) {
-				ConfirmDialog.show(UI.getCurrent(), "ลบนักเรียน","การลบข้อมูลจะส่งผลต่อข้อมูลประวัติการทำงาน และการสอนทั้งหมด คุณต้องการลบนักเรียนนี้ใช่หรือไม่?","ตกลง","ยกเลิก",
-			        new ConfirmDialog.Listener() {
-						private static final long serialVersionUID = 1L;
-						public void onClose(ConfirmDialog dialog) {
-			                if (dialog.isConfirmed()) {
-			                	SQLContainer studyContainer = Container.getStudentStudyContainer();
-			                	SQLContainer ssontainer = Container.getStudentContainer();
-
-			                	Object studentId = studyContainer.getItem(itemId).getItemProperty(StudentStudySchema.STUDENT_ID).getValue();
-
-			                	if(studyContainer.removeItem(itemId)){
-			                		try {
-			                			studyContainer.commit();
-			                			if(ssontainer.removeItem(new RowId(studentId))){
-			                				ssontainer.commit();
-			                				table.removeAllItems();
-				                			fetchData();
-				                			setFooterData();
-			                			}
-			                			
-									}catch (Exception e1) {
-										Notification.show("บันทึกไม่สำเร็จ กรุณาลองอีกครั้ง" , Type.WARNING_MESSAGE);
-										e1.printStackTrace();
-									}
-			                	}
-			                }
-			            }
-			        });
-			}
-		});
-		buttonLayout.addComponent(removeButton);
-		buttonLayout.setComponentAlignment(removeButton, Alignment.MIDDLE_CENTER);
+		
 		return buttonLayout;
 	}
 	
