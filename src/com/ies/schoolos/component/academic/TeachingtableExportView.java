@@ -11,6 +11,7 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.util.CellRangeAddress;
 
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.SessionSchema;
@@ -19,7 +20,6 @@ import com.ies.schoolos.schema.academic.TeachingSchema;
 import com.ies.schoolos.schema.academic.TimetableSchema;
 import com.ies.schoolos.schema.fundamental.ClassRoomSchema;
 import com.ies.schoolos.schema.info.PersonnelSchema;
-import com.ies.schoolos.type.ClassYear;
 import com.ies.schoolos.type.Days;
 import com.ies.schoolos.type.Semester;
 import com.ies.schoolos.type.dynamic.Teaching;
@@ -50,18 +50,19 @@ public class TeachingtableExportView extends VerticalLayout {
 	/* ที่เก็บข้อมูลตารางสอน อาจารย์ในแต่ละคาบ มารวมเป็น แถวเดียว 
 	 *  Object แสดงถึง Index ของวัน 
      *  Object[] แสดง index ของคาบ โดยภายในเก็บ timetableId */
-	private HashMap<Object, Object[]> teachings;
+	private HashMap<Object, Object[]> teachingArrays;
+	/* เก็บชื่อของอาจารย์ ที่ไม่ซ้ำกัน 
+	 * โดยที่ Key เก็บชื่อ */
+	private ArrayList<String> teachingAssigned = new ArrayList<String>();
 
 	private SQLContainer teachingContainer = Container.getTeachingContainer();
-	//private SQLContainer classRoomContainer = Container.getClassRoomContainer();
-	//private SQLContainer timetableContainer = Container.getTimetableContainer();
 	private SQLContainer timetableFreeFormContainer;
 	private SQLContainer freeFormContainer;
-	
+
 	private Teaching teaching;
+	private Teaching teachingAll = new Teaching();
 	
 	private FormLayout settingForm;
-	private ComboBox classYear;
 	private ComboBox semester;
 	
 	private VerticalLayout timetableLayout;
@@ -86,34 +87,6 @@ public class TeachingtableExportView extends VerticalLayout {
 		lblSetting.setContentMode(ContentMode.HTML);
 		settingForm.addComponent(lblSetting);
 		
-		classYear = new ComboBox("ชั้นปี", new ClassYear());
-		classYear.setRequired(true);
-		classYear.setInputPrompt("เลือกข้อมูล");
-		classYear.setItemCaptionPropertyId("name");
-		classYear.setImmediate(true);
-		classYear.setNullSelectionAllowed(false);
-		classYear.setFilteringMode(FilteringMode.CONTAINS);
-		classYear.addValueChangeListener(new ValueChangeListener() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void valueChange(ValueChangeEvent event) {
-				/* ดึงข้อมูล ผู้สอนตามวิชาที่ชั้นปีสอน*/
-				if(event.getProperty().getValue() != null &&
-						semester.getValue() != null){
-					teaching = new Teaching(event.getProperty().getValue(), semester.getValue());
-				}
-				/* ตรวจสอบ เงื่อนไขการค้นหาข้อมูล */
-				if(semester.getValue() != null && 
-						event.getProperty().getValue() != null){
-					timetableLayout.removeAllComponents();
-					seachAllTimetable();
-					setTeachingTimetable();
-				}
-			}
-		});
-		settingForm.addComponent(classYear);
-		
 		semester = new ComboBox("ภาคเรียน", new Semester());
 		semester.setRequired(true);
 		semester.setInputPrompt("เลือกข้อมูล");
@@ -127,13 +100,8 @@ public class TeachingtableExportView extends VerticalLayout {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				/* ดึงข้อมูล ผู้สอนตามวิชาที่ชั้นปีสอน*/
-				if(event.getProperty().getValue() != null &&
-						semester.getValue() != null){
-					teaching = new Teaching(classYear.getValue(), event.getProperty().getValue());
-				}
-				/* ตรวจสอบ เงื่อนไขการค้นหาข้อมูล */
-				if(classYear.getValue() != null
-						&& event.getProperty().getValue() != null){
+				if(event.getProperty().getValue() != null ){
+					teaching = new Teaching((int)event.getProperty().getValue());
 					timetableLayout.removeAllComponents();
 					seachAllTimetable();
 					setTeachingTimetable();
@@ -152,7 +120,6 @@ public class TeachingtableExportView extends VerticalLayout {
 	
 	private void setTableStyle(Table table){
 		table.addContainerProperty(TimetableSchema.WORKING_DAY, String.class, null);
-		table.addContainerProperty(TeachingSchema.PERSONNEL_ID, String.class, null);
 		table.addContainerProperty("1", String.class, null);
 		table.addContainerProperty("2", String.class, null);
 		table.addContainerProperty("3", String.class, null);
@@ -165,7 +132,6 @@ public class TeachingtableExportView extends VerticalLayout {
 		table.addContainerProperty("10", String.class, null);
 		
 		table.setColumnAlignment(TimetableSchema.WORKING_DAY,Align.CENTER);
-		table.setColumnAlignment(TeachingSchema.PERSONNEL_ID,Align.CENTER);
 		table.setColumnAlignment("1",Align.CENTER);
 		table.setColumnAlignment("2",Align.CENTER);
 		table.setColumnAlignment("3",Align.CENTER);
@@ -178,7 +144,6 @@ public class TeachingtableExportView extends VerticalLayout {
 		table.setColumnAlignment("10",Align.CENTER);
 		
 		table.setColumnHeader(TimetableSchema.WORKING_DAY,"วัน");
-		table.setColumnHeader(TeachingSchema.PERSONNEL_ID,"อาจารย์");
 		table.setColumnHeader("1","1");
 		table.setColumnHeader("2","2");
 		table.setColumnHeader("3","3");
@@ -192,7 +157,6 @@ public class TeachingtableExportView extends VerticalLayout {
 		
 		table.setVisibleColumns(
 				TimetableSchema.WORKING_DAY,
-				TeachingSchema.PERSONNEL_ID,
 				"1","2","3","4","5","6","7","8","9","10");
 		
 	}
@@ -209,13 +173,12 @@ public class TeachingtableExportView extends VerticalLayout {
 		int tab = 1;
 		
 		for (Object itemId: teaching.getItemIds()) {
-			
-			boolean isDuplicate = false;
-			
+			Item teachingItem = teaching.getItem(itemId);
 			seachTeachingTimetable(itemId);
-			String lecturerName = getLecturerName(teaching.getContainerProperty(itemId, "name").getValue().toString());
-			
-			if(isDuplicate == false){
+			String lecturerName = getLecturerName(teachingItem.getItemProperty("name").getValue().toString());
+
+			if(!teachingAssigned.contains(lecturerName)){
+				teachingAssigned.add(lecturerName);
 				Table exportTable = new Table();
 				exportTable.setWidth("100%");
 				exportTable.setHeight("340px");
@@ -223,21 +186,20 @@ public class TeachingtableExportView extends VerticalLayout {
 				timetableLayout.addComponent(exportTable);
 				
 				for (int i=0; i < 7;i++) {
-					final int weekDay = i;
+					final int workDay = i;
 					/* ArrayList 10 index 
 					 *  Index แรกแสดงถึงวัน ระหว่าง 0-6 (อ-ส) ที่เหลือแสดงถึง คาบ 9 คาบ*/
 					ArrayList<Object> data = new ArrayList<Object>();
+					data.add(Days.getNameTh(workDay));
 					/* ตรวจสอบจำนวนข้อมูลตารางสอนที่พบ
 					 *  กรณีพบตารางสอนที่เคยใส่ก่อนหน้า จะถูกนำมากำหนดปุ่มบนตาราง โดยทำเป็นสีแดง 
 					 *  กรณีไม่พบตารางสอน จะใส่ปุ่มสีเขียวทั้งหมด */
-					if(teachings.size() > 0){
+					if(teachingArrays.size() > 0){
 						/* ตรวจสอบว่ามีการใส่ค่าของ index วัน บน Map หรือยัง
 						 *  ถ้าใส่แล้วก็ดึงข้อมูลเก่ามาอัพเดทคาบเรียน ให้ครบทุกคาบ 
 						 *  ถ้ายังไม่ใส่ ก็มาใส่ปุ่มสีเขียว โดยตรวจสอบว่าเป็นวันหยุดหรือไม่ */
-						if(teachings.containsKey(weekDay)){
-							data.add(Days.getNameTh(weekDay));
-							data.add(lecturerName);
-							Object timetableIdArray[] = teachings.get(weekDay);
+						if(teachingArrays.containsKey(workDay)){
+							Object timetableIdArray[] = teachingArrays.get(workDay);
 							/*ข้อมูลตารางสอน ระหว่างคาบ โดยมี 9 ช่อง หรือ 9 คาบ
 							 *  Index ต่อมาแสดงถึงคาบ 9 คาบ ระหว่าง 0-8 (1-9) */
 							for(int j=0; j < 10; j++){
@@ -250,66 +212,73 @@ public class TeachingtableExportView extends VerticalLayout {
 								}else{
 									final Object timetableId = timetableIdArray[j];
 									Item timetableItem = timetableFreeFormContainer.getItem(new RowId(timetableId));
+
 									if(timetableItem != null){
 										/* แสดง ชื่ออาจารย์ /n ห้องเรียน*/
-										String caption = getTeachingName(new Teaching().
+										String caption = getTeachingName(teachingAll.
 												getItem(new RowId(timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue())).
 												getItemProperty("name").getValue().toString()) + "\n" +										
 												timetableItem.getItemProperty(ClassRoomSchema.NAME).getValue();
-
 										content = caption;
 									}else{
-										content = "ไม่ระบุ";
+										content = "ว่าง";
 									}
 								}
 								data.add(content);
 							}
-							exportTable.addItem(data.toArray(),weekDay);
+							exportTable.addItem(data.toArray(),workDay);
 						}
 					}else{
-						data.add(Days.getNameTh(weekDay));	
 						for(int j=0; j < 10; j++){
 							String content = "ว่าง";
 							data.add(content);
 						}
-						exportTable.addItem(data.toArray(),weekDay);
+						exportTable.addItem(data.toArray(),workDay);
 					}
 				}
 					
-				HSSFSheet sheet = workbook.createSheet(tab + "." + lecturerName); 
-				sheet.autoSizeColumn(0);
+				HSSFSheet sheet = workbook.createSheet(tab + "." + lecturerName); 				
+				sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 10));
 				
-				HSSFRow header = sheet.createRow(0);
+				
 				/* ใส่หัวตาราง */
+				HSSFRow headerRow = sheet.createRow(1);
 				int column = 0;
 				for(Object colHead:exportTable.getColumnHeaders()){
-					HSSFCell cell = header.createCell(column);
+					HSSFCell cell = headerRow.createCell(column);
 					cell.setCellValue(new HSSFRichTextString(colHead.toString()));
 					cell.setCellStyle(cs);
 					column++;
 				}
 				
 				/* ใส่หัวตาราง */
-				int rowIndex = 1;
+				int rowIndex = 2;
+				int totalSec = -5;
 				for(Object exportId: exportTable.getItemIds()){
 					Item item = exportTable.getItem(exportId);
-					sheet.autoSizeColumn(rowIndex);
 					HSSFRow row = sheet.createRow(rowIndex);
-					row.setHeightInPoints((2*sheet.getDefaultRowHeightInPoints()));
+					row.setHeightInPoints((3*sheet.getDefaultRowHeightInPoints()));
 					
 					column = 0;
 					for(Object property:exportTable.getContainerPropertyIds()){
+						String value = item.getItemProperty(property).getValue().toString();
+						sheet.autoSizeColumn(column);
 						HSSFCell cell = row.createCell(column); 
-						/* กรณีเป็นชื่ออาจารย์ ไม่ต้องขึ้นบรรทัดใหม่ */
-						if(!property.equals(TeachingSchema.PERSONNEL_ID))
-							cell.setCellValue(item.getItemProperty(property).getValue().toString().replaceAll(" ", "\n"));
-						else
-							cell.setCellValue(item.getItemProperty(property).getValue().toString());
+						cell.setCellValue(value);
 						cell.setCellStyle(cs);
 						column++;
+						if(!value.equals("ว่าง")){
+							totalSec++;
+						}
 					}
 					rowIndex++;
 				}	
+				
+				/* ใส่หัวข้อตารางบรรทัดบนสุด ซึ่งต้องผ่านการนับจำนวนคาบ */
+				HSSFRow titleRow = sheet.createRow(0);
+				HSSFCell cell = titleRow.createCell(0);
+				cell.setCellValue(new HSSFRichTextString("ตารางสอนอาจารย์ " + lecturerName + " จำนวน " + totalSec + " คาบ"));
+				cell.setCellStyle(cs);
 				tab++;
 			}
 		}
@@ -333,9 +302,9 @@ public class TeachingtableExportView extends VerticalLayout {
 
 	/* ค้นหาข้อมูลตารางสอนของอาจารย์ทั้งหมด */
 	private void seachTeachingTimetable(Object teachingId){
-		teachings = new HashMap<Object, Object[]>();
+		teachingArrays = new HashMap<Object, Object[]>();
 		Item teachingItem = teachingContainer.getItem(teachingId);
-		
+
 		freeFormContainer = Container.getFreeFormContainer(getTeachingSQL(teachingItem), TimetableSchema.TIMETABLE_ID);
 		/* นำข้อมูลที่ได้มาใส่ใน Object โดยในฐานข้อมูลจะเก็บ 1 คาบ 1 แถว แต่มาใส่ในตารางจะต้องมารวมทุกคาบมาเป็นแถวเดียวโดยแยกตามวัน */
 		for (Object itemId:freeFormContainer.getItemIds()) {
@@ -348,21 +317,39 @@ public class TeachingtableExportView extends VerticalLayout {
 			/* ตรวจสอบ ข้อมูลตารางเรียนจาก Key ที่แทนด้วย index ของวัน 0-6
 			 *  กรณีมีข้อมูลถูกระบุแล้ว จะทำการดึงข้อมูลแล้วใส่ ตารางใน Value ของ คาบช่วงระหว่าง 0-8
 			 *  กรณีไม่มีข้อมูล ก็ทำการเพิ่ม Key ใหม่ โดยกำหนด Value ของคาบช่วงระหว่าง 0-8*/
-			if(teachings.containsKey(workDay)){
-				Object timetableIdArray[] = teachings.get(workDay);
+			if(teachingArrays.containsKey(workDay)){
+				Object timetableIdArray[] = teachingArrays.get(workDay);
 				timetableIdArray[(int)section] = timetableId;
-				teachings.put(workDay, timetableIdArray);
+				teachingArrays.put(workDay, timetableIdArray);
 			}else{
 				Object timetableIdArray[] = new Object[10];
 				timetableIdArray[(int)section] = timetableId;
-				teachings.put(workDay, timetableIdArray);
+				teachingArrays.put(workDay, timetableIdArray);
 			}
 		}
 	}
 
 	/* ค้นหาข้อมูลตารางสอนทั้งหมด */
 	private void seachAllTimetable(){
-		timetableFreeFormContainer = Container.getFreeFormContainer(getAllTimetable(), TimetableSchema.TIMETABLE_ID);
+		/* SELECT * FROM timetable tt
+		* INNER JOIN class_room cr ON cr.class_room_id = tt.timetable_id
+		* INNER JOIN teaching tc ON tc.teaching_id = tt.teaching_id
+		* INNER JOIN lesson_plan_subject lps ON lps.subject_id = tc.subject_id
+		* WHERE lps.semester = ?
+		* AND tc.academic_year = ?; */
+		
+		StringBuilder sql = new StringBuilder();	
+		sql.append(" SELECT tt.*,cr.* FROM " + TimetableSchema.TABLE_NAME +" tt");
+		sql.append(" INNER JOIN " + ClassRoomSchema.TABLE_NAME + " cr ON cr." + ClassRoomSchema.CLASS_ROOM_ID + "=" + "tt." + TimetableSchema.CLASS_ROOM_ID);
+		sql.append(" INNER JOIN " + TeachingSchema.TABLE_NAME + " tc ON tc." + TeachingSchema.TEACHING_ID + "=" + "tt." + TimetableSchema.TEACHING_ID);
+		sql.append(" INNER JOIN " + LessonPlanSubjectSchema.TABLE_NAME + " lps ON lps." + LessonPlanSubjectSchema.SUBJECT_ID + "=" + "tc." + TeachingSchema.SUBJECT_ID);
+		/*sql.append(" WHERE lps." + LessonPlanSubjectSchema.CLASS_YEAR + "=" + classYear.getValue());
+		sql.append(" AND cr." + LessonPlanSubjectSchema.CLASS_YEAR + "=" + classYear.getValue());*/
+		sql.append(" WHERE lps." + LessonPlanSubjectSchema.SEMESTER + "=" + semester.getValue());
+		sql.append(" AND tc." + TeachingSchema.ACADEMIC_YEAR + "='" + DateTimeUtil.getBuddishYear()+"'");	
+		sql.append(" AND tc." + TimetableSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());	
+		
+		timetableFreeFormContainer = Container.getFreeFormContainer(sql.toString(), TimetableSchema.TIMETABLE_ID);
 	}
 		
 	/* ดึงข้อมูลการสอนทั้งหมด ของครูผู้สอน */
@@ -376,7 +363,7 @@ public class TeachingtableExportView extends VerticalLayout {
 			* WHERE p.personnel_id=? 
 			* AND tt.school_id = ?*/
 					 
-			sql.append(" SELECT * FROM " + TimetableSchema.TABLE_NAME +" tt");
+			sql.append(" SELECT tt.* FROM " + TimetableSchema.TABLE_NAME +" tt");
 			sql.append(" INNER JOIN " + TeachingSchema.TABLE_NAME + " t ON tt." + TeachingSchema.TEACHING_ID + "=" + "t." + TimetableSchema.TEACHING_ID);
 			sql.append(" INNER JOIN " + PersonnelSchema.TABLE_NAME + " p ON p." + PersonnelSchema.PERSONNEL_ID + "=" + "t." + TeachingSchema.PERSONNEL_ID);
 			sql.append(" WHERE p." + PersonnelSchema.PERSONNEL_ID + "=" + item.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue());
@@ -387,38 +374,12 @@ public class TeachingtableExportView extends VerticalLayout {
 			 * WHERE t.personnel_name_tmp=?
 			 * AND tt.school_id = ?*/
 			
-			sql.append(" SELECT * FROM " + TimetableSchema.TABLE_NAME +" tt");
+			sql.append(" SELECT tt.* FROM " + TimetableSchema.TABLE_NAME +" tt");
 			sql.append(" INNER JOIN " + TeachingSchema.TABLE_NAME + " t ON tt." + TeachingSchema.TEACHING_ID + "=" + "t." + TimetableSchema.TEACHING_ID);
 			sql.append(" WHERE t." + TeachingSchema.PERSONNEL_NAME_TMP + "='" + item.getItemProperty(TeachingSchema.PERSONNEL_NAME_TMP).getValue()+"'");
 		}
 
 		sql.append(" AND tt." + TeachingSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
-
-		return sql.toString();
-	}
-	
-	/* ดึงข้อมูลตารางสอนทั้งหมดของชั้นปี */
-	private String getAllTimetable(){
-		/* SELECT * FROM timetable tt
-		* INNER JOIN class_room cr ON cr.class_room_id = tt.timetable_id
-		* INNER JOIN teaching tc ON tc.teaching_id = tt.teaching_id
-		* INNER JOIN lesson_plan_subject lps ON lps.subject_id = tc.subject_id
-		* WHERE lps.class_year = ? 
-		* AND cr.class_year = ? 
-		* AND lps.semester = ?
-		* AND tc.academic_year = ?; */
-		
-		StringBuilder sql = new StringBuilder();	
-		sql.append(" SELECT * FROM " + TimetableSchema.TABLE_NAME +" tt");
-		sql.append(" INNER JOIN " + ClassRoomSchema.TABLE_NAME + " cr ON cr." + ClassRoomSchema.CLASS_ROOM_ID + "=" + "tt." + TimetableSchema.CLASS_ROOM_ID);
-		sql.append(" INNER JOIN " + TeachingSchema.TABLE_NAME + " tc ON tc." + TeachingSchema.TEACHING_ID + "=" + "tt." + TimetableSchema.TEACHING_ID);
-		sql.append(" INNER JOIN " + LessonPlanSubjectSchema.TABLE_NAME + " lps ON lps." + LessonPlanSubjectSchema.SUBJECT_ID + "=" + "tc." + TeachingSchema.SUBJECT_ID);
-		sql.append(" WHERE lps." + LessonPlanSubjectSchema.CLASS_YEAR + "=" + classYear.getValue());
-		sql.append(" AND cr." + LessonPlanSubjectSchema.CLASS_YEAR + "=" + classYear.getValue());
-		sql.append(" AND lps." + LessonPlanSubjectSchema.SEMESTER + "=" + semester.getValue());
-		sql.append(" AND tc." + TeachingSchema.ACADEMIC_YEAR + "='" + DateTimeUtil.getBuddishYear()+"'");	
-		sql.append(" AND tc." + TimetableSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());	
-		
 		return sql.toString();
 	}
 	

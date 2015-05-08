@@ -59,7 +59,7 @@ public class SchoolOSUI extends UI {
 	private void autoLogin(){	
 		Cookie email = getCookieByName(SessionSchema.EMAIL);
 		Cookie password = getCookieByName(SessionSchema.PASSWORD);
-		
+		System.err.println("COOKIE :" + email + "," + password);
 		if(email == null && password == null){
 			setContent(new LoginView());
 		}else{
@@ -68,7 +68,6 @@ public class SchoolOSUI extends UI {
 					new Equal(UserSchema.PASSWORD,password.getValue())));
 
 			if(userContainer.size() != 0){
-				
 				Item item = userContainer.getItem(userContainer.getIdByIndex(0));
 				Item schoolItem = schoolContainer.getItem(new RowId(item.getItemProperty(UserSchema.SCHOOL_ID).getValue()));
 				SessionSchema.setSession(

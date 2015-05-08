@@ -11,6 +11,7 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.util.CellRangeAddress;
 
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.container.DbConnection;
@@ -54,13 +55,14 @@ public class TimetableExportView extends VerticalLayout {
 	 *   HashMap<Object, Object[]> 
 	 *     > Object แสดงถึง Id ของห้องเรียน
 	 *     > Object[] แสดง index ของคาบ โดยภายในเก็บ timetableId */
-	private HashMap<Object, HashMap<Object, Object[]>> timetables;
+	private HashMap<Object, HashMap<Object, Object[]>> timetableArray;
 
 	private SQLContainer freeFormContainer;
 	
+	private Teaching teachingAll = new Teaching();
+	
 	private FormLayout settingForm;
 	private ComboBox classYear;
-	//private OptionGroup days;
 	private ComboBox semester;
 	
 	private VerticalLayout timetableLayout;
@@ -102,15 +104,6 @@ public class TimetableExportView extends VerticalLayout {
 		});
 		settingForm.addComponent(classYear);
 		
-		/*days = new OptionGroup("เลือกวันหยุด", new Days());
-		days.setMultiSelect(true);
-		days.setRequired(true);
-		days.setItemCaptionPropertyId("name");
-        days.setNullSelectionAllowed(false);
-        days.setHtmlContentAllowed(true);
-        days.setImmediate(true);
-        settingForm.addComponent(days);*/
-        
 		semester = new ComboBox("ภาคเรียน", new Semester());
 		semester.setRequired(true);
 		semester.setInputPrompt("เลือกข้อมูล");
@@ -199,11 +192,14 @@ public class TimetableExportView extends VerticalLayout {
 		cs.setWrapText(true);
 		cs.setAlignment(CellStyle.ALIGN_CENTER);
 		cs.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
-		 
+		
+		SQLContainer classRoomLessonPlanContainer = searchClassRoomLessonPlan();
+		
 		/* ดึงห้องเรียนทั้งหมดในปีการศึกษา */
-		for(Object itemId:searchClassRoomLessonPlan().getItemIds()){
-			Object classRoomId = searchClassRoomLessonPlan().getItem(itemId).getItemProperty(ClassRoomLessonPlanSchema.CLASS_ROOM_ID).getValue();
-			String roomNumber = searchClassRoomLessonPlan().getItem(itemId).getItemProperty(ClassRoomSchema.NUMBER).getValue().toString();
+		for(Object itemId:classRoomLessonPlanContainer.getItemIds()){
+			Object classRoomId = classRoomLessonPlanContainer.getItem(itemId).getItemProperty(ClassRoomLessonPlanSchema.CLASS_ROOM_ID).getValue();
+			String roomNumber = classRoomLessonPlanContainer.getItem(itemId).getItemProperty(ClassRoomSchema.NUMBER).getValue().toString();
+			String roomName = classRoomLessonPlanContainer.getItem(itemId).getItemProperty(ClassRoomSchema.NAME).getValue().toString();
 			
 			Table exportTable = new Table();
 			exportTable.setWidth("100%");
@@ -223,9 +219,9 @@ public class TimetableExportView extends VerticalLayout {
 					/* ตรวจสอบจำนวนข้อมูลตารางสอนที่พบ
 					 *  กรณีพบตารางสอนที่เคยใส่ก่อนหน้า จะตรวจคาบใหนที่กำหนดแล้ว (สีแดง) หรือ ยังไม่กำหนด (เขียว) 
 					 *  กรณีไม่พบตารางสอน จะใส่ปุ่มสีเขียวทั้งหมด */
-					if(timetables.size() > 0){
-						if(timetables.containsKey(weekDay)){
-							HashMap<Object, Object[]> teachingsTmp = timetables.get(weekDay);
+					if(timetableArray.size() > 0){
+						if(timetableArray.containsKey(weekDay)){
+							HashMap<Object, Object[]> teachingsTmp = timetableArray.get(weekDay);
 							/* ตรวจสอบว่าวันดัวกล่าวมีการกำหนดคาบอย่างน้อยหนึ่งคาบหรือไม่
 							 *  กรณีมีการกำหนด ก็จะทำการกดหนด ตาบสีแดง ในวันดังกล่าง
 							 *  กรณีไม่มีการกำหนดคาบได ๆ เลย จะกำหนด สีเขียวทั้งหมดของห้องดังกล่าว */
@@ -248,7 +244,7 @@ public class TimetableExportView extends VerticalLayout {
 										Object timetableId = timetableIdArray[j];
 
 										Item timetableItem = freeFormContainer.getItem(new RowId(timetableId));
-										String caption = new Teaching().
+										String caption = teachingAll.
 												getItem(new RowId(timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue())).
 												getItemProperty("name").getValue().toString();
 
@@ -278,36 +274,48 @@ public class TimetableExportView extends VerticalLayout {
 				//}
 			}
 			
-			HSSFSheet sheet = workbook.createSheet(roomNumber); 
-			sheet.autoSizeColumn(0);
+			HSSFSheet sheet = workbook.createSheet(roomNumber); 				
+			sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 10));
 			
-			HSSFRow header = sheet.createRow(0);
+			
 			/* ใส่หัวตาราง */
+			HSSFRow headerRow = sheet.createRow(1);
 			int column = 0;
 			for(Object colHead:exportTable.getColumnHeaders()){
-				HSSFCell cell = header.createCell(column);
+				HSSFCell cell = headerRow.createCell(column);
 				cell.setCellValue(new HSSFRichTextString(colHead.toString()));
 				cell.setCellStyle(cs);
 				column++;
 			}
 			
 			/* ใส่หัวตาราง */
-			int rowIndex = 1;
+			int rowIndex = 2;
+			int totalSec = -5;
 			for(Object exportId: exportTable.getItemIds()){
 				Item item = exportTable.getItem(exportId);
-				sheet.autoSizeColumn(rowIndex);
 				HSSFRow row = sheet.createRow(rowIndex);
-				row.setHeightInPoints((2*sheet.getDefaultRowHeightInPoints()));
+				row.setHeightInPoints((3*sheet.getDefaultRowHeightInPoints()));
 				
 				column = 0;
 				for(Object property:exportTable.getContainerPropertyIds()){
+					String value = item.getItemProperty(property).getValue().toString();
+					sheet.autoSizeColumn(column);
 					HSSFCell cell = row.createCell(column); 
-					cell.setCellValue(item.getItemProperty(property).getValue().toString().replaceAll(" ", "\n"));
+					cell.setCellValue(value);
 					cell.setCellStyle(cs);
 					column++;
+					if(!value.equals("ว่าง")){
+						totalSec++;
+					}
 				}
 				rowIndex++;
-			}
+			}	
+			
+			/* ใส่หัวข้อตารางบรรทัดบนสุด ซึ่งต้องผ่านการนับจำนวนคาบ */
+			HSSFRow titleRow = sheet.createRow(0);
+			HSSFCell cell = titleRow.createCell(0);
+			cell.setCellValue(new HSSFRichTextString("ตารางสอน ชั้น" + roomName + " จำนวน " + totalSec + " คาบ"));
+			cell.setCellStyle(cs);
 		}
 		
 		try{			
@@ -329,7 +337,7 @@ public class TimetableExportView extends VerticalLayout {
 	
 	/* ค้นหาข้อมูลตารางสอนทั้งหมด */
 	private void seachAllTimetable(){
-		timetables = new HashMap<Object, HashMap<Object, Object[]>>();
+		timetableArray = new HashMap<Object, HashMap<Object, Object[]>>();
 		freeFormContainer = Container.getFreeFormContainer(getAllTimetable(), TimetableSchema.TIMETABLE_ID);
         
 		/* นำข้อมูลที่ได้มาใส่ใน Object โดยในฐานข้อมูลจะเก็บ 1 คาบ 1 แถว แต่มาใส่ในตารางจะต้องมารวมทุกคาบมาเป็นแถวเดียวโดยแยกตามวัน */
@@ -342,11 +350,11 @@ public class TimetableExportView extends VerticalLayout {
 
 			HashMap<Object, Object[]>  classRoomMap = new HashMap<Object, Object[]>();
 			
-			/* ตรวจสอบว่ามีการกำหนด ตารางสอนใน timetables Map ด้วย index วัน
+			/* ตรวจสอบว่ามีการกำหนด ตารางสอนใน timetableArray Map ด้วย index วัน
 			 *  กรณีมี ก็ให้ไปหา classRooms Map 
 			 *  กรณีไม่มี ก็ทำการกำหนดค่า Default ของ Map ทั้งหมด */
-			if(timetables.containsKey(workDay)){
-				classRoomMap = timetables.get(workDay);
+			if(timetableArray.containsKey(workDay)){
+				classRoomMap = timetableArray.get(workDay);
 				/* ตรวจสอบว่ามีการกำหนดใน classRooms Map  หรือยัง
 				 *  กรณีมี ก็ให้กำหนดค่า timetableId ของแต่ละค่าบ
 				 *  กรณีไม่มี ก็ทำการกำหนดค่าของ teaching Map */
@@ -359,12 +367,12 @@ public class TimetableExportView extends VerticalLayout {
 					timetableIdArray[(int)section] = timetableId;
 					classRoomMap.put(classRoomId, timetableIdArray);
 				}
-				timetables.put(workDay, classRoomMap);
+				timetableArray.put(workDay, classRoomMap);
 			}else{
 				Object timetableIdArray[] = new Object[10];
 				timetableIdArray[(int)section] = timetableId;
 				classRoomMap.put(classRoomId, timetableIdArray);
-				timetables.put(workDay, classRoomMap);
+				timetableArray.put(workDay, classRoomMap);
 			}
 		}
 	}

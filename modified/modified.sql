@@ -417,9 +417,75 @@ CREATE TABLE IF NOT EXISTS `student_behavior` (
   `modified_by_id` int(11) DEFAULT NULL COMMENT 'FK ผู้แก้ไขข้อมูล',
   `modified_date` datetime DEFAULT NULL COMMENT 'วันเดือนปีที่แก้ไขข้อมูล',
   PRIMARY KEY (`student_behavior_id`),
-  KEY `fk_student_behavior_has__school_idx` (`school_id`),
+  KEY `fk_student_behavior_has_school_idx` (`school_id`),
   KEY `fk_student_behavior_has_student_study_idx` (`student_study_id`),
   KEY `fk_student_behavior_has_behavior_idx` (`behavior_id`),
   CONSTRAINT `fk_student_behavior_has_behavior` FOREIGN KEY (`behavior_id`) REFERENCES `behavior` (`behavior_id`),
   CONSTRAINT `fk_student_behavior_has_student_study` FOREIGN KEY (`student_study_id`) REFERENCES `student_study` (`student_study_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='พฤติกรรมนักเรียน';
+
+/* 
+ * Description : เพิ่มเติมข้อมูลการบรรจุ ของ Personnel
+ * Date : 08/05/2015
+ */
+ALTER TABLE `personnel`  
+ADD `license_lecturer_number` VARCHAR(32) NULL COMMENT 'เลขที่ใบประกอบวิชาชีพครู' AFTER `start_work_date`,  
+ADD `license_lecturer_type` TINYINT NULL COMMENT 'ประเภทใบประกอบวิชาชีพ' AFTER `license_lecturer_number`,  
+ADD `license_lecturer_issued_date` DATE NULL COMMENT 'วัน เดือน ปี ที่ได้หมายเลขครู' AFTER `license_lecturer_type`,  
+ADD `license_lecturer_expired_date` DATE NULL COMMENT 'วัน เดือน ปี ที่หมดอายุหมายเลขครู' AFTER `license_lecturer_issued_date`,  
+ADD `license_11_number` VARCHAR(32) NULL COMMENT 'เลขที่ใบอนุญาติ สช 11' AFTER `license_lecturer_expired_date`,  
+ADD `license_issue_area` VARCHAR(128) NULL COMMENT 'เขตพื้นที่ ที่ออก' AFTER `license_11_number`,  
+ADD `license_issue_province_id` INT NULL COMMENT 'ออกโดย(จังหวัด)' AFTER `license_issue_area`,  
+ADD `license_17_number` VARCHAR(32) NULL COMMENT 'เลขที่ใบอนุญาติ สช 17' AFTER `license_issue_province_id`,  
+ADD `license_18_number` VARCHAR(32) NULL COMMENT 'เลขที่ใบอนุญาติ สช 18' AFTER `license_17_number`,  
+ADD `license_19_number` VARCHAR(32) NULL COMMENT 'เลขที่ใบอนุญาติ สช 19' AFTER `license_18_number`,  
+ADD `fill_degree_post` VARCHAR(128) NULL COMMENT 'วุฒิที่ได้รับการบรรจุ' AFTER `license_19_number`,  
+ADD `fill_degree_post_date` DATE NULL COMMENT 'วัน เดือน ปีที่ได้รับการบรรจุ' AFTER `fill_degree_post`;
+
+ALTER TABLE `personnel_graduated_history` ADD `school_id` INT NOT NULL COMMENT 'FK โรงเรียน' ;
+
+ALTER TABLE `personnel_graduated_history`
+ADD CONSTRAINT fk_personnel_graduated_history_has_school
+FOREIGN KEY (school_id)
+REFERENCES school(school_id);
+
+DELETE FROM student WHERE school_id NOT IN (SELECT school_id FROM school);
+
+ALTER TABLE `student`
+ADD CONSTRAINT `fk_student_has_father` FOREIGN KEY (father_id) REFERENCES family(family_id),
+ADD CONSTRAINT `fk_student_has_mother` FOREIGN KEY (mother_id) REFERENCES family(family_id),
+ADD CONSTRAINT `fk_student_has_school` FOREIGN KEY (school_id) REFERENCES school(school_id);
+
+ALTER TABLE `student_study`
+ADD CONSTRAINT `fk_student_study_has_guardian` FOREIGN KEY (guardian_id) REFERENCES family(family_id),
+ADD CONSTRAINT `fk_student_study_has_student` FOREIGN KEY (student_id) REFERENCES student(student_id),
+ADD CONSTRAINT `fk_student_study_has_school` FOREIGN KEY (school_id) REFERENCES school(school_id);
+
+ALTER TABLE `student_behavior`
+ADD CONSTRAINT `fk_student_behavior_has_school` FOREIGN KEY (school_id) REFERENCES school(school_id);
+
+DROP TABLE `personnel_graduated_history`;
+CREATE TABLE IF NOT EXISTS `personnel_graduated_history` (
+  `graduated_history_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'PK ตารางประวัติการศึกษา',
+  `school_id` int(11) NOT NULL COMMENT 'FK โรงเรียน',
+  `personnel_id` int(11) NOT NULL COMMENT 'FK บุคลากร',
+  `institute` varchar(128) NOT NULL COMMENT 'ชื่อสถาบัน',
+  `graduated_level` tinyint(4) NOT NULL COMMENT '*Fix ระดับการศึกษาที่จบ',
+  `degree` varchar(128) DEFAULT NULL COMMENT 'วุฒิการศึกษา',
+  `major` varchar(128) DEFAULT NULL COMMENT 'วิชาเอก',
+  `minor` varchar(128) DEFAULT NULL COMMENT 'วิชาโท',
+  `description` varchar(256) DEFAULT NULL COMMENT 'วิชาโท',
+  `year` int(11) DEFAULT NULL COMMENT 'ปีทืจบ',
+  `location` varchar(128) DEFAULT NULL COMMENT 'สถานที่สถาบัน',
+  `province_id` int(11) NULL COMMENT 'จังหวัดสถาบัน',
+  `created_by_id` int(11) DEFAULT NULL COMMENT 'FK ผู้ใส่ข้อมูล',
+  `created_date` datetime DEFAULT NULL COMMENT 'วันที่ใส่ข้อมูล',
+  `modified_by_id` int(11) DEFAULT NULL COMMENT 'FK ผู้แก้ไขข้อมูล',
+  `modified_date` datetime DEFAULT NULL COMMENT 'วันที่แก้ไขข้อมูล',
+  PRIMARY KEY (`graduated_history_id`),
+  KEY `fk_graduated_history_has_personnel_idx` (`personnel_id`),
+  KEY `fk_graduated_history_has_school_idx` (`school_id`),
+  CONSTRAINT `fk_graduated_history_has_personnel` FOREIGN KEY (`personnel_id`) REFERENCES `personnel` (`personnel_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_graduated_history_has_school` FOREIGN KEY (`school_id`) REFERENCES `school` (`school_id`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='ประวัติการศึกษาบุคลากร';
+

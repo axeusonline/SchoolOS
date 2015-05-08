@@ -58,7 +58,7 @@ public class TimetableView extends VerticalLayout {
 	/* ที่เก็บข้อมูลตารางสอน อาจารย์ในแต่ละคาบ มารวมเป็น แถวเดียว 
 	 *  Object แสดงถึง Index ของวัน 
      *  Object[] แสดง index ของคาบ โดยภายในเก็บ timetableId */
-	private HashMap<Object, Object[]> teachings;
+	private HashMap<Object, Object[]> teachingCmbs;
 	/* ที่เก็บข้อมูลตารางสอนทั้งหมด ในแต่ห้องและคาบ มารวมเป็น แถวเดียว แยกตามวัน
 	 *   Object แสดงถึง Index ของวัน 
 	 *   HashMap<Object, Object[]> 
@@ -66,19 +66,22 @@ public class TimetableView extends VerticalLayout {
 	 *     > Object[] แสดง index ของคาบ โดยภายในเก็บ timetableId */
 	private HashMap<Object, HashMap<Object, Object[]>> timetables;
 
-	private SQLContainer teachingContainer = Container.getTeachingContainer();
+	private SQLContainer teachingCmbContainer = Container.getTeachingContainer();
 	private SQLContainer classRoomContainer = Container.getClassRoomContainer();
 	private SQLContainer timetableContainer = Container.getTimetableContainer();
 	private SQLContainer freeFormContainer;
+	
+	private Teaching teachingSemesterAndDay;
+	private Teaching teachings = new Teaching();
 	
 	private FormLayout settingForm;
 	private ComboBox classYear;
 	private ComboBox semester;
 	private OptionGroup days;
-	private ComboBox teaching;
+	private ComboBox teachingCmb;
 	
-	private FilterTable teachingTable;
-	private FilterTable allTimeteachingTable;
+	private FilterTable teachingCmbTable;
+	private FilterTable allTimeteachingCmbTable;
 	
 	public TimetableView() {
 		setSpacing(true);
@@ -87,14 +90,14 @@ public class TimetableView extends VerticalLayout {
 	}
 	
 	private void buildMainLayout(){
-		HorizontalLayout teachingLayout = new HorizontalLayout();
-		teachingLayout.setWidth("100%");
-		addComponent(teachingLayout);
+		HorizontalLayout teachingCmbLayout = new HorizontalLayout();
+		teachingCmbLayout.setWidth("100%");
+		addComponent(teachingCmbLayout);
 		
 		settingForm = new FormLayout();
 		settingForm.setStyleName("border-white");
-		teachingLayout.addComponent(settingForm);
-		teachingLayout.setExpandRatio(settingForm, 1);
+		teachingCmbLayout.addComponent(settingForm);
+		teachingCmbLayout.setExpandRatio(settingForm, 1);
 		
 		Label lblSetting = new Label(FontAwesome.GEAR.getHtml() + " ตั้งค่า");
 		lblSetting.setContentMode(ContentMode.HTML);
@@ -115,11 +118,12 @@ public class TimetableView extends VerticalLayout {
 				/* ดึงข้อมูล ผู้สอนตามวิชาที่ชั้นปีสอน*/
 				if(event.getProperty().getValue() != null &&
 						semester.getValue() != null){
-					teaching.setContainerDataSource(new Teaching(event.getProperty().getValue(), semester.getValue(),Utility.sortOptionGroup(days.getValue())));
+					teachingSemesterAndDay= new Teaching(event.getProperty().getValue(), semester.getValue(),Utility.sortOptionGroup(days.getValue()));
+					teachingCmb.setContainerDataSource(teachingSemesterAndDay);
 				}
 				/* ตรวจสอบ เงื่อนไขการค้นหาข้อมูล */
 				if(days.getValue() != null &&
-						teaching.getValue() != null && 
+						teachingCmb.getValue() != null && 
 						semester.getValue() != null && 
 						event.getProperty().getValue() != null){
 					setTeachingTimetable();
@@ -144,12 +148,13 @@ public class TimetableView extends VerticalLayout {
 				/* ดึงข้อมูล ผู้สอนตามวิชาที่ชั้นปีสอน*/
 				if(event.getProperty().getValue() != null &&
 						classYear.getValue() != null){
-					teaching.setContainerDataSource(new Teaching(classYear.getValue(), event.getProperty().getValue(),Utility.sortOptionGroup(days.getValue())));
+					teachingSemesterAndDay= new Teaching(classYear.getValue(), event.getProperty().getValue(),Utility.sortOptionGroup(days.getValue()));
+					teachingCmb.setContainerDataSource(teachingSemesterAndDay);
 				}
 				/* ตรวจสอบ เงื่อนไขการค้นหาข้อมูล */
 				if(classYear.getValue() != null &&
 						days.getValue() != null &&
-						teaching.getValue() != null
+						teachingCmb.getValue() != null
 						&& event.getProperty().getValue() != null){
 					setTeachingTimetable();
 					setAllTimetable();
@@ -173,13 +178,14 @@ public class TimetableView extends VerticalLayout {
 				/* ดึงข้อมูล ผู้สอนตามวิชาที่ชั้นปีสอน*/
 				if(semester.getValue() != null &&
 						classYear.getValue() != null){
-					teaching.setContainerDataSource(new Teaching(classYear.getValue(), semester.getValue(), Utility.sortOptionGroup(event.getProperty().getValue())));
+					teachingSemesterAndDay= new Teaching(classYear.getValue(), semester.getValue(),Utility.sortOptionGroup(event.getProperty().getValue()));
+					teachingCmb.setContainerDataSource(teachingSemesterAndDay);
 				}
 				
 				/* ตรวจสอบ เงื่อนไขการค้นหาข้อมูล */
 				if(classYear.getValue() != null &&
 						semester.getValue() != null && 
-						teaching.getValue() != null &&
+						teachingCmb.getValue() != null &&
 						event.getProperty().getValue() != null){
 					setTeachingTimetable();
 					setAllTimetable();
@@ -188,14 +194,14 @@ public class TimetableView extends VerticalLayout {
 		});
         settingForm.addComponent(days);
         
-        teaching = new ComboBox("ผู้สอน");
-        teaching.setRequired(true);
-        teaching.setInputPrompt("เลือกข้อมูล");
-        teaching.setItemCaptionPropertyId("name");
-        teaching.setImmediate(true);
-		teaching.setNullSelectionAllowed(false);
-		teaching.setFilteringMode(FilteringMode.CONTAINS);
-		teaching.addValueChangeListener(new ValueChangeListener() {
+        teachingCmb = new ComboBox("ผู้สอน");
+        teachingCmb.setRequired(true);
+        teachingCmb.setInputPrompt("เลือกข้อมูล");
+        teachingCmb.setItemCaptionPropertyId("name");
+        teachingCmb.setImmediate(true);
+		teachingCmb.setNullSelectionAllowed(false);
+		teachingCmb.setFilteringMode(FilteringMode.CONTAINS);
+		teachingCmb.addValueChangeListener(new ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -210,36 +216,36 @@ public class TimetableView extends VerticalLayout {
 				}
 			}
 		});
-		settingForm.addComponent(teaching);
+		settingForm.addComponent(teachingCmb);
 		
-		teachingTable = new FilterTable();
-		teachingTable.setWidth("100%");
-		teachingTable.setHeight("400px");
-		teachingTable.setCaption("ตารางสอนอาจารย์");
-		teachingTable.setSelectable(true);
-		teachingTable.setFooterVisible(true);  
-		setTableStyle(teachingTable);
-		teachingLayout.addComponent(teachingTable);
-		teachingLayout.setExpandRatio(teachingTable,(float) 2.9);
-		teachingTable.setFilterDecorator(new TableFilterDecorator());
-		teachingTable.setFilterGenerator(new TableFilterGenerator());
-        teachingTable.setFilterBarVisible(true);
+		teachingCmbTable = new FilterTable();
+		teachingCmbTable.setWidth("100%");
+		teachingCmbTable.setHeight("400px");
+		teachingCmbTable.setCaption("ตารางสอนอาจารย์");
+		teachingCmbTable.setSelectable(true);
+		teachingCmbTable.setFooterVisible(true);  
+		setTableStyle(teachingCmbTable);
+		teachingCmbLayout.addComponent(teachingCmbTable);
+		teachingCmbLayout.setExpandRatio(teachingCmbTable,(float) 2.9);
+		teachingCmbTable.setFilterDecorator(new TableFilterDecorator());
+		teachingCmbTable.setFilterGenerator(new TableFilterGenerator());
+        teachingCmbTable.setFilterBarVisible(true);
         
-        allTimeteachingTable = new FilterTable();
-		allTimeteachingTable.setWidth("100%");
-		allTimeteachingTable.setCaption("ตารางรวม");
-		allTimeteachingTable.setSelectable(true);
-		allTimeteachingTable.setFooterVisible(true);  
-		setTableStyle(allTimeteachingTable);
-		allTimeteachingTable.setFilterDecorator(new TableFilterDecorator());
-		allTimeteachingTable.setFilterGenerator(new TableFilterGenerator());
-        allTimeteachingTable.setFilterBarVisible(true);
-        addComponent(allTimeteachingTable);
-        setExpandRatio(allTimeteachingTable, 2);
+        allTimeteachingCmbTable = new FilterTable();
+		allTimeteachingCmbTable.setWidth("100%");
+		allTimeteachingCmbTable.setCaption("ตารางรวม");
+		allTimeteachingCmbTable.setSelectable(true);
+		allTimeteachingCmbTable.setFooterVisible(true);  
+		setTableStyle(allTimeteachingCmbTable);
+		allTimeteachingCmbTable.setFilterDecorator(new TableFilterDecorator());
+		allTimeteachingCmbTable.setFilterGenerator(new TableFilterGenerator());
+        allTimeteachingCmbTable.setFilterBarVisible(true);
+        addComponent(allTimeteachingCmbTable);
+        setExpandRatio(allTimeteachingCmbTable, 2);
 	}
 	
 	private void setTableStyle(FilterTable table){
-		if(table != allTimeteachingTable){
+		if(table != allTimeteachingCmbTable){
 			table.addContainerProperty(TimetableSchema.WORKING_DAY, String.class, null);
 			table.addContainerProperty("1", Button.class, null);
 			table.addContainerProperty("2", Button.class, null);
@@ -330,7 +336,7 @@ public class TimetableView extends VerticalLayout {
 	
 	/* เพิ่มข้อมูลตารางสอนในตารางผู้สอน */
 	private void setTeachingTimetable(){
-		teachingTable.removeAllItems();
+		teachingCmbTable.removeAllItems();
 		seachTeachingTimetable();
 		String[] daysClosed = getDays();
 		for (int i=0; i < 7;i++) {
@@ -342,15 +348,15 @@ public class TimetableView extends VerticalLayout {
 			/* ตรวจสอบจำนวนข้อมูลตารางสอนที่พบ
 			 *  กรณีพบตารางสอนที่เคยใส่ก่อนหน้า จะถูกนำมากำหนดปุ่มบนตาราง โดยทำเป็นสีแดง 
 			 *  กรณีไม่พบตารางสอน จะใส่ปุ่มสีเขียวทั้งหมด */
-			if(teachings.size() > 0){
+			if(teachingCmbs.size() > 0){
 				/* ตรวจสอบว่ามีการใส่ค่าของ index วัน บน Map หรือยัง
 				 *  ถ้าใส่แล้วก็ดึงข้อมูลเก่ามาอัพเดทคาบเรียน ให้ครบทุกคาบ 
 				 *  ถ้ายังไม่ใส่ ก็มาใส่ปุ่มสีเขียว โดยตรวจสอบว่าเป็นวันหยุดหรือไม่ */
-				if(teachings.containsKey(weekDay)){
+				if(teachingCmbs.containsKey(weekDay)){
 					if(!Arrays.asList(daysClosed).contains(Integer.toString(weekDay))){
 						data.add(Days.getNameTh(weekDay));
 
-						Object timetableIdArray[] = teachings.get(weekDay);
+						Object timetableIdArray[] = teachingCmbs.get(weekDay);
 						/*ข้อมูลตารางสอน ระหว่างคาบ โดยมี 9 ช่อง หรือ 9 คาบ
 						 *  Index ต่อมาแสดงถึงคาบ 9 คาบ ระหว่าง 0-8 (1-9) */
 						for(int j=0; j < 10; j++){
@@ -378,7 +384,7 @@ public class TimetableView extends VerticalLayout {
 								Item classRoomItem = classRoomContainer.getItem(new RowId(timetableItem.getItemProperty(TimetableSchema.CLASS_ROOM_ID).getValue()));
 								
 								/* แสดง ชื่ออาจารย์ /n ห้องเรียน*/
-								String caption = getTeachingName(new Teaching().
+								String caption = getTeachingName(teachings.
 										getItem(new RowId(timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue())).
 										getItemProperty("name").getValue().toString()) + " \n" +										
 										classRoomItem.getItemProperty(ClassRoomSchema.NAME).getValue();
@@ -397,7 +403,7 @@ public class TimetableView extends VerticalLayout {
 							}
 							data.add(button);
 						}
-						teachingTable.addItem(data.toArray(),weekDay);
+						teachingCmbTable.addItem(data.toArray(),weekDay);
 					}
 				}else if(!Arrays.asList(daysClosed).contains(Integer.toString(weekDay))){
 					data.add(Days.getNameTh(weekDay));	
@@ -417,7 +423,7 @@ public class TimetableView extends VerticalLayout {
 						});
 						data.add(button);
 					}
-					teachingTable.addItem(data.toArray(),weekDay);
+					teachingCmbTable.addItem(data.toArray(),weekDay);
 				}
 			}else{
 				if(!Arrays.asList(daysClosed).contains(Integer.toString(weekDay))){	
@@ -436,7 +442,7 @@ public class TimetableView extends VerticalLayout {
 						});
 						data.add(button);
 					}
-					teachingTable.addItem(data.toArray(),weekDay);
+					teachingCmbTable.addItem(data.toArray(),weekDay);
 				}
 			}
 		}
@@ -445,7 +451,7 @@ public class TimetableView extends VerticalLayout {
 	
 	/* เพิ่มข้อมูลตารางสอนทั้มหงด */
 	private void setAllTimetable(){
-		allTimeteachingTable.removeAllItems();
+		allTimeteachingCmbTable.removeAllItems();
 		seachAllTimetable();
 		
 		/* วนลูบเรียงตามวัน อาทิตย์ ถึง เสาร์ */
@@ -464,13 +470,13 @@ public class TimetableView extends VerticalLayout {
 				 *  กรณีไม่พบตารางสอน จะใส่ปุ่มสีเขียวทั้งหมด */
 				if(timetables.size() > 0){
 					if(timetables.containsKey(weekDay)){
-						HashMap<Object, Object[]> teachingsTmp = timetables.get(weekDay);
+						HashMap<Object, Object[]> teachingCmbsTmp = timetables.get(weekDay);
 						/* ตรวจสอบว่าวันดัวกล่าวมีการกำหนดคาบอย่างน้อยหนึ่งคาบหรือไม่
 						 *  กรณีมีการกำหนด ก็จะทำการกดหนด ตาบสีแดง ในวันดังกล่าง
 						 *  กรณีไม่มีการกำหนดคาบได ๆ เลย จะกำหนด สีเขียวทั้งหมดของห้องดังกล่าว */
-						if(teachingsTmp.containsKey(classRoomId)){	
+						if(teachingCmbsTmp.containsKey(classRoomId)){	
 
-							Object timetableIdArray[] = teachingsTmp.get(classRoomId);
+							Object timetableIdArray[] = teachingCmbsTmp.get(classRoomId);
 							/* วนลูบจำนวนคาบ 9 คาบ */
 							for(int j=0; j < 10; j++){
 								Label lable = new Label();
@@ -487,7 +493,7 @@ public class TimetableView extends VerticalLayout {
 									Object timetableId = timetableIdArray[j];
 
 									Item timetableItem = timetableContainer.getItem(new RowId(timetableId));
-									String caption = new Teaching().
+									String caption = teachings.
 											getItem(new RowId(timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue())).
 											getItemProperty("name").getValue().toString();
 									lable.setValue(getTeachingNameHtml(caption));
@@ -516,7 +522,7 @@ public class TimetableView extends VerticalLayout {
 					}
 
 					/* เก็บ id เป็น วัน,ห้องเรียน (index ของวัน ,id ห้องเรียน) */
-					allTimeteachingTable.addItem(data.toArray(),i+","+classRoomId.toString());
+					allTimeteachingCmbTable.addItem(data.toArray(),i+","+classRoomId.toString());
 				}else{
 					for(int j=0; j < 10; j++){
 						Label lable = new Label("ว่าง");
@@ -526,7 +532,7 @@ public class TimetableView extends VerticalLayout {
 						data.add(lable);
 					}
 					/* เก็บ id เป็น วัน,ห้องเรียน (index ของวัน ,id ห้องเรียน) */
-					allTimeteachingTable.addItem(data.toArray(),i+","+classRoomId.toString());
+					allTimeteachingCmbTable.addItem(data.toArray(),i+","+classRoomId.toString());
 				}
 			}
 		}
@@ -542,10 +548,10 @@ public class TimetableView extends VerticalLayout {
 		
 		FilterTable availableTable = initAvailableTable();
 		window.setContent(availableTable);
-		for (Object itemId:allTimeteachingTable.getItemIds()) {
+		for (Object itemId:allTimeteachingCmbTable.getItemIds()) {
 			/* เก็บ id เป็น วัน,ห้องเรียน (index ของวัน ,id ห้องเรียน) */
 			final String[] itemIdPlit = itemId.toString().split(",");
-			Item item = allTimeteachingTable.getItem(itemId);
+			Item item = allTimeteachingCmbTable.getItem(itemId);
 			if(itemIdPlit[0].equals(workDay.toString())){
 				Label sectionLabel = (Label) item.getItemProperty(Integer.toString((int)section+1)).getValue();
 				if(sectionLabel.getId() == null){
@@ -563,7 +569,7 @@ public class TimetableView extends VerticalLayout {
 								Item timetableItem = timetableContainer.getItem(tmpId);
 								timetableItem.getItemProperty(TimetableSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
 								timetableItem.getItemProperty(TimetableSchema.CLASS_ROOM_ID).setValue(Integer.parseInt(itemIdPlit[1]));
-								timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).setValue(Integer.parseInt(teaching.getValue().toString()));
+								timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).setValue(Integer.parseInt(teachingCmb.getValue().toString()));
 								timetableItem.getItemProperty(TimetableSchema.SECTION).setValue((int)section);
 								timetableItem.getItemProperty(TimetableSchema.WORKING_DAY).setValue((int)workDay);
 								CreateModifiedSchema.setCreateAndModified(timetableItem);
@@ -650,9 +656,9 @@ public class TimetableView extends VerticalLayout {
 	
 	/* ค้นหาข้อมูลตารางสอนของอาจารย์ทั้งหมด */
 	private void seachTeachingTimetable(){
-		teachings = new HashMap<Object, Object[]>();
-		Item teachingItem = teachingContainer.getItem(teaching.getValue());
-		freeFormContainer = Container.getFreeFormContainer(getTeachingSQL(teachingItem), TimetableSchema.TIMETABLE_ID);
+		teachingCmbs = new HashMap<Object, Object[]>();
+		Item teachingCmbItem = teachingCmbContainer.getItem(teachingCmb.getValue());
+		freeFormContainer = Container.getFreeFormContainer(getTeachingSQL(teachingCmbItem), TimetableSchema.TIMETABLE_ID);
 		/* นำข้อมูลที่ได้มาใส่ใน Object โดยในฐานข้อมูลจะเก็บ 1 คาบ 1 แถว แต่มาใส่ในตารางจะต้องมารวมทุกคาบมาเป็นแถวเดียวโดยแยกตามวัน */
 		for (Object itemId:freeFormContainer.getItemIds()) {
 
@@ -664,14 +670,14 @@ public class TimetableView extends VerticalLayout {
 			/* ตรวจสอบ ข้อมูลตารางเรียนจาก Key ที่แทนด้วย index ของวัน 0-6
 			 *  กรณีมีข้อมูลถูกระบุแล้ว จะทำการดึงข้อมูลแล้วใส่ ตารางใน Value ของ คาบช่วงระหว่าง 0-8
 			 *  กรณีไม่มีข้อมูล ก็ทำการเพิ่ม Key ใหม่ โดยกำหนด Value ของคาบช่วงระหว่าง 0-8*/
-			if(teachings.containsKey(workDay)){
-				Object timetableIdArray[] = teachings.get(workDay);
+			if(teachingCmbs.containsKey(workDay)){
+				Object timetableIdArray[] = teachingCmbs.get(workDay);
 				timetableIdArray[(int)section] = timetableId;
-				teachings.put(workDay, timetableIdArray);
+				teachingCmbs.put(workDay, timetableIdArray);
 			}else{
 				Object timetableIdArray[] = new Object[10];
 				timetableIdArray[(int)section] = timetableId;
-				teachings.put(workDay, timetableIdArray);
+				teachingCmbs.put(workDay, timetableIdArray);
 			}
 		}
 	}
@@ -697,7 +703,7 @@ public class TimetableView extends VerticalLayout {
 				classRoomMap = timetables.get(workDay);
 				/* ตรวจสอบว่ามีการกำหนดใน classRooms Map  หรือยัง
 				 *  กรณีมี ก็ให้กำหนดค่า timetableId ของแต่ละค่าบ
-				 *  กรณีไม่มี ก็ทำการกำหนดค่าของ teaching Map */
+				 *  กรณีไม่มี ก็ทำการกำหนดค่าของ teachingCmb Map */
 				if(classRoomMap.containsKey(classRoomId)){
 					Object timetableIdArray[] = classRoomMap.get(classRoomId);
 					timetableIdArray[(int)section] = timetableId;
@@ -735,7 +741,7 @@ public class TimetableView extends VerticalLayout {
 		if(item.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue() != null){
 			/* SQL สำหรับดึงข้อมูล
 			* SELECT * FROM timetable tt 
-			* INNER JOIN teaching t ON tt.teaching_id=t.teaching_id 
+			* INNER JOIN teachingCmb t ON tt.teachingCmb_id=t.teachingCmb_id 
 			* INNER JOIN personnel p ON p.personnel_id=t.personnel_id 
 			* WHERE p.personnel_id=? 
 			* AND tt.school_id = ?*/
@@ -747,7 +753,7 @@ public class TimetableView extends VerticalLayout {
 		}else{		
 			/*SQL สำหรับดึงข้อมูล
 			 * SELECT * FROM timetable tt 
-			 * INNER JOIN teaching t ON tt.teaching_id=t.teaching_id 
+			 * INNER JOIN teachingCmb t ON tt.teachingCmb_id=t.teachingCmb_id 
 			 * WHERE t.personnel_name_tmp=?
 			 * AND tt.school_id = ?*/
 			
@@ -757,7 +763,7 @@ public class TimetableView extends VerticalLayout {
 		}
 
 		sql.append(" AND tt." + TeachingSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
-		
+
 		return sql.toString();
 	}
 	
@@ -781,7 +787,7 @@ public class TimetableView extends VerticalLayout {
 	private String getAllTimetable(){
 		/* SELECT * FROM timetable tt
 		* INNER JOIN class_room cr ON cr.class_room_id = tt.timetable_id
-		* INNER JOIN teaching tc ON tc.teaching_id = tt.teaching_id
+		* INNER JOIN teachingCmb tc ON tc.teachingCmb_id = tt.teachingCmb_id
 		* INNER JOIN lesson_plan_subject lps ON lps.subject_id = tc.subject_id
 		* WHERE lps.class_year = ? 
 		* AND cr.class_year = ? 
@@ -827,8 +833,7 @@ public class TimetableView extends VerticalLayout {
 			styles = name.substring(0, name.indexOf("("))+" \n" +
     				name.substring(name.indexOf("(")+1, name.lastIndexOf(" "));
     	else
-    		styles = //name.substring(0, name.indexOf(":"))+" \n"  +
-    				name.substring(name.indexOf(":")+1, name.indexOf("("))+" \n"  +
+    		styles = name.substring(name.indexOf(":")+1, name.indexOf("("))+" \n"  +
     				name.substring(name.indexOf("(")+1, name.lastIndexOf(" "));
 		return styles;
 	}

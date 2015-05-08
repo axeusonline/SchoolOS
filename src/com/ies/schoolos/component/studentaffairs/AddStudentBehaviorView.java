@@ -296,7 +296,7 @@ public class AddStudentBehaviorView extends VerticalLayout {
 		builder.append(" INNER JOIN " + StudentSchema.TABLE_NAME + " s ON s." + StudentSchema.STUDENT_ID + "= ss." + StudentStudySchema.STUDENT_ID);
 		builder.append(" INNER JOIN " + BehaviorSchema.TABLE_NAME + " b ON b." + BehaviorSchema.BEHAVIOR_ID + "= sb." + StudentBehaviorSchema.BEHAVIOR_ID);
 		builder.append(" WHERE ss." + StudentBehaviorSchema.STUDENT_STUDY_ID + "=" + studytId);
-		System.err.println(builder.toString());
+
 		freeContainer = Container.getFreeFormContainer(builder.toString(), StudentBehaviorSchema.STUDENT_BEHAVIOR_ID);
 		for(Object itemId:freeContainer.getItemIds()){
 			Item studentBehaviorItem = freeContainer.getItem(itemId);

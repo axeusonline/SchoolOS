@@ -170,13 +170,27 @@ public class PersonnelListView extends VerticalLayout {
 	private HorizontalLayout initButtonLayout(final Item item, final Object itemId){
 		final HorizontalLayout buttonLayout = new HorizontalLayout();
 			
+		Button personnelGraduatedButton = new Button(FontAwesome.GRADUATION_CAP);
+		personnelGraduatedButton.setId(itemId.toString());
+		personnelGraduatedButton.addClickListener(new ClickListener() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void buttonClick(ClickEvent event) {
+				Window graduatedLayout = new Window();
+				graduatedLayout.setSizeFull();
+				graduatedLayout.setContent(new PersonnelGraduatedHistoryView(item.getItemProperty(PersonnelSchema.PERSONNEL_ID).getValue()));
+				UI.getCurrent().addWindow(graduatedLayout);
+			}
+		});
+		buttonLayout.addComponent(personnelGraduatedButton);
+		buttonLayout.setComponentAlignment(personnelGraduatedButton, Alignment.MIDDLE_CENTER);
+		
 		Button editButton = new Button(FontAwesome.EDIT);
 		editButton.setId(itemId.toString());
 		editButton.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				
 				Window editLayout = new Window();
 				editLayout.setSizeFull();
 				editLayout.setContent(new EditPersonnelView(item.getItemProperty(PersonnelSchema.PERSONNEL_ID).getValue()));

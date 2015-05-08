@@ -271,7 +271,7 @@ public class TeachingView extends VerticalLayout {
 					addItemData(weekendTwinSelect.getRightTable(), itemId, item);
 				}
 				
-				weekendTwinSelect.setLeftCountFooter(FIELD_NAME);
+				weekendTwinSelect.setRightCountFooter(FIELD_NAME);
 			}
 			
 			/* ย้ายข้างจากซ้ายไปขวาจากที่ถูกเลือก */

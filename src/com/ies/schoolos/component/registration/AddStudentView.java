@@ -126,13 +126,11 @@ public class AddStudentView extends StudentLayout {
 						if(pkStore[1] != null){
 							fatherBinder.commit();
 							motherBinder.commit();
-							System.err.println("แม่มี");
 						}else{
 							/* เพิ่มมารดา  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
 							pkIndex = 1;
 							if(!saveFormData(fSqlContainer, motherBinder))
-								return;	
-							System.err.println("แม่ไม่มี");
+								return;
 						}
 																		
 						/* ตรวจสอบ ผู้ปกครอง 

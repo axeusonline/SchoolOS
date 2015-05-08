@@ -38,6 +38,11 @@
 	.schoolos .v-tabsheet-tabitemcell .v-tabsheet-tabitem{
 		background:rgb(255,255,255);
 	}
+	.v-table-cell-wrapper {
+	   /* Do not specify any margins, paddings or borders here */
+	   white-space: normal;
+	   overflow: hidden;
+	}
 	//**********************************
 	// NAVIGATION LOGIN
 	//**********************************

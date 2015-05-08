@@ -1,4 +1,4 @@
-package com.ies.schoolos.component.personnel.layout;
+package com.ies.schoolos.component.personnel;
 
 import java.util.Date;
 
@@ -61,7 +61,7 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 
-public class PersonnelLayout extends TabSheet {
+public class PersonnelGraduatedView extends TabSheet {
 private static final long serialVersionUID = 1L;
 	
 	public boolean isEdit = false;
@@ -259,7 +259,7 @@ private static final long serialVersionUID = 1L;
 	private Button finish;
 	private Button print;
 	
-	public PersonnelLayout() {
+	public PersonnelGraduatedView() {
 		buildMainLayout();
 	}
 	

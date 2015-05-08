@@ -205,7 +205,7 @@ public class EditPersonnelView extends PersonnelLayout {
 					 *  หากไม่ใช่ ถือว่าบันทึกข้อมูลบุคลากรเลย 
 					 *  */
 					if(maritalStr.equals("1") && spouseId == null){
-						ConfirmDialog.show(UI.getCurrent(), "เพิ่มคู่สมรส","บุคลากรสถานะสมรส ต้องการเพิ่มข้อมูลคู่สมรส?","ตกลง","ยกเลิก",
+						ConfirmDialog.show(UI.getCurrent(), "เพิ่มคู่สมรส","บุคลากรสถานะสมรส ต้องการเพิ่มข้อมูลคู่สมรสใช่หรือไม่?","ตกลง","ยกเลิก",
 					        new ConfirmDialog.Listener() {
 								private static final long serialVersionUID = 1L;
 								public void onClose(ConfirmDialog dialog) {

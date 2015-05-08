@@ -38,7 +38,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
 
-public class ResignPersonnelView extends VerticalLayout {
+public class PersonnelResignView extends VerticalLayout {
 	private static final long serialVersionUID = 1L;
 
 	private SQLContainer pContainer = Container.getPersonnelContainer();
@@ -58,7 +58,7 @@ public class ResignPersonnelView extends VerticalLayout {
 	private TextArea description;
 	private Button save;	
 	
-	public ResignPersonnelView() {	
+	public PersonnelResignView() {	
 		pContainer.refresh();
 		setSpacing(true);
 		setMargin(true);
@@ -226,6 +226,7 @@ public class ResignPersonnelView extends VerticalLayout {
 					readOnlyMode();
 					
 					fetchData();
+					setFooterData();
 					Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 				} catch (Exception e) {
 					e.printStackTrace();

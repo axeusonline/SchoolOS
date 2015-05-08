@@ -15,6 +15,9 @@ import com.ies.schoolos.component.fundamental.BuildingView;
 import com.ies.schoolos.component.fundamental.ClassRoomView;
 import com.ies.schoolos.component.fundamental.DepartmentView;
 import com.ies.schoolos.component.fundamental.SubjectView;
+import com.ies.schoolos.component.personnel.EditPersonnelView;
+import com.ies.schoolos.component.personnel.PersonnelGraduatedHistoryView;
+import com.ies.schoolos.component.registration.EditStudentView;
 import com.ies.schoolos.component.setting.SchoolView;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.SessionSchema;
@@ -85,6 +88,8 @@ public class SchoolOSView extends HorizontalSplitPanel{
 	}
 	
 	private void buildMainLayout(){
+		userItem = userContainer.getItem(new RowId(SessionSchema.getUserID()));
+		
 		setSizeFull();
         setSplitPosition(200, Unit.PIXELS);
         showOrHideMenu();
@@ -287,6 +292,25 @@ public class SchoolOSView extends HorizontalSplitPanel{
 				initialDataBinding();
 			}
 		});	
+		if(!userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("0")){
+			System.err.println(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue());
+			menuItem.addItem("ข้อมูลส่วนตัว", null, new Command() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void menuSelected(MenuItem selectedItem) {
+					initUserInfoLayout();
+				}
+			});	
+			menuItem.addItem("ข้อมูลการศึกษา", null, new Command() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void menuSelected(MenuItem selectedItem) {
+					initUserGraduatedHistoryLayout();
+				}
+			});	
+		}
 		menuItem.addItem("ออกจากระบบ", null, new Command() {
 			private static final long serialVersionUID = 1L;
 
@@ -356,9 +380,9 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		}
 	}
 	
-	/* หน้าต่างแก้ข้อมูลผู้ใช้ */
+	/* หน้าต่างแก้บัญชีผู้ใช้ */
 	private void initUserLayout(){
-		Window userWD = new Window("ข้อมูลผู้ใช้");
+		Window userWD = new Window("บัญชีผู้ใช้");
 		userWD.setWidth("50%");
 		userWD.setHeight("60%");
 		userWD.center();
@@ -498,9 +522,29 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		schoolForm.addComponent(userSave);
 	}
 
+	/* หน้าต่างแก้ข้อมูลผู้ใช้ */
+	private void initUserInfoLayout(){
+		Window userWD = new Window("ข้อมูลผู้ใช้");
+		userWD.setSizeFull();
+		userWD.center();
+		if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().equals("1"))
+			userWD.setContent(new EditPersonnelView(userItem.getItemProperty(UserSchema.REF_USER_ID).getValue()));
+		else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().equals("2"))
+			userWD.setContent(new EditStudentView(userItem.getItemProperty(UserSchema.REF_USER_ID).getValue()));
+		UI.getCurrent().addWindow(userWD);
+	}
+	
+	/* หน้าต่างแก้ข้อมูลผู้ใช้ */
+	private void initUserGraduatedHistoryLayout(){
+		Window userWD = new Window("ข้อมูลการศึกษา");
+		userWD.setSizeFull();
+		userWD.center();
+		if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().equals("1"))
+			userWD.setContent(new PersonnelGraduatedHistoryView(userItem.getItemProperty(UserSchema.REF_USER_ID).getValue()));
+		UI.getCurrent().addWindow(userWD);
+	}
+	
 	private void initialDataBinding(){
-		userItem = userContainer.getItem(new RowId(SessionSchema.getUserID()));
-		
 		userBinder = new FieldGroup(userItem);
 		userBinder.setBuffered(true);
 		userBinder.bind(firstname, UserSchema.FIRSTNAME);
