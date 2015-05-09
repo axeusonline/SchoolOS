@@ -719,7 +719,6 @@ public class TeachingView extends VerticalLayout {
 				Notification.show("กรุณาเลือกรายวิชา", Type.WARNING_MESSAGE);
 				return;
 			}
-		
 			selectAllData();
 		}
 	};

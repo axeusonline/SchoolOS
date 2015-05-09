@@ -22,6 +22,7 @@ import com.ies.schoolos.component.setting.SchoolView;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.UserSchema;
+import com.ies.schoolos.type.Feature;
 import com.ies.schoolos.utility.BCrypt;
 import com.ies.schoolos.utility.Notification;
 import com.vaadin.data.Item;
@@ -64,11 +65,12 @@ public class SchoolOSView extends HorizontalSplitPanel{
 	private String passwordHash = null;
 	private Item userItem = null;
 	
-	private FieldGroup userBinder;
-	
-	private Component currentComponent;
-	
 	private SQLContainer userContainer = Container.getUserContainer();
+	
+	private String[] permissions;
+	
+	private FieldGroup userBinder;
+	private Component currentComponent;
 	
 	/* เนื้อหา */
 	private VerticalLayout rightLayout;
@@ -89,14 +91,14 @@ public class SchoolOSView extends HorizontalSplitPanel{
 	
 	private void buildMainLayout(){
 		userItem = userContainer.getItem(new RowId(SessionSchema.getUserID()));
-		
+		permissions = userItem.getItemProperty(UserSchema.PERMISSION).getValue().toString().split(",");
+
 		setSizeFull();
         setSplitPosition(200, Unit.PIXELS);
         showOrHideMenu();
-        
-        initLeftMenuLayout();
+
         initRightContentLayout();
-        initComponent(new AcademicMainView());
+        initLeftMenuLayout();
 	}
 
 	/* เมนูซ้ายมือ */
@@ -128,41 +130,47 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		menuBoxContent.setStyleName("menu-box-blue");
 		menuBoxLayout.addComponent(menuBoxContent);
 
-		Button recruit = new Button("สมัครเรียน", FontAwesome.GROUP);
+		Button recruit = new Button(Feature.getNameTh(Feature.RECRUIT_STUDENT), FontAwesome.GROUP);
 		recruit.setWidth("100%");
 		menuBoxContent.addComponent(recruit);
 		menuBoxContent.setComponentAlignment(recruit, Alignment.MIDDLE_LEFT);
 		initMenu(recruit, RecruitStudentMainView.class);
+		setPermission(Feature.RECRUIT_STUDENT, recruit, RecruitStudentMainView.class);
 		
-		Button personnel = new Button("ฝ่ายบุคคล", FontAwesome.USER);
+		Button personnel = new Button(Feature.getNameTh(Feature.PERSONNEL), FontAwesome.USER);
 		personnel.setWidth("100%");
 		menuBoxContent.addComponent(personnel);
 		menuBoxContent.setComponentAlignment(personnel, Alignment.MIDDLE_LEFT);
 		initMenu(personnel, PersonnelMainView.class);
+		setPermission(Feature.PERSONNEL, personnel, PersonnelMainView.class);
 		
-		Button academic = new Button("ฝ่ายวิชาการ", FontAwesome.BOOK);
+		Button academic = new Button(Feature.getNameTh(Feature.ACADEMIC), FontAwesome.BOOK);
 		academic.setWidth("100%");
 		menuBoxContent.addComponent(academic);
 		menuBoxContent.setComponentAlignment(academic, Alignment.MIDDLE_LEFT);
 		initMenu(academic, AcademicMainView.class);
+		setPermission(Feature.ACADEMIC, academic, AcademicMainView.class);
 		
-		Button registration = new Button("ฝ่ายทะเบียน", FontAwesome.PENCIL_SQUARE_O);
+		Button registration = new Button(Feature.getNameTh(Feature.REGISTRATION), FontAwesome.PENCIL_SQUARE_O);
 		registration.setWidth("100%");
 		menuBoxContent.addComponent(registration);
 		menuBoxContent.setComponentAlignment(registration, Alignment.MIDDLE_LEFT);
 		initMenu(registration, RegistrationMainView.class);
+		setPermission(Feature.REGISTRATION, registration, RegistrationMainView.class);
 		
-		Button studentAffairs = new Button("กิจการนักเรียน", FontAwesome.LEGAL);
+		Button studentAffairs = new Button(Feature.getNameTh(Feature.STUDENT_AFFAIRS), FontAwesome.LEGAL);
 		studentAffairs.setWidth("100%");
 		menuBoxContent.addComponent(studentAffairs);
 		menuBoxContent.setComponentAlignment(studentAffairs, Alignment.MIDDLE_LEFT);
 		initMenu(studentAffairs, StudentAffairsMainView.class);
+		setPermission(Feature.STUDENT_AFFAIRS, studentAffairs, StudentAffairsMainView.class);
 		
-		Button admin = new Button("ผู้ดูแลระบบ", FontAwesome.DESKTOP);
+		Button admin = new Button(Feature.getNameTh(Feature.ADMIN), FontAwesome.DESKTOP);
 		admin.setWidth("100%");
 		menuBoxContent.addComponent(admin);
 		menuBoxContent.setComponentAlignment(admin, Alignment.MIDDLE_LEFT);
 		initMenu(admin, AdminMainView.class);
+		setPermission(Feature.ADMIN, admin, AdminMainView.class);
 		
 		/* กล่องข้อมูลพื้นฐาน */
 		VerticalLayout fundamentalBoxContent = new VerticalLayout();
@@ -176,24 +184,28 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		fundamentalBoxContent.addComponent(building);
 		fundamentalBoxContent.setComponentAlignment(building, Alignment.MIDDLE_LEFT);
 		initMenu(building, BuildingView.class);
+		setPermission(Feature.RECRUIT_STUDENT, building, null);
 		
-		Button classRomm = new Button("ชั้นเรียน", FontAwesome.UNIVERSITY);
-		classRomm.setWidth("100%");
-		fundamentalBoxContent.addComponent(classRomm);
-		fundamentalBoxContent.setComponentAlignment(classRomm, Alignment.MIDDLE_LEFT);
-		initMenu(classRomm, ClassRoomView.class);
+		Button classRoom = new Button("ชั้นเรียน", FontAwesome.UNIVERSITY);
+		classRoom.setWidth("100%");
+		fundamentalBoxContent.addComponent(classRoom);
+		fundamentalBoxContent.setComponentAlignment(classRoom, Alignment.MIDDLE_LEFT);
+		initMenu(classRoom, ClassRoomView.class);
+		setPermission(Feature.ACADEMIC, classRoom, null);
 		
 		Button subject = new Button("รายวิชาที่สอน", FontAwesome.PENCIL_SQUARE);
 		subject.setWidth("100%");
 		fundamentalBoxContent.addComponent(subject);
 		fundamentalBoxContent.setComponentAlignment(subject, Alignment.MIDDLE_LEFT);
 		initMenu(subject, SubjectView.class);
+		setPermission(Feature.ACADEMIC, subject, null);
 		
 		Button behavior = new Button("พฤติกรรม", FontAwesome.SHIELD);
 		behavior.setWidth("100%");
 		fundamentalBoxContent.addComponent(behavior);
 		fundamentalBoxContent.setComponentAlignment(behavior, Alignment.MIDDLE_LEFT);
 		initMenu(behavior, BehaviorView.class);
+		setPermission(Feature.STUDENT_AFFAIRS, behavior, null);
 		
 		/*Button department = new Button("แผนก", FontAwesome.SITEMAP);
 		department.setWidth("100%");
@@ -201,18 +213,20 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		fundamentalBoxContent.setComponentAlignment(department, Alignment.MIDDLE_LEFT);
 		initMenu(department, DepartmentView.class);*/
 		
-		/* ตั้งค่า */
-		VerticalLayout settingBoxContent = new VerticalLayout();
-		settingBoxContent.setCaption("ตั้งค่าการใช้งาน");
-		settingBoxContent.setSizeFull();
-		settingBoxContent.setStyleName("menu-box-red");
-		menuBoxLayout.addComponent(settingBoxContent);
-		
-		Button general = new Button("ข้อมูลทั่วไป", FontAwesome.BUILDING);
-		general.setWidth("100%");
-		settingBoxContent.addComponent(general);
-		settingBoxContent.setComponentAlignment(general, Alignment.MIDDLE_LEFT);
-		initMenu(general, SchoolView.class);
+		if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("0")){
+			/* ตั้งค่า */
+			VerticalLayout settingBoxContent = new VerticalLayout();
+			settingBoxContent.setCaption("ตั้งค่าการใช้งาน");
+			settingBoxContent.setSizeFull();
+			settingBoxContent.setStyleName("menu-box-red");
+			menuBoxLayout.addComponent(settingBoxContent);
+			
+			Button general = new Button("ข้อมูลทั่วไป", FontAwesome.BUILDING);
+			general.setWidth("100%");
+			settingBoxContent.addComponent(general);
+			settingBoxContent.setComponentAlignment(general, Alignment.MIDDLE_LEFT);
+			initMenu(general, SchoolView.class);
+		}
 	}
 	
 	/* เนื้อหาทางขวามือ */
@@ -293,7 +307,7 @@ public class SchoolOSView extends HorizontalSplitPanel{
 			}
 		});	
 		if(!userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("0")){
-			System.err.println(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue());
+
 			menuItem.addItem("ข้อมูลส่วนตัว", null, new Command() {
 				private static final long serialVersionUID = 1L;
 
@@ -356,7 +370,7 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		panel.setContent(component);
 		
 		currentComponent = panel;
-		
+
 		rightLayout.addComponent(currentComponent);
 		rightLayout.setExpandRatio(currentComponent, 1);
 	}
@@ -581,4 +595,22 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		UI.getCurrent().getSession().setAttribute(SessionSchema.EMAIL, null);
 	}
 	
+	private void setPermission(int index, Button button, Class<?> clazz){
+		if(permissions[index].equals("0")){
+			button.setVisible(false);
+		}else{
+			try {
+				button.setVisible(true);
+				if(clazz != null){
+					if(currentComponent == null){
+						Constructor<?> constructor = clazz.getConstructor();
+						Object object = constructor.newInstance();
+						initComponent((Component)object);
+					}
+				}
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
 }

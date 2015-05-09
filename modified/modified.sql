@@ -488,4 +488,7 @@ CREATE TABLE IF NOT EXISTS `personnel_graduated_history` (
   CONSTRAINT `fk_graduated_history_has_personnel` FOREIGN KEY (`personnel_id`) REFERENCES `personnel` (`personnel_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_graduated_history_has_school` FOREIGN KEY (`school_id`) REFERENCES `school` (`school_id`)
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='ประวัติการศึกษาบุคลากร';
+ 
+UPDATE user SET permission = '0,0,0,0,0,0' WHERE school_id <> ref_user_id;
+UPDATE user SET permission = '1,1,1,1,1,1' WHERE school_id = ref_user_id AND ref_user_type = 0;
 

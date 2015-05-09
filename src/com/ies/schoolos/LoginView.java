@@ -16,6 +16,7 @@ import com.ies.schoolos.schema.CreateModifiedSchema;
 import com.ies.schoolos.schema.SchoolSchema;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.UserSchema;
+import com.ies.schoolos.type.Feature;
 import com.ies.schoolos.type.dynamic.Province;
 import com.ies.schoolos.utility.BCrypt;
 import com.ies.schoolos.utility.DateTimeUtil;
@@ -367,6 +368,8 @@ public class LoginView extends VerticalLayout{
 								userItem.getItemProperty(UserSchema.REF_USER_TYPE).setValue(0);
 								userItem.getItemProperty(CreateModifiedSchema.CREATED_BY_ID).setValue(Integer.parseInt(schoolId.toString()));
 								userItem.getItemProperty(CreateModifiedSchema.CREATED_DATE).setValue(new Date());
+								
+								Feature.setPermission(userItem, true);
 								initUserFieldGroup();
 								userBinder.commit();
 								userContainer.commit();

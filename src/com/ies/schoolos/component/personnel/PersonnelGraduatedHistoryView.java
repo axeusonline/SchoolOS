@@ -181,8 +181,8 @@ public class PersonnelGraduatedHistoryView extends VerticalLayout {
 		year.setHeight("-1px");
 		graduatedHistoryForm.addComponent(year);
 		
-		location = new TextField("ปีที่จบ");
-		location.setInputPrompt("ปีที่จบ");
+		location = new TextField("ประเทศ");
+		location.setInputPrompt("ประเทศ");
 		location.setNullRepresentation("");
 		location.setImmediate(false);
 		location.setWidth("-1px");

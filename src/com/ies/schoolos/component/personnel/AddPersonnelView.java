@@ -9,6 +9,7 @@ import com.ies.schoolos.schema.SchoolSchema;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.UserSchema;
 import com.ies.schoolos.schema.info.PersonnelSchema;
+import com.ies.schoolos.type.Feature;
 import com.ies.schoolos.utility.BCrypt;
 import com.ies.schoolos.utility.EmailSender;
 import com.ies.schoolos.utility.Notification;
@@ -277,6 +278,7 @@ public class AddPersonnelView extends PersonnelLayout {
 			userItem.getItemProperty(UserSchema.REF_USER_TYPE).setValue(1);
 			userItem.getItemProperty(CreateModifiedSchema.CREATED_BY_ID).setValue(Integer.parseInt(pkStore[3].toString()));
 			userItem.getItemProperty(CreateModifiedSchema.CREATED_DATE).setValue(new Date());
+			Feature.setPermission(userItem, false);
 			userContainer.commit();
 			
 			/* ปิดหน้าต่างทั้งหมด */

@@ -10,6 +10,7 @@ import com.ies.schoolos.schema.SchoolSchema;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.UserSchema;
 import com.ies.schoolos.schema.info.PersonnelSchema;
+import com.ies.schoolos.type.Feature;
 import com.ies.schoolos.type.Prename;
 import com.ies.schoolos.type.dynamic.JobPosition;
 import com.ies.schoolos.utility.BCrypt;
@@ -293,6 +294,7 @@ public class UserManagerView extends VerticalLayout {
 			item.getItemProperty(UserSchema.REF_USER_ID).setValue(Integer.parseInt(personnelId.toString()));
 			item.getItemProperty(UserSchema.REF_USER_TYPE).setValue(1);
 			item.getItemProperty(UserSchema.PERMISSION).setValue(null);
+			Feature.setPermission(item, false);
 			CreateModifiedSchema.setCreateAndModified(item);
 			userContainer.commit();
 			
