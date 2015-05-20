@@ -241,6 +241,8 @@ public class AddPersonnelView extends PersonnelLayout {
 				}
 				
 				item.getItemProperty(PersonnelSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
+				item.getItemProperty(PersonnelSchema.PERSONNEL_CODE).setValue(getActualPersonnelCode());
+				
 				if(SessionSchema.getUserID() != null)
 					item.getItemProperty(PersonnelSchema.RECRUIT_BY_ID).setValue(SessionSchema.getUserID());
 				else

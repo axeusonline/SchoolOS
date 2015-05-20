@@ -2,6 +2,7 @@ package com.ies.schoolos.component.studentaffairs;
 
 import org.tepi.filtertable.FilterTable;
 
+import com.ies.schoolos.component.info.StudentView;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
@@ -19,6 +20,8 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Window.CloseEvent;
+import com.vaadin.ui.Window.CloseListener;
 import com.vaadin.ui.Window;
 
 public class StudentBehaviorView extends VerticalLayout {
@@ -127,7 +130,7 @@ public class StudentBehaviorView extends VerticalLayout {
 	private HorizontalLayout initButtonLayout(final Item item, final Object itemId){
 		final HorizontalLayout buttonLayout = new HorizontalLayout();
 			
-		Button addBehavior = new Button("หักคะแนนพฤติกรรม", FontAwesome.EYE_SLASH);
+		Button addBehavior = new Button("พฤติกรรม", FontAwesome.EYE_SLASH);
 		addBehavior.setId(itemId.toString());
 		addBehavior.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 1L;
@@ -145,6 +148,34 @@ public class StudentBehaviorView extends VerticalLayout {
 		});
 		buttonLayout.addComponent(addBehavior);
 		buttonLayout.setComponentAlignment(addBehavior, Alignment.MIDDLE_CENTER);
+		
+		Button editButton = new Button(FontAwesome.EDIT);
+		editButton.setId(itemId.toString());
+		editButton.addClickListener(new ClickListener() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void buttonClick(ClickEvent event) {
+				
+				Window editWindow = new Window();
+				editWindow.setSizeFull();
+				editWindow.setContent(new StudentView(itemId));
+				editWindow.addCloseListener(new CloseListener() {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void windowClose(CloseEvent e) {
+						table.removeAllItems();
+						fetchData();
+						setFooterData();
+					}
+				});
+				UI.getCurrent().addWindow(editWindow);
+			}
+		});
+		buttonLayout.addComponent(editButton);
+		buttonLayout.setComponentAlignment(editButton, Alignment.MIDDLE_CENTER);
+		
+		
 		
 		
 		return buttonLayout;

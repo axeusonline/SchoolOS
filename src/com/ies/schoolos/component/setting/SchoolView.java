@@ -1,5 +1,7 @@
 package com.ies.schoolos.component.setting;
 
+import java.util.Locale;
+
 import com.ies.schoolos.component.ui.ContentPage;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.SchoolSchema;
@@ -128,10 +130,14 @@ public class SchoolView extends ContentPage{
 		
 		recruitStartDate = new PopupDateField();
 		recruitStartDate.setInputPrompt("วันเริ่มสมัคร");
+		recruitStartDate.setDateFormat("dd/MM/yyyy");
+		recruitStartDate.setLocale(new Locale("th", "TH"));
 		periodForm.addComponent(recruitStartDate);
 		
 		recruitEndDate = new PopupDateField();
 		recruitEndDate.setInputPrompt("วันสิ้นสุดสมัคร");
+		recruitEndDate.setDateFormat("dd/MM/yyyy");
+		recruitEndDate.setLocale(new Locale("th", "TH"));
 		periodForm.addComponent(recruitEndDate);
 		
 		preriodSave = new Button("บันทึก",FontAwesome.SAVE);

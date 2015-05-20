@@ -1,18 +1,18 @@
 package com.ies.schoolos.type.dynamic;
 
+import com.ies.schoolos.container.Container;
+import com.ies.schoolos.schema.SessionSchema;
+import com.ies.schoolos.schema.fundamental.JobPositionSchema;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.data.util.filter.Compare.Equal;
+import com.vaadin.data.util.filter.IsNull;
+import com.vaadin.data.util.filter.Or;
+import com.vaadin.data.util.sqlcontainer.SQLContainer;
 
 public class JobPosition extends IndexedContainer{
 
 	private static final long serialVersionUID = 1L;
-	
-	private static String[] jobPositions = {"กรรมการ","ครูสามัญ","ครูศาสนา","เจ้าหน้าที่",
-		"เจ้าหน้าที่หอพักนักการภารโรง","พนักงานขับรถ",
-		"พนักงานรักษาความปลอดภัย","ข้าราชการ","พนักงานช้าราชการ",
-		"พนักงานช้าราชการชั่วคราว","ผู้บริหาร","ครูชำนาญการ",
-		"ครูพิเศษ","อาจารย์ฝึกสอน","นักศึกษาฝึกงาน",
-		"ผู้อำนวยการ","นายทะเบียน","เจ้าหน้าที่ไอที"};
 	
 	public JobPosition() {
 		initContainer();
@@ -20,15 +20,19 @@ public class JobPosition extends IndexedContainer{
  
 	@SuppressWarnings("unchecked")
 	private void initContainer(){
-	   addContainerProperty("name", String.class,null);
-	   for (int i = 0; i < jobPositions.length; i++) {
-	        Item item = addItem(i);
-	        item.getItemProperty("name").setValue(jobPositions[i]);
-	   }
-	}
-	
-	public static String getNameTh(int index){
-		return jobPositions[index];
+		SQLContainer container = Container.getJobPositionContainer();
+		container.addContainerFilter(new Or(new Equal(JobPositionSchema.SCHOOL_ID, SessionSchema.getSchoolID()),
+				new IsNull(JobPositionSchema.SCHOOL_ID)));
+		container.sort(new Object[]{JobPositionSchema.JOB_POSITION_ID}, new boolean[]{true});
+		addContainerProperty("name", String.class,null);
+
+		for (Object itemId:container.getItemIds()) {
+			Item item = addItem(Integer.parseInt(itemId.toString()));
+			item.getItemProperty("name").setValue(container.getItem(itemId).getItemProperty(JobPositionSchema.NAME).getValue());
+		}
+		
+		//ลบ WHERE ออกจาก Query เพื่อป้องกันการค้างของคำสั่่งจากการทำงานอื่นที่เรียกตัวแปรไปใช้
+		container.removeAllContainerFilters();
 	}
 	
 	/*public static String getNameEn(int index){

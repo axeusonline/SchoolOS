@@ -3,6 +3,7 @@ package com.ies.schoolos.component.personnel;
 import org.tepi.filtertable.FilterTable;
 import org.vaadin.dialogs.ConfirmDialog;
 
+import com.ies.schoolos.component.ui.NumberField;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
@@ -58,20 +59,19 @@ public class PersonnelGraduatedHistoryView extends VerticalLayout {
 	private TextField degree;
 	private TextField major;
 	private TextField minor;
-	private TextField year;
+	private NumberField year;
 	private TextField location;
 	private ComboBox provinceId;
 	private TextArea description;
 	private Button save;	
 	
 	public PersonnelGraduatedHistoryView(Object personnelId) {		
-		pgContainer.refresh();
-		pgContainer.addContainerFilter(new Equal(PersonnelGraduatedHistorySchema.PERSONNEL_ID, personnelId));
 		this.personnelId = personnelId;
 		setSizeFull();
 		setSpacing(true);
 		setMargin(true);
 		buildMainLayout();
+		fetchData();
 	}
 	
 	private void buildMainLayout(){
@@ -173,7 +173,7 @@ public class PersonnelGraduatedHistoryView extends VerticalLayout {
 		minor.setHeight("-1px");
 		graduatedHistoryForm.addComponent(minor);
 		
-		year = new TextField("ปีที่จบ");
+		year = new NumberField("ปีที่จบ");
 		year.setInputPrompt("ปีที่จบ");
 		year.setNullRepresentation("");
 		year.setImmediate(false);
@@ -223,12 +223,12 @@ public class PersonnelGraduatedHistoryView extends VerticalLayout {
 						editMode = false;
 						Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 					}else{
-						pgContainer.removeAllContainerFilters();
 						if(!graduatedHistoryBinder.isValid()){
 							Notification.show("กรุณากรอกข้อมูลให้ครบถ้วน", Type.WARNING_MESSAGE);
 							return;
 						}
 							
+						pgContainer.removeAllContainerFilters();
 						if(!saveFormData())
 							return;
 						
@@ -237,10 +237,11 @@ public class PersonnelGraduatedHistoryView extends VerticalLayout {
 					item = null;
 					save.setCaption("บันทึก");
 					initFieldGroup();
+					fetchData();
 					Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 				} catch (Exception e) {
 					e.printStackTrace();
-					Notification.show("บันทึกไม่สำเร็จ", Type.HUMANIZED_MESSAGE);
+					Notification.show("บันทึกไม่สำเร็จ", Type.WARNING_MESSAGE);
 				}
 			}
 		});
@@ -381,5 +382,10 @@ public class PersonnelGraduatedHistoryView extends VerticalLayout {
 			e.printStackTrace();
 			return false;
 		}
+	}
+	
+	private void fetchData(){
+		pgContainer.refresh();
+		pgContainer.addContainerFilter(new Equal(PersonnelGraduatedHistorySchema.PERSONNEL_ID, personnelId));
 	}
 }

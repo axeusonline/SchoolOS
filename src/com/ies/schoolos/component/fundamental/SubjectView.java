@@ -66,13 +66,13 @@ public class SubjectView extends ContentPage{
 	
 	public SubjectView() {
 		super("รายวิชา");
-		
 		sContainer.refresh();
-		sContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
+		
 		setSpacing(true);
 		setMargin(true);
-		
+		fetchData();
 		buildMainLayout();
+		setFooterData();
 	}
 	
 	private void buildMainLayout(){
@@ -117,7 +117,7 @@ public class SubjectView extends ContentPage{
 		table.setColumnReorderingAllowed(true);
 		table.setColumnCollapsingAllowed(true);
 		subjectLayout.addComponent(table);
-		subjectLayout.setExpandRatio(table,(float)2.2);
+		subjectLayout.setExpandRatio(table,2);
 		
 		//Form		
 		subjectForm = new FormLayout();
@@ -225,12 +225,12 @@ public class SubjectView extends ContentPage{
 						editMode = false;
 						Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 					}else{
-						sContainer.removeAllContainerFilters();
 						if(!subjectBinder.isValid()){
 							Notification.show("กรุณากรอกข้อมูลให้ครบถ้วน", Type.WARNING_MESSAGE);
 							return;
 						}
 							
+						sContainer.removeAllContainerFilters();
 						if(!saveFormData())
 							return;
 						
@@ -242,7 +242,7 @@ public class SubjectView extends ContentPage{
 					Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 				} catch (Exception e) {
 					e.printStackTrace();
-					Notification.show("บันทึกไม่สำเร็จ", Type.HUMANIZED_MESSAGE);
+					Notification.show("บันทึกไม่สำเร็จ", Type.WARNING_MESSAGE);
 				}
 			}
 		});
@@ -388,5 +388,9 @@ public class SubjectView extends ContentPage{
 			e.printStackTrace();
 			return false;
 		}
+	}
+	
+	private void fetchData(){
+		sContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
 	}
 }

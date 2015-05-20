@@ -1,6 +1,7 @@
 package com.ies.schoolos.component.personnel.layout;
 
 import java.util.Date;
+import java.util.Locale;
 
 import org.vaadin.dialogs.ConfirmDialog;
 
@@ -12,7 +13,7 @@ import com.ies.schoolos.schema.info.PersonnelSchema;
 import com.ies.schoolos.type.AliveStatus;
 import com.ies.schoolos.type.BankAccountType;
 import com.ies.schoolos.type.Blood;
-import com.ies.schoolos.type.EmployeeType;
+import com.ies.schoolos.type.EmploymentType;
 import com.ies.schoolos.type.Gender;
 import com.ies.schoolos.type.LicenseLecturerType;
 import com.ies.schoolos.type.MaritalStatus;
@@ -103,25 +104,13 @@ private static final long serialVersionUID = 1L;
 	private ComboBox race;
 	private ComboBox nationality;
 	private ComboBox maritalStatus;
+	private ComboBox aliveStatus;
 	private PopupDateField birthDate;
 	private ComboBox blood;
 	private NumberField height;
 	private NumberField weight;
 	private TextField congenitalDisease;
 	private Button workNext;
-	
-	/*private FormLayout graduatedForm;
-	private TextField institute;
-	private ComboBox graduatedLevelId;
-	private TextField degree;
-	private TextField major;
-	private TextField minor;
-	private TextArea description;
-	private TextField graduatedYear;
-	private TextArea location;
-	private ComboBox instituteProvinceId;
-	private Button generalBack;
-	private Button addressNext;*/
 	
 	private FormLayout workForm;
 	private ComboBox jobPosition;
@@ -274,6 +263,7 @@ private static final long serialVersionUID = 1L;
 		motherForm();
 		spouseForm();
 		initFieldGroup();
+		aliveStatus.setValue(0);
 	}
 	
 	/*สร้าง Layout สำหรับข้อมูลทั่วไปนักเรียน*/
@@ -443,12 +433,26 @@ private static final long serialVersionUID = 1L;
 		maritalStatus.setFilteringMode(FilteringMode.CONTAINS);
 		generalForm.addComponent(maritalStatus);
 		
+		aliveStatus = new ComboBox("สถานะการมีชีวิต",new AliveStatus());
+		aliveStatus.setInputPrompt("กรุณาเลือก");
+		aliveStatus.setItemCaptionPropertyId("name");
+		aliveStatus.setImmediate(true);
+		aliveStatus.setNullSelectionAllowed(false);
+		aliveStatus.setRequired(true);
+		aliveStatus.setWidth("-1px");
+		aliveStatus.setHeight("-1px");
+		aliveStatus.setFilteringMode(FilteringMode.CONTAINS);
+		aliveStatus.setVisible(false);
+		generalForm.addComponent(aliveStatus);
+		
 		birthDate = new PopupDateField("วัน เดือน ปี เกิด");
-		birthDate.setInputPrompt("วว/ดด/ปปปป(คศ)");
+		birthDate.setInputPrompt("วว/ดด/ปปปป");
 		birthDate.setImmediate(false);
 		birthDate.setRequired(true);
 		birthDate.setWidth("-1px");
 		birthDate.setHeight("-1px");
+		birthDate.setDateFormat("dd/MM/yyyy");
+		birthDate.setLocale(new Locale("th", "TH"));
 		generalForm.addComponent(birthDate);
 		
 		blood = new ComboBox("หมู่เลือด",new Blood());
@@ -526,7 +530,10 @@ private static final long serialVersionUID = 1L;
 			public void valueChange(ValueChangeEvent event) {
 				if(event.getProperty().getValue() != null){
 					if(autoGenerate.getValue() != null){
-						generatePersonnelCode(event.getProperty().getValue().toString(), autoGenerate.getValue().toString());
+						String personnelCodeStr = getPersonnelCode(event.getProperty().getValue().toString(), autoGenerate.getValue().toString());
+						personnelCode.setEnabled(true);
+						personnelCode.setValue(personnelCodeStr+"(ชั่วคราว)");
+						personnelCode.setEnabled(false);
 					}
 				}
 			}
@@ -541,7 +548,6 @@ private static final long serialVersionUID = 1L;
 		autoGenerate.setNullSelectionAllowed(false);
 		autoGenerate.setWidth("-1px");
 		autoGenerate.setHeight("-1px");
-		autoGenerate.setValue(1);
 		autoGenerate.addValueChangeListener(new ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
@@ -549,7 +555,10 @@ private static final long serialVersionUID = 1L;
 			public void valueChange(ValueChangeEvent event) {
 				if(event.getProperty().getValue() != null){
 					if(jobPosition.getValue() != null){
-						generatePersonnelCode(jobPosition.getValue().toString(), event.getProperty().getValue().toString());
+						String personnelCodeStr = getPersonnelCode(jobPosition.getValue().toString(), event.getProperty().getValue().toString());
+						personnelCode.setEnabled(true);
+						personnelCode.setValue(personnelCodeStr+"(ชั่วคราว)");
+						personnelCode.setEnabled(false);
 					}else{
 						if(event.getProperty().getValue().equals("0"))
 							Notification.show("กรุณาระบุุตำแหน่งเพื่อสร้างรหัสประจำตัวอัตโนมัติ", Type.WARNING_MESSAGE);
@@ -582,11 +591,13 @@ private static final long serialVersionUID = 1L;
 		workForm.addComponent(personnelStatus);
 		
 		startWorkDate = new PopupDateField("วัน เดือน ปี เริ่มทำงาน");
-		startWorkDate.setInputPrompt("วว/ดด/ปปปป(คศ)");
+		startWorkDate.setInputPrompt("วว/ดด/ปปปป");
 		startWorkDate.setImmediate(false);
 		startWorkDate.setRequired(true);
 		startWorkDate.setWidth("-1px");
 		startWorkDate.setHeight("-1px");
+		startWorkDate.setDateFormat("dd/MM/yyyy");
+		startWorkDate.setLocale(new Locale("th", "TH"));
 		workForm.addComponent(startWorkDate);
 		
 		department = new ComboBox("แผนก",new Department());
@@ -600,7 +611,7 @@ private static final long serialVersionUID = 1L;
 		department.setFilteringMode(FilteringMode.CONTAINS);
 		workForm.addComponent(department);
 
-		employmentType = new ComboBox("ประเภทการว่าจ้าง",new EmployeeType());
+		employmentType = new ComboBox("ประเภทการว่าจ้าง",new EmploymentType());
 		employmentType.setInputPrompt("กรุณาเลือก");
 		employmentType.setItemCaptionPropertyId("name");
 		employmentType.setImmediate(true);
@@ -612,7 +623,7 @@ private static final long serialVersionUID = 1L;
 		workForm.addComponent(employmentType);
 		
 		bankaccountName = new TextField("ชื่อบัญชี");
-		bankaccountName.setInputPrompt("ชื่อบัญชี");
+		bankaccountName.setInputPrompt("ชื่อบัญชีธนาคาร");
 		bankaccountName.setImmediate(false);
 		bankaccountName.setWidth("-1px");
 		bankaccountName.setHeight("-1px");
@@ -620,7 +631,7 @@ private static final long serialVersionUID = 1L;
 		workForm.addComponent(bankaccountName);
 		
 		bankAccountNumber = new TextField("เลขบัญชี");
-		bankAccountNumber.setInputPrompt("เลขบัญชี");
+		bankAccountNumber.setInputPrompt("เลขบัญชีธนาคาร");
 		bankAccountNumber.setImmediate(false);
 		bankAccountNumber.setWidth("-1px");
 		bankAccountNumber.setHeight("-1px");
@@ -726,17 +737,21 @@ private static final long serialVersionUID = 1L;
 		licenseeForm.addComponent(licenseLecturerType);
 		
 		licenseLecturerIssuedDate = new PopupDateField("วัน เดือน ปี ที่ออก");
-		licenseLecturerIssuedDate.setInputPrompt("วว/ดด/ปปปป(คศ)");
+		licenseLecturerIssuedDate.setInputPrompt("วว/ดด/ปปปป");
 		licenseLecturerIssuedDate.setImmediate(false);
 		licenseLecturerIssuedDate.setWidth("-1px");
 		licenseLecturerIssuedDate.setHeight("-1px");
+		licenseLecturerIssuedDate.setDateFormat("dd/MM/yyyy");
+		licenseLecturerIssuedDate.setLocale(new Locale("th", "TH"));
 		licenseeForm.addComponent(licenseLecturerIssuedDate);
 
 		licenseLecturerExpiredDate = new PopupDateField("วัน เดือน ปี หมดอายุ");
-		licenseLecturerExpiredDate.setInputPrompt("วว/ดด/ปปปป(คศ)");
+		licenseLecturerExpiredDate.setInputPrompt("วว/ดด/ปปปป");
 		licenseLecturerExpiredDate.setImmediate(false);
 		licenseLecturerExpiredDate.setWidth("-1px");
 		licenseLecturerExpiredDate.setHeight("-1px");
+		licenseLecturerExpiredDate.setDateFormat("dd/MM/yyyy");
+		licenseLecturerExpiredDate.setLocale(new Locale("th", "TH"));
 		licenseeForm.addComponent(licenseLecturerExpiredDate);
 
 		license11Number = new TextField("เลขที่ใบอนุญาติ สช 11");
@@ -798,10 +813,12 @@ private static final long serialVersionUID = 1L;
 		licenseeForm.addComponent(fillDegreePost);
 
 		fillDegreePostDate = new PopupDateField("วัน เดือน ปีที่ได้รับการบรรจุ");
-		fillDegreePostDate.setInputPrompt("วว/ดด/ปปปป(คศ)");
+		fillDegreePostDate.setInputPrompt("วว/ดด/ปปปป");
 		fillDegreePostDate.setImmediate(false);
 		fillDegreePostDate.setWidth("-1px");
 		fillDegreePostDate.setHeight("-1px");
+		fillDegreePostDate.setDateFormat("dd/MM/yyyy");
+		fillDegreePostDate.setLocale(new Locale("th", "TH"));
 		licenseeForm.addComponent(fillDegreePostDate);
 		
 		HorizontalLayout buttonLayout = new HorizontalLayout();
@@ -1305,10 +1322,12 @@ private static final long serialVersionUID = 1L;
 		fatherForm.addComponent(fNationality);
 		
 		fBirthDate = new PopupDateField("วัน เดือน ปี เกิด");
-		fBirthDate.setInputPrompt("วว/ดด/ปปปป(คศ)");
+		fBirthDate.setInputPrompt("วว/ดด/ปปปป");
 		fBirthDate.setImmediate(false);
 		fBirthDate.setWidth("-1px");
 		fBirthDate.setHeight("-1px");
+		fBirthDate.setDateFormat("dd/MM/yyyy");
+		fBirthDate.setLocale(new Locale("th", "TH"));
 		fatherForm.addComponent(fBirthDate);
 		
 		fTel = new TextField("เบอร์โทร");
@@ -1603,10 +1622,12 @@ private static final long serialVersionUID = 1L;
 		motherForm.addComponent(mNationality);
 
 		mBirthDate = new PopupDateField("วัน เดือน ปี เกิด");
-		mBirthDate.setInputPrompt("วว/ดด/ปปปป(คศ)");
+		mBirthDate.setInputPrompt("วว/ดด/ปปปป");
 		mBirthDate.setImmediate(false);
 		mBirthDate.setWidth("-1px");
 		mBirthDate.setHeight("-1px");
+		mBirthDate.setDateFormat("dd/MM/yyyy");
+		mBirthDate.setLocale(new Locale("th", "TH"));
 		motherForm.addComponent(mBirthDate);
 		
 		mTel = new TextField("เบอร์โทร");
@@ -1902,10 +1923,12 @@ private static final long serialVersionUID = 1L;
 		spouseForm.addComponent(sNationality);
 		
 		sBirthDate = new PopupDateField("วัน เดือน ปี เกิด");
-		sBirthDate.setInputPrompt("วว/ดด/ปปปป(คศ)");
+		sBirthDate.setInputPrompt("วว/ดด/ปปปป");
 		sBirthDate.setImmediate(false);
 		sBirthDate.setWidth("-1px");
 		sBirthDate.setHeight("-1px");
+		sBirthDate.setDateFormat("dd/MM/yyyy");
+		sBirthDate.setLocale(new Locale("th", "TH"));
 		spouseForm.addComponent(sBirthDate);
 		
 		sTel = new TextField("เบอร์โทร");
@@ -2083,17 +2106,18 @@ private static final long serialVersionUID = 1L;
 		personnelBinder.bind(race, PersonnelSchema.RACE);
 		personnelBinder.bind(nationality, PersonnelSchema.NATIONALITY);
 		personnelBinder.bind(maritalStatus, PersonnelSchema.MARITAL_STATUS);
+		personnelBinder.bind(aliveStatus, PersonnelSchema.ALIVE_STATUS);
 		personnelBinder.bind(birthDate, PersonnelSchema.BIRTH_DATE);
 		personnelBinder.bind(blood, PersonnelSchema.BLOOD);
 		personnelBinder.bind(height, PersonnelSchema.HEIGHT);
 		personnelBinder.bind(weight, PersonnelSchema.WEIGHT);
 		personnelBinder.bind(congenitalDisease, PersonnelSchema.CONGENITAL_DISEASE);
 		
-		personnelBinder.bind(personnelCode, PersonnelSchema.PERSONEL_CODE);
-		personnelBinder.bind(personnelStatus, PersonnelSchema.PERSONEL_STATUS);
+		personnelBinder.bind(personnelCode, PersonnelSchema.PERSONNEL_CODE);
+		personnelBinder.bind(personnelStatus, PersonnelSchema.PERSONNEL_STATUS);
 		personnelBinder.bind(startWorkDate, PersonnelSchema.START_WORK_DATE);
-		personnelBinder.bind(jobPosition, PersonnelSchema.JOB_POSITION);
-		personnelBinder.bind(department, PersonnelSchema.DEPARTMENT);
+		personnelBinder.bind(jobPosition, PersonnelSchema.JOB_POSITION_ID);
+		personnelBinder.bind(department, PersonnelSchema.DEPARTMENT_ID);
 		personnelBinder.bind(employmentType, PersonnelSchema.EMPLOYMENT_TYPE);
 		personnelBinder.bind(bankName, PersonnelSchema.BANK_NAME);
 		personnelBinder.bind(bankAccountNumber, PersonnelSchema.BANK_ACCOUNT_NUMBER);
@@ -2211,41 +2235,42 @@ private static final long serialVersionUID = 1L;
 		spouseBinder.bind(sCurrentPostcode, FamilySchema.CURRENT_POSTCODE_ID);
 	}
 	
-	private void generatePersonnelCode(String jobPosition, String autoGenerate){
-		personnelCode.setEnabled(true);
+	private String getPersonnelCode(String jobPosition, String autoGenerate){
+		String personalCode;
 		if(autoGenerate.equals("0")){
 			/* รหัสเริ่มต้น 5801*/
-			String personalCode = DateTimeUtil.getBuddishYear().substring(2) + jobPosition;
+			personalCode = DateTimeUtil.getBuddishYear().substring(2) + jobPosition;
 			
 			/* ดึง รหัสที่มาทที่สุด SELECT MAX(personnel_code) FROM personnel WHERE personnel_code LIKE 'ตำแหน่ง%' */
 			StringBuilder sqlBuilder = new StringBuilder();
-			sqlBuilder.append(" SELECT MAX(" + PersonnelSchema.PERSONEL_CODE + ") AS " + PersonnelSchema.PERSONEL_CODE);
+			sqlBuilder.append(" SELECT MAX(" + PersonnelSchema.PERSONNEL_CODE + ") AS " + PersonnelSchema.PERSONNEL_CODE);
 			sqlBuilder.append(" FROM " + PersonnelSchema.TABLE_NAME);
-			sqlBuilder.append(" WHERE " + PersonnelSchema.PERSONEL_CODE + " LIKE '" + personalCode + "%'");
+			sqlBuilder.append(" WHERE " + PersonnelSchema.PERSONNEL_CODE + " LIKE '" + personalCode + "%'");
 
 			personalCode += "01";
 			
-			SQLContainer freeContainer = Container.getFreeFormContainer(sqlBuilder.toString(), PersonnelSchema.PERSONEL_CODE);
+			SQLContainer freeContainer = Container.getFreeFormContainer(sqlBuilder.toString(), PersonnelSchema.PERSONNEL_CODE);
 			if(freeContainer.size() > 0){
 				Item item = freeContainer.getItem(freeContainer.getIdByIndex(0));
 				
-				if(item.getItemProperty(PersonnelSchema.PERSONEL_CODE).getValue() != null){
-					personalCode = (Integer.parseInt(item.getItemProperty(PersonnelSchema.PERSONEL_CODE).getValue().toString()) + 1) + "";
+				if(item.getItemProperty(PersonnelSchema.PERSONNEL_CODE).getValue() != null){
+					personalCode = (Integer.parseInt(item.getItemProperty(PersonnelSchema.PERSONNEL_CODE).getValue().toString()) + 1) + "";
 					
 				}
 			}
 
 			freeContainer.removeAllContainerFilters();
-			personnelCode.setValue(personalCode);
-			personnelCode.setEnabled(false);
+
+			
 		}else{
 			if(personnelBinder.getItemDataSource() == null)
-				personnelCode.setValue(null);
+				personalCode = null;
 			else{
 				Item item = personnelBinder.getItemDataSource();
-				personnelCode.setValue(item.getItemProperty(PersonnelSchema.PERSONEL_CODE).getValue().toString());
+				personalCode = item.getItemProperty(PersonnelSchema.PERSONNEL_CODE).getValue().toString();
 			}
 		}
+		return personalCode;
 	}
 	
 	/* ปีดการกรอกข้อมูลหากข้อมูล ประชาชนซ้ำหรือยังไม่ได้ตรวจสอบ */
@@ -2574,5 +2599,9 @@ private static final long serialVersionUID = 1L;
 		}
 
 		return false;
+	}
+	
+	public String getActualPersonnelCode(){
+		return getPersonnelCode(jobPosition.getValue().toString(), autoGenerate.getValue().toString());
 	}
 }

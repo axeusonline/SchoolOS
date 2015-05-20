@@ -104,7 +104,7 @@ public class TeachingtableExportView extends VerticalLayout {
 					teaching = new Teaching((int)event.getProperty().getValue());
 					timetableLayout.removeAllComponents();
 					seachAllTimetable();
-					setTeachingTimetable();
+					exportAllTeachingtable();
 				}
 			}
 		});
@@ -163,7 +163,7 @@ public class TeachingtableExportView extends VerticalLayout {
 	
 	/* เพิ่มข้อมูลตารางสอนในตารางผู้สอน */
 	@SuppressWarnings("deprecation")
-	private void setTeachingTimetable(){
+	private void exportAllTeachingtable(){
 		HSSFWorkbook workbook = new HSSFWorkbook(); 
 		CellStyle cs = workbook.createCellStyle();
 		cs.setWrapText(true);
@@ -253,7 +253,7 @@ public class TeachingtableExportView extends VerticalLayout {
 				
 				/* ใส่หัวตาราง */
 				int rowIndex = 2;
-				int totalSec = -5;
+				int totalSec = 0;
 				for(Object exportId: exportTable.getItemIds()){
 					Item item = exportTable.getItem(exportId);
 					HSSFRow row = sheet.createRow(rowIndex);
@@ -273,7 +273,9 @@ public class TeachingtableExportView extends VerticalLayout {
 					}
 					rowIndex++;
 				}	
-				
+
+				/* จำนวนคาบทั้งหมด ลบด้วย 2 บรรทัดแรก(สรุปคาบ และ แถว หัวตาราง) และ จำนวนวันที่สอน เพราะระบบนับ วันที่ระบุในแถววิชาเป็นหนึ่งคาบ ด้วย */
+				totalSec = totalSec - (rowIndex - 2);
 				/* ใส่หัวข้อตารางบรรทัดบนสุด ซึ่งต้องผ่านการนับจำนวนคาบ */
 				HSSFRow titleRow = sheet.createRow(0);
 				HSSFCell cell = titleRow.createCell(0);
@@ -297,7 +299,6 @@ public class TeachingtableExportView extends VerticalLayout {
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
-		
 	}
 
 	/* ค้นหาข้อมูลตารางสอนของอาจารย์ทั้งหมด */

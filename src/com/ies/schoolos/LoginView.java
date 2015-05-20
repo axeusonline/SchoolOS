@@ -450,7 +450,7 @@ public class LoginView extends VerticalLayout{
 							addStudentWindow.setSizeFull();
 							addStudentWindow.setPositionX(0);
 							addStudentWindow.setPositionY(0);
-							addStudentWindow.setContent(new AddStudentView());
+							addStudentWindow.setContent(new AddStudentView(false,false));
 							UI.getCurrent().addWindow(addStudentWindow);
 						}else{
 							Notification.show("รหัสไม่ถูกต้อง", Type.WARNING_MESSAGE);
@@ -561,6 +561,7 @@ public class LoginView extends VerticalLayout{
 	
 	//เข้าสู่ระบบ
 	private void login(String username, String password){	
+		userContainer.removeAllContainerFilters();
 		userContainer.addContainerFilter(new Equal(UserSchema.EMAIL,username));
 
 		if(userContainer.size() != 0){

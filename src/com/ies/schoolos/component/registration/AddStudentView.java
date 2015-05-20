@@ -39,6 +39,7 @@ public class AddStudentView extends StudentLayout {
 	private static final long serialVersionUID = 1L;
 
 	private int pkIndex = 0;
+	private boolean isStudentTmp;
 	
 	private SQLContainer userContainer = Container.getUserContainer();
 	
@@ -51,9 +52,14 @@ public class AddStudentView extends StudentLayout {
 		//setDebugMode(true);
 	}
 	
-	public AddStudentView(boolean printMode) {
+	public AddStudentView(boolean printMode,boolean isStudentTmp) {
 		this.printMode = printMode;
+		this.isStudentTmp = isStudentTmp;
 		initAddStudent();
+		if(isStudentTmp)
+			setStudentTempMode();
+		else
+			setStudentMode();
 		//setDebugMode(true);
 	}
 	
@@ -313,6 +319,8 @@ public class AddStudentView extends StudentLayout {
 					item.getItemProperty(StudentStudySchema.GUARDIAN_ID).setValue(Integer.parseInt(pkStore[2].toString()));
 				}
 				item.getItemProperty(StudentStudySchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
+				item.getItemProperty(StudentStudySchema.STUDENT_CODE).setValue(getActualStudentCode());
+				System.err.println("STUDENT CODE:" + getActualStudentCode());
 				item.getItemProperty(StudentStudySchema.STUDENT_ID).setValue(Integer.parseInt(pkStore[3].toString()));
 				CreateModifiedSchema.setCreateAndModified(item);
 			}
@@ -331,12 +339,19 @@ public class AddStudentView extends StudentLayout {
 	@SuppressWarnings("unchecked")
 	private void generateUser(){
 		try{
+			String usernameStr = "";
 			Object userTmpId = userContainer.addItem();
 			Item userItem = userContainer.getItem(userTmpId);
 			userItem.getItemProperty(UserSchema.SCHOOL_ID).setValue(Integer.parseInt(SessionSchema.getSchoolID().toString()));
 			userItem.getItemProperty(UserSchema.FIRSTNAME).setValue(studentBinder.getField(StudentSchema.FIRSTNAME).getValue());
 			userItem.getItemProperty(UserSchema.LASTNAME).setValue(studentBinder.getField(StudentSchema.LASTNAME).getValue());
-			userItem.getItemProperty(UserSchema.EMAIL).setValue(studentStudyBinder.getField(StudentStudySchema.EMAIL).getValue());
+			if(isStudentTmp){
+				userItem.getItemProperty(UserSchema.EMAIL).setValue(studentStudyBinder.getField(StudentStudySchema.STUDENT_CODE).getValue());
+				usernameStr = studentStudyBinder.getField(StudentStudySchema.STUDENT_CODE).getValue().toString();
+			}else{
+				userItem.getItemProperty(UserSchema.EMAIL).setValue(studentStudyBinder.getField(StudentStudySchema.EMAIL).getValue());
+				usernameStr = studentBinder.getField(StudentStudySchema.EMAIL).getValue().toString();
+			}
 			userItem.getItemProperty(UserSchema.PASSWORD).setValue(BCrypt.hashpw(studentBinder.getField(StudentSchema.PEOPLE_ID).getValue().toString(), BCrypt.gensalt()));
 			userItem.getItemProperty(UserSchema.STATUS).setValue(0);
 			userItem.getItemProperty(UserSchema.REF_USER_ID).setValue(Integer.parseInt(pkStore[3].toString()));
@@ -371,29 +386,34 @@ public class AddStudentView extends StudentLayout {
 				schoolName = SessionSchema.getSchoolName().toString();
 			}
 			builder.append(schoolName + "<br/>");
-			builder.append("บัญชีผู้ใช้ :" + studentStudyBinder.getField(StudentStudySchema.EMAIL).getValue() + "<br/>");
+			builder.append("บัญชีผู้ใช้ :" + usernameStr + "<br/>");
 			builder.append("รหัสผ่าน:" + studentBinder.getField(StudentSchema.PEOPLE_ID).getValue());
 			
 			Label username = new Label(builder.toString());
 			username.setContentMode(ContentMode.HTML);
 			labelLayout.addComponent(username);
 
-			StringBuilder description = new StringBuilder();
-			description.append("เรียนคุณ " + studentBinder.getField(StudentSchema.FIRSTNAME).getValue());
-			description.append(System.getProperty("line.separator"));
-			description.append("ทางครอบครัว SchoolOS ได้ทำการจัดส่งบัญชีผู้ใช้จากการตั้งค่าของ เจ้าหน้าที่ IT โรงเรียน โดยรายละเอียดการเข้าใช้อธิบายดังข้างล่างนี้");
-			description.append(System.getProperty("line.separator"));
-			description.append("บัญชี:" + studentBinder.getField(StudentStudySchema.EMAIL).getValue());
-			description.append(System.getProperty("line.separator"));
-			description.append("รหัสผ่าน:" + studentBinder.getField(StudentSchema.PEOPLE_ID).getValue());
-			description.append(System.getProperty("line.separator"));
-			description.append("ทั้งนี้หากมีข้อสงสัยกรุณาส่งกลับที่ "+ SessionSchema.getEmail());
-			description.append(System.getProperty("line.separator"));
-			description.append("ด้วยความเคารพ");
-			description.append(System.getProperty("line.separator"));
-			description.append("ครอบครัว SchoolOS");
-			
-			sendEmail(studentBinder.getField(StudentStudySchema.EMAIL).getValue().toString(), description.toString());
+			if(studentStudyBinder.getField(StudentStudySchema.EMAIL).getValue() != null){
+				StringBuilder description = new StringBuilder();
+				description.append("เรียนคุณ " + studentBinder.getField(StudentSchema.FIRSTNAME).getValue());
+				description.append(System.getProperty("line.separator"));
+				description.append("ทางครอบครัว SchoolOS ได้ทำการจัดส่งบัญชีผู้ใช้จากการตั้งค่าของ เจ้าหน้าที่ IT โรงเรียน โดยรายละเอียดการเข้าใช้อธิบายดังข้างล่างนี้");
+				description.append(System.getProperty("line.separator"));
+				if(isStudentTmp)
+					description.append("บัญชี:" + usernameStr);
+				else
+					description.append("บัญชี:" + studentStudyBinder.getField(StudentStudySchema.EMAIL).getValue());
+				description.append(System.getProperty("line.separator"));
+				description.append("รหัสผ่าน:" + studentBinder.getField(StudentSchema.PEOPLE_ID).getValue());
+				description.append(System.getProperty("line.separator"));
+				description.append("ทั้งนี้หากมีข้อสงสัยกรุณาส่งกลับที่ "+ SessionSchema.getEmail());
+				description.append(System.getProperty("line.separator"));
+				description.append("ด้วยความเคารพ");
+				description.append(System.getProperty("line.separator"));
+				description.append("ครอบครัว SchoolOS");
+				
+				sendEmail(studentStudyBinder.getField(StudentStudySchema.EMAIL).getValue().toString(), description.toString());
+			}
 		}catch(Exception e){
 			Notification.show("บันทึกไม่สำเร็จ", Type.WARNING_MESSAGE);
 			e.printStackTrace();

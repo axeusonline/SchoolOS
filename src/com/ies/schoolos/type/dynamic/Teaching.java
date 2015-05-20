@@ -67,7 +67,7 @@ public class Teaching extends IndexedContainer{
 			}else{
 				try {
 					StringBuilder builder = new StringBuilder();
-					builder.append(" SELECT " + PersonnelSchema.PERSONNEL_ID + "," + PersonnelSchema.PERSONEL_CODE + "," + PersonnelSchema.FIRSTNAME + "," + PersonnelSchema.LASTNAME);
+					builder.append(" SELECT " + PersonnelSchema.PERSONNEL_ID + "," + PersonnelSchema.PERSONNEL_CODE + "," + PersonnelSchema.FIRSTNAME + "," + PersonnelSchema.LASTNAME);
 					builder.append(" FROM " + PersonnelSchema.TABLE_NAME);
 					builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + teachingItem.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue());
 					
@@ -122,7 +122,7 @@ public class Teaching extends IndexedContainer{
 			}else{
 				try {
 					StringBuilder builder = new StringBuilder();
-					builder.append(" SELECT " + PersonnelSchema.PERSONNEL_ID + "," + PersonnelSchema.PERSONEL_CODE + "," + PersonnelSchema.FIRSTNAME + "," + PersonnelSchema.LASTNAME);
+					builder.append(" SELECT " + PersonnelSchema.PERSONNEL_ID + "," + PersonnelSchema.PERSONNEL_CODE + "," + PersonnelSchema.FIRSTNAME + "," + PersonnelSchema.LASTNAME);
 					builder.append(" FROM " + PersonnelSchema.TABLE_NAME);
 					builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + teachingItem.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue());
 					
@@ -185,7 +185,7 @@ public class Teaching extends IndexedContainer{
 			}else{
 				try {
 					StringBuilder builder = new StringBuilder();
-					builder.append(" SELECT " + PersonnelSchema.PERSONNEL_ID + "," + PersonnelSchema.PERSONEL_CODE + "," + PersonnelSchema.FIRSTNAME + "," + PersonnelSchema.LASTNAME);
+					builder.append(" SELECT " + PersonnelSchema.PERSONNEL_ID + "," + PersonnelSchema.PERSONNEL_CODE + "," + PersonnelSchema.FIRSTNAME + "," + PersonnelSchema.LASTNAME);
 					builder.append(" FROM " + PersonnelSchema.TABLE_NAME);
 					builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + teachingItem.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue());
 
@@ -249,7 +249,7 @@ public class Teaching extends IndexedContainer{
 			}else{
 				try {
 					StringBuilder builder = new StringBuilder();
-					builder.append(" SELECT " + PersonnelSchema.PERSONNEL_ID + "," + PersonnelSchema.PERSONEL_CODE + "," + PersonnelSchema.FIRSTNAME + "," + PersonnelSchema.LASTNAME);
+					builder.append(" SELECT " + PersonnelSchema.PERSONNEL_ID + "," + PersonnelSchema.PERSONNEL_CODE + "," + PersonnelSchema.FIRSTNAME + "," + PersonnelSchema.LASTNAME);
 					builder.append(" FROM " + PersonnelSchema.TABLE_NAME);
 					builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + teachingItem.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue());
 
@@ -318,7 +318,7 @@ public class Teaching extends IndexedContainer{
 				}else{
 					try {
 						StringBuilder builder = new StringBuilder();
-						builder.append(" SELECT " + PersonnelSchema.PERSONNEL_ID + "," + PersonnelSchema.PERSONEL_CODE + "," + PersonnelSchema.FIRSTNAME + "," + PersonnelSchema.LASTNAME);
+						builder.append(" SELECT " + PersonnelSchema.PERSONNEL_ID + "," + PersonnelSchema.PERSONNEL_CODE + "," + PersonnelSchema.FIRSTNAME + "," + PersonnelSchema.LASTNAME);
 						builder.append(" FROM " + PersonnelSchema.TABLE_NAME);
 						builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + teachingItem.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue());
 

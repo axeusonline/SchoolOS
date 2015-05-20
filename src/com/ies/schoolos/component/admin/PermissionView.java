@@ -78,31 +78,31 @@ public class PermissionView extends VerticalLayout {
 		twinSelect.showFooterCount(true);
 		twinSelect.setFooterUnit("คน");
 		
-		twinSelect.addContainerProperty(PersonnelSchema.PERSONEL_CODE, String.class, null);
+		twinSelect.addContainerProperty(PersonnelSchema.PERSONNEL_CODE, String.class, null);
 		twinSelect.addContainerProperty(PersonnelSchema.FIRSTNAME, String.class, null);
 		twinSelect.addContainerProperty(PersonnelSchema.LASTNAME, String.class, null);
-		twinSelect.addContainerProperty(PersonnelSchema.DEPARTMENT, String.class, null);
+		twinSelect.addContainerProperty(PersonnelSchema.DEPARTMENT_ID, String.class, null);
 		
 		twinSelect.setFilterDecorator(new TableFilterDecorator());
 		twinSelect.setFilterGenerator(new TableFilterGenerator());
 		twinSelect.setFilterBarVisible(true);
         
-		twinSelect.setColumnHeader(PersonnelSchema.PERSONEL_CODE, "รหัสประจำตัว");
+		twinSelect.setColumnHeader(PersonnelSchema.PERSONNEL_CODE, "รหัสประจำตัว");
 		twinSelect.setColumnHeader(PersonnelSchema.FIRSTNAME,"ชื่อ");
 		twinSelect.setColumnHeader(PersonnelSchema.LASTNAME, "สกุล");
-		twinSelect.setColumnHeader(PersonnelSchema.DEPARTMENT, "แผนก");
+		twinSelect.setColumnHeader(PersonnelSchema.DEPARTMENT_ID, "แผนก");
 
 		twinSelect.getLeftTable().setVisibleColumns(
-				PersonnelSchema.PERSONEL_CODE, 
+				PersonnelSchema.PERSONNEL_CODE, 
 				PersonnelSchema.FIRSTNAME,
 				PersonnelSchema.LASTNAME,
-				PersonnelSchema.DEPARTMENT);
+				PersonnelSchema.DEPARTMENT_ID);
 		
 		twinSelect.getRightTable().setVisibleColumns(
-				PersonnelSchema.PERSONEL_CODE, 
+				PersonnelSchema.PERSONNEL_CODE, 
 				PersonnelSchema.FIRSTNAME,
 				PersonnelSchema.LASTNAME,
-				PersonnelSchema.DEPARTMENT);
+				PersonnelSchema.DEPARTMENT_ID);
 		
 		twinSelect.setAddClick(addListener);
 		twinSelect.setAddAllClick(addAllListener);
@@ -115,7 +115,7 @@ public class PermissionView extends VerticalLayout {
 	
 	/* เรียงอันดับข้อมูลของตาราง */
 	private void sortData(){
-		Object[] prop = {PersonnelSchema.PERSONEL_CODE};
+		Object[] prop = {PersonnelSchema.PERSONNEL_CODE};
 		boolean[] bool = {true};
 		twinSelect.getLeftTable().sort(prop, bool);
 		twinSelect.getRightTable().sort(prop, bool);
@@ -130,14 +130,14 @@ public class PermissionView extends VerticalLayout {
 		userBuilder.append(" WHERE u."+ PersonnelSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		userBuilder.append(" AND u."+ UserSchema.REF_USER_TYPE + "<> 0");
 		userBuilder.append(" AND SUBSTR("+ UserSchema.PERMISSION + "," + currentFeature +",1) = 0");
-
+		System.err.println(userBuilder.toString());
 		freeContainer = Container.getFreeFormContainer(userBuilder.toString(), UserSchema.USER_ID);
 		for(final Object itemId:freeContainer.getItemIds()){
 			Item item = freeContainer.getItem(itemId);
 			addItemData(twinSelect.getLeftTable(), itemId, item);
 		}
 		
-		twinSelect.setLeftCountFooter(PersonnelSchema.PERSONEL_CODE);
+		twinSelect.setLeftCountFooter(PersonnelSchema.PERSONNEL_CODE);
 	}
 	
 	private void setRightData(){
@@ -156,7 +156,7 @@ public class PermissionView extends VerticalLayout {
 			addItemData(twinSelect.getRightTable(), itemId, item);
 		}
 		
-		twinSelect.setRightCountFooter(PersonnelSchema.PERSONEL_CODE);		
+		twinSelect.setRightCountFooter(PersonnelSchema.PERSONNEL_CODE);		
 	}
 	
 	/* ย้ายข้างจากซ้ายไปขวาจากที่ถูกเลือก */
@@ -182,8 +182,8 @@ public class PermissionView extends VerticalLayout {
 			setLeftData();
 			setRightData();
 			sortData();
-			twinSelect.setLeftCountFooter(PersonnelSchema.PERSONEL_CODE);
-			twinSelect.setRightCountFooter(PersonnelSchema.PERSONEL_CODE);
+			twinSelect.setLeftCountFooter(PersonnelSchema.PERSONNEL_CODE);
+			twinSelect.setRightCountFooter(PersonnelSchema.PERSONNEL_CODE);
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -213,43 +213,69 @@ public class PermissionView extends VerticalLayout {
 			setLeftData();
 			setRightData();
 			sortData();
-			twinSelect.setLeftCountFooter(PersonnelSchema.PERSONEL_CODE);
-			twinSelect.setRightCountFooter(PersonnelSchema.PERSONEL_CODE);
+			twinSelect.setLeftCountFooter(PersonnelSchema.PERSONNEL_CODE);
+			twinSelect.setRightCountFooter(PersonnelSchema.PERSONNEL_CODE);
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	/* ย้ายข้างจากขวาไปซ้ายจากที่เลือก */
+	@SuppressWarnings("unchecked")
 	private void removeData(Object... itemIds){
 		try {
 			for(Object itemId: itemIds){
-				userContainer.removeItem(itemId);
+				/* ก่อนแก้ไข เพิ่มต้องลบ Filter ก่อนหน้า */
+				userContainer.removeAllContainerFilters();
+				Item userItem = userContainer.getItem(itemId);
+				
+				String permission = "";
+				String[] permissionArray = userItem.getItemProperty(UserSchema.PERMISSION).getValue().toString().split(",");
+				for(int i =0; i < permissionArray.length; i++){
+					if(Integer.parseInt(features.getValue().toString()) == i)
+						permissionArray[i] = "0";
+					permission += permissionArray[i]+",";
+				}
+				userItem.getItemProperty(UserSchema.PERMISSION).setValue(permission.substring(0, permission.length()-1));
+				CreateModifiedSchema.setCreateAndModified(userItem);
 				userContainer.commit();
 			}
 			setLeftData();
 			setRightData();
 			sortData();
-			twinSelect.setLeftCountFooter(PersonnelSchema.PERSONEL_CODE);
-			twinSelect.setRightCountFooter(PersonnelSchema.PERSONEL_CODE);
+			twinSelect.setLeftCountFooter(PersonnelSchema.PERSONNEL_CODE);
+			twinSelect.setRightCountFooter(PersonnelSchema.PERSONNEL_CODE);
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
 	/* ย้ายข้างจากขวาไปซ้ายจากจำนวนทั้งหมด */
+	@SuppressWarnings("unchecked")
 	private void removeAllData(){
 		try {
 			for(Object itemId: twinSelect.getRightTable().getItemIds()){
-				userContainer.removeItem(itemId);
+				/* ก่อนแก้ไข เพิ่มต้องลบ Filter ก่อนหน้า */
+				userContainer.removeAllContainerFilters();
+				Item userItem = userContainer.getItem(itemId);
+				
+				String permission = "";
+				String[] permissionArray = userItem.getItemProperty(UserSchema.PERMISSION).getValue().toString().split(",");
+				for(int i =0; i < permissionArray.length; i++){
+					if(Integer.parseInt(features.getValue().toString()) == i)
+						permissionArray[i] = "0";
+					permission += permissionArray[i]+",";
+				}
+				userItem.getItemProperty(UserSchema.PERMISSION).setValue(permission.substring(0, permission.length()-1));
+				CreateModifiedSchema.setCreateAndModified(userItem);
 				userContainer.commit();
 			}
 			setLeftData();
 			setRightData();
 			sortData();
 			
-			twinSelect.setLeftCountFooter(PersonnelSchema.PERSONEL_CODE);
-			twinSelect.setRightCountFooter(PersonnelSchema.PERSONEL_CODE);
+			twinSelect.setLeftCountFooter(PersonnelSchema.PERSONNEL_CODE);
+			twinSelect.setRightCountFooter(PersonnelSchema.PERSONNEL_CODE);
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -258,10 +284,10 @@ public class PermissionView extends VerticalLayout {
 	/* ใส่ข้อมูลในตาราง */
 	private void addItemData(FilterTable table, Object itemId, Item item){		
 		String department = "ไม่ระบุ";
-		if(item.getItemProperty(PersonnelSchema.DEPARTMENT).getValue() != null)
-			department = Department.getNameTh(Integer.parseInt(item.getItemProperty(PersonnelSchema.DEPARTMENT).getValue().toString()))	;
+		if(item.getItemProperty(PersonnelSchema.DEPARTMENT_ID).getValue() != null)
+			department = new Department().getItem(item.getItemProperty(PersonnelSchema.DEPARTMENT_ID).getValue()).getItemProperty("name").getValue().toString();
 		table.addItem(new Object[] {
-				item.getItemProperty(PersonnelSchema.PERSONEL_CODE).getValue(), 
+				item.getItemProperty(PersonnelSchema.PERSONNEL_CODE).getValue(), 
 				item.getItemProperty(PersonnelSchema.FIRSTNAME).getValue(), 
 				item.getItemProperty(PersonnelSchema.LASTNAME).getValue(),
 				department
@@ -280,8 +306,8 @@ public class PermissionView extends VerticalLayout {
 				
 				setLeftData();
 				setRightData();
-				twinSelect.setLeftCountFooter(PersonnelSchema.PERSONEL_CODE);
-				twinSelect.setRightCountFooter(PersonnelSchema.PERSONEL_CODE);
+				twinSelect.setLeftCountFooter(PersonnelSchema.PERSONNEL_CODE);
+				twinSelect.setRightCountFooter(PersonnelSchema.PERSONNEL_CODE);
 			}
 		}
 	};

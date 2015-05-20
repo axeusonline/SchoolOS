@@ -163,12 +163,12 @@ public class LessonPlanView extends VerticalLayout{
 						editMode = false;
 						Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 					}else{
-						lContainer.removeAllContainerFilters();
 						if(!lessonPlanBinder.isValid()){
 							Notification.show("กรุณากรอกข้อมูลให้ครบถ้วน", Type.WARNING_MESSAGE);
 							return;
 						}
-							
+
+						lContainer.removeAllContainerFilters();
 						if(!saveFormData())
 							return;
 						
@@ -179,7 +179,7 @@ public class LessonPlanView extends VerticalLayout{
 					Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 				} catch (Exception e) {
 					e.printStackTrace();
-					Notification.show("บันทึกไม่สำเร็จ", Type.HUMANIZED_MESSAGE);
+					Notification.show("บันทึกไม่สำเร็จ", Type.WARNING_MESSAGE);
 				}
 			}
 		});

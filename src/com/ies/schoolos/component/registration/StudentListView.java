@@ -60,7 +60,7 @@ public class StudentListView extends VerticalLayout {
 			public void buttonClick(ClickEvent event) {
 				Window addLayout = new Window();
 				addLayout.setSizeFull();
-				addLayout.setContent(new AddStudentView());
+				addLayout.setContent(new AddStudentView(false,true));
 				addLayout.addCloseListener(new CloseListener() {
 					private static final long serialVersionUID = 1L;
 
@@ -147,7 +147,7 @@ public class StudentListView extends VerticalLayout {
 		builder.append(" WHERE ss." + StudentSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		builder.append(" AND ( ss." + StudentStudySchema.STUDENT_STATUS + "=" + 0);
 		builder.append(" OR ss." + StudentStudySchema.STUDENT_STATUS + "=" + 2 + ")");
-		
+		System.err.println(builder.toString());
 		freeContainer = Container.getFreeFormContainer(builder.toString(), StudentStudySchema.STUDENT_STUDY_ID);
 		for(final Object itemId:freeContainer.getItemIds()){
 			Item item = freeContainer.getItem(itemId);
@@ -171,10 +171,20 @@ public class StudentListView extends VerticalLayout {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				
-				Window editLayout = new Window();
-				editLayout.setSizeFull();
-				editLayout.setContent(new EditStudentView(itemId));
-				UI.getCurrent().addWindow(editLayout);
+				Window editWindow = new Window();
+				editWindow.setSizeFull();
+				editWindow.setContent(new EditStudentView(itemId,true));
+				editWindow.addCloseListener(new CloseListener() {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void windowClose(CloseEvent e) {
+						table.removeAllItems();
+						fetchData();
+						setFooterData();
+					}
+				});
+				UI.getCurrent().addWindow(editWindow);
 			}
 		});
 		buttonLayout.addComponent(editButton);

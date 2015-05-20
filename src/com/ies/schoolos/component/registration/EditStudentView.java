@@ -48,20 +48,28 @@ public class EditStudentView extends StudentLayout {
 	public SQLContainer sSqlContainer = Container.getStudentContainer();
 	public SQLContainer fSqlContainer = Container.getFamilyContainer();
 	
-	public EditStudentView(Object studyId) {
+	public EditStudentView(Object studyId,boolean isTempStudent) {
 		isEdit = true;
 		this.studyId = studyId;
-		initEdtiStudent();
+		initEditStudent();
+		if(isTempStudent)
+			setStudentTempMode();
+		else
+			setStudentMode();
 	}
 	
-	public EditStudentView(Object studyId, boolean printMode) {
+	public EditStudentView(Object studyId, boolean printMode, boolean isTempStudent) {
 		isEdit = true;
 		this.studyId = studyId;
 		this.printMode = printMode;
-		initEdtiStudent();
+		initEditStudent();
+		if(isTempStudent)
+			setStudentTempMode();
+		else
+			setStudentMode();
 	}
 	
-	private void initEdtiStudent(){
+	private void initEditStudent(){
 		setGParentsValueChange(gParensValueChange);
 		setFinishhClick(finishClick);
 		initEditData();
@@ -223,6 +231,11 @@ public class EditStudentView extends StudentLayout {
 					}
 				}
 				
+				studentStudyBinder.commit();
+				ssSqlContainer.commit();
+				
+				studentBinder.commit();
+				sSqlContainer.commit();
 				Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 				/* ตรวจสอบสถานะการพิมพ์*/
 				if(printMode){

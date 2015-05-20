@@ -1,6 +1,7 @@
 package com.ies.schoolos.component.recruit.layout;
 
 import java.util.Date;
+import java.util.Locale;
 
 import com.ies.schoolos.component.ui.NumberField;
 import com.ies.schoolos.schema.recruit.RecruitStudentFamilySchema;
@@ -333,11 +334,13 @@ public class RecruitStudentLayout extends TabSheet {
 		generalForm.addComponent(nationality);
 		
 		birthDate = new PopupDateField("วัน เดือน ปี เกิด");
-		birthDate.setInputPrompt("วว/ดด/ปปปป(คศ)");
+		birthDate.setInputPrompt("วว/ดด/ปปปป");
 		birthDate.setImmediate(false);
 		birthDate.setRequired(true);
 		birthDate.setWidth("-1px");
 		birthDate.setHeight("-1px");
+		birthDate.setDateFormat("dd/MM/yyyy");
+		birthDate.setLocale(new Locale("th", "TH"));
 		generalForm.addComponent(birthDate);
 		
 		blood = new ComboBox("หมู่เลือด",new Blood());
@@ -754,10 +757,12 @@ public class RecruitStudentLayout extends TabSheet {
 		fatherForm.addComponent(fNationality);
 		
 		fBirthDate = new PopupDateField("วัน เดือน ปี เกิด");
-		fBirthDate.setInputPrompt("วว/ดด/ปปปป(คศ)");
+		fBirthDate.setInputPrompt("วว/ดด/ปปปป");
 		fBirthDate.setImmediate(false);
 		fBirthDate.setWidth("-1px");
 		fBirthDate.setHeight("-1px");
+		fBirthDate.setDateFormat("dd/MM/yyyy");
+		fBirthDate.setLocale(new Locale("th", "TH"));
 		fatherForm.addComponent(fBirthDate);
 		
 		fTel = new TextField("เบอร์โทร");
@@ -1037,10 +1042,12 @@ public class RecruitStudentLayout extends TabSheet {
 		motherForm.addComponent(mNationality);
 
 		mBirthDate = new PopupDateField("วัน เดือน ปี เกิด");
-		mBirthDate.setInputPrompt("วว/ดด/ปปปป(คศ)");
+		mBirthDate.setInputPrompt("วว/ดด/ปปปป");
 		mBirthDate.setImmediate(false);
 		mBirthDate.setWidth("-1px");
 		mBirthDate.setHeight("-1px");
+		mBirthDate.setDateFormat("dd/MM/yyyy");
+		mBirthDate.setLocale(new Locale("th", "TH"));
 		motherForm.addComponent(mBirthDate);
 		
 		mTel = new TextField("เบอร์โทร");
@@ -1343,10 +1350,12 @@ public class RecruitStudentLayout extends TabSheet {
 		guardianForm.addComponent(gNationality);
 		
 		gBirthDate = new PopupDateField("วัน เดือน ปี เกิด");
-		gBirthDate.setInputPrompt("วว/ดด/ปปปป(คศ)");
+		gBirthDate.setInputPrompt("วว/ดด/ปปปป");
 		gBirthDate.setImmediate(false);
 		gBirthDate.setWidth("-1px");
 		gBirthDate.setHeight("-1px");
+		gBirthDate.setDateFormat("dd/MM/yyyy");
+		gBirthDate.setLocale(new Locale("th", "TH"));
 		guardianForm.addComponent(gBirthDate);
 		
 		gTel = new TextField("เบอร์โทร");

@@ -42,7 +42,7 @@ public class PersonnelMainView extends VerticalLayout {
 		dashboar.addComponent(personnelList);
 		addClickListener(personnelList, PersonnelListView.class);
 		
-		Button resign = new Button("2. ลาออก-ไล่ออก", FontAwesome.CUBE);
+		Button resign = new Button("2.จำหน่ายออก", FontAwesome.CUBE);
 		resign.setSizeFull();
 		dashboar.addComponent(resign);
 		addClickListener(resign, PersonnelResignView.class);

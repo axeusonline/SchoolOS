@@ -3,13 +3,13 @@ package com.ies.schoolos.type;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 
-public class EmployeeType extends IndexedContainer{
+public class EmploymentType extends IndexedContainer{
 
 	private static final long serialVersionUID = 1L;
 	
 	private static String[] employeeTypes = {"ประจำ","ชั่วคราว","รายชั่วโมง","ข้าราชการช่วย"};
 
-	public EmployeeType() {
+	public EmploymentType() {
 		initContainer();
 	}
  

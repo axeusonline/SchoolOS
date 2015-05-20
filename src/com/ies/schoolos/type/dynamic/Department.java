@@ -1,21 +1,18 @@
 package com.ies.schoolos.type.dynamic;
 
+import com.ies.schoolos.container.Container;
+import com.ies.schoolos.schema.SessionSchema;
+import com.ies.schoolos.schema.fundamental.DepartmentSchema;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.data.util.filter.Compare.Equal;
+import com.vaadin.data.util.filter.IsNull;
+import com.vaadin.data.util.filter.Or;
+import com.vaadin.data.util.sqlcontainer.SQLContainer;
 
 public class Department extends IndexedContainer{
 
 	private static final long serialVersionUID = 1L;
-	
-	private static String[] departments = {"ฝ่ายบริหาร","ฝ่ายงานวิชาการ","ฝ่ายงานทะเบียน",
-		"ฝ่ายงานพัฒนาบุคลากร","ฝ่ายงานกิจการนักเรียน","ฝ่ายพัสดุ","ฝ่ายธุรการ",
-		"ฝ่ายงานผู้ดูแลระบบ","ฝ่ายงานการเงิน","ฝ่ายงานพัฒนาผู้เรียน","ฝ่ายงานห้องสมุด",
-		"ฝ่ายงานหอพักนักเรียน","ฝ่ายงานสหกรณ์", "ฝ่ายสมัครเรียน",
-		"ฝ่ายอาคารและสถานที่","ฝ่ายอาจารย์ผู้สอน","ฝ่ายอาจารย์ประจำชั้น","ฝ่ายสาระภาษาไทย",
-		"ฝ่ายสาระศิลปะ","ฝ่ายสาระวิทยาศาสตร์","ฝ่ายสาระสังคมศึกษา ศาสนา และ วัฒนธรรม",
-		"ฝ่ายสาระคณิตศาสตร์","ฝ่ายสาระสุขศึกษาและพละศึกษา","ฝ่ายสาระการงานอาชีพและเทคโนโลยี",
-		"ฝ่ายสาระภาษาต่างประเทศ"
-		};
 	
 	public Department() {
 		initContainer();
@@ -23,15 +20,19 @@ public class Department extends IndexedContainer{
  
 	@SuppressWarnings("unchecked")
 	private void initContainer(){
-	   addContainerProperty("name", String.class,null);
-	   for (int i = 0; i < departments.length; i++) {
-	        Item item = addItem(i);
-	        item.getItemProperty("name").setValue(departments[i]);
-	   }
-	}
-	
-	public static String getNameTh(int index){
-		return departments[index];
+		SQLContainer container = Container.getDepartmentContainer();
+		container.addContainerFilter(new Or(new Equal(DepartmentSchema.SCHOOL_ID, SessionSchema.getSchoolID()),
+				new IsNull(DepartmentSchema.SCHOOL_ID)));
+		container.sort(new Object[]{DepartmentSchema.DEPARTMENT_ID}, new boolean[]{true});
+		addContainerProperty("name", String.class,null);
+
+		for (Object itemId:container.getItemIds()) {
+			Item item = addItem(Integer.parseInt(itemId.toString()));
+			item.getItemProperty("name").setValue(container.getItem(itemId).getItemProperty(DepartmentSchema.NAME).getValue());
+		}
+		
+		//ลบ WHERE ออกจาก Query เพื่อป้องกันการค้างของคำสั่่งจากการทำงานอื่นที่เรียกตัวแปรไปใช้
+		container.removeAllContainerFilters();
 	}
 	
 	/*public static String getNameEn(int index){

@@ -1,11 +1,13 @@
 package com.ies.schoolos.component.registration.layout;
 
 import java.util.Date;
+import java.util.Locale;
 
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.ies.schoolos.component.ui.NumberField;
 import com.ies.schoolos.container.Container;
+import com.ies.schoolos.schema.SchoolSchema;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.UserSchema;
 import com.ies.schoolos.schema.info.FamilySchema;
@@ -39,6 +41,7 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.util.filter.Compare.Equal;
+import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.validator.EmailValidator;
 import com.vaadin.data.validator.StringLengthValidator;
@@ -82,10 +85,14 @@ private static final long serialVersionUID = 1L;
 	 * */
 	public Object pkStore[] = new Object[5];
 
+	private String generatedType = "";
+	private String maxStudentCode = "";
+
 	public SQLContainer sSqlContainer = Container.getStudentContainer();
 	public SQLContainer ssSqlContainer = Container.getStudentStudyContainer();
 	public SQLContainer fSqlContainer = Container.getFamilyContainer();
 	public SQLContainer userfSqlContainer = Container.getUserContainer();
+	private SQLContainer schoolContainer = Container.getSchoolContainer();
 	
 	public FieldGroup studentBinder;
 	public FieldGroup studentStudyBinder;
@@ -257,6 +264,9 @@ private static final long serialVersionUID = 1L;
 	}
 	
 	private void buildMainLayout()  {
+		Item schoolItem = schoolContainer.getItem(new RowId(SessionSchema.getSchoolID()));
+		generatedType = schoolItem.getItemProperty(SchoolSchema.STUDENT_CODE_GENERATE_TYPE).getValue().toString();
+		
 		setWidth("100%");
 		setHeight("100%");
 		generalInfoLayout();
@@ -267,6 +277,12 @@ private static final long serialVersionUID = 1L;
 		motherForm();
 		guardianForm();
 		initFieldGroup();
+
+		studentStatus.setValue(0);
+		studentStatus.setReadOnly(true);
+		studentCode.setValue(maxStudentCode);
+		if(generatedType.equals("0"))
+			autoGenerate.setReadOnly(true);
 	}
 	
 	/*สร้าง Layout สำหรับข้อมูลทั่วไปนักเรียน*/
@@ -279,7 +295,6 @@ private static final long serialVersionUID = 1L;
 		peopleIdType = new OptionGroup("ประเภทบัตร",new PeopleIdType());
 		peopleIdType.setItemCaptionPropertyId("name");
 		peopleIdType.setImmediate(true);
-		peopleIdType.setRequired(true);
 		peopleIdType.setNullSelectionAllowed(false);
 		peopleIdType.setWidth("-1px");
 		peopleIdType.setHeight("-1px");
@@ -288,7 +303,6 @@ private static final long serialVersionUID = 1L;
 		peopleId = new TextField("หมายเลขประชาชน");
 		peopleId.setInputPrompt("หมายเลขประชาชน");
 		peopleId.setImmediate(false);
-		peopleId.setRequired(true);
 		peopleId.setWidth("-1px");
 		peopleId.setHeight("-1px");
 		peopleId.setNullRepresentation("");
@@ -319,7 +333,6 @@ private static final long serialVersionUID = 1L;
 		prename.setItemCaptionPropertyId("name");
 		prename.setImmediate(true);
         prename.setNullSelectionAllowed(false);
-        prename.setRequired(true);
 		prename.setWidth("-1px");
 		prename.setHeight("-1px");
 		prename.setFilteringMode(FilteringMode.CONTAINS);
@@ -328,7 +341,6 @@ private static final long serialVersionUID = 1L;
 		firstname = new TextField("ชื่อ");
 		firstname.setInputPrompt("ชื่อ");
 		firstname.setImmediate(false);
-		firstname.setRequired(true);
 		firstname.setWidth("-1px");
 		firstname.setHeight("-1px");
 		firstname.setNullRepresentation("");
@@ -337,7 +349,6 @@ private static final long serialVersionUID = 1L;
 		lastname = new TextField("สกุล");
 		lastname.setInputPrompt("สกุล");
 		lastname.setImmediate(false);
-		lastname.setRequired(true);
 		lastname.setWidth("-1px");
 		lastname.setHeight("-1px");
 		lastname.setNullRepresentation("");
@@ -387,7 +398,6 @@ private static final long serialVersionUID = 1L;
 		gender.setItemCaptionPropertyId("name");
 		gender.setImmediate(true);
 		gender.setNullSelectionAllowed(false);
-		gender.setRequired(true);
 		gender.setWidth("-1px");
 		gender.setHeight("-1px");
 		generalForm.addComponent(gender);
@@ -397,7 +407,6 @@ private static final long serialVersionUID = 1L;
 		religion.setItemCaptionPropertyId("name");
 		religion.setImmediate(true);
 		religion.setNullSelectionAllowed(false);
-		religion.setRequired(true);
 		religion.setWidth("-1px");
 		religion.setHeight("-1px");
 		religion.setFilteringMode(FilteringMode.CONTAINS);
@@ -408,7 +417,6 @@ private static final long serialVersionUID = 1L;
 		race.setItemCaptionPropertyId("name");
 		race.setImmediate(true);
 		race.setNullSelectionAllowed(false);
-		race.setRequired(true);
 		race.setWidth("-1px");
 		race.setHeight("-1px");
 		race.setFilteringMode(FilteringMode.CONTAINS);
@@ -419,18 +427,18 @@ private static final long serialVersionUID = 1L;
 		nationality.setItemCaptionPropertyId("name");
 		nationality.setImmediate(true);
 		nationality.setNullSelectionAllowed(false);
-		nationality.setRequired(true);
 		nationality.setWidth("-1px");
 		nationality.setHeight("-1px");
 		nationality.setFilteringMode(FilteringMode.CONTAINS);
 		generalForm.addComponent(nationality);
 		
 		birthDate = new PopupDateField("วัน เดือน ปี เกิด");
-		birthDate.setInputPrompt("วว/ดด/ปปปป(คศ)");
+		birthDate.setInputPrompt("วว/ดด/ปปปป");
 		birthDate.setImmediate(false);
-		birthDate.setRequired(true);
 		birthDate.setWidth("-1px");
 		birthDate.setHeight("-1px");
+		birthDate.setDateFormat("dd/MM/yyyy");
+		birthDate.setLocale(new Locale("th", "TH"));
 		generalForm.addComponent(birthDate);
 		
 		blood = new ComboBox("หมู่เลือด",new Blood());
@@ -438,7 +446,6 @@ private static final long serialVersionUID = 1L;
 		blood.setItemCaptionPropertyId("name");
 		blood.setImmediate(true);
 		blood.setNullSelectionAllowed(false);
-		blood.setRequired(true);
 		blood.setWidth("-1px");
 		blood.setHeight("-1px");
 		blood.setFilteringMode(FilteringMode.CONTAINS);
@@ -479,7 +486,6 @@ private static final long serialVersionUID = 1L;
 		siblingQty = new NumberField("จำนวนพี่น้อง");
 		siblingQty.setInputPrompt("จำนวน");
 		siblingQty.setImmediate(false);
-		siblingQty.setRequired(true);
 		siblingQty.setDecimalAllowed(false);
 		siblingQty.setWidth("-1px");
 		siblingQty.setHeight("-1px");
@@ -489,7 +495,6 @@ private static final long serialVersionUID = 1L;
 		siblingSequence = new NumberField("ลำดับพี่น้อง");
 		siblingSequence.setInputPrompt("ลำดับที่");
 		siblingSequence.setImmediate(false);
-		siblingSequence.setRequired(true);
 		siblingSequence.setDecimalAllowed(false);
 		siblingSequence.setWidth("-1px");
 		siblingSequence.setHeight("-1px");
@@ -499,7 +504,6 @@ private static final long serialVersionUID = 1L;
 		siblingInSchoolQty = new NumberField("จำนวนพี่น้องที่ศึกษา");
 		siblingInSchoolQty.setInputPrompt("จำนวน");
 		siblingInSchoolQty.setImmediate(false);
-		siblingInSchoolQty.setRequired(true);
 		siblingInSchoolQty.setDecimalAllowed(false);
 		siblingInSchoolQty.setWidth("-1px");
 		siblingInSchoolQty.setHeight("-1px");
@@ -530,60 +534,43 @@ private static final long serialVersionUID = 1L;
 		studyForm.setMargin(true);
 		addTab(studyForm,"ข้อมูลการเรียน", FontAwesome.GRADUATION_CAP);
 				
+		if(generatedType.equals("0")){
+			classRange = new ComboBox("ช่วงชั้นปัจจุบัน",new ClassRange());
+			classRange.setInputPrompt("กรุณาเลือก");
+			classRange.setItemCaptionPropertyId("name");
+			classRange.setImmediate(true);
+			classRange.setNullSelectionAllowed(false);
+			classRange.setWidth("-1px");
+			classRange.setHeight("-1px");
+			classRange.setFilteringMode(FilteringMode.CONTAINS);
+			classRange.addValueChangeListener(new ValueChangeListener() {
+				private static final long serialVersionUID = 1L;
 
-		classRange = new ComboBox("ช่วงชั้นปัจจุบัน",new ClassRange());
-		classRange.setInputPrompt("กรุณาเลือก");
-		classRange.setItemCaptionPropertyId("name");
-		classRange.setImmediate(true);
-		classRange.setNullSelectionAllowed(false);
-		classRange.setRequired(true);
-		classRange.setWidth("-1px");
-		classRange.setHeight("-1px");
-		classRange.setFilteringMode(FilteringMode.CONTAINS);
-		classRange.addValueChangeListener(new ValueChangeListener() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void valueChange(ValueChangeEvent event) {
-				if(event.getProperty().getValue() != null){
-					if(autoGenerate.getValue() != null){
-						generateStudentCode(event.getProperty().getValue().toString(), autoGenerate.getValue().toString());
+				@Override
+				public void valueChange(ValueChangeEvent event) {
+					if(event.getProperty().getValue() != null){
+						studentCode.setValue(getStudentCode(event.getProperty().getValue().toString()));
+						studentCode.setEnabled(false);
 					}
 				}
-			}
-		});
-		studyForm.addComponent(classRange);
+			});
+			studyForm.addComponent(classRange);
 		
-		
-		autoGenerate = new OptionGroup("กำหนดรหัสประจำตัว",new StudentCodeGenerateType());
-		autoGenerate.setItemCaptionPropertyId("name");
-		autoGenerate.setImmediate(true);
-		autoGenerate.setRequired(true);
-		autoGenerate.setNullSelectionAllowed(false);
-		autoGenerate.setWidth("-1px");
-		autoGenerate.setHeight("-1px");
-		autoGenerate.addValueChangeListener(new ValueChangeListener() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void valueChange(ValueChangeEvent event) {
-				if(event.getProperty().getValue() != null){
-					if(classRange.getValue() != null){
-						generateStudentCode(classRange.getValue().toString(), event.getProperty().getValue().toString());
-					}else{
-						if(event.getProperty().getValue().equals("0"))
-							Notification.show("กรุณาระบุุตำแหน่งเพื่อสร้างรหัสประจำตัวอัตโนมัติ", Type.WARNING_MESSAGE);
-					}
-				}
-					
-			}
-		});
-		studyForm.addComponent(autoGenerate);
-		
+			autoGenerate = new OptionGroup("กำหนดรหัสประจำตัว",new StudentCodeGenerateType());
+			autoGenerate.setItemCaptionPropertyId("name");
+			autoGenerate.setImmediate(true);
+			autoGenerate.setNullSelectionAllowed(false);
+			autoGenerate.setWidth("-1px");
+			autoGenerate.setHeight("-1px");
+			autoGenerate.setValue(0);
+			studyForm.addComponent(autoGenerate);
+		}else{
+			maxStudentCode = getManaulStudentCode() + "(ชั่วคราว)";
+		}
+			
 		studentCode = new TextField("รหัสประจำตัว");
 		studentCode.setInputPrompt("รหัสประจำตัว");
 		studentCode.setImmediate(false);
-		studentCode.setRequired(true);
 		studentCode.setEnabled(false);
 		studentCode.setWidth("-1px");
 		studentCode.setHeight("-1px");
@@ -595,10 +582,10 @@ private static final long serialVersionUID = 1L;
 		studentStatus.setItemCaptionPropertyId("name");
 		studentStatus.setImmediate(true);
 		studentStatus.setNullSelectionAllowed(false);
-		studentStatus.setRequired(true);
 		studentStatus.setWidth("-1px");
 		studentStatus.setHeight("-1px");
 		studentStatus.setFilteringMode(FilteringMode.CONTAINS);
+		studentStatus.setValue(0);
 		studyForm.addComponent(studentStatus);
 		
 		studentComeWith = new ComboBox("การมาโรงเรียน",new StudentComeWith());
@@ -606,7 +593,6 @@ private static final long serialVersionUID = 1L;
 		studentComeWith.setItemCaptionPropertyId("name");
 		studentComeWith.setImmediate(true);
 		studentComeWith.setNullSelectionAllowed(false);
-		studentComeWith.setRequired(true);
 		studentComeWith.setWidth("-1px");
 		studentComeWith.setHeight("-1px");
 		studentComeWith.setFilteringMode(FilteringMode.CONTAINS);
@@ -678,7 +664,6 @@ private static final long serialVersionUID = 1L;
 		graduatedSchool = new TextField("โรงเรียนที่จบ");
 		graduatedSchool.setInputPrompt("ชื่อโรงเรียน");
 		graduatedSchool.setImmediate(false);
-		graduatedSchool.setRequired(true);
 		graduatedSchool.setWidth("-1px");
 		graduatedSchool.setHeight("-1px");
 		graduatedSchool.setNullRepresentation("");
@@ -689,7 +674,6 @@ private static final long serialVersionUID = 1L;
 		graduatedSchoolProvinceId.setItemCaptionPropertyId("name");
 		graduatedSchoolProvinceId.setImmediate(true);
 		graduatedSchoolProvinceId.setNullSelectionAllowed(false);
-		graduatedSchoolProvinceId.setRequired(true);
 		graduatedSchoolProvinceId.setWidth("-1px");
 		graduatedSchoolProvinceId.setHeight("-1px");
 		graduatedSchoolProvinceId.setFilteringMode(FilteringMode.CONTAINS);
@@ -698,7 +682,6 @@ private static final long serialVersionUID = 1L;
 		graduatedGpa = new NumberField("ผลการเรียนเฉลี่ย");
 		graduatedGpa.setInputPrompt("ผลการเรียน");
 		graduatedGpa.setImmediate(false);
-		graduatedGpa.setRequired(true);
 		graduatedGpa.setWidth("-1px");
 		graduatedGpa.setHeight("-1px");
 		graduatedGpa.setNullRepresentation("");
@@ -707,7 +690,6 @@ private static final long serialVersionUID = 1L;
 		graduatedYear = new TextField("ปีที่จบ");
 		graduatedYear.setInputPrompt("ปีที่จบ");
 		graduatedYear.setImmediate(false);
-		graduatedYear.setRequired(true);
 		graduatedYear.setWidth("-1px");
 		graduatedYear.setHeight("-1px");
 		graduatedYear.setNullRepresentation("");
@@ -718,7 +700,6 @@ private static final long serialVersionUID = 1L;
 		graduatedClassRange.setItemCaptionPropertyId("name");
 		graduatedClassRange.setImmediate(true);
 		graduatedClassRange.setNullSelectionAllowed(false);
-		graduatedClassRange.setRequired(true);
 		graduatedClassRange.setWidth("-1px");
 		graduatedClassRange.setHeight("-1px");
 		graduatedClassRange.setFilteringMode(FilteringMode.CONTAINS);
@@ -781,7 +762,6 @@ private static final long serialVersionUID = 1L;
 		email.setImmediate(false);
 		email.setWidth("-1px");
 		email.setHeight("-1px");
-		email.setRequired(true);
 		email.addValidator(new EmailValidator("ข้อมูลไม่ถูกต้อง"));
 		email.setNullRepresentation("");
 		email.addTextChangeListener(new TextChangeListener() {
@@ -814,7 +794,6 @@ private static final long serialVersionUID = 1L;
 		currentAddress = new TextArea("ที่อยู่ปัจจุบัน");
 		currentAddress.setInputPrompt("บ้านเลขที่ ซอย ถนน");
 		currentAddress.setImmediate(false);
-		currentAddress.setRequired(true);
 		currentAddress.setWidth("-1px");
 		currentAddress.setHeight("-1px");
 		currentAddress.setNullRepresentation("");
@@ -825,7 +804,6 @@ private static final long serialVersionUID = 1L;
 		currentProvince.setItemCaptionPropertyId("name");
 		currentProvince.setImmediate(true);
 		currentProvince.setNullSelectionAllowed(false);
-		currentProvince.setRequired(true);
 		currentProvince.setWidth("-1px");
 		currentProvince.setHeight("-1px");
 		currentProvince.setFilteringMode(FilteringMode.CONTAINS);
@@ -844,7 +822,6 @@ private static final long serialVersionUID = 1L;
 		currentDistrict.setItemCaptionPropertyId("name");
 		currentDistrict.setImmediate(true);
 		currentDistrict.setNullSelectionAllowed(false);
-		currentDistrict.setRequired(true);
 		currentDistrict.setWidth("-1px");
 		currentDistrict.setHeight("-1px");
 		currentDistrict.setFilteringMode(FilteringMode.CONTAINS);
@@ -865,7 +842,6 @@ private static final long serialVersionUID = 1L;
 		currentCity.setItemCaptionPropertyId("name");
 		currentCity.setImmediate(true);
 		currentCity.setNullSelectionAllowed(false);
-		currentCity.setRequired(true);
 		currentCity.setWidth("-1px");
 		currentCity.setHeight("-1px");
 		currentCity.setFilteringMode(FilteringMode.CONTAINS);
@@ -876,7 +852,6 @@ private static final long serialVersionUID = 1L;
 		currentPostcode.setItemCaptionPropertyId("name");
 		currentPostcode.setImmediate(true);
 		currentPostcode.setNullSelectionAllowed(false);
-		currentPostcode.setRequired(true);
 		currentPostcode.setWidth("-1px");
 		currentPostcode.setHeight("-1px");
 		currentPostcode.setFilteringMode(FilteringMode.CONTAINS);
@@ -1249,10 +1224,12 @@ private static final long serialVersionUID = 1L;
 		fatherForm.addComponent(fNationality);
 		
 		fBirthDate = new PopupDateField("วัน เดือน ปี เกิด");
-		fBirthDate.setInputPrompt("วว/ดด/ปปปป(คศ)");
+		fBirthDate.setInputPrompt("วว/ดด/ปปปป");
 		fBirthDate.setImmediate(false);
 		fBirthDate.setWidth("-1px");
 		fBirthDate.setHeight("-1px");
+		fBirthDate.setDateFormat("dd/MM/yyyy");
+		fBirthDate.setLocale(new Locale("th", "TH"));
 		fatherForm.addComponent(fBirthDate);
 		
 		fTel = new TextField("เบอร์โทร");
@@ -1547,10 +1524,12 @@ private static final long serialVersionUID = 1L;
 		motherForm.addComponent(mNationality);
 
 		mBirthDate = new PopupDateField("วัน เดือน ปี เกิด");
-		mBirthDate.setInputPrompt("วว/ดด/ปปปป(คศ)");
+		mBirthDate.setInputPrompt("วว/ดด/ปปปป");
 		mBirthDate.setImmediate(false);
 		mBirthDate.setWidth("-1px");
 		mBirthDate.setHeight("-1px");
+		mBirthDate.setDateFormat("dd/MM/yyyy");
+		mBirthDate.setLocale(new Locale("th", "TH"));
 		motherForm.addComponent(mBirthDate);
 		
 		mTel = new TextField("เบอร์โทร");
@@ -1867,10 +1846,12 @@ private static final long serialVersionUID = 1L;
 		guardianForm.addComponent(gNationality);
 		
 		gBirthDate = new PopupDateField("วัน เดือน ปี เกิด");
-		gBirthDate.setInputPrompt("วว/ดด/ปปปป(คศ)");
+		gBirthDate.setInputPrompt("วว/ดด/ปปปป");
 		gBirthDate.setImmediate(false);
 		gBirthDate.setWidth("-1px");
-		gBirthDate.setHeight("-1px");
+		gBirthDate.setHeight("-1px");		
+		gBirthDate.setDateFormat("dd/MM/yyyy");
+		gBirthDate.setLocale(new Locale("th", "TH"));
 		guardianForm.addComponent(gBirthDate);
 		
 		gTel = new TextField("เบอร์โทร");
@@ -2539,60 +2520,111 @@ private static final long serialVersionUID = 1L;
 		return false;
 	}
 	
-	private void generateStudentCode(String classRange, String autoGenerate){
+	private String getStudentCode(String classRange){
 		studentCode.setEnabled(true);
-		if(autoGenerate.equals("0")){
-			/* รหัสเริ่มต้น 5801*/
-			String studentCodeStr = DateTimeUtil.getBuddishYear().substring(2) + classRange;
-			
-			/* ดึง รหัสที่มาทที่สุด SELECT MAX(student_code) FROM student WHERE student_code LIKE 'ตำแหน่ง%' */
-			StringBuilder sqlBuilder = new StringBuilder();
-			sqlBuilder.append(" SELECT MAX(" + StudentStudySchema.STUDENT_CODE + ") AS " + StudentStudySchema.STUDENT_CODE);
-			sqlBuilder.append(" FROM " + StudentStudySchema.TABLE_NAME);
-			sqlBuilder.append(" WHERE " + StudentStudySchema.STUDENT_CODE + " LIKE '" + studentCodeStr + "%'");
-			sqlBuilder.append(" AND " + StudentStudySchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
+		/* รหัสเริ่มต้น 5801*/
+		String studentCodeStr = DateTimeUtil.getBuddishYear().substring(2) + classRange;
+		
+		/* ดึง รหัสที่มาทที่สุด SELECT MAX(student_code) FROM student WHERE student_code LIKE 'ตำแหน่ง%' */
+		StringBuilder sqlBuilder = new StringBuilder();
+		sqlBuilder.append(" SELECT MAX(" + StudentStudySchema.STUDENT_CODE + ") AS " + StudentStudySchema.STUDENT_CODE);
+		sqlBuilder.append(" FROM " + StudentStudySchema.TABLE_NAME);
+		sqlBuilder.append(" WHERE " + StudentStudySchema.STUDENT_CODE + " LIKE '" + studentCodeStr + "%'");
+		sqlBuilder.append(" AND " + StudentStudySchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 
-			studentCodeStr += "001";
-			
-			SQLContainer freeContainer = Container.getFreeFormContainer(sqlBuilder.toString(), StudentStudySchema.STUDENT_CODE);
-						
-			if(freeContainer.size() > 0){
-				Item item = freeContainer.getItem(freeContainer.getIdByIndex(0));
-				
-				if(item.getItemProperty(StudentStudySchema.STUDENT_CODE).getValue() != null){
-					studentCodeStr = (Integer.parseInt(item.getItemProperty(StudentStudySchema.STUDENT_CODE).getValue().toString()) + 1) + "";
+		studentCodeStr += "001";
+		
+		SQLContainer freeContainer = Container.getFreeFormContainer(sqlBuilder.toString(), StudentStudySchema.STUDENT_CODE);
 					
-				}
-			}
+		if(freeContainer.size() > 0){
+			Item item = freeContainer.getItem(freeContainer.getIdByIndex(0));
 			
-			freeContainer.removeAllContainerFilters();
-			studentCode.setValue(studentCodeStr);
-			studentCode.setEnabled(false);
-		}else{
-			if(studentBinder.getItemDataSource() == null){
-				studentCode.setValue(null);
-				StringBuilder sqlBuilder = new StringBuilder();
-				sqlBuilder.append(" SELECT MAX(" + StudentStudySchema.STUDENT_CODE + ") AS " + StudentStudySchema.STUDENT_CODE);
-				sqlBuilder.append(" FROM " + StudentStudySchema.TABLE_NAME);
-				sqlBuilder.append(" WHERE " + StudentStudySchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
-				SQLContainer freeContainer = Container.getFreeFormContainer(sqlBuilder.toString(), StudentStudySchema.STUDENT_CODE);
+			if(item.getItemProperty(StudentStudySchema.STUDENT_CODE).getValue() != null){
+				studentCodeStr = (Integer.parseInt(item.getItemProperty(StudentStudySchema.STUDENT_CODE).getValue().toString()) + 1) + "";
 				
-				String studentCodeStr = null;
-				if(freeContainer.size() > 0){
-					Item item = freeContainer.getItem(freeContainer.getIdByIndex(0));
-					
-					if(item.getItemProperty(StudentStudySchema.STUDENT_CODE).getValue() != null){
-						studentCodeStr = (Integer.parseInt(item.getItemProperty(StudentStudySchema.STUDENT_CODE).getValue().toString()) + 1) + "";
-					}
-				}
-				studentCode.setValue(studentCodeStr);
-				
-				freeContainer.removeAllContainerFilters();
-			}
-			else{
-				Item item = studentBinder.getItemDataSource();
-				studentCode.setValue(item.getItemProperty(StudentStudySchema.STUDENT_CODE).getValue().toString());
 			}
 		}
+		return studentCodeStr;
+	}
+	
+	private String getManaulStudentCode(){
+		String maxCode = "";
+		int max = 0;
+		StringBuilder builder = new StringBuilder();
+		builder.append(" SELECT MAX("+StudentStudySchema.STUDENT_CODE +") AS " + StudentStudySchema.STUDENT_CODE + " FROM " + StudentStudySchema.TABLE_NAME);
+		builder.append(" WHERE " + StudentStudySchema.SCHOOL_ID + "="+ SessionSchema.getSchoolID());
+		System.err.println(builder.toString());
+		SQLContainer freeContainer = Container.getFreeFormContainer(builder.toString(), StudentStudySchema.STUDENT_CODE);
+		if(freeContainer.size() > 0){
+			max = Integer.parseInt(freeContainer.getItem(freeContainer.getIdByIndex(0)).getItemProperty(StudentStudySchema.STUDENT_CODE).getValue().toString());
+			max++;
+			maxCode = Integer.toString(max);
+		}else{
+			maxCode = "00001";
+		}
+
+		return maxCode;
+	}
+	
+	public void setStudentMode(){
+		peopleIdType.setRequired(true);
+		peopleId.setRequired(true);
+        prename.setRequired(true);
+		firstname.setRequired(true);
+		lastname.setRequired(true);
+		gender.setRequired(true);
+		religion.setRequired(true);
+		race.setRequired(true);
+		nationality.setRequired(true);
+		birthDate.setRequired(true);
+		blood.setRequired(true);
+		siblingQty.setRequired(true);
+		siblingSequence.setRequired(true);
+		siblingInSchoolQty.setRequired(true);
+		classRange.setRequired(true);
+		if(generatedType.equals("0"))
+			autoGenerate.setRequired(true);
+		studentCode.setRequired(true);
+		studentStatus.setRequired(true);
+		studentComeWith.setRequired(true);
+		graduatedSchool.setRequired(true);
+		graduatedSchoolProvinceId.setRequired(true);
+		graduatedGpa.setRequired(true);
+		graduatedYear.setRequired(true);
+		graduatedClassRange.setRequired(true);
+		email.setRequired(true);
+		currentAddress.setRequired(true);
+		currentProvince.setRequired(true);
+		currentDistrict.setRequired(true);
+		currentCity.setRequired(true);
+		currentPostcode.setRequired(true);
+	
+		studentCode.setReadOnly(true);
+		studentStatus.setReadOnly(true);
+	}
+	
+	public void setStudentTempMode(){
+		peopleIdType.setRequired(true);
+		peopleId.setRequired(true);
+        prename.setRequired(true);
+		firstname.setRequired(true);
+		lastname.setRequired(true);
+		gender.setRequired(true);
+		if(generatedType.equals("0"))
+			autoGenerate.setRequired(true);
+		studentCode.setRequired(true);
+		studentStatus.setRequired(true);	
+	}
+	
+	public String getActualStudentCode(){
+		String studentCodeStr = "";
+		if(generatedType.equals("0")){
+			studentCodeStr = getStudentCode(classRange.getValue().toString());
+		}else if(generatedType.equals("1")){
+			studentCodeStr = getManaulStudentCode();
+		}
+
+		studentCode.setValue(studentCodeStr);
+		return studentCodeStr;
 	}
 }

@@ -1,5 +1,7 @@
 package com.ies.schoolos.schema.info;
 
+import java.util.HashMap;
+
 public class PersonnelSchema implements java.io.Serializable{
 
 	private static final long serialVersionUID = 1L;
@@ -10,7 +12,7 @@ public class PersonnelSchema implements java.io.Serializable{
 	public static final String SCHOOL_ID = "school_id";
 	public static final String PEOPLE_ID = "people_id";
 	public static final String PEOPLE_ID_TYPE = "people_id_type";
-	public static final String PERSONEL_CODE = "personnel_code";
+	public static final String PERSONNEL_CODE = "personnel_code";
 	public static final String PRENAME = "prename";
 	public static final String FIRSTNAME = "firstname";
 	public static final String LASTNAME = "lastname";
@@ -29,9 +31,10 @@ public class PersonnelSchema implements java.io.Serializable{
 	public static final String HEIGHT = "height";
 	public static final String WEIGHT = "weight";
 	public static final String CONGENITAL_DISEASE = "congenital_disease";
-	public static final String PERSONEL_STATUS = "personnel_status";
-	public static final String JOB_POSITION = "job_position";
-	public static final String DEPARTMENT = "department";
+	public static final String PERSONNEL_STATUS = "personnel_status";
+	public static final String ALIVE_STATUS = "alive_status";
+	public static final String JOB_POSITION_ID = "job_position_id";
+	public static final String DEPARTMENT_ID = "department_id";
 	public static final String LICENSE_LECTURER_NUMBER = "license_lecturer_number";
 	public static final String LICENSE_LECTURER_TYPE = "license_lecturer_type";
 	public static final String LICENSE_LECTURER_ISSUED_DATE = "license_lecturer_issued_date";
@@ -74,4 +77,78 @@ public class PersonnelSchema implements java.io.Serializable{
 	public static final String FATHER_ID = "father_id";
 	public static final String MOTHER_ID = "mother_id";
 	public static final String SPOUSE_ID = "spouse_id";
+	
+	public static String getTitle(String propertyId){
+		HashMap<String, String> mapTitle = new HashMap<String, String>();
+		mapTitle.put(PERSONNEL_ID,"ลำดับ");
+		mapTitle.put(SCHOOL_ID,"โรงเรียน");
+		mapTitle.put(PEOPLE_ID,"เลขประจำตัวประชาชน");
+		mapTitle.put(PEOPLE_ID_TYPE,"ประเภทเลขประจำตัวประชาชน");
+		mapTitle.put(PERSONNEL_CODE,"เลขประจำตัว");
+		mapTitle.put(PRENAME,"ชื่อต้น");
+		mapTitle.put(FIRSTNAME,"ชื่อ");
+		mapTitle.put(LASTNAME,"สกุล");
+		mapTitle.put(FIRSTNAME_ND,"ชื่อภาษาที่สอง");
+		mapTitle.put(LASTNAME_ND,"สกุลภาษาที่สอง");
+		mapTitle.put(FIRSTNAME_RD,"ชื่อภาษาที่สาม");
+		mapTitle.put(LASTNAME_RD,"ชื่อภาษาที่สาม");
+		mapTitle.put(NICKNAME,"ชื่อเล่น");
+		mapTitle.put(GENDER,"เพศ");
+		mapTitle.put(RELIGION,"ศาสนา");
+		mapTitle.put(RACE,"เชื้อชาติ");
+		mapTitle.put(NATIONALITY,"สัญชาติ");
+		mapTitle.put(MARITAL_STATUS,"สถานภาพ");
+		mapTitle.put(BIRTH_DATE,"วัน เดือน ปี เกิด");
+		mapTitle.put(BLOOD,"หมู่เลือด");
+		mapTitle.put(HEIGHT,"ส่วนสูง");
+		mapTitle.put(WEIGHT,"น้ำหนัก");
+		mapTitle.put(CONGENITAL_DISEASE,"โรคประจำตัว");
+		mapTitle.put(PERSONNEL_STATUS,"สถานะ");
+		mapTitle.put(JOB_POSITION_ID,"ตำแหน่ง");
+		mapTitle.put(DEPARTMENT_ID,"แผนก");
+		mapTitle.put(LICENSE_LECTURER_NUMBER,"เลขที่ใบประกอบวิชาชีพครู");
+		mapTitle.put(LICENSE_LECTURER_TYPE,"ประเภทใบประกอบวิชาชีพ");
+		mapTitle.put(LICENSE_LECTURER_ISSUED_DATE,"วัน เดือน ปี ที่ได้หมายเลขครู");
+		mapTitle.put(LICENSE_LECTURER_EXPIRED_DATE,"วัน เดือน ปี ที่หมดอายุหมายเลขครู");
+		mapTitle.put(LICENSE_11_NUMBER,"เลขที่ใบอนุญาติ สช 11");
+		mapTitle.put(LICENSE_ISSUE_AREA,"เขตพื้นที่ ที่ออก");
+		mapTitle.put(LICENSE_ISSUE_PROVINCE_ID,"ออกโดย(จังหวัด)");
+		mapTitle.put(LICENSE_17_NUMBER,"เลขที่ใบอนุญาติ สช 17");
+		mapTitle.put(LICENSE_18_NUMBER,"เลขที่ใบอนุญาติ สช 18");
+		mapTitle.put(LICENSE_19_NUMBER,"เลขที่ใบอนุญาติ สช 19");
+		mapTitle.put(FILL_DEGREE_POST,"วุฒิที่ได้รับการบรรจุ");
+		mapTitle.put(FILL_DEGREE_POST_DATE,"วัน เดือน ปีที่ได้รับการบรรจุ");
+		mapTitle.put(TEL,"โทร");
+		mapTitle.put(MOBILE,"มือถือ");
+		mapTitle.put(EMAIL,"อีเมล์");
+		mapTitle.put(CENSUS_ADDRESS,"ที่อยู่ตามทะเบียนบ้าน");
+		mapTitle.put(CENSUS_CITY_ID,"ตำบลตามทะเบียนบ้าน");
+		mapTitle.put(CENSUS_DISTRICT_ID,"อำเภอตามทะเบียนบ้าน");
+		mapTitle.put(CENSUS_PROVINCE_ID,"จังหวัดตามทะเบียนบ้าน");
+		mapTitle.put(CENSUS_POSTCODE_ID,"ไปรษณีย์");
+		mapTitle.put(CURRENT_ADDRESS,"ที่อยู่ปัจจุบัน");
+		mapTitle.put(CURRENT_CITY_ID,"ตำบลปัจจุบัน");
+		mapTitle.put(CURRENT_DISTRICT_ID,"อำเภอปัจจุบัน");
+		mapTitle.put(CURRENT_PROVINCE_ID,"จังหวัดปัจจุบัน");
+		mapTitle.put(CURRENT_POSTCODE_ID,"ไปรษณีย์ปัจจุบัน");
+		mapTitle.put(EMPLOYMENT_TYPE,"การว่าจ้าง");
+		mapTitle.put(START_WORK_DATE,"วันเริ่มทำงาน");
+		mapTitle.put(RECRUIT_BY_ID,"ผู้รับเข้าทำงาน");
+		mapTitle.put(RECRUIT_DATE,"วันที่รับเข้าทำงาน");
+		mapTitle.put(RESIGN_BY_ID,"ผู้รับเรื่องจำหน่ายออก");
+		mapTitle.put(RESIGN_DATE,"วัน เดือน ปี ที่ออก");
+		mapTitle.put(RESIGN_TYPE,"ประเภทการออก");
+		mapTitle.put(RESIGN_DESCRIPTION,"รายละเอียดการออก");
+		mapTitle.put(BANK_NAME,"ธนาคาร");
+		mapTitle.put(BANK_ACCOUNT_NUMBER,"หมายเลขบัญชี");
+		mapTitle.put(BANK_ACCOUNT_TYPE,"ประเภทบัญชี");
+		mapTitle.put(BANK_ACCOUNT_NAME,"ชื่อบัญชี");
+		mapTitle.put(BANK_ACCOUNT_BRANCH,"สาขา");
+		mapTitle.put(BANK_ACCOUNT_PROVINCE_ID,"จังหวัดธนาคาร");	
+		mapTitle.put(FATHER_ID,"บิดา");
+		mapTitle.put(MOTHER_ID,"มารดา");
+		mapTitle.put(SPOUSE_ID,"คู่สมรส");
+		return mapTitle.get(propertyId);
+	}
+	
 }

@@ -1,8 +1,10 @@
 package com.ies.schoolos.component.studentaffairs;
 
 import java.util.Date;
+import java.util.Locale;
 
 import org.tepi.filtertable.FilterTable;
+import org.vaadin.dialogs.ConfirmDialog;
 
 import com.ies.schoolos.component.ui.NumberField;
 import com.ies.schoolos.container.Container;
@@ -23,6 +25,7 @@ import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.combobox.FilteringMode;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
@@ -31,6 +34,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -50,8 +54,8 @@ public class AddStudentBehaviorView extends VerticalLayout {
 	private SQLContainer freeContainer;
 	private SQLContainer studentBehaviorContainer = Container.getStudentBehaviorContainer();
 			
-	private FilterTable studentBehavior;
-	private FormLayout studentBehaviorForm;
+	private FilterTable studentBehaviorTable;
+	private FormLayout studentBehaviorTableForm;
 	private TextField firstname;
 	private TextField lastname;
 	private ComboBox behavior;
@@ -74,18 +78,18 @@ public class AddStudentBehaviorView extends VerticalLayout {
 	}
 	
 	private void buildMainLayout(){
-		HorizontalLayout studentBehaviorLayout = new HorizontalLayout();
-		studentBehaviorLayout.setSizeFull();
-		studentBehaviorLayout.setSpacing(true);
-		addComponent(studentBehaviorLayout);
-		setExpandRatio(studentBehaviorLayout, 1);
+		HorizontalLayout studentBehaviorTableLayout = new HorizontalLayout();
+		studentBehaviorTableLayout.setSizeFull();
+		studentBehaviorTableLayout.setSpacing(true);
+		addComponent(studentBehaviorTableLayout);
+		setExpandRatio(studentBehaviorTableLayout, 1);
 
 		//Table
-		studentBehavior = new FilterTable();
-		studentBehavior.setSizeFull();
-		studentBehavior.setSelectable(true);
-		studentBehavior.setFooterVisible(true);        
-		studentBehavior.addValueChangeListener(new ValueChangeListener() {
+		studentBehaviorTable = new FilterTable();
+		studentBehaviorTable.setSizeFull();
+		studentBehaviorTable.setSelectable(true);
+		studentBehaviorTable.setFooterVisible(true);        
+		studentBehaviorTable.addValueChangeListener(new ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -105,33 +109,34 @@ public class AddStudentBehaviorView extends VerticalLayout {
 			}
 		});
 
-		studentBehavior.addContainerProperty(BehaviorSchema.NAME, String.class, null);
-		studentBehavior.addContainerProperty(StudentBehaviorSchema.SCORE, Double.class, null);
-		studentBehavior.addContainerProperty(StudentBehaviorSchema.DATE, Date.class, null);
-		studentBehavior.addContainerProperty(StudentBehaviorSchema.DESCRIPTION, String.class, null);
+		studentBehaviorTable.addContainerProperty(BehaviorSchema.NAME, String.class, null);
+		studentBehaviorTable.addContainerProperty(StudentBehaviorSchema.SCORE, Double.class, null);
+		studentBehaviorTable.addContainerProperty(StudentBehaviorSchema.DATE, Date.class, null);
+		studentBehaviorTable.addContainerProperty(StudentBehaviorSchema.DESCRIPTION, String.class, null);
+		studentBehaviorTable.addContainerProperty("", HorizontalLayout.class, null);
 		
-		studentBehavior.setFilterDecorator(new TableFilterDecorator());
-		studentBehavior.setFilterGenerator(new TableFilterGenerator());
-        studentBehavior.setFilterBarVisible(true);
+		studentBehaviorTable.setFilterDecorator(new TableFilterDecorator());
+		studentBehaviorTable.setFilterGenerator(new TableFilterGenerator());
+        studentBehaviorTable.setFilterBarVisible(true);
 
 	    setFooterData();
 		initTableStyle();
 
-		studentBehavior.setColumnReorderingAllowed(true);
-		studentBehavior.setColumnCollapsingAllowed(true);
-		studentBehaviorLayout.addComponent(studentBehavior);
-		studentBehaviorLayout.setExpandRatio(studentBehavior,(float)2.2);
+		studentBehaviorTable.setColumnReorderingAllowed(true);
+		studentBehaviorTable.setColumnCollapsingAllowed(true);
+		studentBehaviorTableLayout.addComponent(studentBehaviorTable);
+		studentBehaviorTableLayout.setExpandRatio(studentBehaviorTable,(float)2.2);
 		
 		//Form		
-		studentBehaviorForm = new FormLayout();
-		studentBehaviorForm.setSpacing(true);
-		studentBehaviorForm.setMargin(true);
-		studentBehaviorForm.setStyleName("border-white");
-		studentBehaviorLayout.addComponent(studentBehaviorForm);
-		studentBehaviorLayout.setExpandRatio(studentBehaviorForm,1);
+		studentBehaviorTableForm = new FormLayout();
+		studentBehaviorTableForm.setSpacing(true);
+		studentBehaviorTableForm.setMargin(true);
+		studentBehaviorTableForm.setStyleName("border-white");
+		studentBehaviorTableLayout.addComponent(studentBehaviorTableForm);
+		studentBehaviorTableLayout.setExpandRatio(studentBehaviorTableForm,1);
 		
 		Label formLab = new Label("พฤติกรรม");
-		studentBehaviorForm.addComponent(formLab);
+		studentBehaviorTableForm.addComponent(formLab);
 		
 		firstname = new TextField("ชื่อ");
 		firstname.setInputPrompt("ชื่อ");
@@ -140,7 +145,7 @@ public class AddStudentBehaviorView extends VerticalLayout {
 		firstname.setRequired(true);
 		firstname.setWidth("-1px");
 		firstname.setHeight("-1px");
-		studentBehaviorForm.addComponent(firstname);
+		studentBehaviorTableForm.addComponent(firstname);
 		
 		lastname = new TextField("สกุล");
 		lastname.setInputPrompt("สกุล");
@@ -149,7 +154,7 @@ public class AddStudentBehaviorView extends VerticalLayout {
 		lastname.setRequired(true);
 		lastname.setWidth("-1px");
 		lastname.setHeight("-1px");
-		studentBehaviorForm.addComponent(lastname);
+		studentBehaviorTableForm.addComponent(lastname);
 		
 		behavior = new ComboBox("พฤติกรรม",new Behavior());
 		behavior.setInputPrompt("กรุณาเลือก");
@@ -160,7 +165,7 @@ public class AddStudentBehaviorView extends VerticalLayout {
 		behavior.setWidth("-1px");
 		behavior.setHeight("-1px");
 		behavior.setFilteringMode(FilteringMode.CONTAINS);
-		studentBehaviorForm.addComponent(behavior);
+		studentBehaviorTableForm.addComponent(behavior);
 		
 		score = new NumberField("คะแนนที่หัก");
 		score.setInputPrompt("คะแนนที่หัก");
@@ -169,15 +174,17 @@ public class AddStudentBehaviorView extends VerticalLayout {
 		score.setRequired(true);
 		score.setWidth("-1px");
 		score.setHeight("-1px");
-		studentBehaviorForm.addComponent(score);
+		studentBehaviorTableForm.addComponent(score);
 
 		date = new PopupDateField("วัน เดือน ปี ที่หัก");
-		date.setInputPrompt("วว/ดด/ปปปป(คศ)");
+		date.setInputPrompt("วว/ดด/ปปปป");
 		date.setImmediate(false);
 		date.setRequired(true);
 		date.setWidth("-1px");
 		date.setHeight("-1px");
-		studentBehaviorForm.addComponent(date);
+		date.setDateFormat("dd/MM/yyyy");
+		date.setLocale(new Locale("th", "TH"));
+		studentBehaviorTableForm.addComponent(date);
 		
 		description = new TextArea("รายละเอียด");
 		description.setInputPrompt("รายละเอียดเพิ่มเติม");
@@ -185,7 +192,7 @@ public class AddStudentBehaviorView extends VerticalLayout {
 		description.setWidth("-1px");
 		description.setHeight("-1px");
 		description.setNullRepresentation("");
-		studentBehaviorForm.addComponent(description);
+		studentBehaviorTableForm.addComponent(description);
 		
 		save = new Button("บันทึก", FontAwesome.SAVE);
 		save.addClickListener(new ClickListener() {
@@ -200,18 +207,17 @@ public class AddStudentBehaviorView extends VerticalLayout {
 					 *  กรณี เป็น เพิ่ม จะทำการ Inser โดยใช้ข้อมูลใหม่ที่กรอกในฟอร์ม */
 					if(editMode){
 						editMode = false;
-						Item studentBehaviorItem = studentBehaviorContainer.getItem(new RowId(item.getItemProperty(StudentBehaviorSchema.STUDENT_BEHAVIOR_ID).getValue()));
-						studentBehaviorItem.getItemProperty(StudentBehaviorSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
-						studentBehaviorItem.getItemProperty(StudentBehaviorSchema.STUDENT_STUDY_ID).setValue(Integer.parseInt(studytId.toString()));
-						studentBehaviorItem.getItemProperty(StudentBehaviorSchema.BEHAVIOR_ID).setValue(Integer.parseInt(behavior.getValue().toString()));
-						studentBehaviorItem.getItemProperty(StudentBehaviorSchema.SCORE).setValue(Double.parseDouble(score.getValue().toString()));
-						studentBehaviorItem.getItemProperty(StudentBehaviorSchema.DATE).setValue(date.getValue());
-						studentBehaviorItem.getItemProperty(StudentBehaviorSchema.DESCRIPTION).setValue(description.getValue());
-						CreateModifiedSchema.setCreateAndModified(studentBehaviorItem);
+						Item studentBehaviorTableItem = studentBehaviorContainer.getItem(new RowId(item.getItemProperty(StudentBehaviorSchema.STUDENT_BEHAVIOR_ID).getValue()));
+						studentBehaviorTableItem.getItemProperty(StudentBehaviorSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
+						studentBehaviorTableItem.getItemProperty(StudentBehaviorSchema.STUDENT_STUDY_ID).setValue(Integer.parseInt(studytId.toString()));
+						studentBehaviorTableItem.getItemProperty(StudentBehaviorSchema.BEHAVIOR_ID).setValue(Integer.parseInt(behavior.getValue().toString()));
+						studentBehaviorTableItem.getItemProperty(StudentBehaviorSchema.SCORE).setValue(Double.parseDouble(score.getValue().toString()));
+						studentBehaviorTableItem.getItemProperty(StudentBehaviorSchema.DATE).setValue(date.getValue());
+						studentBehaviorTableItem.getItemProperty(StudentBehaviorSchema.DESCRIPTION).setValue(description.getValue());
+						CreateModifiedSchema.setCreateAndModified(studentBehaviorTableItem);
 						studentBehaviorContainer.commit();
 						Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 					}else{
-						freeContainer.removeAllContainerFilters();
 						if(!behavior.isValid() &&
 								!score.isValid() &&
 								!date.isValid()){
@@ -219,6 +225,7 @@ public class AddStudentBehaviorView extends VerticalLayout {
 							return;
 						}
 							
+						freeContainer.removeAllContainerFilters();
 						if(!saveFormData())
 							return;						
 					}
@@ -234,31 +241,33 @@ public class AddStudentBehaviorView extends VerticalLayout {
 					Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 				} catch (Exception e) {
 					e.printStackTrace();
-					Notification.show("บันทึกไม่สำเร็จ", Type.HUMANIZED_MESSAGE);
+					Notification.show("บันทึกไม่สำเร็จ", Type.WARNING_MESSAGE);
 				}
 			}
 		});
-		studentBehaviorForm.addComponent(save);
+		studentBehaviorTableForm.addComponent(save);
 	}
 	
 	/*นำจำนวนที่นับ มาใส่ค่าในส่วนท้ายตาราง*/
 	private void setFooterData(){
-		studentBehavior.setColumnFooter(BehaviorSchema.NAME, "ทั้งหมด: "+ studentBehavior.size() + " พฤติกรรม");
-		studentBehavior.setColumnFooter(StudentBehaviorSchema.SCORE, "ทั้งหมด: "+ scoreBreak + " คะแนน");
+		studentBehaviorTable.setColumnFooter(BehaviorSchema.NAME, "ทั้งหมด: "+ studentBehaviorTable.size() + " พฤติกรรม");
+		studentBehaviorTable.setColumnFooter(StudentBehaviorSchema.SCORE, "ทั้งหมด: "+ scoreBreak + " คะแนน");
 	}
 	
 	/* ตั้งค่ารูปแบบแสดงของตาราง */
 	private void initTableStyle(){		
-		studentBehavior.setColumnHeader(BehaviorSchema.NAME, "ชื่อ");
-		studentBehavior.setColumnHeader(StudentBehaviorSchema.SCORE, "คะแนนที่ตัด");
-		studentBehavior.setColumnHeader(StudentBehaviorSchema.DATE, "วันที่ตัด");
-		studentBehavior.setColumnHeader(StudentBehaviorSchema.DESCRIPTION, "รายละเอียด");
+		studentBehaviorTable.setColumnHeader(BehaviorSchema.NAME, "ชื่อ");
+		studentBehaviorTable.setColumnHeader(StudentBehaviorSchema.SCORE, "คะแนนที่ตัด");
+		studentBehaviorTable.setColumnHeader(StudentBehaviorSchema.DATE, "วันที่ตัด");
+		studentBehaviorTable.setColumnHeader(StudentBehaviorSchema.DESCRIPTION, "รายละเอียด");
+		studentBehaviorTable.setColumnHeader("", "");
 			
-		studentBehavior.setVisibleColumns(
+		studentBehaviorTable.setVisibleColumns(
 				BehaviorSchema.NAME, 
 				StudentBehaviorSchema.SCORE,
 				StudentBehaviorSchema.DATE, 
-				StudentBehaviorSchema.DESCRIPTION);
+				StudentBehaviorSchema.DESCRIPTION, 
+				"");
 	}
 	
 	/* กำหนดค่าภายใน FieldGroup ไปยัง Item */
@@ -288,7 +297,7 @@ public class AddStudentBehaviorView extends VerticalLayout {
 	}
 	
 	private void fetchData(){
-		studentBehavior.removeAllItems();
+		studentBehaviorTable.removeAllItems();
 		scoreBreak = 0.0;
 		StringBuilder builder = new StringBuilder();
 		builder.append(" SELECT * FROM " + StudentBehaviorSchema.TABLE_NAME + " sb");
@@ -299,14 +308,15 @@ public class AddStudentBehaviorView extends VerticalLayout {
 
 		freeContainer = Container.getFreeFormContainer(builder.toString(), StudentBehaviorSchema.STUDENT_BEHAVIOR_ID);
 		for(Object itemId:freeContainer.getItemIds()){
-			Item studentBehaviorItem = freeContainer.getItem(itemId);
-			studentBehavior.addItem(new Object[] {
-					studentBehaviorItem.getItemProperty(BehaviorSchema.NAME).getValue(),
-					studentBehaviorItem.getItemProperty(StudentBehaviorSchema.SCORE).getValue(),
-					studentBehaviorItem.getItemProperty(StudentBehaviorSchema.DATE).getValue(),
-					studentBehaviorItem.getItemProperty(StudentBehaviorSchema.DESCRIPTION).getValue()
+			Item studentBehaviorTableItem = freeContainer.getItem(itemId);
+			studentBehaviorTable.addItem(new Object[] {
+					studentBehaviorTableItem.getItemProperty(BehaviorSchema.NAME).getValue(),
+					studentBehaviorTableItem.getItemProperty(StudentBehaviorSchema.SCORE).getValue(),
+					studentBehaviorTableItem.getItemProperty(StudentBehaviorSchema.DATE).getValue(),
+					studentBehaviorTableItem.getItemProperty(StudentBehaviorSchema.DESCRIPTION).getValue(),
+					initButtonLayout(studentBehaviorTableItem, itemId)
 				},itemId);
-			scoreBreak += (Double) studentBehaviorItem.getItemProperty(StudentBehaviorSchema.SCORE).getValue();
+			scoreBreak += (Double) studentBehaviorTableItem.getItemProperty(StudentBehaviorSchema.SCORE).getValue();
 		}
 	}
 	
@@ -321,6 +331,43 @@ public class AddStudentBehaviorView extends VerticalLayout {
 		
 		firstnameStr = studyItem.getItemProperty(StudentSchema.FIRSTNAME).getValue().toString();
 		lastnameStr = studyItem.getItemProperty(StudentSchema.LASTNAME).getValue().toString();
+	}
+	
+	private HorizontalLayout initButtonLayout(final Item item, final Object itemId){
+		final HorizontalLayout buttonLayout = new HorizontalLayout();
+		Button removeButton = new Button(FontAwesome.TRASH_O);
+		removeButton.setId(itemId.toString());
+		removeButton.addClickListener(new ClickListener() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void buttonClick(ClickEvent event) {
+				ConfirmDialog.show(UI.getCurrent(), "ลบพฤติกรรม","คุณต้องการลบพฤติกรรมดังกล่าวใช่หรือไม่?","ตกลง","ยกเลิก",
+			        new ConfirmDialog.Listener() {
+						private static final long serialVersionUID = 1L;
+						public void onClose(ConfirmDialog dialog) {
+			                if (dialog.isConfirmed()) {
+			                	Item behaviorItem = studentBehaviorTable.getItem(itemId);
+	                			scoreBreak -= Double.parseDouble(behaviorItem.getItemProperty(StudentBehaviorSchema.SCORE).getValue().toString());
+	                			
+			                	studentBehaviorTable.removeItem(itemId);
+			                	if(studentBehaviorContainer.removeItem(itemId)){
+			                		try {
+			                			studentBehaviorContainer.commit();
+			                			setFooterData();		                			
+									}catch (Exception e1) {
+										Notification.show("บันทึกไม่สำเร็จ กรุณาลองอีกครั้ง" , Type.WARNING_MESSAGE);
+										e1.printStackTrace();
+									}
+			                	}
+			                }
+			            }
+			        });
+			}
+		});
+		buttonLayout.addComponent(removeButton);
+		buttonLayout.setComponentAlignment(removeButton, Alignment.MIDDLE_CENTER);
+		return buttonLayout;
+
 	}
 	
 	private void setFirstAndLastname(){

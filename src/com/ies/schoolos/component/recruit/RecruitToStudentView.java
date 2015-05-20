@@ -573,7 +573,7 @@ public class RecruitToStudentView extends VerticalLayout{
 		   freeFormContainer = Container.getFreeFormContainer(StatStudentCodeSchema.getQuery(classYear), StatStudentCodeSchema.MAX_STUDENT_CODE);
 		   
 		   maxCode = new Date().getYear()+2443;
-		   studentCode = Integer.toString(maxCode).substring(2)+maxCode+"001";
+		   studentCode = Integer.toString(maxCode).substring(2)+classYear+"001";
 	   }else if(generateCodeType == 1){
 		   /* ค้นรหัสนักเรียนที่มากสุด เพื่อบวกค่าเรื่อย ๆ เพื่อทำการบวกรหัสนักเรียน */
 		   freeFormContainer = Container.getFreeFormContainer(StatStudentCodeSchema.getQuery(), StatStudentCodeSchema.MAX_STUDENT_CODE);

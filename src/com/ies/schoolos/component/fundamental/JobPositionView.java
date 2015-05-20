@@ -1,4 +1,4 @@
-﻿package com.ies.schoolos.component.fundamental;
+package com.ies.schoolos.component.fundamental;
 
 import org.tepi.filtertable.FilterTable;
 import org.vaadin.dialogs.ConfirmDialog;
@@ -9,7 +9,7 @@ import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
 import com.ies.schoolos.schema.CreateModifiedSchema;
 import com.ies.schoolos.schema.SessionSchema;
-import com.ies.schoolos.schema.fundamental.DepartmentSchema;
+import com.ies.schoolos.schema.fundamental.JobPositionSchema;
 import com.ies.schoolos.utility.Notification;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -33,27 +33,27 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.CustomTable.ColumnGenerator;
 
-public class DepartmentView extends ContentPage{
+public class JobPositionView extends ContentPage{
 	private static final long serialVersionUID = 1L;
 	
 	private boolean editMode = false;
 	
-	private SQLContainer dContainer = Container.getDepartmentContainer();
+	private SQLContainer jContainer = Container.getJobPositionContainer();
 	
 	private Item item;
 
-	private HorizontalLayout departmentLayout;
+	private HorizontalLayout jobPositionLayout;
 	private FilterTable table;
 	
-	private FieldGroup departmentBinder;
-	private FormLayout departmentForm;
+	private FieldGroup jobPositionBinder;
+	private FormLayout jobPositionForm;
 	private TextField name;
 	private TextField nameNd;
 	private Button save;	
 	
-	public DepartmentView() {
-		super("แผนก");
-		dContainer.refresh();
+	public JobPositionView() {
+		super("ตำแหน่ง");
+		jContainer.refresh();
 		
 		setSpacing(true);
 		setMargin(true);
@@ -68,11 +68,11 @@ public class DepartmentView extends ContentPage{
 		setHeight("-1px");
 		setSpacing(true);
 
-		departmentLayout = new HorizontalLayout();
-		departmentLayout.setSizeFull();
-		departmentLayout.setSpacing(true);
-		addComponent(departmentLayout);
-		setExpandRatio(departmentLayout, 1);
+		jobPositionLayout = new HorizontalLayout();
+		jobPositionLayout.setSizeFull();
+		jobPositionLayout.setSpacing(true);
+		addComponent(jobPositionLayout);
+		setExpandRatio(jobPositionLayout,(float)1.2);
 
 		//Table
 		table = new FilterTable();
@@ -87,7 +87,7 @@ public class DepartmentView extends ContentPage{
 				if(event.getProperty().getValue() != null){
 					editMode = true;
 					save.setCaption("แก้ไข");
-					item = dContainer.getItem(event.getProperty().getValue());
+					item = jContainer.getItem(event.getProperty().getValue());
 					initFieldGroup();
 				}
 			}
@@ -97,42 +97,42 @@ public class DepartmentView extends ContentPage{
 		table.setFilterGenerator(new TableFilterGenerator());
         table.setFilterBarVisible(true);
 
-		table.setContainerDataSource(dContainer);
+		table.setContainerDataSource(jContainer);
 	    setFooterData();
 		initTableStyle();
 
 		table.setColumnReorderingAllowed(true);
 		table.setColumnCollapsingAllowed(true);
-		departmentLayout.addComponent(table);
-		departmentLayout.setExpandRatio(table,1);
+		jobPositionLayout.addComponent(table);
+		jobPositionLayout.setExpandRatio(table,2);
 		
 		//Form		
-		departmentForm = new FormLayout();
-		departmentForm.setSpacing(true);
-		departmentForm.setMargin(true);
-		departmentForm.setStyleName("border-white");
-		departmentLayout.addComponent(departmentForm);
-		departmentLayout.setExpandRatio(departmentForm,(float)1.2);
+		jobPositionForm = new FormLayout();
+		jobPositionForm.setSpacing(true);
+		jobPositionForm.setMargin(true);
+		jobPositionForm.setStyleName("border-white");
+		jobPositionLayout.addComponent(jobPositionForm);
+		jobPositionLayout.setExpandRatio(jobPositionForm,1);
 		
-		Label formLab = new Label("แผนก");
-		departmentForm.addComponent(formLab);
+		Label formLab = new Label("ตำแหน่ง");
+		jobPositionForm.addComponent(formLab);
 		
-		name = new TextField("ชื่อแผนก");
-		name.setInputPrompt("ชื่อแผนก");
+		name = new TextField("ชื่อตำแหน่ง");
+		name.setInputPrompt("ชื่อตำแหน่ง");
 		name.setNullRepresentation("");
 		name.setImmediate(false);
 		name.setRequired(true);
 		name.setWidth("-1px");
 		name.setHeight("-1px");
-		departmentForm.addComponent(name);
+		jobPositionForm.addComponent(name);
 		
-		nameNd = new TextField("ชื่อแผนก ภาษาที่สอง");
-		nameNd.setInputPrompt("ชื่อแผนก ภาษาที่สอง");
+		nameNd = new TextField("ชื่อตำแหน่ง ภาษาที่สอง");
+		nameNd.setInputPrompt("ชื่อตำแหน่ง ภาษาที่สอง");
 		nameNd.setNullRepresentation("");
 		nameNd.setImmediate(false);
 		nameNd.setWidth("-1px");
 		nameNd.setHeight("-1px");
-		departmentForm.addComponent(nameNd);
+		jobPositionForm.addComponent(nameNd);
 		
 		save = new Button("บันทึก", FontAwesome.SAVE);
 		save.addClickListener(new ClickListener() {
@@ -145,21 +145,21 @@ public class DepartmentView extends ContentPage{
 					 *  กรณีเป็น แก้ไข จะทำการ Update โดยใช้ข้อมูลในฟอร์มเดิม
 					 *  กรณี เป็น เพิ่ม จะทำการ Inser โดยใช้ข้อมูลใหม่ที่กรอกในฟอร์ม */
 					if(editMode){
-						departmentBinder.commit();
-						dContainer.commit();
+						jobPositionBinder.commit();
+						jContainer.commit();
 						editMode = false;
 						Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 					}else{
-						if(!departmentBinder.isValid()){
+						if(!jobPositionBinder.isValid()){
 							Notification.show("กรุณากรอกข้อมูลให้ครบถ้วน", Type.WARNING_MESSAGE);
 							return;
 						}
 							
-						dContainer.removeAllContainerFilters();
+						jContainer.removeAllContainerFilters();
 						if(!saveFormData())
 							return;
 						
-						dContainer.addContainerFilter(new Equal(DepartmentSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
+						jContainer.addContainerFilter(new Equal(JobPositionSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
 					}
 					item = null;
 					save.setCaption("บันทึก");
@@ -171,19 +171,19 @@ public class DepartmentView extends ContentPage{
 				}
 			}
 		});
-		departmentForm.addComponent(save);
+		jobPositionForm.addComponent(save);
 		
 		initFieldGroup();
 	}
 	
 	/* ตั้งค่ารูปแบบแสดงของตาราง */
 	private void initTableStyle(){		
-		table.setColumnHeader(DepartmentSchema.NAME, "ชื่อแผนก");
-		table.setColumnHeader(DepartmentSchema.NAME_ND, "ชื่อแผนก (ภาษาที่สอง)");
+		table.setColumnHeader(JobPositionSchema.NAME, "ชื่อตำแหน่ง");
+		table.setColumnHeader(JobPositionSchema.NAME_ND, "ชื่อตำแหน่ง (ภาษาที่สอง)");
 		
 		table.setVisibleColumns(
-				DepartmentSchema.NAME,
-				DepartmentSchema.NAME_ND);
+				JobPositionSchema.NAME,
+				JobPositionSchema.NAME_ND);
 		
 		setColumnGenerator("");
 	}
@@ -216,14 +216,14 @@ public class DepartmentView extends ContentPage{
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				ConfirmDialog.show(UI.getCurrent(), "ลบแผนก","คุณต้องการลบแผนกนี้ใช่หรือไม่?","ตกลง","ยกเลิก",
+				ConfirmDialog.show(UI.getCurrent(), "ลบตำแหน่ง","คุณต้องการลบตำแหน่งนี้ใช่หรือไม่?","ตกลง","ยกเลิก",
 			        new ConfirmDialog.Listener() {
 						private static final long serialVersionUID = 1L;
 						public void onClose(ConfirmDialog dialog) {
 			                if (dialog.isConfirmed()) {
-			                	if(dContainer.removeItem(itemId)){
+			                	if(jContainer.removeItem(itemId)){
 			                		try {
-										dContainer.commit();
+										jContainer.commit();
 										setFooterData();
 									} catch (Exception e) {
 										Notification.show("ลบข้อมูลไม่สำเร็จ", Type.WARNING_MESSAGE);
@@ -243,15 +243,15 @@ public class DepartmentView extends ContentPage{
 	
 	/*นำจำนวนที่นับ มาใส่ค่าในส่วนท้ายตาราง*/
 	private void setFooterData(){
-		table.setColumnFooter(DepartmentSchema.NAME, "ทั้งหมด: "+ table.size() + " แผนก");
+		table.setColumnFooter(JobPositionSchema.NAME, "ทั้งหมด: "+ table.size() + " ตำแหน่ง");
 	}
 	
 	/* จัดกลุ่มของ ฟอร์มในการแก้ไข - เพิ่ม ข้อมูล */
 	private void initFieldGroup(){		
-		departmentBinder = new FieldGroup(item);
-		departmentBinder.setBuffered(true);
-		departmentBinder.bind(name, DepartmentSchema.NAME);
-		departmentBinder.bind(nameNd, DepartmentSchema.NAME_ND);
+		jobPositionBinder = new FieldGroup(item);
+		jobPositionBinder.setBuffered(true);
+		jobPositionBinder.bind(name, JobPositionSchema.NAME);
+		jobPositionBinder.bind(nameNd, JobPositionSchema.NAME_ND);
 	}
 	
 	/* กำหนดค่าภายใน FieldGroup ไปยัง Item */
@@ -259,35 +259,35 @@ public class DepartmentView extends ContentPage{
 	private boolean saveFormData(){
 		try {				
 			/* เพิ่มข้อมูล */
-			Object tmpItem = dContainer.addItem();
-			Item item = dContainer.getItem(tmpItem);
-			for(Field<?> field: departmentBinder.getFields()){
+			Object tmpItem = jContainer.addItem();
+			Item item = jContainer.getItem(tmpItem);
+			for(Field<?> field: jobPositionBinder.getFields()){
 				/* หาชนิดตัวแปร ของข้อมูลภายใน Database ของแต่ละ Field */
-				Class<?> clazz = item.getItemProperty(departmentBinder.getPropertyId(field)).getType();
+				Class<?> clazz = item.getItemProperty(jobPositionBinder.getPropertyId(field)).getType();
 				String className = clazz.getName();;
 				Object value = null;
-				if(departmentBinder.getField(departmentBinder.getPropertyId(field)).getValue() != null && 
-						!departmentBinder.getField(departmentBinder.getPropertyId(field)).getValue().equals("")){
-					/* ตรวจสอบ Class ที่ต้องแปลงที่ได้จากการตรวจสอบภายใน Database จาก item.getItemProperty(departmentBinder.getPropertyId(field)).getType()
+				if(jobPositionBinder.getField(jobPositionBinder.getPropertyId(field)).getValue() != null && 
+						!jobPositionBinder.getField(jobPositionBinder.getPropertyId(field)).getValue().equals("")){
+					/* ตรวจสอบ Class ที่ต้องแปลงที่ได้จากการตรวจสอบภายใน Database จาก item.getItemProperty(jobPositionBinder.getPropertyId(field)).getType()
 					 *  กรณั เป็น Double ก็แปลง Object ด้วย parseDouble ซึ่งค่าที่แปลงต้องไม่เป็น Null
 					 *  กรณั เป็น Integer ก็แปลง Object ด้วย parseInt ซึ่งค่าที่แปลงต้องไม่เป็น Null
 					 *    */
 
 					if(clazz == Double.class){
-						value = Double.parseDouble(departmentBinder.getField(departmentBinder.getPropertyId(field)).getValue().toString());
+						value = Double.parseDouble(jobPositionBinder.getField(jobPositionBinder.getPropertyId(field)).getValue().toString());
 					}else if(clazz == Integer.class){
-						value = Integer.parseInt(departmentBinder.getField(departmentBinder.getPropertyId(field)).getValue().toString());
+						value = Integer.parseInt(jobPositionBinder.getField(jobPositionBinder.getPropertyId(field)).getValue().toString());
 					}else{
-						value = departmentBinder.getField(departmentBinder.getPropertyId(field)).getValue();
+						value = jobPositionBinder.getField(jobPositionBinder.getPropertyId(field)).getValue();
 					}
 				}
 				
 				Object data = Class.forName(className).cast(value);
-				item.getItemProperty(departmentBinder.getPropertyId(field)).setValue(data);
+				item.getItemProperty(jobPositionBinder.getPropertyId(field)).setValue(data);
 			}
-			item.getItemProperty(DepartmentSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
+			item.getItemProperty(JobPositionSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
 			CreateModifiedSchema.setCreateAndModified(item);
-			dContainer.commit();
+			jContainer.commit();
 			setFooterData();
 			return true;
 		} catch (Exception e) {
@@ -298,6 +298,6 @@ public class DepartmentView extends ContentPage{
 	}
 	
 	private void fetchData(){
-		dContainer.addContainerFilter(new Equal(DepartmentSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
+		jContainer.addContainerFilter(new Equal(JobPositionSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
 	}
 }

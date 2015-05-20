@@ -1,5 +1,7 @@
 package com.ies.schoolos.component.registration;
 
+import java.util.Locale;
+
 import org.tepi.filtertable.FilterTable;
 
 import com.ies.schoolos.container.Container;
@@ -13,7 +15,7 @@ import com.ies.schoolos.schema.info.StudentSchema;
 import com.ies.schoolos.schema.info.StudentStudySchema;
 import com.ies.schoolos.type.Prename;
 import com.ies.schoolos.type.ResignType;
-import com.ies.schoolos.type.dynamic.JobPosition;
+import com.ies.schoolos.type.StudentStatus;
 import com.ies.schoolos.utility.Notification;
 import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
@@ -187,11 +189,13 @@ public class ResignStudentView extends VerticalLayout {
 		resignForm.addComponent(resignType);
 		
 		resignDate = new PopupDateField("วัน เดือน ปี จำหน่าย");
-		resignDate.setInputPrompt("วว/ดด/ปปปป(คศ)");
+		resignDate.setInputPrompt("วว/ดด/ปปปป");
 		resignDate.setImmediate(false);
 		resignDate.setRequired(true);
 		resignDate.setWidth("-1px");
 		resignDate.setHeight("-1px");
+		resignDate.setDateFormat("dd/MM/yyyy");
+		resignDate.setLocale(new Locale("th", "TH"));
 		resignForm.addComponent(resignDate);
 		
 		resignDesription = new TextArea("รายละเอียด");
@@ -285,7 +289,7 @@ public class ResignStudentView extends VerticalLayout {
 				Prename.getNameTh((int)item.getItemProperty(StudentSchema.PRENAME).getValue()),
 				item.getItemProperty(StudentSchema.FIRSTNAME).getValue(),
 				item.getItemProperty(StudentSchema.LASTNAME).getValue(),
-				JobPosition.getNameTh((int)item.getItemProperty(StudentStudySchema.STUDENT_STATUS).getValue())
+				StudentStatus.getNameTh((int)item.getItemProperty(StudentStudySchema.STUDENT_STATUS).getValue())
 			}, itemId);
 		}
 	}

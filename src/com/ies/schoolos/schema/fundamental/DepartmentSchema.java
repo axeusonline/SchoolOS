@@ -8,6 +8,6 @@ public class DepartmentSchema implements java.io.Serializable{
 	public static final String DEPARTMENT_ID = "department_id";
 	public static final String SCHOOL_ID = "school_id";
 	public static final String NAME = "name";
-	public static final String NANE_ND = "name_nd";
+	public static final String NAME_ND = "name_nd";
 
 }

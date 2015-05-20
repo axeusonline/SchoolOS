@@ -19,6 +19,7 @@ import com.ies.schoolos.schema.fundamental.BehaviorSchema;
 import com.ies.schoolos.schema.fundamental.BuildingSchema;
 import com.ies.schoolos.schema.fundamental.ClassRoomSchema;
 import com.ies.schoolos.schema.fundamental.DepartmentSchema;
+import com.ies.schoolos.schema.fundamental.JobPositionSchema;
 import com.ies.schoolos.schema.fundamental.SubjectSchema;
 import com.ies.schoolos.schema.info.FamilySchema;
 import com.ies.schoolos.schema.info.PersonnelGraduatedHistorySchema;
@@ -359,6 +360,19 @@ public class Container implements Serializable {
 			e.printStackTrace();
 		}
 		return departmentContainer;
+	}
+	
+	/* TableQuery และ SQLContainer สำหรับตำแหน่ง */
+	public static SQLContainer getJobPositionContainer() {
+    	TableQuery query;
+    	SQLContainer jobPositionContainer = null;;
+		try {
+			query = new TableQuery(JobPositionSchema.TABLE_NAME, DbConnection.getConnection());
+			jobPositionContainer = new SQLContainer(query);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return jobPositionContainer;
 	}
 	
 	/* TableQuery และ SQLContainer สำหรับพฤติกรรม */

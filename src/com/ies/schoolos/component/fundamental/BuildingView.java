@@ -10,7 +10,6 @@ import com.ies.schoolos.filter.TableFilterGenerator;
 import com.ies.schoolos.schema.CreateModifiedSchema;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.fundamental.BuildingSchema;
-import com.ies.schoolos.schema.fundamental.SubjectSchema;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -54,12 +53,13 @@ public class BuildingView extends ContentPage{
 	
 	public BuildingView() {
 		super("อาคารเรียน/สอบ");
-		
 		bContainer.refresh();
-		bContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
+		
 		setSpacing(true);
 		setMargin(true);
+		fetchData();
 		buildMainLayout();
+		setFooterData();
 	}
 	
 	private void buildMainLayout(){
@@ -96,7 +96,6 @@ public class BuildingView extends ContentPage{
         table.setFilterBarVisible(true);
 
 		table.setContainerDataSource(bContainer);
-	    setFooterData();
 		initTableStyle();
 
 		table.setColumnReorderingAllowed(true);
@@ -112,26 +111,29 @@ public class BuildingView extends ContentPage{
 		Label formLab = new Label("ข้อมูลอาคาร");
 		buildingForm.addComponent(formLab);
 		
-		buildingName = new TextField();
+		buildingName = new TextField("ชื่ออาคาร");
 		buildingName.setInputPrompt("ชื่ออาคาร");
 		buildingName.setNullRepresentation("");
 		buildingName.setImmediate(false);
+		buildingName.setRequired(true);
 		buildingName.setWidth("-1px");
 		buildingName.setHeight("-1px");
 		buildingForm.addComponent(buildingName);
 		
-		roomName = new TextField();
+		roomName = new TextField("ชื่อห้อง");
 		roomName.setInputPrompt("ชื่อห้อง");
 		roomName.setNullRepresentation("");
 		roomName.setImmediate(false);
+		roomName.setRequired(true);
 		roomName.setWidth("-1px");
 		roomName.setHeight("-1px");
 		buildingForm.addComponent(roomName);
 		
-		capacity = new TextField();
+		capacity = new TextField("จำนวนคนสูงสุด");
 		capacity.setInputPrompt("จำนวนคนสูงสุด");
 		capacity.setNullRepresentation("");
 		capacity.setImmediate(false);
+		capacity.setRequired(true);
 		capacity.setWidth("-1px");
 		capacity.setHeight("-1px");
 		buildingForm.addComponent(capacity);
@@ -152,16 +154,16 @@ public class BuildingView extends ContentPage{
 						editMode = false;
 						Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 					}else{
-						bContainer.removeAllContainerFilters();
 						if(!buildingBinder.isValid()){
 							Notification.show("กรุณากรอกข้อมูลให้ครบถ้วน", Type.WARNING_MESSAGE);
 							return;
 						}
-							
+
+						bContainer.removeAllContainerFilters();
 						if(!saveFormData())
 							return;
 						
-						bContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
+						fetchData();
 					}
 					item = null;
 					save.setCaption("บันทึก");
@@ -169,7 +171,7 @@ public class BuildingView extends ContentPage{
 					Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 				} catch (Exception e) {
 					e.printStackTrace();
-					Notification.show("บันทึกไม่สำเร็จ", Type.HUMANIZED_MESSAGE);
+					Notification.show("บันทึกไม่สำเร็จ", Type.WARNING_MESSAGE);
 				}
 			}
 		});
@@ -302,5 +304,8 @@ public class BuildingView extends ContentPage{
 			e.printStackTrace();
 			return false;
 		}
+	}
+	private void fetchData(){
+		bContainer.addContainerFilter(new Equal(BuildingSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
 	}
 }

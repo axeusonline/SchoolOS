@@ -50,6 +50,8 @@ public class UserManagerView extends VerticalLayout {
 	private SQLContainer freeContainer;
 	public SQLContainer userContainer = Container.getUserContainer();
 	
+	private JobPosition jContainer = new JobPosition();
+	
 	private FilterTable  table;
 	
 	private FieldGroup userBinder;
@@ -103,18 +105,18 @@ public class UserManagerView extends VerticalLayout {
 			}
 		});
 		
-		table.addContainerProperty(PersonnelSchema.PERSONEL_CODE, String.class, null);
+		table.addContainerProperty(PersonnelSchema.PERSONNEL_CODE, String.class, null);
 		table.addContainerProperty(PersonnelSchema.PRENAME, String.class, null);
 		table.addContainerProperty(PersonnelSchema.FIRSTNAME, String.class, null);
 		table.addContainerProperty(PersonnelSchema.LASTNAME, String.class, null);
-		table.addContainerProperty(PersonnelSchema.JOB_POSITION, String.class, null);
+		table.addContainerProperty(PersonnelSchema.JOB_POSITION_ID, String.class, null);
 		
 		table.setFilterDecorator(new TableFilterDecorator());
 		table.setFilterGenerator(new TableFilterGenerator());
         table.setFilterBarVisible(true);
         
 		initTableStyle();
-		table.sort(new Object[]{PersonnelSchema.PERSONEL_CODE}, new boolean[]{true});
+		table.sort(new Object[]{PersonnelSchema.PERSONNEL_CODE}, new boolean[]{true});
 
 		table.setColumnReorderingAllowed(true);
 		table.setColumnCollapsingAllowed(true);
@@ -214,7 +216,7 @@ public class UserManagerView extends VerticalLayout {
 					Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 				} catch (Exception e) {
 					e.printStackTrace();
-					Notification.show("บันทึกไม่สำเร็จ", Type.HUMANIZED_MESSAGE);
+					Notification.show("บันทึกไม่สำเร็จ", Type.WARNING_MESSAGE);
 				}
 			}
 		});
@@ -223,29 +225,30 @@ public class UserManagerView extends VerticalLayout {
 	
 	/* ตั้งค่ารูปแบบแสดงของตาราง */
 	private void initTableStyle(){		
-		table.setColumnHeader(PersonnelSchema.PERSONEL_CODE, "หมายเลขประจำตัว");
+		table.setColumnHeader(PersonnelSchema.PERSONNEL_CODE, "หมายเลขประจำตัว");
 		table.setColumnHeader(PersonnelSchema.PRENAME, "ชื่อต้น");
 		table.setColumnHeader(PersonnelSchema.FIRSTNAME, "ชื่อ");
 		table.setColumnHeader(PersonnelSchema.LASTNAME, "สกุล");
-		table.setColumnHeader(PersonnelSchema.JOB_POSITION, "ตำแหน่ง");
+		table.setColumnHeader(PersonnelSchema.JOB_POSITION_ID, "ตำแหน่ง");
 		
 		table.setVisibleColumns(
-				PersonnelSchema.PERSONEL_CODE, 
+				PersonnelSchema.PERSONNEL_CODE, 
 				PersonnelSchema.PRENAME,
 				PersonnelSchema.FIRSTNAME, 
 				PersonnelSchema.LASTNAME,
-				PersonnelSchema.JOB_POSITION);
+				PersonnelSchema.JOB_POSITION_ID);
 		
 	}
 	
 	private void fetchData(){
 		StringBuilder builder = new StringBuilder();
 		builder.append(" SELECT * FROM " + PersonnelSchema.TABLE_NAME);
-		builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + " NOT IN (");
+		builder.append(" WHERE " + PersonnelSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
+		builder.append(" AND " + PersonnelSchema.PERSONNEL_ID + " NOT IN (");
 		builder.append(" SELECT " + UserSchema.REF_USER_ID + " FROM " + UserSchema.TABLE_NAME);
 		builder.append(" WHERE " + UserSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		builder.append(" AND " + UserSchema.REF_USER_TYPE + "=" + 1 + ")");
-
+		System.err.println(builder.toString());
 		table.removeAllItems();
 		
 		freeContainer = Container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
@@ -253,18 +256,18 @@ public class UserManagerView extends VerticalLayout {
 			Item item = freeContainer.getItem(itemId);
 						
 			table.addItem(new Object[]{
-				item.getItemProperty(PersonnelSchema.PERSONEL_CODE).getValue(),
+				item.getItemProperty(PersonnelSchema.PERSONNEL_CODE).getValue(),
 				Prename.getNameTh((int)item.getItemProperty(PersonnelSchema.PRENAME).getValue()),
 				item.getItemProperty(PersonnelSchema.FIRSTNAME).getValue(),
 				item.getItemProperty(PersonnelSchema.LASTNAME).getValue(),
-				JobPosition.getNameTh((int)item.getItemProperty(PersonnelSchema.JOB_POSITION).getValue())
+				jContainer.getItem(item.getItemProperty(PersonnelSchema.JOB_POSITION_ID).getValue()).getItemProperty("name").getValue().toString(),				
 			}, itemId);
 		}
 	}
 	
 	/*นำจำนวนที่นับ มาใส่ค่าในส่วนท้ายตาราง*/
 	private void setFooterData(){
-		table.setColumnFooter(PersonnelSchema.PERSONEL_CODE, "ทั้งหมด: "+ table.size() + " คน");
+		table.setColumnFooter(PersonnelSchema.PERSONNEL_CODE, "ทั้งหมด: "+ table.size() + " คน");
 	}
 	
 	/* จัดกลุ่มของ ฟอร์มในการแก้ไข - เพิ่ม ข้อมูล */

@@ -146,8 +146,8 @@ public class TeacherHomeroomView extends VerticalLayout {
 										
 										setRightData();
 										sortData();
-										twinSelect.setLeftCountFooter(PersonnelSchema.PERSONEL_CODE);
-										twinSelect.setRightCountFooter(PersonnelSchema.PERSONEL_CODE);
+										twinSelect.setLeftCountFooter(PersonnelSchema.PERSONNEL_CODE);
+										twinSelect.setRightCountFooter(PersonnelSchema.PERSONNEL_CODE);
 										
 										window.close();
 									}else{
@@ -181,7 +181,7 @@ public class TeacherHomeroomView extends VerticalLayout {
 		twinSelect.showFooterCount(true);
 		twinSelect.setFooterUnit("คน");
 		
-		twinSelect.addContainerProperty(PersonnelSchema.PERSONEL_CODE, String.class, null);
+		twinSelect.addContainerProperty(PersonnelSchema.PERSONNEL_CODE, String.class, null);
 		twinSelect.addContainerProperty(PersonnelSchema.FIRSTNAME, String.class, null);
 		twinSelect.addContainerProperty(PersonnelSchema.LASTNAME, String.class, null);
 		twinSelect.getRightTable().addContainerProperty(TeacherHomeroomSchema.ACADEMIC_YEAR, String.class, null);
@@ -191,19 +191,19 @@ public class TeacherHomeroomView extends VerticalLayout {
 		twinSelect.setFilterGenerator(new TableFilterGenerator());
 		twinSelect.setFilterBarVisible(true);
         
-		twinSelect.setColumnHeader(PersonnelSchema.PERSONEL_CODE, "รหัสประจำตัว");
+		twinSelect.setColumnHeader(PersonnelSchema.PERSONNEL_CODE, "รหัสประจำตัว");
 		twinSelect.setColumnHeader(PersonnelSchema.FIRSTNAME,"ชื่อ");
 		twinSelect.setColumnHeader(PersonnelSchema.LASTNAME, "สกุล");
 		twinSelect.getRightTable().setColumnHeader(TeacherHomeroomSchema.ACADEMIC_YEAR, "ปีการศึกษา");
 		twinSelect.getRightTable().setColumnHeader(TeacherHomeroomSchema.CLASS_ROOM_ID, "ชั้นเรียน");
 		
 		twinSelect.getLeftTable().setVisibleColumns(
-				PersonnelSchema.PERSONEL_CODE, 
+				PersonnelSchema.PERSONNEL_CODE, 
 				PersonnelSchema.FIRSTNAME,
 				PersonnelSchema.LASTNAME);
 		
 		twinSelect.getRightTable().setVisibleColumns(
-				PersonnelSchema.PERSONEL_CODE, 
+				PersonnelSchema.PERSONNEL_CODE, 
 				PersonnelSchema.FIRSTNAME,
 				PersonnelSchema.LASTNAME,
 				TeacherHomeroomSchema.ACADEMIC_YEAR,
@@ -223,7 +223,7 @@ public class TeacherHomeroomView extends VerticalLayout {
 	
 	/* เรียงอันดับข้อมูลของตาราง */
 	private void sortData(){
-		Object[] prop = {PersonnelSchema.PERSONEL_CODE};
+		Object[] prop = {PersonnelSchema.PERSONNEL_CODE};
 		boolean[] bool = {true};
 		twinSelect.getLeftTable().sort(prop, bool);
 		twinSelect.getRightTable().sort(prop, bool);
@@ -247,7 +247,7 @@ public class TeacherHomeroomView extends VerticalLayout {
 			addItemData(twinSelect.getLeftTable(), itemId, item);
 		}
 		
-		twinSelect.setLeftCountFooter(PersonnelSchema.PERSONEL_CODE);
+		twinSelect.setLeftCountFooter(PersonnelSchema.PERSONNEL_CODE);
 	}
 	
 	private void setRightData(){
@@ -265,13 +265,13 @@ public class TeacherHomeroomView extends VerticalLayout {
 			addItemData(twinSelect.getRightTable(), itemId, item);
 		}
 		
-		twinSelect.setRightCountFooter(PersonnelSchema.PERSONEL_CODE);
+		twinSelect.setRightCountFooter(PersonnelSchema.PERSONNEL_CODE);
 		
 		if(classRoom.getValue() == null){
 			twinSelect.getRightTable().setFilterFieldValue(TeacherHomeroomSchema.CLASS_ROOM_ID, new NumberInterval(null, null, "0"));
 			
-			twinSelect.setLeftCountFooter(PersonnelSchema.PERSONEL_CODE);
-			twinSelect.setRightCountFooter(PersonnelSchema.PERSONEL_CODE);
+			twinSelect.setLeftCountFooter(PersonnelSchema.PERSONNEL_CODE);
+			twinSelect.setRightCountFooter(PersonnelSchema.PERSONNEL_CODE);
 		}
 			
 	}
@@ -298,8 +298,8 @@ public class TeacherHomeroomView extends VerticalLayout {
 			setLeftData();
 			setRightData();
 			sortData();
-			twinSelect.setLeftCountFooter(PersonnelSchema.PERSONEL_CODE);
-			twinSelect.setRightCountFooter(PersonnelSchema.PERSONEL_CODE);
+			twinSelect.setLeftCountFooter(PersonnelSchema.PERSONNEL_CODE);
+			twinSelect.setRightCountFooter(PersonnelSchema.PERSONNEL_CODE);
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -328,8 +328,8 @@ public class TeacherHomeroomView extends VerticalLayout {
 			setLeftData();
 			setRightData();
 			sortData();
-			twinSelect.setLeftCountFooter(PersonnelSchema.PERSONEL_CODE);
-			twinSelect.setRightCountFooter(PersonnelSchema.PERSONEL_CODE);
+			twinSelect.setLeftCountFooter(PersonnelSchema.PERSONNEL_CODE);
+			twinSelect.setRightCountFooter(PersonnelSchema.PERSONNEL_CODE);
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -345,8 +345,8 @@ public class TeacherHomeroomView extends VerticalLayout {
 			setLeftData();
 			setRightData();
 			sortData();
-			twinSelect.setLeftCountFooter(PersonnelSchema.PERSONEL_CODE);
-			twinSelect.setRightCountFooter(PersonnelSchema.PERSONEL_CODE);
+			twinSelect.setLeftCountFooter(PersonnelSchema.PERSONNEL_CODE);
+			twinSelect.setRightCountFooter(PersonnelSchema.PERSONNEL_CODE);
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -363,8 +363,8 @@ public class TeacherHomeroomView extends VerticalLayout {
 			setRightData();
 			sortData();
 			
-			twinSelect.setLeftCountFooter(PersonnelSchema.PERSONEL_CODE);
-			twinSelect.setRightCountFooter(PersonnelSchema.PERSONEL_CODE);
+			twinSelect.setLeftCountFooter(PersonnelSchema.PERSONNEL_CODE);
+			twinSelect.setRightCountFooter(PersonnelSchema.PERSONNEL_CODE);
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -374,7 +374,7 @@ public class TeacherHomeroomView extends VerticalLayout {
 	private void addItemData(FilterTable table, Object itemId, Item item){		
 		if(table == twinSelect.getLeftTable()){
 			table.addItem(new Object[] {
-					item.getItemProperty(PersonnelSchema.PERSONEL_CODE).getValue(), 
+					item.getItemProperty(PersonnelSchema.PERSONNEL_CODE).getValue(), 
 					item.getItemProperty(PersonnelSchema.FIRSTNAME).getValue(), 
 					item.getItemProperty(PersonnelSchema.LASTNAME).getValue()
 			},itemId);
@@ -391,7 +391,7 @@ public class TeacherHomeroomView extends VerticalLayout {
 			}else{
 				try {
 					StringBuilder builder = new StringBuilder();
-					builder.append(" SELECT " + PersonnelSchema.PERSONNEL_ID + "," + PersonnelSchema.PERSONEL_CODE + "," + PersonnelSchema.FIRSTNAME + "," + PersonnelSchema.LASTNAME);
+					builder.append(" SELECT " + PersonnelSchema.PERSONNEL_ID + "," + PersonnelSchema.PERSONNEL_CODE + "," + PersonnelSchema.FIRSTNAME + "," + PersonnelSchema.LASTNAME);
 					builder.append(" FROM " + PersonnelSchema.TABLE_NAME);
 					builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + item.getItemProperty(TeacherHomeroomSchema.PERSONNEL_ID).getValue());
 
@@ -399,7 +399,7 @@ public class TeacherHomeroomView extends VerticalLayout {
 					SQLContainer personnelContainer = new SQLContainer(tq);
 
 					Item personnelItem = personnelContainer.getItem(personnelContainer.getIdByIndex(0));
-					personalCode = personnelItem.getItemProperty(PersonnelSchema.PERSONEL_CODE).getValue();
+					personalCode = personnelItem.getItemProperty(PersonnelSchema.PERSONNEL_CODE).getValue();
 					firstname = personnelItem.getItemProperty(PersonnelSchema.FIRSTNAME).getValue();
 					lastname = personnelItem.getItemProperty(PersonnelSchema.LASTNAME).getValue();
 				} catch (Exception e) {
@@ -426,8 +426,8 @@ public class TeacherHomeroomView extends VerticalLayout {
 				twinSelect.getRightTable().setFilterFieldValue(TeacherHomeroomSchema.CLASS_ROOM_ID, new NumberInterval(null, null, classRoom.getValue().toString()));
 				setLeftData();
 				
-				twinSelect.setLeftCountFooter(PersonnelSchema.PERSONEL_CODE);
-				twinSelect.setRightCountFooter(PersonnelSchema.PERSONEL_CODE);
+				twinSelect.setLeftCountFooter(PersonnelSchema.PERSONNEL_CODE);
+				twinSelect.setRightCountFooter(PersonnelSchema.PERSONNEL_CODE);
 			}
 		}
 	};

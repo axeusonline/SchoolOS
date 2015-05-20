@@ -143,9 +143,6 @@ public class AddRecruitStudentView extends RecruitStudentLayout {
 					/* ตรวจสอบสถานะการพิมพ์*/
 					if(printMode){
 						visiblePrintButton();
-						/*WorkThread thread = new WorkThread();
-				        thread.start();
-				        UI.getCurrent().setPollInterval(500);*/
 						new RecruitStudentReport(Integer.parseInt(idStore.get(3).toString()),emailMode);
 					}
 				} catch (Exception e) {
