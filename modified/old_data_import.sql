@@ -193,33 +193,8 @@ DROP TABLE lesson_plan_tmp;
 DROP TABLE  lesson_plan_subject_tmp;
 */
 
-INSERT INTO `department` VALUES
-(1, NULL, 'ฝ่ายบริหาร', NULL, NULL, NULL, NULL, NULL),
-(2, NULL, 'ฝ่ายงานวิชาการ', NULL, NULL, NULL, NULL, NULL),
-(3, NULL, 'ฝ่ายงานทะเบียน', NULL, NULL, NULL, NULL, NULL),
-(4, NULL, 'ฝ่ายงานพัฒนาบุคลากร', NULL, NULL, NULL, NULL, NULL),
-(5, NULL, 'ฝ่ายงานผู้ดูแลระบบ', NULL, NULL, NULL, NULL, NULL),
-(6, NULL, 'ฝ่ายพัสดุ', NULL, NULL, NULL, NULL, NULL),
-(7, NULL, 'ฝ่ายธุรการ', NULL, NULL, NULL, NULL, NULL),
-(8, NULL, 'ฝ่ายงานกิจการนักเรียน', NULL, NULL, NULL, NULL, NULL),
-(9, NULL, 'ฝ่ายงานการเงิน', NULL, NULL, NULL, NULL, NULL),
-(10, NULL, 'ฝ่ายงานพัฒนาผู้เรียน', NULL, NULL, NULL, NULL, NULL),
-(11, NULL, 'ฝ่ายงานห้องสมุด', NULL, NULL, NULL, NULL, NULL),
-(12, NULL, 'ฝ่ายงานหอพักนักเรียน', NULL, NULL, NULL, NULL, NULL),
-(13, NULL, 'ฝ่ายงานสหกรณ์', NULL, NULL, NULL, NULL, NULL),
-(14, NULL, 'ฝ่ายสมัครเรียน', NULL, NULL, NULL, NULL, NULL),
-(15, NULL, 'ฝ่ายอาคารและสถานที่', NULL, NULL, NULL, NULL, NULL),
-(16, NULL, 'ฝ่ายอาจารย์ผู้สอน', NULL, NULL, NULL, NULL, NULL),
-(17, NULL, 'ฝ่ายอาจารย์ประจำชั้น', NULL, NULL, NULL, NULL, NULL),
-(18, NULL, 'ฝ่ายงานสาระการเรียนรู้ภาษาไทย', NULL, NULL, NULL, NULL, NULL),
-(19, NULL, 'ฝ่ายงานสาระการเรียนรู้ศิลปะ', NULL, NULL, NULL, NULL, NULL),
-(20, NULL, 'ฝ่ายงานสาระการเรียนรู้วิทยาศาสตร์', NULL, NULL, NULL, NULL, NULL),
-(21, NULL, 'ฝ่ายงานสาระการเรียนรู้สังคมศึกษา ศาสนา และ วัฒนธรรม', NULL, NULL, NULL, NULL, NULL),
-(22, NULL, 'ฝ่ายงานสาระการเรียนรู้คณิตศาสตร์', NULL, NULL, NULL, NULL, NULL),
-(23, NULL, 'ฝ่ายงานสาระการเรียนรู้สุขศึกษาและพละศึกษา', NULL, NULL, NULL, NULL, NULL),
-(24, NULL, 'ฝ่ายงานสาระการเรียนรู้การงานอาชีพและเทคโนโลยี', NULL, NULL, NULL, NULL, NULL),
-(25, NULL, 'ฝ่ายงานสาระการเรียนรู้ภาษาต่างประเทศ', NULL, NULL, NULL, NULL, NULL);
-
-
-
+UPDATE user  u
+INNER JOIN personnel p ON u.ref_user_id = p.personnel_id 
+SET u.email = 'hishammuhamadamin@gmail.com', p.email = 'hishammuhamadamin@gmail.com' 
+WHERE u.firstname = 'ดือเร๊ะ' AND u.lastname = 'เวซีลา' AND u.ref_user_type = 1;
 

@@ -492,3 +492,75 @@ CREATE TABLE IF NOT EXISTS `personnel_graduated_history` (
 UPDATE user SET permission = '0,0,0,0,0,0' WHERE school_id <> ref_user_id;
 UPDATE user SET permission = '1,1,1,1,1,1' WHERE school_id = ref_user_id AND ref_user_type = 0;
 
+/*
+ * Description : แก้ไข Schema ผิด
+ * Date : 11/05/2014
+ * */
+ALTER TABLE `personnel_graduated_history` CHANGE `year` `year` VARCHAR(4) NULL DEFAULT NULL COMMENT 'ปีทืจบ';
+
+UPDATE personnel SET marital_status =0 WHERE marital_status >1;
+
+UPDATE personnel p 
+SET current_postcode_id = null
+WHERE current_postcode_id NOT IN (SELECT postcode_id FROM postcode);
+
+UPDATE personnel SET current_city_id = null WHERE current_city_id NOT IN (SELECT city_id FROM city);
+UPDATE personnel SET department = 0 WHERE department IS null;
+
+/*
+ * Description : เพิ่มข้อมูล
+ * Date : 16/05/2014
+ * */
+ALTER TABLE `personnel` ADD `alive_status` TINYINT NOT NULL COMMENT '*Fix สถานะการมีชีวิต' AFTER `personnel_status`;
+
+INSERT INTO `department` VALUES
+(1, NULL, 'ฝ่ายบริหาร', NULL, NULL, NULL, NULL, NULL),
+(2, NULL, 'ฝ่ายงานวิชาการ', NULL, NULL, NULL, NULL, NULL),
+(3, NULL, 'ฝ่ายงานทะเบียน', NULL, NULL, NULL, NULL, NULL),
+(4, NULL, 'ฝ่ายงานพัฒนาบุคลากร', NULL, NULL, NULL, NULL, NULL),
+(5, NULL, 'ฝ่ายงานผู้ดูแลระบบ', NULL, NULL, NULL, NULL, NULL),
+(6, NULL, 'ฝ่ายพัสดุ', NULL, NULL, NULL, NULL, NULL),
+(7, NULL, 'ฝ่ายธุรการ', NULL, NULL, NULL, NULL, NULL),
+(8, NULL, 'ฝ่ายงานกิจการนักเรียน', NULL, NULL, NULL, NULL, NULL),
+(9, NULL, 'ฝ่ายงานการเงิน', NULL, NULL, NULL, NULL, NULL),
+(10, NULL, 'ฝ่ายงานพัฒนาผู้เรียน', NULL, NULL, NULL, NULL, NULL),
+(11, NULL, 'ฝ่ายงานห้องสมุด', NULL, NULL, NULL, NULL, NULL),
+(12, NULL, 'ฝ่ายงานหอพักนักเรียน', NULL, NULL, NULL, NULL, NULL),
+(13, NULL, 'ฝ่ายงานสหกรณ์', NULL, NULL, NULL, NULL, NULL),
+(14, NULL, 'ฝ่ายสมัครเรียน', NULL, NULL, NULL, NULL, NULL),
+(15, NULL, 'ฝ่ายอาคารและสถานที่', NULL, NULL, NULL, NULL, NULL),
+(16, NULL, 'ฝ่ายอาจารย์ผู้สอน', NULL, NULL, NULL, NULL, NULL),
+(17, NULL, 'ฝ่ายอาจารย์ประจำชั้น', NULL, NULL, NULL, NULL, NULL),
+(18, NULL, 'ฝ่ายงานสาระการเรียนรู้ภาษาไทย', NULL, NULL, NULL, NULL, NULL),
+(19, NULL, 'ฝ่ายงานสาระการเรียนรู้ศิลปะ', NULL, NULL, NULL, NULL, NULL),
+(20, NULL, 'ฝ่ายงานสาระการเรียนรู้วิทยาศาสตร์', NULL, NULL, NULL, NULL, NULL),
+(21, NULL, 'ฝ่ายงานสาระการเรียนรู้สังคมศึกษา ศาสนา และ วัฒนธรรม', NULL, NULL, NULL, NULL, NULL),
+(22, NULL, 'ฝ่ายงานสาระการเรียนรู้คณิตศาสตร์', NULL, NULL, NULL, NULL, NULL),
+(23, NULL, 'ฝ่ายงานสาระการเรียนรู้สุขศึกษาและพละศึกษา', NULL, NULL, NULL, NULL, NULL),
+(24, NULL, 'ฝ่ายงานสาระการเรียนรู้การงานอาชีพและเทคโนโลยี', NULL, NULL, NULL, NULL, NULL),
+(25, NULL, 'ฝ่ายงานสาระการเรียนรู้ภาษาต่างประเทศ', NULL, NULL, NULL, NULL, NULL);
+
+INSERT INTO `job_position` (`name`) VALUES
+("กรรมการ"),
+("ครูสามัญ"),
+("ครูศาสนา"),
+("เจ้าหน้าที่"),
+("เจ้าหน้าที่หอพักนักการภารโรง"),
+("พนักงานขับรถ"),
+("พนักงานรักษาความปลอดภัย"),
+("ข้าราชการ"),
+("พนักงานช้าราชการ"),
+("พนักงานช้าราชการชั่วคราว"),
+("ผู้บริหาร"),
+("ครูชำนาญการ"),
+("ครูพิเศษ"),
+("อาจารย์ฝึกสอน"),
+("นักศึกษาฝึกงาน"),
+("ผู้อำนวยการ"),
+("นายทะเบียน"),
+("เจ้าหน้าที่ไอที");
+
+UPDATE personnel SET department = department+1;
+UPDATE personnel SET job_position = job_position+1;
+
+ALTER TABLE `personnel` CHANGE `job_position` `job_position_id` INT(11) NULL DEFAULT NULL COMMENT 'ตำแหน่ง', CHANGE `department` `department_id` INT(11) NULL DEFAULT NULL COMMENT 'แผนก';

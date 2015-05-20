@@ -32,7 +32,6 @@
 @mixin schoolos {
 	@include valo;
 	@include v-font("Blenda Script", 'fonts/Blenda Script.otf');
-	@include v-font("HelveticaLTStd-Blk", 'fonts/HelveticaLTStd-Blk.otf');
 	
 	// Insert your own theme rules here
 	.schoolos .v-tabsheet-tabitemcell .v-tabsheet-tabitem{
