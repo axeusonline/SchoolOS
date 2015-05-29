@@ -196,7 +196,7 @@ public class LoginView extends VerticalLayout{
 		email = new TextField();
 		email.setStyleName("input-form");
 		email.setInputPrompt("อีเมล์");
-		email.addValidator(new EmailValidator("ข้อมูลไม่ถูกต้อง"));
+		//email.addValidator(new EmailValidator("ข้อมูลไม่ถูกต้อง"));
 		loginLayout.addComponent(email);
 		loginLayout.setComponentAlignment(email, Alignment.MIDDLE_CENTER);
 		
@@ -351,6 +351,7 @@ public class LoginView extends VerticalLayout{
 								schoolItem = schoolContainer.getItem(schoolTmpId);
 								schoolItem.getItemProperty(SchoolSchema.NAME).setValue(registrationBinder.getField(SchoolSchema.NAME).getValue());
 								schoolItem.getItemProperty(SchoolSchema.PROVINCE_ID).setValue(registrationBinder.getField(SchoolSchema.PROVINCE_ID).getValue());
+								schoolItem.getItemProperty(SchoolSchema.CONTACT_EMAIL).setValue(userBinder.getField(UserSchema.EMAIL).getValue());
 								initSchoolFieldGroup();
 								registrationBinder.commit();
 								schoolContainer.commit();
@@ -576,7 +577,8 @@ public class LoginView extends VerticalLayout{
 						Integer.parseInt(userItem.getItemProperty(UserSchema.USER_ID).getValue().toString()),
 						schoolItem.getItemProperty(SchoolSchema.NAME).getValue(),
 						userItem.getItemProperty(UserSchema.FIRSTNAME).getValue(),
-						userItem.getItemProperty(UserSchema.EMAIL).getValue());
+						schoolItem.getItemProperty(SchoolSchema.CONTACT_EMAIL).getValue());
+				
 				ui.setContent(new SchoolOSView());	
 				/* จำบัญชีผู้ใช้และรหัสผ่าน */
 				if(rememberPass.getValue()){

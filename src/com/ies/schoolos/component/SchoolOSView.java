@@ -23,6 +23,7 @@ import com.ies.schoolos.component.setting.SchoolView;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.UserSchema;
+import com.ies.schoolos.schema.info.StudentStudySchema;
 import com.ies.schoolos.type.Feature;
 import com.ies.schoolos.utility.BCrypt;
 import com.ies.schoolos.utility.Notification;
@@ -30,8 +31,10 @@ import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.FieldGroup;
+import com.vaadin.data.util.filter.Compare.Equal;
 import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
+import com.vaadin.data.validator.EmailValidator;
 import com.vaadin.event.LayoutEvents.LayoutClickEvent;
 import com.vaadin.event.LayoutEvents.LayoutClickListener;
 import com.vaadin.server.FontAwesome;
@@ -62,7 +65,8 @@ public class SchoolOSView extends HorizontalSplitPanel{
 	private static final long serialVersionUID = 1L;
 	
 	private boolean isSplit = true;
-
+	private boolean isFirstTimeStudent = true;
+	
 	private String passwordHash = null;
 	private Item userItem = null;
 	
@@ -90,18 +94,30 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		buildMainLayout();
 		 /* กรณี ไม่มี Permission เลยให้แสดงข้อมูลส่วนตัว */
         if(currentComponent == null){
-        	if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("0"))
+        	
+			if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("0"))
         		initComponent(new SchoolView());
         	else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("1"))
         		initComponent(new EditPersonnelView(userItem.getItemProperty(UserSchema.REF_USER_ID).getValue()));
-        	else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("2"))
-        		initComponent(new EditStudentView(userItem.getItemProperty(UserSchema.REF_USER_ID).getValue(),false));
+        	else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("2")){
+        		if(! (boolean) userItem.getItemProperty(UserSchema.IS_EDITED).getValue()){
+        			isFirstTimeStudent = true;
+        			initUserLayout();
+        			initialDataBinding();
+        		}else{
+        			isFirstTimeStudent = false;
+        			SQLContainer studyContainer = Container.getStudentStudyContainer();
+            		studyContainer.addContainerFilter(new Equal(StudentStudySchema.STUDENT_ID,userItem.getItemProperty(UserSchema.REF_USER_ID).getValue()));           		
+        			initComponent(new EditStudentView(studyContainer.getIdByIndex(0),false));
+        		}
+        	}
         }
 	}
 	
 	private void buildMainLayout(){
 		userItem = userContainer.getItem(new RowId(SessionSchema.getUserID()));
-		permissions = userItem.getItemProperty(UserSchema.PERMISSION).getValue().toString().split(",");
+		if(userItem.getItemProperty(UserSchema.PERMISSION).getValue() != null)
+			permissions = userItem.getItemProperty(UserSchema.PERMISSION).getValue().toString().split(",");
 
 		setSizeFull();
         setSplitPosition(200, Unit.PIXELS);
@@ -334,14 +350,16 @@ public class SchoolOSView extends HorizontalSplitPanel{
 					initUserInfoLayout();
 				}
 			});	
-			menuItem.addItem("ข้อมูลการศึกษา", null, new Command() {
-				private static final long serialVersionUID = 1L;
+			if(!userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("2")){
+				menuItem.addItem("ข้อมูลการศึกษา", null, new Command() {
+					private static final long serialVersionUID = 1L;
 
-				@Override
-				public void menuSelected(MenuItem selectedItem) {
-					initUserGraduatedHistoryLayout();
-				}
-			});	
+					@Override
+					public void menuSelected(MenuItem selectedItem) {
+						initUserGraduatedHistoryLayout();
+					}
+				});	
+			}
 		}
 		menuItem.addItem("ออกจากระบบ", null, new Command() {
 			private static final long serialVersionUID = 1L;
@@ -443,8 +461,9 @@ public class SchoolOSView extends HorizontalSplitPanel{
 
 		email = new TextField("อีเมล์");
 		email.setRequired(true);
-		email.setEnabled(false);
 		email.setInputPrompt("อีเมล์");
+		email.setNullRepresentation("");
+		email.addValidator(new EmailValidator("ข้อมูลไม่ถูกต้อง"));
 		schoolForm.addComponent(email);
 		
 		passwordChange = new ActiveLink();
@@ -534,14 +553,24 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		userSave.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 1L;
 
+			@SuppressWarnings("unchecked")
 			@Override
 			public void buttonClick(ClickEvent event) {
 				try {
 					if(userBinder.isValid()){
+						if(isFirstTimeStudent){
+							userItem.getItemProperty(UserSchema.IS_EDITED).setValue(true);
+							isFirstTimeStudent = false;
+							SQLContainer studyContainer = Container.getStudentStudyContainer();
+		            		studyContainer.addContainerFilter(new Equal(StudentStudySchema.STUDENT_ID,userItem.getItemProperty(UserSchema.REF_USER_ID).getValue()));
+							initComponent(new EditStudentView(studyContainer.getIdByIndex(0),false));
+						}
 						userBinder.commit();
 						userContainer.commit();
 						email.setReadOnly(true);
+						
 						Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
+						
 					}else{
 						Notification.show("กรุณากรอกข้อมูลให้ครบถ้วน", Type.WARNING_MESSAGE);
 					}
@@ -584,7 +613,13 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		userBinder.bind(lastname, UserSchema.LASTNAME);
 		userBinder.bind(email, UserSchema.EMAIL);
 		
-		email.setReadOnly(true);
+		if(isFirstTimeStudent){
+			email.setValue(null);
+			email.setReadOnly(false);
+		}else{
+			email.setReadOnly(true);
+		}
+		
 	}
 	
 	/* ออกจากระบบ */
@@ -615,14 +650,14 @@ public class SchoolOSView extends HorizontalSplitPanel{
 	}
 	
 	private void setPermission(int index, Button button, Class<?> clazz){
-		if(permissions[index].equals("0")){
-			button.setVisible(false);
-		}else{
-			try {
+		if(permissions != null){
+			if(permissions[index].equals("0")){
+				button.setVisible(false);
+			}else{
 				button.setVisible(true);
-			}catch (Exception e) {
-				e.printStackTrace();
 			}
+		}else{
+			button.setVisible(false);
 		}
 	}
 }

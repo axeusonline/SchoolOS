@@ -11,6 +11,8 @@ import com.ies.schoolos.schema.info.StudentSchema;
 import com.ies.schoolos.schema.info.StudentStudySchema;
 import com.ies.schoolos.type.Prename;
 import com.vaadin.data.Item;
+import com.vaadin.data.Container.ItemSetChangeEvent;
+import com.vaadin.data.Container.ItemSetChangeListener;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Alignment;
@@ -68,7 +70,14 @@ public class StudentBehaviorView extends VerticalLayout {
 		table.setSizeFull();
 		table.setSelectable(true);
 		table.setFooterVisible(true);        
-		
+		table.addItemSetChangeListener(new ItemSetChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void containerItemSetChange(ItemSetChangeEvent event) {
+				setFooterData();
+			}
+		});
         table.addContainerProperty(StudentStudySchema.STUDENT_CODE, String.class, null);
 		table.addContainerProperty(StudentSchema.PRENAME, String.class, null);
 		table.addContainerProperty(StudentSchema.FIRSTNAME, String.class, null);

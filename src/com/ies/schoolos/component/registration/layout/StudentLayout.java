@@ -265,7 +265,10 @@ private static final long serialVersionUID = 1L;
 	
 	private void buildMainLayout()  {
 		Item schoolItem = schoolContainer.getItem(new RowId(SessionSchema.getSchoolID()));
-		generatedType = schoolItem.getItemProperty(SchoolSchema.STUDENT_CODE_GENERATE_TYPE).getValue().toString();
+		if(schoolItem.getItemProperty(SchoolSchema.STUDENT_CODE_GENERATE_TYPE).getValue() != null)
+			generatedType = schoolItem.getItemProperty(SchoolSchema.STUDENT_CODE_GENERATE_TYPE).getValue().toString();
+		else
+			generatedType = "1";
 		
 		setWidth("100%");
 		setHeight("100%");
@@ -571,7 +574,6 @@ private static final long serialVersionUID = 1L;
 		studentCode = new TextField("รหัสประจำตัว");
 		studentCode.setInputPrompt("รหัสประจำตัว");
 		studentCode.setImmediate(false);
-		studentCode.setEnabled(false);
 		studentCode.setWidth("-1px");
 		studentCode.setHeight("-1px");
 		studentCode.setNullRepresentation("");
@@ -2553,9 +2555,9 @@ private static final long serialVersionUID = 1L;
 		StringBuilder builder = new StringBuilder();
 		builder.append(" SELECT MAX("+StudentStudySchema.STUDENT_CODE +") AS " + StudentStudySchema.STUDENT_CODE + " FROM " + StudentStudySchema.TABLE_NAME);
 		builder.append(" WHERE " + StudentStudySchema.SCHOOL_ID + "="+ SessionSchema.getSchoolID());
-		System.err.println(builder.toString());
+
 		SQLContainer freeContainer = Container.getFreeFormContainer(builder.toString(), StudentStudySchema.STUDENT_CODE);
-		if(freeContainer.size() > 0){
+		if(freeContainer.getItem(freeContainer.getIdByIndex(0)).getItemProperty(StudentStudySchema.STUDENT_CODE).getValue() != null){
 			max = Integer.parseInt(freeContainer.getItem(freeContainer.getIdByIndex(0)).getItemProperty(StudentStudySchema.STUDENT_CODE).getValue().toString());
 			max++;
 			maxCode = Integer.toString(max);
@@ -2581,9 +2583,12 @@ private static final long serialVersionUID = 1L;
 		siblingQty.setRequired(true);
 		siblingSequence.setRequired(true);
 		siblingInSchoolQty.setRequired(true);
-		classRange.setRequired(true);
-		if(generatedType.equals("0"))
+
+		if(generatedType.equals("0")){
+			classRange.setRequired(true);
 			autoGenerate.setRequired(true);
+		}
+		
 		studentCode.setRequired(true);
 		studentStatus.setRequired(true);
 		studentComeWith.setRequired(true);

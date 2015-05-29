@@ -1,31 +1,34 @@
 package com.ies.schoolos.component.admin;
 
 import org.tepi.filtertable.FilterTable;
-import org.vaadin.activelink.ActiveLink;
-import org.vaadin.activelink.ActiveLink.LinkActivatedEvent;
-import org.vaadin.activelink.ActiveLink.LinkActivatedListener;
 
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
+import com.ies.schoolos.schema.CreateModifiedSchema;
+import com.ies.schoolos.schema.SchoolSchema;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.UserSchema;
 import com.ies.schoolos.schema.info.PersonnelSchema;
+import com.ies.schoolos.type.Feature;
 import com.ies.schoolos.type.Prename;
-import com.ies.schoolos.type.UserStatus;
 import com.ies.schoolos.type.dynamic.JobPosition;
+import com.ies.schoolos.utility.BCrypt;
+import com.ies.schoolos.utility.EmailSender;
+import com.vaadin.data.Item;
 import com.vaadin.data.Container.ItemSetChangeEvent;
 import com.vaadin.data.Container.ItemSetChangeListener;
-import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.util.filter.Compare.Equal;
+import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.validator.EmailValidator;
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
@@ -33,18 +36,18 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Notification.Type;
 
-public class UserManagerView extends VerticalLayout {
+public class PerseonnelUserManagerView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 	
-	private boolean isPassEdited = false;
-	private Item userItem;
-	private String passwordHashed = "";
+	private Object personnelId;
 	
 	private SQLContainer freeContainer;
 	private SQLContainer userContainer = Container.getUserContainer();
@@ -58,12 +61,11 @@ public class UserManagerView extends VerticalLayout {
 	private TextField firstname;
 	private TextField lastname;
 	private TextField email;
-	private ActiveLink passwordChange;
 	private PasswordField password;
 	private PasswordField passwordAgain;
 	private Button save;	
 	
-	public UserManagerView() {			
+	public PerseonnelUserManagerView() {			
 		setSizeFull();
 		setSpacing(true);
 		setMargin(true);
@@ -91,10 +93,16 @@ public class UserManagerView extends VerticalLayout {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				if(event.getProperty().getValue() != null){
-					userItem = userContainer.getItem(event.getProperty().getValue());
-					passwordHashed = userItem.getItemProperty(UserSchema.PASSWORD).getValue().toString();
-					initFieldGroup();
-					setHidePassword();
+					Item personnelItem = freeContainer.getItem(event.getProperty().getValue());
+					
+					personnelId = event.getProperty().getValue();
+					firstname.setValue(personnelItem.getItemProperty(PersonnelSchema.FIRSTNAME).getValue().toString());
+					lastname.setValue(personnelItem.getItemProperty(PersonnelSchema.LASTNAME).getValue().toString());
+					
+					if(personnelItem.getItemProperty(PersonnelSchema.EMAIL).getValue() != null)
+						email.setValue(personnelItem.getItemProperty(PersonnelSchema.EMAIL).getValue().toString());
+					password.setValue(personnelItem.getItemProperty(PersonnelSchema.PEOPLE_ID).getValue().toString());
+					passwordAgain.setValue(personnelItem.getItemProperty(PersonnelSchema.PEOPLE_ID).getValue().toString());
 				}
 			}
 		});
@@ -111,7 +119,6 @@ public class UserManagerView extends VerticalLayout {
 		table.addContainerProperty(PersonnelSchema.FIRSTNAME, String.class, null);
 		table.addContainerProperty(PersonnelSchema.LASTNAME, String.class, null);
 		table.addContainerProperty(PersonnelSchema.JOB_POSITION_ID, String.class, null);
-		table.addContainerProperty(UserSchema.STATUS, String.class, null);
 		
 		table.setFilterDecorator(new TableFilterDecorator());
 		table.setFilterGenerator(new TableFilterGenerator());
@@ -182,25 +189,9 @@ public class UserManagerView extends VerticalLayout {
 		});
 		userForm.addComponent(email);
 		
-		passwordChange = new ActiveLink();
-		passwordChange.setCaption("เปลี่ยนรหัสผ่าน");
-		passwordChange.addListener(new LinkActivatedListener() {
-            private static final long serialVersionUID = -7680743472997645381L;
-
-            public void linkActivated(LinkActivatedEvent event) {
-            	if(!isPassEdited){
-            		setShowPassword();
-            	}else{
-            		setHidePassword();
-            	}
-            }
-        });
-		userForm.addComponent(passwordChange);
-		
 		password = new PasswordField("รหัสผ่าน");
 		password.setWidth("90%");
 		password.setInputPrompt("รหัสผ่าน");
-		password.setVisible(false);
 		password.setStyleName("input-form");
 		password.setNullRepresentation("");
 		userForm.addComponent(password);
@@ -208,7 +199,6 @@ public class UserManagerView extends VerticalLayout {
 		passwordAgain = new PasswordField("รหัสผ่านอีกครั้ง");
 		passwordAgain.setWidth("90%");
 		passwordAgain.setInputPrompt("รหัสผ่าน");
-		passwordAgain.setVisible(false);
 		passwordAgain.setStyleName("input-form");
 		passwordAgain.setNullRepresentation("");
 		userForm.addComponent(passwordAgain);
@@ -249,28 +239,28 @@ public class UserManagerView extends VerticalLayout {
 		table.setColumnHeader(PersonnelSchema.FIRSTNAME, "ชื่อ");
 		table.setColumnHeader(PersonnelSchema.LASTNAME, "สกุล");
 		table.setColumnHeader(PersonnelSchema.JOB_POSITION_ID, "ตำแหน่ง");
-		table.setColumnHeader(UserSchema.STATUS, "สถานะ");
 		
 		table.setVisibleColumns(
 				PersonnelSchema.PERSONNEL_CODE, 
 				PersonnelSchema.PRENAME,
 				PersonnelSchema.FIRSTNAME, 
 				PersonnelSchema.LASTNAME,
-				PersonnelSchema.JOB_POSITION_ID,
-				UserSchema.STATUS);
+				PersonnelSchema.JOB_POSITION_ID);
 		
 	}
 	
 	private void fetchData(){
 		StringBuilder builder = new StringBuilder();
-		builder.append(" SELECT * FROM " + UserSchema.TABLE_NAME + " u");
-		builder.append(" INNER JOIN " + PersonnelSchema.TABLE_NAME + " p ON p."+PersonnelSchema.PERSONNEL_ID + "= u."+UserSchema.REF_USER_ID);
-		builder.append(" WHERE u." + UserSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
-		builder.append(" AND " + UserSchema.REF_USER_TYPE + "= 1");
+		builder.append(" SELECT * FROM " + PersonnelSchema.TABLE_NAME);
+		builder.append(" WHERE " + PersonnelSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
+		builder.append(" AND " + PersonnelSchema.PERSONNEL_ID + " NOT IN (");
+		builder.append(" SELECT " + UserSchema.REF_USER_ID + " FROM " + UserSchema.TABLE_NAME);
+		builder.append(" WHERE " + UserSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
+		builder.append(" AND " + UserSchema.REF_USER_TYPE + "=" + 1 + ")");
 		
 		table.removeAllItems();
 		
-		freeContainer = Container.getFreeFormContainer(builder.toString(), UserSchema.USER_ID);
+		freeContainer = Container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
 		for(final Object itemId:freeContainer.getItemIds()){
 			Item item = freeContainer.getItem(itemId);
 						
@@ -279,8 +269,7 @@ public class UserManagerView extends VerticalLayout {
 				Prename.getNameTh((int)item.getItemProperty(PersonnelSchema.PRENAME).getValue()),
 				item.getItemProperty(PersonnelSchema.FIRSTNAME).getValue(),
 				item.getItemProperty(PersonnelSchema.LASTNAME).getValue(),
-				jContainer.getItem(item.getItemProperty(PersonnelSchema.JOB_POSITION_ID).getValue()).getItemProperty("name").getValue().toString(),	
-				UserStatus.getNameTh(Integer.parseInt(item.getItemProperty(UserSchema.STATUS).getValue().toString())),				
+				jContainer.getItem(item.getItemProperty(PersonnelSchema.JOB_POSITION_ID).getValue()).getItemProperty("name").getValue().toString(),				
 			}, itemId);
 		}
 	}
@@ -292,7 +281,7 @@ public class UserManagerView extends VerticalLayout {
 	
 	/* จัดกลุ่มของ ฟอร์มในการแก้ไข - เพิ่ม ข้อมูล */
 	private void initFieldGroup(){		
-		userBinder = new FieldGroup(userItem);
+		userBinder = new FieldGroup();
 		userBinder.setBuffered(true);
 		userBinder.bind(firstname, UserSchema.FIRSTNAME);
 		userBinder.bind(lastname, UserSchema.LASTNAME);
@@ -301,11 +290,56 @@ public class UserManagerView extends VerticalLayout {
 	}	
 	
 	/* กำหนดค่าภายใน FieldGroup ไปยัง Item */
+	@SuppressWarnings({ "unchecked"})
 	private boolean saveFormData(){
-		try {			
-			userBinder.commit();
+		try {				
+			/* เพิ่มข้อมูล */
+			Object tmpItem = userContainer.addItem();
+			Item item = userContainer.getItem(tmpItem);
+
+			item.getItemProperty(UserSchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
+			item.getItemProperty(UserSchema.FIRSTNAME).setValue(firstname.getValue());
+			item.getItemProperty(UserSchema.LASTNAME).setValue(lastname.getValue());
+			item.getItemProperty(UserSchema.EMAIL).setValue(email.getValue());
+			item.getItemProperty(UserSchema.PASSWORD).setValue(BCrypt.hashpw(password.getValue(), BCrypt.gensalt()));
+			item.getItemProperty(UserSchema.STATUS).setValue(0);
+			item.getItemProperty(UserSchema.REF_USER_ID).setValue(Integer.parseInt(personnelId.toString()));
+			item.getItemProperty(UserSchema.REF_USER_TYPE).setValue(1);
+			Feature.setPermission(item, false);
+			CreateModifiedSchema.setCreateAndModified(item);
 			userContainer.commit();
-			setHidePassword();
+			
+			final Window window = new Window("รหัสเข้าใช้ระบบ กรุณาจดบันทึก");
+			window.setWidth("400px");
+			window.setHeight("150px");
+			window.center();
+			UI.getCurrent().addWindow(window);
+			
+			VerticalLayout labelLayout = new VerticalLayout();
+			labelLayout.setWidth("100%");
+			labelLayout.setMargin(true);
+			window.setContent(labelLayout);
+			
+			StringBuilder builder = new StringBuilder();
+			String schoolName = "";
+			if(SessionSchema.getSchoolName() == null){
+				Item schoolItem = Container.getSchoolContainer().getItem(new RowId(SessionSchema.getSchoolID()));
+				schoolName += schoolItem.getItemProperty(SchoolSchema.NAME).getValue().toString();
+			}else{
+				schoolName = SessionSchema.getSchoolName().toString();
+			}
+			
+			builder.append(schoolName + "<br/>");
+			builder.append("ชื่อ-สกุล :" + firstname.getValue() + " " + lastname.getValue() + "<br/>");
+			builder.append("บัญชีผู้ใช้ :" + email.getValue() + "<br/>");
+			builder.append("รหัสผ่าน:" + password.getValue());
+			
+			Label username = new Label(builder.toString());
+			username.setContentMode(ContentMode.HTML);
+			labelLayout.addComponent(username);
+			
+			sendEmail(email.getValue(), firstname.getValue() + " " + lastname.getValue(), email.getValue(), password.getValue());
+			
 			return true;
 		} catch (Exception e) {
 			Notification.show("บันทึกไม่สำเร็จ", Type.WARNING_MESSAGE);
@@ -314,19 +348,25 @@ public class UserManagerView extends VerticalLayout {
 		}
 	}
 	
-	private void setShowPassword(){
-		isPassEdited = true;
-		password.setValue(null);
-		passwordAgain.setValue(null);
-    	password.setVisible(true);
-    	passwordAgain.setVisible(true);
-	}
-	
-	private void setHidePassword(){
-		isPassEdited = false;
-		password.setValue(passwordHashed);
-		passwordAgain.setValue(passwordHashed);
-    	password.setVisible(false);
-    	passwordAgain.setVisible(false);
+	/* ส่งอีเมล์ใบสมัคร */
+	private void sendEmail(String email,String person, String username, String password){
+		String subject = "บัญชีผู้ใช้งาน SchoolOS";
+		StringBuilder description = new StringBuilder();
+		description.append("เรียนคุณ " + person);
+		description.append(System.getProperty("line.separator"));
+		description.append("ทางครอบครัว SchoolOS ได้ทำการจัดส่งบัญชีผู้ใช้จากการตั้งค่าของ เจ้าหน้าที่ IT โรงเรียน โดยรายละเอียดการเข้าใช้อธิบายดังข้างล่างนี้");
+		description.append(System.getProperty("line.separator"));
+		description.append("บัญชี:" + username);
+		description.append(System.getProperty("line.separator"));
+		description.append("รหัสผ่าน:" + password);
+		description.append(System.getProperty("line.separator"));
+		description.append("ทั้งนี้หากมีข้อสงสัยกรุณาส่งกลับที่ " + SessionSchema.getEmail());
+		description.append(System.getProperty("line.separator"));
+		description.append("ด้วยความเคารพ");
+		description.append(System.getProperty("line.separator"));
+		description.append("ครอบครัว SchoolOS");
+		
+		
+		new EmailSender(email,subject,description.toString(),null, null);	   
 	}
 }

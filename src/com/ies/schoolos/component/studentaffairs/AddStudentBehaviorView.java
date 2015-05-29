@@ -19,6 +19,8 @@ import com.ies.schoolos.schema.studentaffairs.StudentBehaviorSchema;
 import com.ies.schoolos.type.dynamic.Behavior;
 import com.ies.schoolos.utility.Notification;
 import com.vaadin.data.Item;
+import com.vaadin.data.Container.ItemSetChangeEvent;
+import com.vaadin.data.Container.ItemSetChangeListener;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.sqlcontainer.RowId;
@@ -108,7 +110,14 @@ public class AddStudentBehaviorView extends VerticalLayout {
 				}
 			}
 		});
+		studentBehaviorTable.addItemSetChangeListener(new ItemSetChangeListener() {
+			private static final long serialVersionUID = 1L;
 
+			@Override
+			public void containerItemSetChange(ItemSetChangeEvent event) {
+				setFooterData();
+			}
+		});
 		studentBehaviorTable.addContainerProperty(BehaviorSchema.NAME, String.class, null);
 		studentBehaviorTable.addContainerProperty(StudentBehaviorSchema.SCORE, Double.class, null);
 		studentBehaviorTable.addContainerProperty(StudentBehaviorSchema.DATE, Date.class, null);
@@ -355,7 +364,7 @@ public class AddStudentBehaviorView extends VerticalLayout {
 			                			studentBehaviorContainer.commit();
 			                			setFooterData();		                			
 									}catch (Exception e1) {
-										Notification.show("บันทึกไม่สำเร็จ กรุณาลองอีกครั้ง" , Type.WARNING_MESSAGE);
+										Notification.show("ลบข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง" , Type.WARNING_MESSAGE);
 										e1.printStackTrace();
 									}
 			                	}

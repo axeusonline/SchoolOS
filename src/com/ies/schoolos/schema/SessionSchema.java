@@ -14,6 +14,7 @@ public class SessionSchema implements java.io.Serializable{
 	
 	public static void setSession(Object schoolId, Object userId,
 			Object schoolName, Object firstname, Object email){
+		
 		UI.getCurrent().getSession().setAttribute(SCHOOL_ID, schoolId);
 		UI.getCurrent().getSession().setAttribute(USER_ID, userId);
 		UI.getCurrent().getSession().setAttribute(SCHOOL_NAME, schoolName);
@@ -31,10 +32,6 @@ public class SessionSchema implements java.io.Serializable{
 	
 	public static Object getUserID(){
 		return UI.getCurrent().getSession().getAttribute(USER_ID);
-	}
-	
-	public static void setSchoolName(Object schoolName){
-		UI.getCurrent().getSession().setAttribute(SCHOOL_NAME, schoolName);
 	}
 	
 	public static Object getSchoolName(){

@@ -11,6 +11,8 @@ import com.ies.schoolos.schema.CreateModifiedSchema;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.fundamental.BuildingSchema;
 import com.vaadin.data.Item;
+import com.vaadin.data.Container.ItemSetChangeEvent;
+import com.vaadin.data.Container.ItemSetChangeListener;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.FieldGroup;
@@ -90,7 +92,14 @@ public class BuildingView extends ContentPage{
 				}
 			}
 		});
-		
+		table.addItemSetChangeListener(new ItemSetChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void containerItemSetChange(ItemSetChangeEvent event) {
+				setFooterData();
+			}
+		});
 		table.setFilterDecorator(new TableFilterDecorator());
 		table.setFilterGenerator(new TableFilterGenerator());
         table.setFilterBarVisible(true);
@@ -234,7 +243,7 @@ public class BuildingView extends ContentPage{
 										bContainer.commit();
 										setFooterData();
 									} catch (Exception e) {
-										Notification.show("ลบข้อมูลไม่สำเร็จ", Type.WARNING_MESSAGE);
+										Notification.show("ลบข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", Type.WARNING_MESSAGE);
 										e.printStackTrace();
 									}
 			                	}

@@ -40,6 +40,8 @@ import com.ies.schoolos.type.dynamic.JobPosition;
 import com.ies.schoolos.utility.Notification;
 import com.vaadin.addon.tableexport.TemporaryFileDownloadResource;
 import com.vaadin.data.Item;
+import com.vaadin.data.Container.ItemSetChangeEvent;
+import com.vaadin.data.Container.ItemSetChangeListener;
 import com.vaadin.data.util.filter.Compare.Equal;
 import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
@@ -188,7 +190,14 @@ public class PersonnelListView extends VerticalLayout {
 		table.setSizeFull();
 		table.setSelectable(true);
 		table.setFooterVisible(true);        
-		
+		table.addItemSetChangeListener(new ItemSetChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void containerItemSetChange(ItemSetChangeEvent event) {
+				setFooterData();
+			}
+		});
 		table.addContainerProperty(PersonnelSchema.PERSONNEL_CODE, String.class, null);
 		table.addContainerProperty(PersonnelSchema.PRENAME, String.class, null);
 		table.addContainerProperty(PersonnelSchema.FIRSTNAME, String.class, null);
@@ -239,9 +248,7 @@ public class PersonnelListView extends VerticalLayout {
 		pContainer.sort(new Object[]{PersonnelSchema.PERSONNEL_CODE,PersonnelSchema.DEPARTMENT_ID}, new boolean[]{true,true});
 		for(final Object itemId:pContainer.getItemIds()){
 			Item item = pContainer.getItem(itemId);
-			System.err.println(item.getItemProperty(PersonnelSchema.JOB_POSITION_ID).getValue());
-			System.err.println(jContainer.getItem(item.getItemProperty(PersonnelSchema.JOB_POSITION_ID).getValue()).getItemProperty("name").getValue().toString());
-					
+			
 			table.addItem(new Object[]{
 				item.getItemProperty(PersonnelSchema.PERSONNEL_CODE).getValue(),
 				Prename.getNameTh((int)item.getItemProperty(PersonnelSchema.PRENAME).getValue()),
@@ -313,12 +320,13 @@ public class PersonnelListView extends VerticalLayout {
 						private static final long serialVersionUID = 1L;
 						public void onClose(ConfirmDialog dialog) {
 			                if (dialog.isConfirmed()) {
+			                	table.removeItem(itemId);
 			                	if(pContainer.removeItem(itemId)){
 			                		try {
 			                			pContainer.commit();
 			                			setFooterData();
 									}catch (Exception e1) {
-										Notification.show("บันทึกไม่สำเร็จ กรุณาลองอีกครั้ง" , Type.WARNING_MESSAGE);
+										Notification.show("ลบข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง" , Type.WARNING_MESSAGE);
 										e1.printStackTrace();
 									}
 			                	}

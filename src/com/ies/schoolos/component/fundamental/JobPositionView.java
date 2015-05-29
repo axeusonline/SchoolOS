@@ -12,6 +12,8 @@ import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.fundamental.JobPositionSchema;
 import com.ies.schoolos.utility.Notification;
 import com.vaadin.data.Item;
+import com.vaadin.data.Container.ItemSetChangeEvent;
+import com.vaadin.data.Container.ItemSetChangeListener;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.FieldGroup;
@@ -55,6 +57,7 @@ public class JobPositionView extends ContentPage{
 		super("ตำแหน่ง");
 		jContainer.refresh();
 		
+		setSizeFull();
 		setSpacing(true);
 		setMargin(true);
 		fetchData();
@@ -63,10 +66,6 @@ public class JobPositionView extends ContentPage{
 	}
 	
 	private void buildMainLayout(){
-
-		setWidth("100%");
-		setHeight("-1px");
-		setSpacing(true);
 
 		jobPositionLayout = new HorizontalLayout();
 		jobPositionLayout.setSizeFull();
@@ -92,7 +91,14 @@ public class JobPositionView extends ContentPage{
 				}
 			}
 		});
-		
+		table.addItemSetChangeListener(new ItemSetChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void containerItemSetChange(ItemSetChangeEvent event) {
+				setFooterData();
+			}
+		});
 		table.setFilterDecorator(new TableFilterDecorator());
 		table.setFilterGenerator(new TableFilterGenerator());
         table.setFilterBarVisible(true);
@@ -226,7 +232,7 @@ public class JobPositionView extends ContentPage{
 										jContainer.commit();
 										setFooterData();
 									} catch (Exception e) {
-										Notification.show("ลบข้อมูลไม่สำเร็จ", Type.WARNING_MESSAGE);
+										Notification.show("ลบข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", Type.WARNING_MESSAGE);
 										e.printStackTrace();
 									}
 			                	}

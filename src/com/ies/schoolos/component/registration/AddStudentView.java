@@ -320,7 +320,6 @@ public class AddStudentView extends StudentLayout {
 				}
 				item.getItemProperty(StudentStudySchema.SCHOOL_ID).setValue(SessionSchema.getSchoolID());
 				item.getItemProperty(StudentStudySchema.STUDENT_CODE).setValue(getActualStudentCode());
-				System.err.println("STUDENT CODE:" + getActualStudentCode());
 				item.getItemProperty(StudentStudySchema.STUDENT_ID).setValue(Integer.parseInt(pkStore[3].toString()));
 				CreateModifiedSchema.setCreateAndModified(item);
 			}

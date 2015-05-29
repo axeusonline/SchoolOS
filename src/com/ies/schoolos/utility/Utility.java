@@ -21,6 +21,7 @@ public class Utility {
 	public static String sortOptionGroup(Object value) {
 		String day = value.toString();
 		String[] days = day.substring(day.indexOf("[")+1, day.indexOf("]")).split(", ");
+		
 		Arrays.sort(days);
 		day = "[";
 		for (String dayObject:days) {

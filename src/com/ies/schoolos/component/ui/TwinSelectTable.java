@@ -4,6 +4,8 @@ import org.tepi.filtertable.FilterTable;
 
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
+import com.vaadin.data.Container.ItemSetChangeEvent;
+import com.vaadin.data.Container.ItemSetChangeListener;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -16,6 +18,8 @@ public class TwinSelectTable extends HorizontalLayout {
 	private static final long serialVersionUID = 1L;
 
 	private String unit = "";
+	private Object leftPropertId;
+	private Object rightPropertId;
 	
 	private FilterTable leftTable;
 	private Button add;
@@ -32,7 +36,15 @@ public class TwinSelectTable extends HorizontalLayout {
 		
 		leftTable = new FilterTable();
 		leftTable.setSizeFull();
-				
+		leftTable.addItemSetChangeListener(new ItemSetChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void containerItemSetChange(ItemSetChangeEvent event) {
+				if(leftPropertId != null)
+					setLeftCountFooter(leftPropertId);
+			}
+		});
 		addComponent(leftTable);
 		setExpandRatio(leftTable, 2);
 		
@@ -63,7 +75,15 @@ public class TwinSelectTable extends HorizontalLayout {
 		
 		rightTable = new FilterTable();
 		rightTable.setSizeFull();
-		
+		rightTable.addItemSetChangeListener(new ItemSetChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void containerItemSetChange(ItemSetChangeEvent event) {
+				if(rightPropertId != null)
+					setRightCountFooter(rightPropertId);
+			}
+		});
 		addComponent(rightTable);
 		setExpandRatio(rightTable, 2);
 	}
@@ -99,10 +119,12 @@ public class TwinSelectTable extends HorizontalLayout {
 	}
 	
 	public void setLeftCountFooter(Object propertyId){
+		this.leftPropertId = propertyId;
 		leftTable.setColumnFooter(propertyId, "ทั้งหมด: "+ leftTable.size() + " " + unit);
 	}
 	
 	public void setRightCountFooter(Object propertyId){
+		this.rightPropertId = propertyId;
 		rightTable.setColumnFooter(propertyId, "ทั้งหมด: "+ rightTable.size() + " " + unit);
 	}
 	

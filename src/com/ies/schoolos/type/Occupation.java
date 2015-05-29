@@ -7,7 +7,11 @@ public class Occupation extends IndexedContainer{
 
 	private static final long serialVersionUID = 1L;
 	
-	private static String[] aliveStatuses = {"ว่างงาน","เกษตรกรรม","รับจ้าง/ลูกจ้าง","ค้าขาย","รับราชการ","รัฐวิสาหกิจ","นักการเมือง","ทหาร/ตำรวจ","ประมง","ครู","เลี้ยงสัตว์","นักบวช/สมณะ","พ่อบ้าน/แม่บ้าน","นักเรียน"};
+	private static String[] aliveStatuses = {"ว่างงาน","เกษตรกรรม","รับจ้าง/ลูกจ้าง",
+		"ค้าขาย","รับราชการ","รัฐวิสาหกิจ",
+		"นักการเมือง","ทหาร/ตำรวจ","ประมง",
+		"ครู","เลี้ยงสัตว์","นักบวช/สมณะ",
+		"พ่อบ้าน/แม่บ้าน","นักเรียน","อื่น ๆ"};
 			
 	public Occupation() {
 		initContainer();

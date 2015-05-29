@@ -564,3 +564,12 @@ UPDATE personnel SET department = department+1;
 UPDATE personnel SET job_position = job_position+1;
 
 ALTER TABLE `personnel` CHANGE `job_position` `job_position_id` INT(11) NULL DEFAULT NULL COMMENT 'ตำแหน่ง', CHANGE `department` `department_id` INT(11) NULL DEFAULT NULL COMMENT 'แผนก';
+
+/*
+ * Description : สถานะการแก้ไข
+ * Date : 25/05/2014
+ * */
+ALTER TABLE `user` ADD `is_edited` BOOLEAN NULL COMMENT 'สถานะการแก้ไข Username' AFTER `permission`;
+ALTER TABLE `family` CHANGE `people_id` `people_id` VARCHAR(16) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT 'หมายเลขประจำตัวประชาชน', CHANGE `people_id_type` `people_id_type` TINYINT(4) NULL COMMENT '*Fix ประเภทหมายเลขประจำตัว';
+ALTER TABLE `school` ADD `contact_email` VARCHAR(100) NOT NULL AFTER `province_id`;
+UPDATE school s INNER JOIN user u ON s.school_id = u.school_id SET s.contact_email = u.email WHERE u.ref_user_type = 0;

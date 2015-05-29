@@ -4,8 +4,10 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
 import com.ies.schoolos.component.admin.PermissionView;
-import com.ies.schoolos.component.admin.UserManagerView;
+import com.ies.schoolos.component.admin.PerseonnelUserManagerView;
 import com.ies.schoolos.component.admin.SignupPasswordView;
+import com.ies.schoolos.component.admin.StudentUserManagerView;
+import com.ies.schoolos.component.admin.UserManagerView;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -48,10 +50,20 @@ public class AdminMainView extends VerticalLayout {
 		dashboar.addComponent(permission);
 		addClickListener(permission, PermissionView.class);
 		
-		Button users = new Button("3.ผู้ใช้งาน", FontAwesome.CUBE);
+		Button users = new Button("3.บัญชีผู้ใช้", FontAwesome.CUBE);
 		users.setSizeFull();
 		dashboar.addComponent(users);
 		addClickListener(users, UserManagerView.class);
+		
+		Button personnel = new Button("4.ผู้ใช้งาน (เจ้าหน้าที่)", FontAwesome.CUBE);
+		personnel.setSizeFull();
+		dashboar.addComponent(personnel);
+		addClickListener(personnel, PerseonnelUserManagerView.class);
+		
+		Button userStudent = new Button("5.ผู้ใช้งาน (นักเรียน)", FontAwesome.CUBE);
+		userStudent.setSizeFull();
+		dashboar.addComponent(userStudent);
+		addClickListener(userStudent, StudentUserManagerView.class);
 		
 		tabSheet = new TabSheet();
 		tabSheet.setWidth("95%");

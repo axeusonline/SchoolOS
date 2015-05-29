@@ -3,6 +3,8 @@ package com.ies.schoolos;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Cookie;
 
+import org.vaadin.googleanalytics.tracking.GoogleAnalyticsTracker;
+
 import com.ies.schoolos.component.SchoolOSView;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.SchoolSchema;
@@ -25,6 +27,7 @@ import com.vaadin.ui.UI;
 @Theme("schoolos")
 public class SchoolOSUI extends UI {
 
+	
 	private SQLContainer schoolContainer = Container.getSchoolContainer();
 	private SQLContainer userContainer = Container.getUserContainer();
 	
@@ -35,6 +38,10 @@ public class SchoolOSUI extends UI {
 
 	@Override
 	protected void init(VaadinRequest request) {
+		GoogleAnalyticsTracker tracker = new GoogleAnalyticsTracker("UA-63545885-1","schoolosplus.com");
+		tracker.extend(this);
+		tracker.trackPageview("/samplecode/googleanalytics");
+		
 		getUrlParameter();
 		autoLogin();
 	}
@@ -46,12 +53,12 @@ public class SchoolOSUI extends UI {
 		if(!path.equals("")){
 			schoolContainer.addContainerFilter(new Equal(SchoolSchema.SHORT_URL,path));
 			if(schoolContainer.size() > 0){
-				SessionSchema.setSchoolId(Integer.parseInt(schoolContainer.getIdByIndex(0).toString()));
+				Item item = schoolContainer.getItem(schoolContainer.getIdByIndex(0));
+				SessionSchema.setSchoolId(Integer.parseInt(item.getItemProperty(SchoolSchema.SCHOOL_ID).getValue().toString()));
+				SessionSchema.setEmail(item.getItemProperty(SchoolSchema.CONTACT_EMAIL).getValue().toString());
 			}
 			//ลบ WHERE ออกจาก Query เพื่อป้องกันการค้างของคำสั่่งจากการทำงานอื่นที่เรียกตัวแปรไปใช้
 			schoolContainer.removeAllContainerFilters();
-		}else{
-			getSession().setAttribute(SessionSchema.SCHOOL_ID, null);
 		}
 	}
 	
@@ -62,8 +69,7 @@ public class SchoolOSUI extends UI {
 
 		if(email == null && password == null){
 			if(SessionSchema.getUserID() != null){
-				setContent(new SchoolOSView());
-				System.err.println(SessionSchema.getUserID()+","+SessionSchema.getSchoolID()+","+SessionSchema.getFirstname());
+				setContent(new SchoolOSView());				
 			}else{
 				setContent(new LoginView());
 			}
@@ -71,7 +77,7 @@ public class SchoolOSUI extends UI {
 			userContainer.addContainerFilter(new And(
 					new Equal(UserSchema.EMAIL,email.getValue()),
 					new Equal(UserSchema.PASSWORD,password.getValue())));
-
+			System.err.println("COOKIE Email:" + email.getValue() + ",COOKIE Pass:" + password.getValue());
 			if(userContainer.size() != 0){
 				Item item = userContainer.getItem(userContainer.getIdByIndex(0));
 				Item schoolItem = schoolContainer.getItem(new RowId(item.getItemProperty(UserSchema.SCHOOL_ID).getValue()));
@@ -80,7 +86,7 @@ public class SchoolOSUI extends UI {
 						Integer.parseInt(item.getItemProperty(UserSchema.USER_ID).getValue().toString()),
 						schoolItem.getItemProperty(SchoolSchema.NAME).getValue(),
 						item.getItemProperty(UserSchema.FIRSTNAME).getValue(),
-						item.getItemProperty(UserSchema.EMAIL).getValue());
+						schoolItem.getItemProperty(SchoolSchema.CONTACT_EMAIL).getValue());
 				setContent(new SchoolOSView());
 			}else{
 				setContent(new LoginView());
@@ -92,6 +98,7 @@ public class SchoolOSUI extends UI {
 	private Cookie getCookieByName(String name){
 		Cookie cookie = null;
 		for(Cookie object:VaadinService.getCurrentRequest().getCookies()){
+			System.err.println("COOKIE:" + object.getName());
 			 if(object.getName().equals(name)) {
 				 cookie = object;  
 		    }

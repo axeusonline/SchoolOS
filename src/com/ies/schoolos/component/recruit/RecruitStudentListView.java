@@ -19,6 +19,8 @@ import com.ies.schoolos.type.Prename;
 import com.ies.schoolos.utility.DateTimeUtil;
 import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
+import com.vaadin.data.Container.ItemSetChangeEvent;
+import com.vaadin.data.Container.ItemSetChangeListener;
 import com.vaadin.data.util.filter.And;
 import com.vaadin.data.util.filter.Compare.Equal;
 import com.vaadin.data.util.filter.Compare.Greater;
@@ -140,7 +142,14 @@ public class RecruitStudentListView extends VerticalLayout{
 		table = new FilterTable();
 		table.setSelectable(true);
 		table.setFooterVisible(true);        
-		
+		table.addItemSetChangeListener(new ItemSetChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void containerItemSetChange(ItemSetChangeEvent event) {
+				setFooterData();
+			}
+		});
 		table.setFilterDecorator(new TableFilterDecorator());
 		table.setFilterGenerator(new TableFilterGenerator());
         table.setFilterBarVisible(true);
@@ -265,7 +274,7 @@ public class RecruitStudentListView extends VerticalLayout{
 
 					                	setFooterData();
 									}catch (Exception e1) {
-										Notification.show("บันทึกไม่สำเร็จ กรุณาลองอีกครั้ง" , Type.WARNING_MESSAGE);
+										Notification.show("ลบข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง" , Type.WARNING_MESSAGE);
 										e1.printStackTrace();
 									}
 			                		

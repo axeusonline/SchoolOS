@@ -12,6 +12,8 @@ import com.ies.schoolos.schema.info.StudentStudySchema;
 import com.ies.schoolos.type.Prename;
 import com.ies.schoolos.utility.Notification;
 import com.vaadin.data.Item;
+import com.vaadin.data.Container.ItemSetChangeEvent;
+import com.vaadin.data.Container.ItemSetChangeListener;
 import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.server.FontAwesome;
@@ -102,7 +104,14 @@ public class StudentListView extends VerticalLayout {
 		table.setSizeFull();
 		table.setSelectable(true);
 		table.setFooterVisible(true);        
-		
+		table.addItemSetChangeListener(new ItemSetChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void containerItemSetChange(ItemSetChangeEvent event) {
+				setFooterData();
+			}
+		});
         table.addContainerProperty(StudentStudySchema.STUDENT_CODE, String.class, null);
 		table.addContainerProperty(StudentSchema.PRENAME, String.class, null);
 		table.addContainerProperty(StudentSchema.FIRSTNAME, String.class, null);
@@ -147,7 +156,7 @@ public class StudentListView extends VerticalLayout {
 		builder.append(" WHERE ss." + StudentSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		builder.append(" AND ( ss." + StudentStudySchema.STUDENT_STATUS + "=" + 0);
 		builder.append(" OR ss." + StudentStudySchema.STUDENT_STATUS + "=" + 2 + ")");
-		System.err.println(builder.toString());
+		
 		freeContainer = Container.getFreeFormContainer(builder.toString(), StudentStudySchema.STUDENT_STUDY_ID);
 		for(final Object itemId:freeContainer.getItemIds()){
 			Item item = freeContainer.getItem(itemId);
@@ -196,7 +205,7 @@ public class StudentListView extends VerticalLayout {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				ConfirmDialog.show(UI.getCurrent(), "ลบนักเรียน","การลบข้อมูลจะส่งผลต่อข้อมูลประวัติการทำงาน และการสอนทั้งหมด คุณต้องการลบนักเรียนนี้ใช่หรือไม่?","ตกลง","ยกเลิก",
+				ConfirmDialog.show(UI.getCurrent(), "ลบนักเรียน","การลบข้อมูลจะส่งผลต่อข้อมูลการเรียน  คุณต้องการลบนักเรียนนี้ใช่หรือไม่?","ตกลง","ยกเลิก",
 			        new ConfirmDialog.Listener() {
 						private static final long serialVersionUID = 1L;
 						public void onClose(ConfirmDialog dialog) {
@@ -217,7 +226,7 @@ public class StudentListView extends VerticalLayout {
 			                			}
 			                			
 									}catch (Exception e1) {
-										Notification.show("บันทึกไม่สำเร็จ กรุณาลองอีกครั้ง" , Type.WARNING_MESSAGE);
+										Notification.show("ลบข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง" , Type.WARNING_MESSAGE);
 										e1.printStackTrace();
 									}
 			                	}

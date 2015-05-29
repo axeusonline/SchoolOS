@@ -50,6 +50,14 @@ public class Feature extends IndexedContainer{
 		item.getItemProperty(UserSchema.PERMISSION).setValue(value.substring(0, value.length()-1));
 	}
 	
+	public static String getPermission(){
+		String permission = "0";
+		String value = "";
+		for(int i = 0; i < features.length; i++){
+			value += permission+",";
+		}
+		return value.substring(0, value.length()-1);
+	}
 	/*public static String getNameEn(int index){
 		return features[index];
 	}*/

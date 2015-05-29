@@ -12,6 +12,8 @@ import com.ies.schoolos.type.ClassRange;
 import com.ies.schoolos.type.Prename;
 import com.ies.schoolos.utility.DateTimeUtil;
 import com.vaadin.data.Item;
+import com.vaadin.data.Container.ItemSetChangeEvent;
+import com.vaadin.data.Container.ItemSetChangeListener;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.FieldGroup;
@@ -86,6 +88,14 @@ private static final long serialVersionUID = 1L;
 					initFieldGroup();
 					setEditMode();
 				}
+			}
+		});
+		table.addItemSetChangeListener(new ItemSetChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void containerItemSetChange(ItemSetChangeEvent event) {
+				setFooterData();
 			}
 		});
 		table.setFilterDecorator(new TableFilterDecorator());

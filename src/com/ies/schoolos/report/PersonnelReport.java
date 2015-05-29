@@ -225,8 +225,6 @@ public class PersonnelReport {
 		graduatedBuilder.append(" ORDER BY " + PersonnelGraduatedHistorySchema.YEAR);
 		graduatedBuilder.append(" LIMIT 1");
 		
-		System.err.println(graduatedBuilder.toString());
-		
 		SQLContainer freeContainer = Container.getFreeFormContainer(graduatedBuilder.toString(), PersonnelGraduatedHistorySchema.GRADUATED_HISTORY_ID);
 		if(freeContainer.size() > 1){
 			Item graduatedItem = freeContainer.getItem(freeContainer.getIdByIndex(0));

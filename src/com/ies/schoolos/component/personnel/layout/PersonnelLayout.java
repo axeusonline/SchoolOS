@@ -71,6 +71,8 @@ private static final long serialVersionUID = 1L;
 	public boolean isDuplicateMother = false;
 	public boolean isDuplicateSpouse = false;
 	
+	private String TEMP_TITLE = "(ชั่วคราว)";
+	
 	/* ที่เก็บ Id Auto Increment เมื่อมีการ Commit SQLContainer 
 	 * 0 แทนถึง id บิดา
 	 * 1 แทนถึง id มารดา
@@ -532,7 +534,7 @@ private static final long serialVersionUID = 1L;
 					if(autoGenerate.getValue() != null){
 						String personnelCodeStr = getPersonnelCode(event.getProperty().getValue().toString(), autoGenerate.getValue().toString());
 						personnelCode.setEnabled(true);
-						personnelCode.setValue(personnelCodeStr+"(ชั่วคราว)");
+						personnelCode.setValue(personnelCodeStr+TEMP_TITLE);
 						personnelCode.setEnabled(false);
 					}
 				}
@@ -548,20 +550,24 @@ private static final long serialVersionUID = 1L;
 		autoGenerate.setNullSelectionAllowed(false);
 		autoGenerate.setWidth("-1px");
 		autoGenerate.setHeight("-1px");
+		//autoGenerate.setValue(1);
 		autoGenerate.addValueChangeListener(new ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				if(event.getProperty().getValue() != null){
-					if(jobPosition.getValue() != null){
-						String personnelCodeStr = getPersonnelCode(jobPosition.getValue().toString(), event.getProperty().getValue().toString());
-						personnelCode.setEnabled(true);
-						personnelCode.setValue(personnelCodeStr+"(ชั่วคราว)");
-						personnelCode.setEnabled(false);
-					}else{
-						if(event.getProperty().getValue().equals("0"))
+					if(event.getProperty().getValue().toString().equals("0")){
+						if(jobPosition.getValue() != null){
+							String personnelCodeStr = getPersonnelCode(jobPosition.getValue().toString(), event.getProperty().getValue().toString());
+							personnelCode.setEnabled(true);
+							personnelCode.setValue(personnelCodeStr+TEMP_TITLE);
+							personnelCode.setEnabled(false);
+						}else if(event.getProperty().getValue().equals("0"))
 							Notification.show("กรุณาระบุุตำแหน่งเพื่อสร้างรหัสประจำตัวอัตโนมัติ", Type.WARNING_MESSAGE);
+					}else{
+						personnelCode.setEnabled(true);
+						personnelCode.setValue(getPersonnelCode(null, "1"));
 					}
 				}
 					
@@ -945,6 +951,7 @@ private static final long serialVersionUID = 1L;
 		mobile.setImmediate(false);
 		mobile.setWidth("-1px");
 		mobile.setHeight("-1px");
+		mobile.setRequired(true);
 		mobile.setNullRepresentation("");
 		addressForm.addComponent(mobile);
 		
@@ -1198,7 +1205,6 @@ private static final long serialVersionUID = 1L;
 		fPeopleIdType.setItemCaptionPropertyId("name");
 		fPeopleIdType.setImmediate(true);
 		fPeopleIdType.setNullSelectionAllowed(false);
-		fPeopleIdType.setRequired(true);
 		fPeopleIdType.setWidth("-1px");
 		fPeopleIdType.setHeight("-1px");
 		fatherForm.addComponent(fPeopleIdType);
@@ -1206,11 +1212,11 @@ private static final long serialVersionUID = 1L;
 		fPeopleid = new TextField("หมายเลขประชาชน");
 		fPeopleid.setInputPrompt("หมายเลขประชาชน");
 		fPeopleid.setImmediate(false);
-		fPeopleid.setRequired(true);
+		//fPeopleid.setRequired(true);
 		fPeopleid.setWidth("-1px");
 		fPeopleid.setHeight("-1px");
 		fPeopleid.setNullRepresentation("");
-		fPeopleid.addValidator(new StringLengthValidator("ข้อมูลไม่ถูกต้อง", 13, 20, false));
+		//fPeopleid.addValidator(new StringLengthValidator("ข้อมูลไม่ถูกต้อง", 13, 20, true));
 		fPeopleid.addTextChangeListener(new TextChangeListener() {
 			private static final long serialVersionUID = 1L;
 
@@ -1341,7 +1347,6 @@ private static final long serialVersionUID = 1L;
 		fMobile = new TextField("มือถือ");
 		fMobile.setInputPrompt("มือถือ");
 		fMobile.setImmediate(false);
-		fMobile.setRequired(true);
 		fMobile.setWidth("-1px");
 		fMobile.setHeight("-1px");
 		fMobile.setNullRepresentation("");
@@ -1499,7 +1504,6 @@ private static final long serialVersionUID = 1L;
 		mPeopleIdType.setItemCaptionPropertyId("name");
 		mPeopleIdType.setImmediate(true);
 		mPeopleIdType.setNullSelectionAllowed(false);
-		mPeopleIdType.setRequired(true);
 		mPeopleIdType.setWidth("-1px");
 		mPeopleIdType.setHeight("-1px");
 		motherForm.addComponent(mPeopleIdType);
@@ -1507,11 +1511,10 @@ private static final long serialVersionUID = 1L;
 		mPeopleid = new TextField("หมายเลขประชาชน");
 		mPeopleid.setInputPrompt("หมายเลขประชาชน");
 		mPeopleid.setImmediate(false);
-		mPeopleid.setRequired(true);
 		mPeopleid.setWidth("-1px");
 		mPeopleid.setHeight("-1px");
 		mPeopleid.setNullRepresentation("");
-		mPeopleid.addValidator(new StringLengthValidator("ข้อมูลไม่ถูกต้อง", 13, 20, false));
+		//mPeopleid.addValidator(new StringLengthValidator("ข้อมูลไม่ถูกต้อง", 13, 20, true));
 		mPeopleid.addTextChangeListener(new TextChangeListener() {
 			private static final long serialVersionUID = 1L;
 
@@ -1641,7 +1644,6 @@ private static final long serialVersionUID = 1L;
 		mMobile = new TextField("มือถือ");
 		mMobile.setInputPrompt("มือถือ");
 		mMobile.setImmediate(false);
-		mMobile.setRequired(true);
 		mMobile.setWidth("-1px");
 		mMobile.setHeight("-1px");
 		mMobile.setNullRepresentation("");
@@ -1799,7 +1801,6 @@ private static final long serialVersionUID = 1L;
 		sPeopleIdType.setItemCaptionPropertyId("name");
 		sPeopleIdType.setImmediate(true);
 		sPeopleIdType.setNullSelectionAllowed(false);
-		sPeopleIdType.setRequired(true);
 		sPeopleIdType.setWidth("-1px");
 		sPeopleIdType.setHeight("-1px");
 		spouseForm.addComponent(sPeopleIdType);
@@ -1807,12 +1808,10 @@ private static final long serialVersionUID = 1L;
 		sPeopleid = new TextField("หมายเลขประชาชน");
 		sPeopleid.setInputPrompt("หมายเลขประชาชน");
 		sPeopleid.setImmediate(false);
-		sPeopleid.setRequired(true);
-		sPeopleid.setNullRepresentation("");
 		sPeopleid.setWidth("-1px");
 		sPeopleid.setHeight("-1px");
 		sPeopleid.setNullRepresentation("");
-		sPeopleid.addValidator(new StringLengthValidator("ข้อมูลไม่ถูกต้อง", 13, 20, false));
+		//sPeopleid.addValidator(new StringLengthValidator("ข้อมูลไม่ถูกต้อง", 13, 20, true));
 		sPeopleid.addTextChangeListener(new TextChangeListener() {
 			private static final long serialVersionUID = 1L;
 
@@ -1942,7 +1941,6 @@ private static final long serialVersionUID = 1L;
 		sMobile = new TextField("มือถือ");
 		sMobile.setInputPrompt("มือถือ");
 		sMobile.setImmediate(false);
-		sMobile.setRequired(true);
 		sMobile.setWidth("-1px");
 		sMobile.setHeight("-1px");
 		sMobile.setNullRepresentation("");
@@ -2235,9 +2233,9 @@ private static final long serialVersionUID = 1L;
 		spouseBinder.bind(sCurrentPostcode, FamilySchema.CURRENT_POSTCODE_ID);
 	}
 	
-	private String getPersonnelCode(String jobPosition, String autoGenerate){
+	private String getPersonnelCode(String jobPosition, String autoGenerateStr){
 		String personalCode;
-		if(autoGenerate.equals("0")){
+		if(autoGenerateStr.equals("0")){
 			/* รหัสเริ่มต้น 5801*/
 			personalCode = DateTimeUtil.getBuddishYear().substring(2) + jobPosition;
 			
@@ -2250,13 +2248,11 @@ private static final long serialVersionUID = 1L;
 			personalCode += "01";
 			
 			SQLContainer freeContainer = Container.getFreeFormContainer(sqlBuilder.toString(), PersonnelSchema.PERSONNEL_CODE);
-			if(freeContainer.size() > 0){
-				Item item = freeContainer.getItem(freeContainer.getIdByIndex(0));
+			Item item = freeContainer.getItem(freeContainer.getIdByIndex(0));
+			
+			if(item.getItemProperty(PersonnelSchema.PERSONNEL_CODE).getValue() != null){
+				personalCode = (Integer.parseInt(item.getItemProperty(PersonnelSchema.PERSONNEL_CODE).getValue().toString().replaceAll(TEMP_TITLE, "")) + 1) + "";
 				
-				if(item.getItemProperty(PersonnelSchema.PERSONNEL_CODE).getValue() != null){
-					personalCode = (Integer.parseInt(item.getItemProperty(PersonnelSchema.PERSONNEL_CODE).getValue().toString()) + 1) + "";
-					
-				}
 			}
 
 			freeContainer.removeAllContainerFilters();
@@ -2602,6 +2598,9 @@ private static final long serialVersionUID = 1L;
 	}
 	
 	public String getActualPersonnelCode(){
-		return getPersonnelCode(jobPosition.getValue().toString(), autoGenerate.getValue().toString());
+		String personnelCodeStr = personnelCode.getValue();
+		if(autoGenerate.getValue().toString().equals("0"))
+			personnelCodeStr = getPersonnelCode(jobPosition.getValue().toString(), autoGenerate.getValue().toString());
+		return personnelCodeStr;
 	}
 }

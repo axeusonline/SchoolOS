@@ -19,6 +19,8 @@ import com.ies.schoolos.type.StudentStatus;
 import com.ies.schoolos.utility.Notification;
 import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
+import com.vaadin.data.Container.ItemSetChangeEvent;
+import com.vaadin.data.Container.ItemSetChangeListener;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.FieldGroup;
@@ -128,7 +130,14 @@ public class ResignStudentView extends VerticalLayout {
 				}
 			}
 		});
-		
+		table.addItemSetChangeListener(new ItemSetChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void containerItemSetChange(ItemSetChangeEvent event) {
+				setFooterData();
+			}
+		});
 		table.addContainerProperty(StudentStudySchema.STUDENT_CODE, String.class, null);
 		table.addContainerProperty(StudentSchema.PRENAME, String.class, null);
 		table.addContainerProperty(StudentSchema.FIRSTNAME, String.class, null);

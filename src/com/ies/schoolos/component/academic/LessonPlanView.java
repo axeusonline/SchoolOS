@@ -13,6 +13,8 @@ import com.ies.schoolos.schema.fundamental.ClassRoomSchema;
 import com.ies.schoolos.schema.fundamental.SubjectSchema;
 import com.ies.schoolos.type.ClassRange;
 import com.vaadin.data.Item;
+import com.vaadin.data.Container.ItemSetChangeEvent;
+import com.vaadin.data.Container.ItemSetChangeListener;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.FieldGroup;
@@ -96,7 +98,14 @@ public class LessonPlanView extends VerticalLayout{
 				}
 			}
 		});
-		
+		table.addItemSetChangeListener(new ItemSetChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void containerItemSetChange(ItemSetChangeEvent event) {
+				setFooterData();
+			}
+		});
 		table.setFilterDecorator(new TableFilterDecorator());
 		table.setFilterGenerator(new TableFilterGenerator());
         table.setFilterBarVisible(true);
@@ -278,7 +287,7 @@ public class LessonPlanView extends VerticalLayout{
 										lContainer.commit();
 										setFooterData();
 									} catch (Exception e) {
-										Notification.show("ลบข้อมูลไม่สำเร็จ", Type.WARNING_MESSAGE);
+										Notification.show("ลบข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", Type.WARNING_MESSAGE);
 										e.printStackTrace();
 									}
 			                	}

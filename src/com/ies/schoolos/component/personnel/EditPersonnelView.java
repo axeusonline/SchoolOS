@@ -85,7 +85,7 @@ public class EditPersonnelView extends PersonnelLayout {
 			spouseItem = fSqlContainer.getItem(new RowId(spouseId));
 			pkStore[2] = spouseId;
 		}
-
+		
 		fatherBinder.setItemDataSource(fatherItem);
 		motherBinder.setItemDataSource(motherItem);
 		spouseBinder.setItemDataSource(spouseItem);

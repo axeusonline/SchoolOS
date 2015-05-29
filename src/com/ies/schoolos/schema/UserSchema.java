@@ -15,6 +15,7 @@ public class UserSchema implements java.io.Serializable{
 	public static final String REF_USER_ID = "ref_user_id";
 	public static final String REF_USER_TYPE = "ref_user_type";
 	public static final String PERMISSION = "permission";
+	public static final String IS_EDITED = "is_edited";
 	
 	
 }

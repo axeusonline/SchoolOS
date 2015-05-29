@@ -1,49 +1,64 @@
 package com.ies.schoolos.utility;
 
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
 
-public class WorkThread extends Thread {
+/*public class WorkThread extends Thread {
 	
-	private Window window;
-	
-	private HorizontalLayout progressLayout;
-	private ProgressBar progress;
-	private Label status;
-	
-	public WorkThread() {
-		window = new Window("กรุณารอสักครู่");
-		window.setWidth("100px");
-		window.setHeight("70px");
-		window.center();
-		UI.getCurrent().addWindow(window);
-		
-		progressLayout = new HorizontalLayout();
-		progressLayout.setSizeFull();
-		window.setContent(progressLayout);
-		
-		progress = new ProgressBar(new Float(0.0));
-		progress.setEnabled(false);
-		progressLayout.addComponent(progress);
-		progressLayout.setComponentAlignment(progress, Alignment.MIDDLE_CENTER);
-		
-		status = new Label("not running");
-		progressLayout.addComponent(status);
-		progressLayout.setComponentAlignment(status, Alignment.MIDDLE_CENTER);
+	 int current = 1;
+     public final static int MAX = 10;
+
+     private ProgressBar progress;
+     
+     public WorkThread(ProgressBar progress) {
+    	 this.progress = progress;
 	}
-	
+     
+     @Override
+     public void run() {
+         for (; current <= MAX; current++) {
+             try {
+                 Thread.sleep(1000);
+             } catch (final InterruptedException e) {
+                 e.printStackTrace();
+             }
+             synchronized (UI.getCurrent()) {
+                 processed();
+             }
+         }
+     }
+
+     public int getCurrent() {
+         return current;
+     }
+     
+     public final void processed() {
+    	 
+         final int i = this.getCurrent();
+         if (i == MAX) {
+             UI.getCurrent().setPollInterval(-1);
+        	 System.err.println("CURRENT 2");
+             progress.setValue(0f);
+             progress.setVisible(!progress.isIndeterminate());
+         } else {
+             progress.setValue((float) i / MAX);
+         }
+     }
+}*/
+public class WorkThread extends Thread {
     // Volatile because read in another thread in access()
     volatile double current = 0.0;
-
+    private ProgressBar progress;
+    private Label status;
+    
+    public WorkThread(ProgressBar progress,Label status) {
+   	 this.progress = progress;
+   	 this.status = status;
+	}
+    
     @Override
     public void run() {
-    	progress = new ProgressBar(new Float(0.0));
-		progress.setEnabled(false);
-		
         // Count up until 1.0 is reached
         while (current < 1.0) {
             current += 0.01;
@@ -60,11 +75,9 @@ public class WorkThread extends Thread {
                     progress.setValue(new Float(current));
                     if (current < 1.0)
                         status.setValue("" +
-                            ((int)(current*100)) + "% เสร็จสิ้น");
-                    else{
-                        status.setValue("เสร็จสิ้น");
-                        window.close();
-                    }
+                            ((int)(current*100)) + "% done");
+                    else
+                        status.setValue("all done");
                 }
             });
         }
@@ -84,9 +97,14 @@ public class WorkThread extends Thread {
                         
                 // Stop polling
                 UI.getCurrent().setPollInterval(-1);
-                
-                status.setValue("กรุณารอสักครู่");
+
+                status.setValue("not running");
             }
         });
     }
+
+    public void setCurrent(double current){
+    	this.current = current;
+    }
 }
+

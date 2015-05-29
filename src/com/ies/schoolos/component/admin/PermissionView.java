@@ -130,7 +130,7 @@ public class PermissionView extends VerticalLayout {
 		userBuilder.append(" WHERE u."+ PersonnelSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		userBuilder.append(" AND u."+ UserSchema.REF_USER_TYPE + "<> 0");
 		userBuilder.append(" AND SUBSTR("+ UserSchema.PERMISSION + "," + currentFeature +",1) = 0");
-		System.err.println(userBuilder.toString());
+		
 		freeContainer = Container.getFreeFormContainer(userBuilder.toString(), UserSchema.USER_ID);
 		for(final Object itemId:freeContainer.getItemIds()){
 			Item item = freeContainer.getItem(itemId);

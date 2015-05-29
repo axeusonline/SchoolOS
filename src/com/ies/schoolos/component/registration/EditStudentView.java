@@ -43,9 +43,9 @@ public class EditStudentView extends StudentLayout {
 	private Item fatherItem;
 	private Item motherItem;
 	private Item guardianItem;
-	
-	public SQLContainer ssSqlContainer = Container.getStudentStudyContainer();
+
 	public SQLContainer sSqlContainer = Container.getStudentContainer();
+	public SQLContainer ssSqlContainer = Container.getStudentStudyContainer();
 	public SQLContainer fSqlContainer = Container.getFamilyContainer();
 	
 	public EditStudentView(Object studyId,boolean isTempStudent) {

@@ -44,6 +44,8 @@ import com.ies.schoolos.type.dynamic.JobPosition;
 import com.ies.schoolos.utility.Notification;
 import com.vaadin.addon.tableexport.TemporaryFileDownloadResource;
 import com.vaadin.data.Item;
+import com.vaadin.data.Container.ItemSetChangeEvent;
+import com.vaadin.data.Container.ItemSetChangeListener;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.FieldGroup;
@@ -67,6 +69,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.Window;
 
 public class PersonnelResignView extends VerticalLayout {
 	private static final long serialVersionUID = 1L;
@@ -173,6 +176,20 @@ public class PersonnelResignView extends VerticalLayout {
 		toolbar.setSpacing(true);
 		addComponent(toolbar);
 				
+		Button resignList = new Button("รายชื่อจำหน่ายออก", FontAwesome.FILE_TEXT_O);
+		resignList.addClickListener(new ClickListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				Window window = new Window();
+				window.setSizeFull();
+				window.setContent(new EditPersonnelResignView());
+				UI.getCurrent().addWindow(window);
+			}
+		});
+		toolbar.addComponent(resignList);	
+		
 		Button excelExport = new Button("ส่งออกไฟล์ Excel", FontAwesome.FILE_EXCEL_O);
 		excelExport.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 1L;
@@ -210,7 +227,14 @@ public class PersonnelResignView extends VerticalLayout {
 				}
 			}
 		});
-		
+		table.addItemSetChangeListener(new ItemSetChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void containerItemSetChange(ItemSetChangeEvent event) {
+				setFooterData();
+			}
+		});
 		table.addContainerProperty(PersonnelSchema.PERSONNEL_CODE, String.class, null);
 		table.addContainerProperty(PersonnelSchema.PRENAME, String.class, null);
 		table.addContainerProperty(PersonnelSchema.FIRSTNAME, String.class, null);
@@ -564,10 +588,9 @@ public class PersonnelResignView extends VerticalLayout {
 							value = Nationality.getNameTh(Integer.parseInt(item.getItemProperty(colHead).getValue().toString()));
 						else if(colHead.equals(PersonnelSchema.RACE))
 							value = Race.getNameTh(Integer.parseInt(item.getItemProperty(colHead).getValue().toString()));
-						else if(colHead.equals(PersonnelSchema.DEPARTMENT_ID)){
+						else if(colHead.equals(PersonnelSchema.DEPARTMENT_ID))
 							value = dContainer.getItem(item.getItemProperty(colHead).getValue()).getItemProperty("name").getValue().toString();
-							System.err.println(dContainer.getItem(item.getItemProperty(colHead).getValue()).getItemProperty("name").getValue());
-						}else if(colHead.equals(PersonnelSchema.JOB_POSITION_ID))
+						else if(colHead.equals(PersonnelSchema.JOB_POSITION_ID))
 							value = jContainer.getItem(item.getItemProperty(colHead).getValue()).getItemProperty("name").getValue().toString();
 						else if(colHead.equals(PersonnelSchema.EMPLOYMENT_TYPE))
 							value = EmploymentType.getNameTh(Integer.parseInt(item.getItemProperty(colHead).getValue().toString()));
