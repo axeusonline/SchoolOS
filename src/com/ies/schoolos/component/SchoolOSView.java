@@ -16,6 +16,7 @@ import com.ies.schoolos.component.fundamental.ClassRoomView;
 import com.ies.schoolos.component.fundamental.DepartmentView;
 import com.ies.schoolos.component.fundamental.JobPositionView;
 import com.ies.schoolos.component.fundamental.SubjectView;
+import com.ies.schoolos.component.info.StudentTimetableView;
 import com.ies.schoolos.component.personnel.EditPersonnelView;
 import com.ies.schoolos.component.personnel.PersonnelGraduatedHistoryView;
 import com.ies.schoolos.component.registration.EditStudentView;
@@ -67,6 +68,7 @@ public class SchoolOSView extends HorizontalSplitPanel{
 	private boolean isSplit = true;
 	private boolean isFirstTimeStudent = true;
 	
+	private Object userId;
 	private String passwordHash = null;
 	private Item userItem = null;
 	
@@ -91,34 +93,40 @@ public class SchoolOSView extends HorizontalSplitPanel{
 	private ActiveLink passwordChange;
 	
 	public SchoolOSView() {
+		userItem = userContainer.getItem(new RowId(SessionSchema.getUserID()));
+		if(userItem.getItemProperty(UserSchema.PERMISSION).getValue() != null){
+			permissions = userItem.getItemProperty(UserSchema.PERMISSION).getValue().toString().split(",");
+			if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("1")){
+				userId = userItem.getItemProperty(UserSchema.REF_USER_ID).getValue().toString();
+			}else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("2")){
+				SQLContainer studyContainer = Container.getStudentStudyContainer();
+	    		studyContainer.addContainerFilter(new Equal(StudentStudySchema.STUDENT_ID,userItem.getItemProperty(UserSchema.REF_USER_ID).getValue()));  
+	    		userId = studyContainer.getIdByIndex(0).toString();
+			}
+		}
+		
 		buildMainLayout();
+		
 		 /* กรณี ไม่มี Permission เลยให้แสดงข้อมูลส่วนตัว */
         if(currentComponent == null){
-        	
 			if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("0"))
         		initComponent(new SchoolView());
         	else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("1"))
-        		initComponent(new EditPersonnelView(userItem.getItemProperty(UserSchema.REF_USER_ID).getValue()));
+        		initComponent(new EditPersonnelView(userId));
         	else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("2")){
         		if(! (boolean) userItem.getItemProperty(UserSchema.IS_EDITED).getValue()){
         			isFirstTimeStudent = true;
         			initUserLayout();
         			initialDataBinding();
         		}else{
-        			isFirstTimeStudent = false;
-        			SQLContainer studyContainer = Container.getStudentStudyContainer();
-            		studyContainer.addContainerFilter(new Equal(StudentStudySchema.STUDENT_ID,userItem.getItemProperty(UserSchema.REF_USER_ID).getValue()));           		
-        			initComponent(new EditStudentView(studyContainer.getIdByIndex(0),false));
+        			isFirstTimeStudent = false;        		
+        			initComponent(new EditStudentView(userId,false));
         		}
         	}
         }
 	}
 	
 	private void buildMainLayout(){
-		userItem = userContainer.getItem(new RowId(SessionSchema.getUserID()));
-		if(userItem.getItemProperty(UserSchema.PERMISSION).getValue() != null)
-			permissions = userItem.getItemProperty(UserSchema.PERMISSION).getValue().toString().split(",");
-
 		setSizeFull();
         setSplitPosition(200, Unit.PIXELS);
         showOrHideMenu();
@@ -197,11 +205,45 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		menuBoxContent.setComponentAlignment(admin, Alignment.MIDDLE_LEFT);
 		initMenu(admin, AdminMainView.class);
 		setPermission(Feature.ADMIN, admin, AdminMainView.class);
+
+		if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("1")){
+			//userWD.setContent(new EditPersonnelView(userItem.getItemProperty(UserSchema.REF_USER_ID).getValue()));
+		}else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("2")){
+			/*Button info = new Button("ประวัติ", FontAwesome.USER);
+			info.setWidth("100%");
+			info.addClickListener(new ClickListener() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void buttonClick(ClickEvent event) {
+					rightLayout.removeComponent(currentComponent);
+					initComponent(new EditStudentView(userId, false));
+				}
+			});
+			menuBoxContent.addComponent(info);
+			menuBoxContent.setComponentAlignment(info, Alignment.MIDDLE_LEFT);*/
+			
+
+			Button timetable = new Button("ตารางเรียน", FontAwesome.CALENDAR);
+			timetable.setWidth("100%");
+			timetable.addClickListener(new ClickListener() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void buttonClick(ClickEvent event) {
+					rightLayout.removeComponent(currentComponent);
+					initComponent(new StudentTimetableView(userId));
+				}
+			});
+			menuBoxContent.addComponent(timetable);
+			menuBoxContent.setComponentAlignment(timetable, Alignment.MIDDLE_LEFT);
+		}
 		
 		/* กล่องข้อมูลพื้นฐาน */
 		VerticalLayout fundamentalBoxContent = new VerticalLayout();
 		fundamentalBoxContent.setCaption("ข้อมูลพื้นฐาน");
 		fundamentalBoxContent.setSizeFull();
+		fundamentalBoxContent.setVisible(false);
 		fundamentalBoxContent.setStyleName("menu-box-green");
 		menuBoxLayout.addComponent(fundamentalBoxContent);
 		
@@ -210,42 +252,42 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		fundamentalBoxContent.addComponent(building);
 		fundamentalBoxContent.setComponentAlignment(building, Alignment.MIDDLE_LEFT);
 		initMenu(building, BuildingView.class);
-		setPermission(Feature.RECRUIT_STUDENT, building, null);
+		setFundamentalPermission(Feature.RECRUIT_STUDENT, building, fundamentalBoxContent);
 		
 		Button classRoom = new Button("ชั้นเรียน", FontAwesome.UNIVERSITY);
 		classRoom.setWidth("100%");
 		fundamentalBoxContent.addComponent(classRoom);
 		fundamentalBoxContent.setComponentAlignment(classRoom, Alignment.MIDDLE_LEFT);
 		initMenu(classRoom, ClassRoomView.class);
-		setPermission(Feature.ACADEMIC, classRoom, null);
+		setFundamentalPermission(Feature.ACADEMIC, classRoom, fundamentalBoxContent);
 		
 		Button subject = new Button("รายวิชาที่สอน", FontAwesome.PENCIL_SQUARE);
 		subject.setWidth("100%");
 		fundamentalBoxContent.addComponent(subject);
 		fundamentalBoxContent.setComponentAlignment(subject, Alignment.MIDDLE_LEFT);
 		initMenu(subject, SubjectView.class);
-		setPermission(Feature.ACADEMIC, subject, null);
+		setFundamentalPermission(Feature.ACADEMIC, subject, fundamentalBoxContent);
 		
 		Button behavior = new Button("พฤติกรรม", FontAwesome.SHIELD);
 		behavior.setWidth("100%");
 		fundamentalBoxContent.addComponent(behavior);
 		fundamentalBoxContent.setComponentAlignment(behavior, Alignment.MIDDLE_LEFT);
 		initMenu(behavior, BehaviorView.class);
-		setPermission(Feature.STUDENT_AFFAIRS, behavior, null);
+		setFundamentalPermission(Feature.STUDENT_AFFAIRS, behavior, fundamentalBoxContent);
 		
 		Button department = new Button("แผนก", FontAwesome.SITEMAP);
 		department.setWidth("100%");
 		fundamentalBoxContent.addComponent(department);
 		fundamentalBoxContent.setComponentAlignment(department, Alignment.MIDDLE_LEFT);
 		initMenu(department, DepartmentView.class);
-		setPermission(Feature.PERSONNEL, department, null);
+		setFundamentalPermission(Feature.PERSONNEL, department, fundamentalBoxContent);
 		
 		Button jobPosition = new Button("ตำแหน่ง", FontAwesome.STAR);
 		jobPosition.setWidth("100%");
 		fundamentalBoxContent.addComponent(jobPosition);
 		fundamentalBoxContent.setComponentAlignment(jobPosition, Alignment.MIDDLE_LEFT);
 		initMenu(jobPosition, JobPositionView.class);
-		setPermission(Feature.PERSONNEL, jobPosition, null);
+		setFundamentalPermission(Feature.PERSONNEL, jobPosition, fundamentalBoxContent);
 		
 		if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("0")){
 			/* ตั้งค่า */
@@ -347,7 +389,10 @@ public class SchoolOSView extends HorizontalSplitPanel{
 
 				@Override
 				public void menuSelected(MenuItem selectedItem) {
-					initUserInfoLayout();
+					if(!isFirstTimeStudent)
+						initUserInfoLayout();
+					else
+						Notification.show("กรุณากำหนดบัญชีผู้ใช้และรหัสผ่าน", Type.WARNING_MESSAGE);
 				}
 			});	
 			if(!userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("2")){
@@ -561,9 +606,7 @@ public class SchoolOSView extends HorizontalSplitPanel{
 						if(isFirstTimeStudent){
 							userItem.getItemProperty(UserSchema.IS_EDITED).setValue(true);
 							isFirstTimeStudent = false;
-							SQLContainer studyContainer = Container.getStudentStudyContainer();
-		            		studyContainer.addContainerFilter(new Equal(StudentStudySchema.STUDENT_ID,userItem.getItemProperty(UserSchema.REF_USER_ID).getValue()));
-							initComponent(new EditStudentView(studyContainer.getIdByIndex(0),false));
+							initComponent(new EditStudentView(userId,false));
 						}
 						userBinder.commit();
 						userContainer.commit();
@@ -589,10 +632,10 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		userWD.setSizeFull();
 		userWD.center();
 		if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("1"))
-			userWD.setContent(new EditPersonnelView(userItem.getItemProperty(UserSchema.REF_USER_ID).getValue()));
-		else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("2"))
-			userWD.setContent(new EditStudentView(userItem.getItemProperty(UserSchema.REF_USER_ID).getValue(),false));
-
+			userWD.setContent(new EditPersonnelView(userId));
+		else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("2")){
+			userWD.setContent(new EditStudentView(userId,false));
+		}
 		UI.getCurrent().addWindow(userWD);
 	}
 	
@@ -602,7 +645,7 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		userWD.setSizeFull();
 		userWD.center();
 		if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("1"))
-			userWD.setContent(new PersonnelGraduatedHistoryView(userItem.getItemProperty(UserSchema.REF_USER_ID).getValue()));
+			userWD.setContent(new PersonnelGraduatedHistoryView(userId));
 		UI.getCurrent().addWindow(userWD);
 	}
 	
@@ -654,6 +697,19 @@ public class SchoolOSView extends HorizontalSplitPanel{
 			if(permissions[index].equals("0")){
 				button.setVisible(false);
 			}else{
+				button.setVisible(true);
+			}
+		}else{
+			button.setVisible(false);
+		}
+	}
+	
+	private void setFundamentalPermission(int index, Button button, VerticalLayout layout){
+		if(permissions != null){
+			if(permissions[index].equals("0")){
+				button.setVisible(false);
+			}else{
+				layout.setVisible(true);
 				button.setVisible(true);
 			}
 		}else{

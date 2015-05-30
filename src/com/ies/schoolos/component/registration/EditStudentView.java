@@ -78,7 +78,7 @@ public class EditStudentView extends StudentLayout {
 	
 	/* นำข้อมูลจาก studyId มาทำการกรอกในฟอร์มทั้งหมด */
 	private void initEditData(){
-		studyItem = ssSqlContainer.getItem(studyId);
+		studyItem = ssSqlContainer.getItem(new RowId(Integer.parseInt(studyId.toString())));
 		studentItem = sSqlContainer.getItem(new RowId(studyItem.getItemProperty(StudentStudySchema.STUDENT_ID).getValue()));
 
 		fatherId = studentItem.getItemProperty(StudentSchema.FATHER_ID).getValue();

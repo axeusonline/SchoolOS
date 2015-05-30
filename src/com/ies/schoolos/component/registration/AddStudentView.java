@@ -349,7 +349,7 @@ public class AddStudentView extends StudentLayout {
 				usernameStr = studentStudyBinder.getField(StudentStudySchema.STUDENT_CODE).getValue().toString();
 			}else{
 				userItem.getItemProperty(UserSchema.EMAIL).setValue(studentStudyBinder.getField(StudentStudySchema.EMAIL).getValue());
-				usernameStr = studentBinder.getField(StudentStudySchema.EMAIL).getValue().toString();
+				usernameStr = studentStudyBinder.getField(StudentStudySchema.EMAIL).getValue().toString();
 			}
 			userItem.getItemProperty(UserSchema.PASSWORD).setValue(BCrypt.hashpw(studentBinder.getField(StudentSchema.PEOPLE_ID).getValue().toString(), BCrypt.gensalt()));
 			userItem.getItemProperty(UserSchema.STATUS).setValue(0);

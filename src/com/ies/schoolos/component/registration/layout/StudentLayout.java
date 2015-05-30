@@ -2628,8 +2628,9 @@ private static final long serialVersionUID = 1L;
 		}else if(generatedType.equals("1")){
 			studentCodeStr = getManaulStudentCode();
 		}
-
+		studentCode.setReadOnly(false);
 		studentCode.setValue(studentCodeStr);
+		studentCode.setReadOnly(true);
 		return studentCodeStr;
 	}
 }

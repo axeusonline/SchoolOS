@@ -6,12 +6,12 @@ import com.ies.schoolos.schema.info.StudentStudySchema;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.sqlcontainer.RowId;
 
-public class StudentView extends StudentLayout {
+public class StudentReadOnlyView extends StudentLayout {
 	private static final long serialVersionUID = 1L;
 
 	private Object studyId;
 	
-	public StudentView(Object studyId) {
+	public StudentReadOnlyView(Object studyId) {
 		this.studyId = studyId;
 		initEditData();
 	}

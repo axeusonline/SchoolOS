@@ -182,7 +182,7 @@ public class StudentListView extends VerticalLayout {
 				
 				Window editWindow = new Window();
 				editWindow.setSizeFull();
-				editWindow.setContent(new EditStudentView(itemId,true));
+				editWindow.setContent(new EditStudentView(itemId.toString(),true));
 				editWindow.addCloseListener(new CloseListener() {
 					private static final long serialVersionUID = 1L;
 

@@ -2,7 +2,7 @@ package com.ies.schoolos.component.studentaffairs;
 
 import org.tepi.filtertable.FilterTable;
 
-import com.ies.schoolos.component.info.StudentView;
+import com.ies.schoolos.component.info.StudentReadOnlyView;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
@@ -167,7 +167,7 @@ public class StudentBehaviorView extends VerticalLayout {
 				
 				Window editWindow = new Window();
 				editWindow.setSizeFull();
-				editWindow.setContent(new StudentView(itemId));
+				editWindow.setContent(new StudentReadOnlyView(itemId));
 				editWindow.addCloseListener(new CloseListener() {
 					private static final long serialVersionUID = 1L;
 
