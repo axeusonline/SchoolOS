@@ -15,6 +15,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.tepi.filtertable.FilterTable;
 
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
@@ -65,23 +66,22 @@ import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Window;
 
-public class PersonnelResignView extends VerticalLayout {
+public class PersonnelResignView extends SchoolOSLayout {
 	private static final long serialVersionUID = 1L;
 
 	private HashMap<String, String> mapTitle;
 	
-	private SQLContainer provinceCon = Container.getProvinceContainer();
-	private SQLContainer districtCon = Container.getDistrictContainer();
-	private SQLContainer cityCon = Container.getCityContainer();
-	private SQLContainer postcodeCon = Container.getPostcodeContainer();
-	private SQLContainer pContainer = Container.getPersonnelContainer();
-	private SQLContainer userContainer = Container.getUserContainer();
+	private SQLContainer provinceCon = container.getProvinceContainer();
+	private SQLContainer districtCon = container.getDistrictContainer();
+	private SQLContainer cityCon = container.getCityContainer();
+	private SQLContainer postcodeCon = container.getPostcodeContainer();
+	private SQLContainer pContainer = container.getPersonnelContainer();
+	private SQLContainer userContainer = container.getUserContainer();
 	private SQLContainer freeContainer;
 
 	private Department dContainer = new Department();

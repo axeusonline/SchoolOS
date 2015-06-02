@@ -7,6 +7,7 @@ import org.tepi.filtertable.FilterTable;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.ies.schoolos.component.ui.NumberField;
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
@@ -37,12 +38,11 @@ import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
 
-public class AddStudentBehaviorView extends VerticalLayout {
+public class AddStudentBehaviorView extends SchoolOSLayout {
 	private static final long serialVersionUID = 1L;
 	
 	private boolean editMode = false;
@@ -54,7 +54,7 @@ public class AddStudentBehaviorView extends VerticalLayout {
 	private Item item;
 	
 	private SQLContainer freeContainer;
-	private SQLContainer studentBehaviorContainer = Container.getStudentBehaviorContainer();
+	private SQLContainer studentBehaviorContainer = container.getStudentBehaviorContainer();
 			
 	private FilterTable studentBehaviorTable;
 	private FormLayout studentBehaviorTableForm;

@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import org.tepi.filtertable.FilterTable;
 
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.component.ui.TwinSelectTable;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
@@ -23,17 +24,16 @@ import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
 
-public class PermissionView extends VerticalLayout {
+public class PermissionView extends SchoolOSLayout {
 
 	private static final long serialVersionUID = 1L;
 	
 	private SQLContainer freeContainer;
-	private SQLContainer userContainer = Container.getUserContainer();
+	private SQLContainer userContainer = container.getUserContainer();
 
 	private int currentFeature = 0;
 	

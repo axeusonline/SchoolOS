@@ -3,7 +3,6 @@ package com.ies.schoolos.component.setting;
 import java.util.Locale;
 
 import com.ies.schoolos.component.ui.ContentPage;
-import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.SchoolSchema;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.type.StudentCodeGenerateType;
@@ -32,7 +31,7 @@ import com.vaadin.ui.Button.ClickListener;
 public class SchoolView extends ContentPage{
 	private static final long serialVersionUID = 1L;
 	
-	private SQLContainer schoolContainer = Container.getSchoolContainer();
+	private SQLContainer schoolContainer = container.getSchoolContainer();
 	
 	private Item schoolItem = null;
 	

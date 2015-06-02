@@ -4,7 +4,6 @@ import org.tepi.filtertable.FilterTable;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.ies.schoolos.component.ui.ContentPage;
-import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
 import com.ies.schoolos.schema.CreateModifiedSchema;
@@ -39,7 +38,7 @@ public class BuildingView extends ContentPage{
 	private static final long serialVersionUID = 1L;
 
 	private boolean editMode = false;
-	private SQLContainer bContainer = Container.getBuildingContainer();
+	private SQLContainer bContainer = container.getBuildingContainer();
 	
 	private Item item;
 

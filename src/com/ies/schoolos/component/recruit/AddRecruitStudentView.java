@@ -41,8 +41,8 @@ public class AddRecruitStudentView extends RecruitStudentLayout {
 	 * */
 	private ArrayList<Object> idStore = new ArrayList<Object>();
 	
-	private SQLContainer sSqlContainer = Container.getRecruitStudentContainer();
-	private SQLContainer fSqlContainer = Container.getRecruitFamilyContainer();
+	private SQLContainer sSqlContainer = container.getRecruitStudentContainer();
+	private SQLContainer fSqlContainer = container.getRecruitFamilyContainer();
 	
 	public AddRecruitStudentView() {
 		initAddRecruitStudent();

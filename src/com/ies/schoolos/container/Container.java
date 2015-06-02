@@ -8,6 +8,7 @@ import com.ies.schoolos.schema.DistrictSchema;
 import com.ies.schoolos.schema.PostcodeSchema;
 import com.ies.schoolos.schema.ProvinceSchema;
 import com.ies.schoolos.schema.SchoolSchema;
+import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.UserSchema;
 import com.ies.schoolos.schema.academic.ClassRoomLessonPlanSchema;
 import com.ies.schoolos.schema.academic.LessonPlanSchema;
@@ -30,6 +31,9 @@ import com.ies.schoolos.schema.info.StudentStudySchema;
 import com.ies.schoolos.schema.recruit.RecruitStudentFamilySchema;
 import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
 import com.ies.schoolos.schema.studentaffairs.StudentBehaviorSchema;
+import com.vaadin.data.util.filter.IsNull;
+import com.vaadin.data.util.filter.Or;
+import com.vaadin.data.util.filter.Compare.Equal;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.util.sqlcontainer.query.FreeformQuery;
 import com.vaadin.data.util.sqlcontainer.query.TableQuery;
@@ -37,6 +41,65 @@ import com.vaadin.data.util.sqlcontainer.query.TableQuery;
 public class Container implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	private SQLContainer provinceContainer = null;
+	private SQLContainer districtContainer = null;
+	private SQLContainer cityContainer = null;
+	private SQLContainer postcodeContainer = null;
+	private SQLContainer schoolContainer = null;
+	private SQLContainer userContainer = null;
+	private SQLContainer recruitStudentContainer = null;
+	private SQLContainer recruitFamilyContainer = null;
+	private SQLContainer buildingContainer = null;
+	private SQLContainer classRoomContainer = null;
+	private SQLContainer studentContainer = null;
+	private SQLContainer studentStudyContainer = null;
+	private SQLContainer familyContainer = null;
+	private SQLContainer studentClassRoomContainer = null;
+	private SQLContainer personnelContainer = null;
+	private SQLContainer personnelGraduatedHistoryContainer = null;
+	private SQLContainer subjectContainer = null;
+	private SQLContainer lessonPlanContainer = null;
+	private SQLContainer lessonPlanSubjectContainer = null;
+	private SQLContainer classRoomLessonPlanContainer = null;
+	private SQLContainer teachingContainer = null;
+	private SQLContainer teacherHomeroomContainer = null;
+	private SQLContainer timetableContainer = null;
+	private SQLContainer departmentContainer = null;
+	private SQLContainer jobPositionContainer = null;
+	private SQLContainer behaviorContainer = null;
+	private SQLContainer studentBehaviorContainer = null;
+	
+	public Container() {
+		System.err.println("INITIAL ");
+		initProvinceContainer();
+		initDistrictContainer();
+		initCityContainer();
+		initPostcodeContainer();
+		initSchoolContainer();
+		initUserContainer();
+		initRecruitStudentContainer();
+		initRecruitFamilyContainer();
+		initBuildingContainer();
+		initClassRoomContainer();
+		initStudentContainer();
+		initStudentStudyContainer();
+		initFamilyContainer(); 
+		initStudentClassRoomContainer();
+		initPersonnelContainer();
+		initPersonnelGraduatedHistoryContainer();
+		initSubjectContainer();
+		initLessonPlanContainer();
+		initLessonPlanSubjectContainer();
+		initClassRoomLessonPlanContainer();
+		initTeachingContainer();
+		initTeacherHomeroomContainer();
+		initTimetableContainer();
+		initDepartmentContainer();
+		initJobPositionContainer();
+		initBehaviorContainer();
+		initStudentBehaviorContainer();
+	}
+	
 	public static SQLContainer getFreeFormContainer(String sql, String primaryKey) {
 		FreeformQuery tq;
 		SQLContainer freeFormContainer = null;
@@ -51,9 +114,8 @@ public class Container implements Serializable {
 	}
 
 	/* TableQuery และ SQLContainer สำหรับจังหวัด */
-	public static SQLContainer getProvinceContainer() {
+	public SQLContainer initProvinceContainer() {
 		TableQuery query;
-    	SQLContainer provinceContainer = null;;
 		try {
 			query = new TableQuery(ProvinceSchema.TABLE_NAME, DbConnection.getConnection());
 			provinceContainer = new SQLContainer(query);
@@ -64,9 +126,8 @@ public class Container implements Serializable {
 	}
 
 	/* TableQuery และ SQLContainer สำหรับอำเภอ */
-	public static SQLContainer getDistrictContainer() {
+	public SQLContainer initDistrictContainer() {
 		TableQuery query;
-    	SQLContainer districtContainer = null;;
 		try {
 			query = new TableQuery(DistrictSchema.TABLE_NAME, DbConnection.getConnection());
 			districtContainer = new SQLContainer(query);
@@ -77,9 +138,8 @@ public class Container implements Serializable {
 	}
 
 	/* TableQuery และ SQLContainer สำหรับตำบล */
-	public static SQLContainer getCityContainer() {
+	public SQLContainer initCityContainer() {
 		TableQuery query;
-    	SQLContainer cityContainer = null;;
 		try {
 			query = new TableQuery(CitySchema.TABLE_NAME, DbConnection.getConnection());
 			cityContainer = new SQLContainer(query);
@@ -90,9 +150,8 @@ public class Container implements Serializable {
 	}
 
 	/* TableQuery และ SQLContainer สำหรับ ปณ */
-	public static SQLContainer getPostcodeContainer() {
+	public SQLContainer initPostcodeContainer() {
 		TableQuery query;
-    	SQLContainer postcodeContainer = null;;
 		try {
 			query = new TableQuery(PostcodeSchema.TABLE_NAME, DbConnection.getConnection());
 			postcodeContainer = new SQLContainer(query);
@@ -103,9 +162,8 @@ public class Container implements Serializable {
 	}
 	
 	/* TableQuery และ SQLContainer สำหรับโรงเรียน */
-	public static SQLContainer getSchoolContainer() {
+	public SQLContainer initSchoolContainer() {
 		TableQuery query;
-    	SQLContainer schoolContainer = null;;
 		try {
 			query = new TableQuery(SchoolSchema.TABLE_NAME, DbConnection.getConnection());
 			schoolContainer = new SQLContainer(query);
@@ -116,9 +174,8 @@ public class Container implements Serializable {
 	}
 	
 	/* TableQuery และ SQLContainer สำหรับผู้ใช้งาน */
-	public static SQLContainer getUserContainer() {
+	public SQLContainer initUserContainer() {
 		TableQuery query;
-    	SQLContainer userContainer = null;;
 		try {
 			query = new TableQuery(UserSchema.TABLE_NAME, DbConnection.getConnection());
 			userContainer = new SQLContainer(query);
@@ -129,9 +186,8 @@ public class Container implements Serializable {
 	}
 
 	/* TableQuery และ SQLContainer สำหรับนักเรียนผู้สมัคร */
-	public static SQLContainer getRecruitStudentContainer() {
+	public SQLContainer initRecruitStudentContainer() {
 		TableQuery query;
-    	SQLContainer recruitStudentContainer = null;;
 		try {
 			query = new TableQuery(RecruitStudentSchema.TABLE_NAME, DbConnection.getConnection());
 			recruitStudentContainer = new SQLContainer(query);
@@ -142,9 +198,8 @@ public class Container implements Serializable {
 	}
 
 	/* TableQuery และ SQLContainer สำหรับครอบครัวนักเรียนผู้สมัคร */
-	public static SQLContainer getRecruitFamilyContainer() {
+	public SQLContainer initRecruitFamilyContainer() {
 		TableQuery query;
-    	SQLContainer recruitFamilyContainer = null;;
 		try {
 			query = new TableQuery(RecruitStudentFamilySchema.TABLE_NAME, DbConnection.getConnection());
 			recruitFamilyContainer = new SQLContainer(query);
@@ -155,9 +210,8 @@ public class Container implements Serializable {
 	}
 
 	/* TableQuery และ SQLContainer สำหรับอาคาร */
-	public static SQLContainer getBuildingContainer() {
+	public SQLContainer initBuildingContainer() {
 		TableQuery query;
-    	SQLContainer buildingContainer = null;;
 		try {
 			query = new TableQuery(BuildingSchema.TABLE_NAME, DbConnection.getConnection());
 			buildingContainer = new SQLContainer(query);
@@ -168,9 +222,8 @@ public class Container implements Serializable {
 	}
 	
 	/* TableQuery และ SQLContainer สำหรับชั้นเรียน */
-	public static SQLContainer getClassRoomContainer() {
+	public SQLContainer initClassRoomContainer() {
 		TableQuery query;
-    	SQLContainer classRoomContainer = null;;
 		try {
 			query = new TableQuery(ClassRoomSchema.TABLE_NAME, DbConnection.getConnection());
 			classRoomContainer = new SQLContainer(query);
@@ -181,9 +234,8 @@ public class Container implements Serializable {
 	}
 	
 	/* TableQuery และ SQLContainer สำหรับนักเรียน */
-	public static SQLContainer getStudentContainer() {
+	public SQLContainer initStudentContainer() {
 		TableQuery query;
-    	SQLContainer studentContainer = null;;
 		try {
 			query = new TableQuery(StudentSchema.TABLE_NAME, DbConnection.getConnection());
 			studentContainer = new SQLContainer(query);
@@ -194,9 +246,8 @@ public class Container implements Serializable {
 	}
 
 	/* TableQuery และ SQLContainer สำหรับข้อมูลการเรียน */
-	public static SQLContainer getStudentStudyContainer() {
+	public SQLContainer initStudentStudyContainer() {
 		TableQuery query;
-    	SQLContainer studentStudyContainer = null;;
 		try {
 			query = new TableQuery(StudentStudySchema.TABLE_NAME, DbConnection.getConnection());
 			studentStudyContainer = new SQLContainer(query);
@@ -207,9 +258,8 @@ public class Container implements Serializable {
 	}
 
 	/* TableQuery และ SQLContainer สำหรับอครอบครัว */
-	public static SQLContainer getFamilyContainer() {
+	public SQLContainer initFamilyContainer() {
 		TableQuery query;
-    	SQLContainer familyContainer = null;;
 		try {
 			query = new TableQuery(FamilySchema.TABLE_NAME, DbConnection.getConnection());
 			familyContainer = new SQLContainer(query);
@@ -220,9 +270,8 @@ public class Container implements Serializable {
 	}
 	
 	/* TableQuery และ SQLContainer สำหรับชั้นเรียนนักเรียน */
-	public static SQLContainer getStudentClassRoomContainer() {
+	public SQLContainer initStudentClassRoomContainer() {
 		TableQuery query;
-    	SQLContainer studentClassRoomContainer = null;;
 		try {
 			query = new TableQuery(StudentClassRoomSchema.TABLE_NAME, DbConnection.getConnection());
 			studentClassRoomContainer = new SQLContainer(query);
@@ -233,9 +282,8 @@ public class Container implements Serializable {
 	}
 	
 	/* TableQuery และ SQLContainer สำหรับบุคลากร */
-	public static SQLContainer getPersonnelContainer() {
+	public SQLContainer initPersonnelContainer() {
 		TableQuery query;
-    	SQLContainer personnelContainer = null;;
 		try {
 			query = new TableQuery(PersonnelSchema.TABLE_NAME, DbConnection.getConnection());
 			personnelContainer = new SQLContainer(query);
@@ -246,9 +294,8 @@ public class Container implements Serializable {
 	}
 	
 	/* TableQuery และ SQLContainer สำหรับประวัติการศึกษา */
-	public static SQLContainer getPersonnelGraduatedHistoryContainer() {
+	public SQLContainer initPersonnelGraduatedHistoryContainer() {
 		TableQuery query;
-    	SQLContainer personnelGraduatedHistoryContainer = null;;
 		try {
 			query = new TableQuery(PersonnelGraduatedHistorySchema.TABLE_NAME, DbConnection.getConnection());
 			personnelGraduatedHistoryContainer = new SQLContainer(query);
@@ -259,9 +306,8 @@ public class Container implements Serializable {
 	}
 	
 	/* TableQuery และ SQLContainer สำหรับอาจารย์ */
-	public static SQLContainer getSubjectContainer() {
+	public SQLContainer initSubjectContainer() {
 		TableQuery query;
-    	SQLContainer subjectContainer = null;;
 		try {
 			query = new TableQuery(SubjectSchema.TABLE_NAME, DbConnection.getConnection());
 			subjectContainer = new SQLContainer(query);
@@ -272,9 +318,8 @@ public class Container implements Serializable {
 	}
 	
 	/* TableQuery และ SQLContainer สำหรับแผนการเรียน */
-	public static SQLContainer getLessonPlanContainer() {
+	public SQLContainer initLessonPlanContainer() {
 		TableQuery query;
-    	SQLContainer lessonPlanContainer = null;;
 		try {
 			query = new TableQuery(LessonPlanSchema.TABLE_NAME, DbConnection.getConnection());
 			lessonPlanContainer = new SQLContainer(query);
@@ -285,9 +330,8 @@ public class Container implements Serializable {
 	}
 	
 	/* TableQuery และ SQLContainer สำหรับแผนการเรียนรายวิชา */
-	public static SQLContainer getLessonPlanSubjectContainer() {
+	public SQLContainer initLessonPlanSubjectContainer() {
 		TableQuery query;
-    	SQLContainer lessonPlanSubjectContainer = null;;
 		try {
 			query = new TableQuery(LessonPlanSubjectSchema.TABLE_NAME, DbConnection.getConnection());
 			lessonPlanSubjectContainer = new SQLContainer(query);
@@ -298,9 +342,8 @@ public class Container implements Serializable {
 	}
 	
 	/* TableQuery และ SQLContainer สำหรับแผนการเรียน-ชั้นเรียน */
-	public static SQLContainer getClassRoomLessonPlanContainer() {
+	public SQLContainer initClassRoomLessonPlanContainer() {
 		TableQuery query;
-    	SQLContainer classRoomLessonPlanContainer = null;;
 		try {
 			query = new TableQuery(ClassRoomLessonPlanSchema.TABLE_NAME, DbConnection.getConnection());
 			classRoomLessonPlanContainer = new SQLContainer(query);
@@ -311,9 +354,8 @@ public class Container implements Serializable {
 	}
 	
 	/* TableQuery และ SQLContainer สำหรับอาจารย์ผู้สอน */
-	public static SQLContainer getTeachingContainer() {
+	public SQLContainer initTeachingContainer() {
 		TableQuery query;
-    	SQLContainer teachingContainer = null;;
 		try {
 			query = new TableQuery(TeachingSchema.TABLE_NAME, DbConnection.getConnection());
 			teachingContainer = new SQLContainer(query);
@@ -324,9 +366,8 @@ public class Container implements Serializable {
 	}
 	
 	/* TableQuery และ SQLContainer สำหรับอาจารย์ประจำชั้น */
-	public static SQLContainer getTeacherHomeroomContainer() {
+	public SQLContainer initTeacherHomeroomContainer() {
 		TableQuery query;
-    	SQLContainer teacherHomeroomContainer = null;;
 		try {
 			query = new TableQuery(TeacherHomeroomSchema.TABLE_NAME, DbConnection.getConnection());
 			teacherHomeroomContainer = new SQLContainer(query);
@@ -337,9 +378,8 @@ public class Container implements Serializable {
 	}
 	
 	/* TableQuery และ SQLContainer สำหรับตารางสอน */
-	public static SQLContainer getTimetableContainer() {
+	public SQLContainer initTimetableContainer() {
     	TableQuery query;
-    	SQLContainer timetableContainer = null;;
 		try {
 			query = new TableQuery(TimetableSchema.TABLE_NAME, DbConnection.getConnection());
 			timetableContainer = new SQLContainer(query);
@@ -350,9 +390,8 @@ public class Container implements Serializable {
 	}
 	
 	/* TableQuery และ SQLContainer สำหรับแผนก */
-	public static SQLContainer getDepartmentContainer() {
+	public SQLContainer initDepartmentContainer() {
     	TableQuery query;
-    	SQLContainer departmentContainer = null;;
 		try {
 			query = new TableQuery(DepartmentSchema.TABLE_NAME, DbConnection.getConnection());
 			departmentContainer = new SQLContainer(query);
@@ -363,9 +402,8 @@ public class Container implements Serializable {
 	}
 	
 	/* TableQuery และ SQLContainer สำหรับตำแหน่ง */
-	public static SQLContainer getJobPositionContainer() {
+	public SQLContainer initJobPositionContainer() {
     	TableQuery query;
-    	SQLContainer jobPositionContainer = null;;
 		try {
 			query = new TableQuery(JobPositionSchema.TABLE_NAME, DbConnection.getConnection());
 			jobPositionContainer = new SQLContainer(query);
@@ -376,9 +414,8 @@ public class Container implements Serializable {
 	}
 	
 	/* TableQuery และ SQLContainer สำหรับพฤติกรรม */
-	public static SQLContainer getBehaviorContainer() {
+	public SQLContainer initBehaviorContainer() {
     	TableQuery query;
-    	SQLContainer behaviorContainer = null;;
 		try {
 			query = new TableQuery(BehaviorSchema.TABLE_NAME, DbConnection.getConnection());
 			behaviorContainer = new SQLContainer(query);
@@ -389,15 +426,214 @@ public class Container implements Serializable {
 	}
 	
 	/* TableQuery และ SQLContainer สำหรับพฤติกรรมนักเรียน */
-	public static SQLContainer getStudentBehaviorContainer() {
+	public SQLContainer initStudentBehaviorContainer() {
     	TableQuery query;
-    	SQLContainer studentBehaviorContainer = null;;
 		try {
 			query = new TableQuery(StudentBehaviorSchema.TABLE_NAME, DbConnection.getConnection());
 			studentBehaviorContainer = new SQLContainer(query);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		return studentBehaviorContainer;
+	}
+
+	public SQLContainer getProvinceContainer() {
+		provinceContainer.removeAllContainerFilters();
+		return provinceContainer;
+	}
+	
+
+	public SQLContainer getDistrictContainer() {
+		districtContainer.removeAllContainerFilters();
+		return districtContainer;
+	}
+
+	public SQLContainer getCityContainer() {
+		cityContainer.removeAllContainerFilters();
+		return cityContainer;
+	}
+	
+
+	public SQLContainer getPostcodeContainer() {
+		postcodeContainer.removeAllContainerFilters();
+		return postcodeContainer;
+	}
+	
+
+	public SQLContainer getSchoolContainer() {
+		schoolContainer.removeAllContainerFilters();
+		return schoolContainer;
+	}
+	
+
+	public SQLContainer getUserContainer() {
+		userContainer.removeAllContainerFilters();
+		return userContainer;
+	}
+	
+
+	public SQLContainer getRecruitStudentContainer() {
+		recruitStudentContainer.removeAllContainerFilters();
+		if(SessionSchema.getSchoolID() != null)
+			recruitStudentContainer.addContainerFilter(new Equal(RecruitStudentSchema.SCHOOL_ID,SessionSchema.getSchoolID()));
+		return recruitStudentContainer;
+	}
+	
+
+	public SQLContainer getRecruitFamilyContainer() {
+		recruitFamilyContainer.removeAllContainerFilters();
+		return recruitFamilyContainer;
+	}
+	
+
+	public SQLContainer getBuildingContainer() {
+		buildingContainer.removeAllContainerFilters();
+		if(SessionSchema.getSchoolID() != null)
+			buildingContainer.addContainerFilter(new Equal(BuildingSchema.SCHOOL_ID,SessionSchema.getSchoolID()));
+		return buildingContainer;
+	}
+	
+
+	public SQLContainer getClassRoomContainer() {
+		classRoomContainer.removeAllContainerFilters();
+		if(SessionSchema.getSchoolID() != null)
+			classRoomContainer.addContainerFilter(new Equal(ClassRoomSchema.SCHOOL_ID,SessionSchema.getSchoolID()));
+		return classRoomContainer;
+	}
+	
+
+	public SQLContainer getStudentContainer() {
+		studentContainer.removeAllContainerFilters();
+		if(SessionSchema.getSchoolID() != null)
+			studentContainer.addContainerFilter(new Equal(StudentSchema.SCHOOL_ID,SessionSchema.getSchoolID()));
+		return studentContainer;
+	}
+	
+
+	public SQLContainer getStudentStudyContainer() {
+		studentStudyContainer.removeAllContainerFilters();
+		if(SessionSchema.getSchoolID() != null)
+			studentStudyContainer.addContainerFilter(new Equal(StudentStudySchema.SCHOOL_ID,SessionSchema.getSchoolID()));
+		return studentStudyContainer;
+	}
+	
+
+	public SQLContainer getFamilyContainer() {
+		familyContainer.removeAllContainerFilters();
+		return familyContainer;
+	}
+	
+
+	public SQLContainer getStudentClassRoomContainer() {
+		studentClassRoomContainer.removeAllContainerFilters();
+		if(SessionSchema.getSchoolID() != null)
+			studentClassRoomContainer.addContainerFilter(new Equal(StudentClassRoomSchema.SCHOOL_ID,SessionSchema.getSchoolID()));
+		return studentClassRoomContainer;
+	}
+	
+
+	public SQLContainer getPersonnelContainer() {
+		personnelContainer.removeAllContainerFilters();
+		if(SessionSchema.getSchoolID() != null)
+			personnelContainer.addContainerFilter(new Equal(PersonnelSchema.SCHOOL_ID,SessionSchema.getSchoolID()));
+		return personnelContainer;
+	}
+	
+
+	public SQLContainer getPersonnelGraduatedHistoryContainer() {
+		personnelGraduatedHistoryContainer.removeAllContainerFilters();
+		if(SessionSchema.getSchoolID() != null)
+			personnelGraduatedHistoryContainer.addContainerFilter(new Equal(PersonnelGraduatedHistorySchema.SCHOOL_ID,SessionSchema.getSchoolID()));
+		return personnelGraduatedHistoryContainer;
+	}
+	
+
+	public SQLContainer getSubjectContainer() {
+		subjectContainer.removeAllContainerFilters();
+		if(SessionSchema.getSchoolID() != null)
+			subjectContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID,SessionSchema.getSchoolID()));
+		return subjectContainer;
+	}
+	
+
+	public SQLContainer getLessonPlanContainer() {
+		lessonPlanContainer.removeAllContainerFilters();
+		if(SessionSchema.getSchoolID() != null)
+			lessonPlanContainer.addContainerFilter(new Equal(LessonPlanSchema.SCHOOL_ID,SessionSchema.getSchoolID()));
+		return lessonPlanContainer;
+	}
+	
+
+	public SQLContainer getLessonPlanSubjectContainer() {
+		lessonPlanSubjectContainer.removeAllContainerFilters();
+		if(SessionSchema.getSchoolID() != null)
+			lessonPlanSubjectContainer.addContainerFilter(new Equal(LessonPlanSubjectSchema.SCHOOL_ID,SessionSchema.getSchoolID()));
+		return lessonPlanSubjectContainer;
+	}
+	
+
+	public SQLContainer getClassRoomLessonPlanContainer() {
+		classRoomLessonPlanContainer.removeAllContainerFilters();
+		if(SessionSchema.getSchoolID() != null)
+			classRoomLessonPlanContainer.addContainerFilter(new Equal(ClassRoomLessonPlanSchema.SCHOOL_ID,SessionSchema.getSchoolID()));
+		return classRoomLessonPlanContainer;
+	}
+	
+
+	public SQLContainer getTeachingContainer() {
+		teachingContainer.removeAllContainerFilters();
+		if(SessionSchema.getSchoolID() != null)
+			teachingContainer.addContainerFilter(new Equal(TeachingSchema.SCHOOL_ID,SessionSchema.getSchoolID()));
+		return teachingContainer;
+	}
+	
+
+	public SQLContainer getTeacherHomeroomContainer() {
+		teacherHomeroomContainer.removeAllContainerFilters();
+		if(SessionSchema.getSchoolID() != null)
+			teacherHomeroomContainer.addContainerFilter(new Equal(TeacherHomeroomSchema.SCHOOL_ID,SessionSchema.getSchoolID()));
+		return teacherHomeroomContainer;
+	}
+	
+
+	public SQLContainer getTimetableContainer() {
+		timetableContainer.removeAllContainerFilters();
+		if(SessionSchema.getSchoolID() != null)
+			timetableContainer.addContainerFilter(new Equal(TimetableSchema.SCHOOL_ID,SessionSchema.getSchoolID()));
+		return timetableContainer;
+	}
+	
+
+	public SQLContainer getDepartmentContainer() {
+		departmentContainer.removeAllContainerFilters();
+		if(SessionSchema.getSchoolID() != null)
+			departmentContainer.addContainerFilter(new Or(new Equal(DepartmentSchema.SCHOOL_ID, SessionSchema.getSchoolID()),
+					new IsNull(DepartmentSchema.SCHOOL_ID)));
+		return departmentContainer;
+	}
+	
+
+	public SQLContainer getJobPositionContainer() {
+		jobPositionContainer.removeAllContainerFilters();
+		if(SessionSchema.getSchoolID() != null)
+			jobPositionContainer.addContainerFilter(new Or(new Equal(JobPositionSchema.SCHOOL_ID, SessionSchema.getSchoolID()),
+					new IsNull(JobPositionSchema.SCHOOL_ID)));
+		return jobPositionContainer;
+	}
+	
+
+	public SQLContainer getBehaviorContainer() {
+		behaviorContainer.removeAllContainerFilters();
+		if(SessionSchema.getSchoolID() != null)
+			behaviorContainer.addContainerFilter(new Equal(BehaviorSchema.SCHOOL_ID,SessionSchema.getSchoolID()));
+		return behaviorContainer;
+	}
+	
+
+	public SQLContainer getStudentBehaviorContainer() {
+		studentBehaviorContainer.removeAllContainerFilters();
+		if(SessionSchema.getSchoolID() != null)
+			studentBehaviorContainer.addContainerFilter(new Equal(StudentBehaviorSchema.SCHOOL_ID,SessionSchema.getSchoolID()));
 		return studentBehaviorContainer;
 	}
 }

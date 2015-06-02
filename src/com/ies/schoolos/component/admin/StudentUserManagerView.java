@@ -12,6 +12,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.tepi.filtertable.FilterTable;
 
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
@@ -39,13 +40,12 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Notification.Type;
 
-public class StudentUserManagerView extends VerticalLayout {
+public class StudentUserManagerView extends SchoolOSLayout {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -96,7 +96,7 @@ public class StudentUserManagerView extends VerticalLayout {
 	}
 	
 	private SQLContainer freeContainer;
-	private SQLContainer userContainer = Container.getUserContainer();
+	private SQLContainer userContainer = container.getUserContainer();
 
 	/* เก็บชื่อของอาจารย์ ที่ไม่ซ้ำกัน 
 	 * โดยที่ Key เก็บชื่อ */

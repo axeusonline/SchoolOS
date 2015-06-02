@@ -1,6 +1,6 @@
 package com.ies.schoolos.type.dynamic;
 
-import com.ies.schoolos.container.Container;
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.fundamental.DepartmentSchema;
 import com.vaadin.data.Item;
@@ -20,7 +20,7 @@ public class Department extends IndexedContainer{
  
 	@SuppressWarnings("unchecked")
 	private void initContainer(){
-		SQLContainer container = Container.getDepartmentContainer();
+		SQLContainer container = SchoolOSLayout.container.getDepartmentContainer();
 		container.addContainerFilter(new Or(new Equal(DepartmentSchema.SCHOOL_ID, SessionSchema.getSchoolID()),
 				new IsNull(DepartmentSchema.SCHOOL_ID)));
 		container.sort(new Object[]{DepartmentSchema.DEPARTMENT_ID}, new boolean[]{true});

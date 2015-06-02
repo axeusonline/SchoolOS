@@ -1,6 +1,6 @@
 package com.ies.schoolos.type.dynamic;
 
-import com.ies.schoolos.container.Container;
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.schema.CitySchema;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
@@ -17,7 +17,7 @@ public class City extends IndexedContainer{
  
 	@SuppressWarnings("unchecked")
 	private void initContainer(int districtId){		
-		SQLContainer container = Container.getCityContainer();
+		SQLContainer container = SchoolOSLayout.container.getCityContainer();
 		container.addContainerFilter(new Equal(CitySchema.DISTRICT_ID, districtId));
 		addContainerProperty("name", String.class,null);
 		for (int i = 0; i < container.size(); i++) {

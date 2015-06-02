@@ -1,6 +1,6 @@
 package com.ies.schoolos.type.dynamic;
 
-import com.ies.schoolos.container.Container;
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.fundamental.JobPositionSchema;
 import com.vaadin.data.Item;
@@ -20,7 +20,7 @@ public class JobPosition extends IndexedContainer{
  
 	@SuppressWarnings("unchecked")
 	private void initContainer(){
-		SQLContainer container = Container.getJobPositionContainer();
+		SQLContainer container = SchoolOSLayout.container.getJobPositionContainer();
 		container.addContainerFilter(new Or(new Equal(JobPositionSchema.SCHOOL_ID, SessionSchema.getSchoolID()),
 				new IsNull(JobPositionSchema.SCHOOL_ID)));
 		container.sort(new Object[]{JobPositionSchema.JOB_POSITION_ID}, new boolean[]{true});

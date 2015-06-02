@@ -2,6 +2,7 @@ package com.ies.schoolos.component.registration;
 
 import java.util.Collection;
 
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.component.ui.TwinSelectTable;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
@@ -27,19 +28,18 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
 
-public class StudentClassRoomView extends VerticalLayout{
+public class StudentClassRoomView extends SchoolOSLayout{
 	private static final long serialVersionUID = 1L;
 
 	private int capacity = 0;
 	
 	private SQLContainer freeContainer;
-	private SQLContainer studentClassRoomContainer = Container.getStudentClassRoomContainer();
-	private SQLContainer classtudentClassRoomContainer = Container.getClassRoomContainer();
+	private SQLContainer studentClassRoomContainer = container.getStudentClassRoomContainer();
+	private SQLContainer classtudentClassRoomContainer = container.getClassRoomContainer();
 	
 	private ComboBox classRoom;
 	private TextField academicYear;

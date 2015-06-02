@@ -1,13 +1,12 @@
 package com.ies.schoolos.component.recruit;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.tepi.filtertable.FilterTable;
 import org.vaadin.dialogs.ConfirmDialog;
 
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
@@ -21,18 +20,14 @@ import com.ies.schoolos.schema.info.StudentSchema;
 import com.ies.schoolos.schema.info.StudentStudySchema;
 import com.ies.schoolos.schema.recruit.RecruitStudentFamilySchema;
 import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
-import com.ies.schoolos.schema.view.StatStudentCodeSchema;
 import com.ies.schoolos.type.ClassRange;
 import com.ies.schoolos.type.Gender;
 import com.ies.schoolos.type.Prename;
 import com.ies.schoolos.utility.DateTimeUtil;
-import com.ies.schoolos.utility.Utility;
 import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.filter.And;
 import com.vaadin.data.util.filter.Compare.Equal;
-import com.vaadin.data.util.filter.Compare.Greater;
-import com.vaadin.data.util.filter.Compare.Less;
 import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.util.sqlcontainer.query.OrderBy;
@@ -46,13 +41,12 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CustomTable.Align;
 import com.vaadin.ui.Notification.Type;
 
-public class RecruitToStudentView extends VerticalLayout{
+public class RecruitToStudentView extends SchoolOSLayout{
 	private static final long serialVersionUID = 1L;
 
 	private int confirmQty = 0;
@@ -65,17 +59,19 @@ public class RecruitToStudentView extends VerticalLayout{
 	 * 2 แทนถึง id ผู้ปกครอง
 	 * 3 แทนถึง id นักเรียน
 	 * 4 แทนถึง id ข้อมูลการเรียนนักเรียน
+	 * 5 แทนถึง id ข้อมูลห้องเรียน
 	 * */
-	private ArrayList<Object> idStore = new ArrayList<Object>();
+	private int pkIndex = 0;
+	public Object pkStore[] = new Object[6];
 	private HashMap<Object, HashMap<Object, Object>> summarizes = new HashMap<Object, HashMap<Object, Object>>();
 	
-	private SQLContainer rsContainer = Container.getRecruitStudentContainer();
-	private SQLContainer rsFamilyContainer = Container.getRecruitFamilyContainer();
-	private SQLContainer schoolContainer = Container.getSchoolContainer();
-	private SQLContainer studentContainer = Container.getStudentContainer();
-	private SQLContainer studentStudyContainer = Container.getStudentStudyContainer();
-	private SQLContainer familyContainer = Container.getFamilyContainer();
-	private SQLContainer studentClassRoomContainer = Container.getStudentClassRoomContainer();
+	private SQLContainer rsContainer = container.getRecruitStudentContainer();
+	private SQLContainer rsFamilyContainer = container.getRecruitFamilyContainer();
+	private SQLContainer schoolContainer = container.getSchoolContainer();
+	private SQLContainer studentContainer = container.getStudentContainer();
+	private SQLContainer studentStudyContainer = container.getStudentStudyContainer();
+	private SQLContainer familyContainer = container.getFamilyContainer();
+	private SQLContainer studentClassRoomContainer = container.getStudentClassRoomContainer();
 	
 	private HorizontalLayout toolbar;
 	private Button confirm;	
@@ -86,8 +82,9 @@ public class RecruitToStudentView extends VerticalLayout{
 		setSizeFull();
 		setSpacing(true);
 		setMargin(true);
-		buildMainLayout();
 		initSqlContainerRowIdChange();
+		buildMainLayout();
+		setTableData();
 		setSummarize();
 	}
 	
@@ -194,8 +191,6 @@ public class RecruitToStudentView extends VerticalLayout{
 				RecruitStudentSchema.PRENAME,
 				RecruitStudentSchema.FIRSTNAME, 
 				RecruitStudentSchema.LASTNAME);
-
-		setTableData();
 		
 		summarize = new Label();
         summarize.setWidth("100%");
@@ -213,7 +208,7 @@ public class RecruitToStudentView extends VerticalLayout{
 
 			@Override
 			public void rowIdChange(RowIdChangeEvent arg0) {
-				idStore.add(arg0.getNewRowId());
+				pkStore[pkIndex] = arg0.getNewRowId();
 			}
 		});
 		
@@ -223,7 +218,7 @@ public class RecruitToStudentView extends VerticalLayout{
 
 			@Override
 			public void rowIdChange(RowIdChangeEvent arg0) {
-				idStore.add(arg0.getNewRowId());
+				pkStore[pkIndex] = arg0.getNewRowId();
 			}
 		});
 		
@@ -233,7 +228,7 @@ public class RecruitToStudentView extends VerticalLayout{
 
 			@Override
 			public void rowIdChange(RowIdChangeEvent arg0) {
-				idStore.add(arg0.getNewRowId());
+				pkStore[pkIndex] = arg0.getNewRowId();
 			}
 		});
 		
@@ -242,33 +237,43 @@ public class RecruitToStudentView extends VerticalLayout{
 
 			@Override
 			public void rowIdChange(RowIdChangeEvent arg0) {
-				idStore.add(arg0.getNewRowId());
+				pkStore[pkIndex] = arg0.getNewRowId();
 			}
 		});
 	}
 	
 	/*สร้าง Layout ของข้อมูลเพื่อนำไปใส่ในตาราง*/
 	private void setTableData(){
-		/* ดึงจำนวนนักเรียนที่ไม่ยืนยันตัว เพื่อหาจำนวนผู้สมัครทั้งหมด */
-		rsContainer.addContainerFilter(new And(
-				new Equal(RecruitStudentSchema.SCHOOL_ID, SessionSchema.getSchoolID()),
-				new Greater(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getFirstDateOfYear()),
-				new Less(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getLastDateOfYear()),
-				new Equal(RecruitStudentSchema.IS_CONFIRM, false)));
-		unconfirmQty = rsContainer.size();
-		//ลบ WHERE ออกจาก Query เพื่อป้องกันการค้างของคำสั่่งจากการทำงานอื่นที่เรียกตัวแปรไปใช้
-		rsContainer.removeAllContainerFilters();
+		StringBuilder builder = new StringBuilder();
 		
 		/* ดึงจำนวนนักเรียนที่ยืนยันตัว */ 
-		rsContainer.addContainerFilter(new And(
-				new Equal(SchoolSchema.SCHOOL_ID,SessionSchema.getSchoolID()),
-				new Greater(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getFirstDateOfYear()),
-				new Less(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getLastDateOfYear()),
-				new Equal(RecruitStudentSchema.IS_CONFIRM, true)));
-		confirmQty = rsContainer.size();
+		builder = new StringBuilder();
+		builder.append(" SELECT COUNT(*) AS count FROM " + RecruitStudentSchema.TABLE_NAME);
+		builder.append(" WHERE " + RecruitStudentSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
+		builder.append(" AND YEAR(" + RecruitStudentSchema.REGISTER_DATE + ") =" + DateTimeUtil.getChristianYear());
+		builder.append(" AND " + RecruitStudentSchema.IS_CONFIRM + "=0");
+		SQLContainer freeContainer = Container.getFreeFormContainer(builder.toString(), "count");
+		unconfirmQty = freeContainer.size();
+
+		/* ดึงจำนวนนักเรียนที่ไม่ยืนยันตัว เพื่อหาจำนวนผู้สมัครทั้งหมด */
+		builder = new StringBuilder();
+		builder.append(" SELECT COUNT(*) AS count FROM " + RecruitStudentSchema.TABLE_NAME);
+		builder.append(" WHERE " + RecruitStudentSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
+		builder.append(" AND YEAR(" + RecruitStudentSchema.REGISTER_DATE + ") =" + DateTimeUtil.getChristianYear());
+		builder.append(" AND " + RecruitStudentSchema.IS_CONFIRM + "=1");
+		freeContainer = Container.getFreeFormContainer(builder.toString(), "count");
+		confirmQty = freeContainer.size();
+
+		/* ดึงจำนวนนักเรียนที่ไม่สร้างรหัส */
+		builder = new StringBuilder();
+		builder.append(" SELECT * FROM " + RecruitStudentSchema.TABLE_NAME);
+		builder.append(" WHERE " + RecruitStudentSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
+		builder.append(" AND YEAR(" + RecruitStudentSchema.REGISTER_DATE + ") =" + DateTimeUtil.getChristianYear());
+		builder.append(" AND " + RecruitStudentSchema.IS_GENERATE_STUDENT_CODE + "=0");
+		freeContainer = Container.getFreeFormContainer(builder.toString(), RecruitStudentSchema.STUDENT_ID);
 		
-		for(final Object itemId:rsContainer.getItemIds()){			
-			final Item studentItem = rsContainer.getItem(itemId);
+		for(final Object itemId:freeContainer.getItemIds()){			
+			final Item studentItem = freeContainer.getItem(itemId);
 			addDataItem(studentItem, itemId);
 		}
 		/* ลบ WHERE ออกจาก Query เพื่อป้องกันการค้างของคำสั่่งจากการทำงานอื่นที่เรียกตัวแปรไปใช้ */
@@ -277,6 +282,7 @@ public class RecruitToStudentView extends VerticalLayout{
 	
 	/*นำ Layout มาใส่ในแต่ละแถวของตาราง*/
 	private void addDataItem(Item item,Object itemId){
+		table.removeAllItems();
 		table.addItem(new Object[] {
 				item.getItemProperty(RecruitStudentSchema.RECRUIT_CODE).getValue(), 
 				ClassRange.getNameTh(Integer.parseInt(item.getItemProperty(RecruitStudentSchema.CLASS_RANGE).getValue().toString())),
@@ -301,28 +307,36 @@ public class RecruitToStudentView extends VerticalLayout{
 			    Item recruitStudentItem = rsContainer.getItem(itemId);
 			   
 			    /*  ดึงข้อมูลบิด า*/ 
+			    pkIndex = 0;
 			    Item recruitFatherItem = rsFamilyContainer.getItem(new RowId(recruitStudentItem.getItemProperty(RecruitStudentSchema.FATHER_ID).getValue()));
 			    manageFamilyData(recruitFatherItem);
 			    
 			    /* ดึงข้อมูลมารดา*/ 
+			    pkIndex = 1;
 			    Item recruitMotherItem = rsFamilyContainer.getItem(new RowId(recruitStudentItem.getItemProperty(RecruitStudentSchema.MOTHER_ID).getValue()));
 			    manageFamilyData(recruitMotherItem);
 			    
 			    /* ดึงข้อมูลผู้ปกครอง*/ 
+			    pkIndex = 2;
 			    Item recruitGuradianItem = rsFamilyContainer.getItem(new RowId(recruitStudentItem.getItemProperty(RecruitStudentSchema.GUARDIAN_ID).getValue()));
 			    manageFamilyData(recruitGuradianItem);
 
 			    /* ดึงข้อมูลนักเรียน */
+			    pkIndex = 3;
 			    manageStudentData(recruitStudentItem);		   
 
 		    	/* เพิ่มข้อมูลการเรียนนักเรียน */
+			    pkIndex = 4;
 		    	newStudentStudy(recruitStudentItem);
 		    	
 		    	/* เพิ่มข้อมูลห้องเรียนนักเรียน */
+		    	pkIndex = 5;
 		    	newStudentClassRoom(recruitStudentItem);
 		    	
 		    	/* เสร็จสิ้นกระบวนการ */
 		    	setGenerateStudentCodeComplete(recruitStudentItem);
+		    	
+		    	setTableData();
 		    }		
 
 			/* ลบ WHERE ออกจาก Query เพื่อป้องกันการค้างของคำสั่่งจากการทำงานอื่นที่เรียกตัวแปรไปใช้ */
@@ -347,7 +361,7 @@ public class RecruitToStudentView extends VerticalLayout{
 	    	
 	    	newFamily(oldFamilyItem,familyItem);
 	    }else{
-	    	idStore.add(familyItem.getItemProperty(FamilySchema.FAMILY_ID).getValue());
+	    	pkStore[pkIndex] = familyItem.getItemProperty(FamilySchema.FAMILY_ID).getValue();
 	    }
 	}
 	
@@ -366,7 +380,7 @@ public class RecruitToStudentView extends VerticalLayout{
 
 	    	newStudent(oldStudentItem, studentItem);
 	    }else{
-	    	idStore.add(studentItem.getItemProperty(StudentSchema.STUDENT_ID).getValue());
+	    	pkStore[pkIndex] = studentItem.getItemProperty(StudentSchema.STUDENT_ID).getValue();
 	    }	    
 	}
 		
@@ -429,9 +443,9 @@ public class RecruitToStudentView extends VerticalLayout{
 					if(!propertyId.toString().equals(RecruitStudentSchema.STUDENT_ID)){
 						/* หากข้อมูลบิดา มารดา มีอยู่ในระบบแล้ว จะนำข้อมูลเดิมมาใส่ */
 		    			if(propertyId.equals(StudentSchema.FATHER_ID)){
-		    				value = Integer.parseInt(idStore.get(0).toString());
+		    				value = Integer.parseInt(pkStore[0].toString());
 		    			}else if(propertyId.equals(StudentSchema.MOTHER_ID)){
-		    				value = Integer.parseInt(idStore.get(1).toString());
+		    				value = Integer.parseInt(pkStore[1].toString());
 		    			}
 						newItem.getItemProperty(propertyId).setValue(value);
 					}
@@ -449,13 +463,14 @@ public class RecruitToStudentView extends VerticalLayout{
 	}
 	
 	/* บันทึกข้อมูลใหม่ ของข้อมูลการเรียนนักเรียน */
-	@SuppressWarnings({ "unchecked", "deprecation" })
+	@SuppressWarnings({ "unchecked"})
 	private void newStudentStudy(Item oldItem){
 		
     	try {
     		Object studentStudyIdTemp = studentStudyContainer.addItem();
         	Item newItem = studentStudyContainer.getItem(studentStudyIdTemp);
-        	
+        	for(Object object:newItem.getItemPropertyIds())
+        		System.err.println(object.toString());
 			/* กำหนดค่าให้ข้อมูลนักเรียน โดยตรวจสอบชื่อ Column ที่เหมือนกัน ระหว่าง ข้อมูลการสมัคร(RecruitStudent) และ ข้อมูลนักเรียน (Student)*/
 		    for(Object propertyId:oldItem.getItemPropertyIds()){
 				Object value = oldItem.getItemProperty(propertyId).getValue();
@@ -463,7 +478,7 @@ public class RecruitToStudentView extends VerticalLayout{
 					if(!propertyId.toString().equals(StudentStudySchema.STUDENT_STUDY_ID)){
 						/* หากข้อมูลบิดา มารดา มีอยู่ในระบบแล้ว จะนำข้อมูลเดิมมาใส่ */
 		    			if(propertyId.equals(StudentStudySchema.GUARDIAN_ID)){
-		    				value = Integer.parseInt(idStore.get(2).toString());
+		    				value = Integer.parseInt(pkStore[2].toString());
 		    			}
 
 						newItem.getItemProperty(propertyId).setValue(value);
@@ -472,35 +487,11 @@ public class RecruitToStudentView extends VerticalLayout{
 			}
 		    
 		    int classRange = Integer.parseInt(oldItem.getItemProperty(RecruitStudentSchema.CLASS_RANGE).getValue().toString());
+		    String studentCode = getActualStudentCode(Integer.toString(classRange));
 
-		    /* ตรวจสอบ ช่วงชั้นที่สมัคร
-			*   กรณี เป็น 0 แทนด้วย "อนุบาล"
-			*   กรณี เป็น 1 แทนด้วย "ประภม"
-			*   กรณี เป็น 2 แทนด้วย ม.ต้น
-			*   กรณี เป็น 3 แทนด้วย ม ปลาย
-			*  */
-		   int classYear = 0;
-		   if(classRange == 0){
-			   classYear = 0;
-		   }else if(classRange == 1){
-			   classYear = 3;
-		   }else if(classRange == 2){
-			   classYear = 9;
-		   }else if(classRange == 3){
-			   classYear = 12;
-		   }
-		   
-		    String studentCode = getStudentCode(classYear);
-		    
-		    newItem.getItemProperty(StudentStudySchema.STUDENT_ID).setValue(Integer.parseInt(idStore.get(3).toString()));
+		    newItem.getItemProperty(StudentStudySchema.STUDENT_ID).setValue(Integer.parseInt(pkStore[3].toString()));
 		    newItem.getItemProperty(StudentStudySchema.STUDENT_STATUS).setValue(0);
 		    newItem.getItemProperty(StudentStudySchema.STUDENT_CODE).setValue(studentCode);
-		    newItem.getItemProperty(StudentStudySchema.RECRUIT_BY_ID).setValue(SessionSchema.getUserID());
-		    newItem.getItemProperty(StudentStudySchema.RECRUIT_DATE).setValue(new Date());
-		    newItem.getItemProperty(StudentStudySchema.RECRUIT_TYPE).setValue(2);
-		    newItem.getItemProperty(StudentStudySchema.RECRUIT_CLASS_YEAR).setValue(classYear);
-		    newItem.getItemProperty(StudentStudySchema.RECRUIT_YEAR).setValue(1900 + new Date().getYear());
-		    newItem.getItemProperty(StudentStudySchema.RECRUIT_SEMESTER).setValue(0);
 			newItem.getItemProperty(StudentStudySchema.GRADUATED_CLASS_RANGE).setValue(classRange-1);
 		    
 		    /* กำหนด ผู้ใส่ หรือ แก้ไขข้อมูล*/
@@ -532,14 +523,13 @@ public class RecruitToStudentView extends VerticalLayout{
 				}
 			}
 		    
-		    newItem.getItemProperty(StudentClassRoomSchema.STUDENT_STUDY_ID).setValue(Integer.parseInt(idStore.get(4).toString()));
-		    newItem.getItemProperty(StudentClassRoomSchema.ACADEMIC_YEAR).setValue(Integer.parseInt(DateTimeUtil.getBuddishYear()));
+		    newItem.getItemProperty(StudentClassRoomSchema.STUDENT_STUDY_ID).setValue(Integer.parseInt(pkStore[4].toString()));
+		    newItem.getItemProperty(StudentClassRoomSchema.ACADEMIC_YEAR).setValue(DateTimeUtil.getBuddishYear());
 		    
 		    /* กำหนด ผู้ใส่ หรือ แก้ไขข้อมูล*/
 		    CreateModifiedSchema.setCreateAndModified(newItem);
 		    
 		    studentClassRoomContainer.commit();
-		    idStore.clear();
 		}catch (Exception e) {
 			Notification.show("บันทึกห้องเรียนไม่สำเร็จ", Type.WARNING_MESSAGE);
 			e.printStackTrace();
@@ -557,54 +547,7 @@ public class RecruitToStudentView extends VerticalLayout{
 		}
 	}
 	
-	/* สร้างรหัส จากข้อมูลนักเรียนที่ยืนยัน มอบตัว */
-	@SuppressWarnings("deprecation")
-	private String getStudentCode(int classYear){
-		String studentCode = "";
-
-	   SQLContainer freeFormContainer = null;
-	   int maxCode = 0;
-	   
-	   /* ตรวจสอบประเภทการกำหนดรหัสนักเรียน
-	    *   กรณีการตั้งค่าเป็นแบบอัตโนมัติ
-	    *   กรณีตั้งค่าแบบกำหนดเอง*/
-	   if(generateCodeType == 0){
-		   /* ค้นรหัสนักเรียนที่มากสุดของแต่ละชั้นปี เพื่อทำการบวกรหัสนักเรียน */
-		   freeFormContainer = Container.getFreeFormContainer(StatStudentCodeSchema.getQuery(classYear), StatStudentCodeSchema.MAX_STUDENT_CODE);
-		   
-		   maxCode = new Date().getYear()+2443;
-		   studentCode = Integer.toString(maxCode).substring(2)+classYear+"001";
-	   }else if(generateCodeType == 1){
-		   /* ค้นรหัสนักเรียนที่มากสุด เพื่อบวกค่าเรื่อย ๆ เพื่อทำการบวกรหัสนักเรียน */
-		   freeFormContainer = Container.getFreeFormContainer(StatStudentCodeSchema.getQuery(), StatStudentCodeSchema.MAX_STUDENT_CODE);
-		   
-		   Item schoolItem = schoolContainer.getItem(new RowId(SessionSchema.getSchoolID()));
-		   /* ตรวจสอบ รหัสนักเรียนที่มากสุดของแต่ละชั้นปีว่ามีการกำหนดหรือยัง
-		    *  กรณี มีการกำหนดแล้วก็จะบวกรหัสที่มากสุดณปัจจุุบัน
-		    *  กรณี ไม่มีการกำหนดจะทำการกำหนดค่าเอง  */
-		   if(freeFormContainer.size() > 0){				
-				for(Object object:freeFormContainer.getItemIds()){
-					if(Utility.isInteger(object)){
-						maxCode = Integer.parseInt(object.toString())+1;
-						studentCode = Integer.toString(maxCode);
-					}else{
-						studentCode = schoolItem.getItemProperty(SchoolSchema.STUDENT_CODE_FIRST).getValue().toString();
-					}
-				}
-			}else{
-				studentCode = schoolItem.getItemProperty(SchoolSchema.STUDENT_CODE_FIRST).getValue().toString();
-			}
-	   }
-	   
-	   
-	   //ลบ WHERE ออกจาก Query เพื่อป้องกันการค้างของคำสั่่งจากการทำงานอื่นที่เรียกตัวแปรไปใช้
-	   freeFormContainer.removeAllContainerFilters();
-	   
-	   return studentCode;
-	}
-	
 	private void setSummarize(){
-		
 		summarizes.clear();
 		
 		/*SELECT gender , COUNT(class_range) AS class_range 
@@ -658,5 +601,60 @@ public class RecruitToStudentView extends VerticalLayout{
 		sumStr.append("<b>จำนวนไม่่ยืนยันตัว </b> " + unconfirmQty + " คน </br>");
 		
 		summarize.setValue(sumStr.toString());
+	}
+
+	public String getActualStudentCode(String classRange){
+		String studentCodeStr = "";
+		if(generateCodeType == 0){
+			studentCodeStr = getStudentCode(classRange);
+		}else if(generateCodeType == 1){
+			studentCodeStr = getManaulStudentCode();
+		}
+		return studentCodeStr;
+	}
+	
+	private String getStudentCode(String classRange){
+		/* รหัสเริ่มต้น 5801*/
+		String studentCodeStr = DateTimeUtil.getBuddishYear().substring(2) + classRange;
+		
+		/* ดึง รหัสที่มาทที่สุด SELECT MAX(student_code) FROM student WHERE student_code LIKE 'ตำแหน่ง%' */
+		StringBuilder sqlBuilder = new StringBuilder();
+		sqlBuilder.append(" SELECT MAX(" + StudentStudySchema.STUDENT_CODE + ") AS " + StudentStudySchema.STUDENT_CODE);
+		sqlBuilder.append(" FROM " + StudentStudySchema.TABLE_NAME);
+		sqlBuilder.append(" WHERE " + StudentStudySchema.STUDENT_CODE + " LIKE '" + studentCodeStr + "%'");
+		sqlBuilder.append(" AND " + StudentStudySchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
+
+		studentCodeStr += "001";
+		
+		SQLContainer freeContainer = Container.getFreeFormContainer(sqlBuilder.toString(), StudentStudySchema.STUDENT_CODE);
+					
+		if(freeContainer.size() > 0){
+			Item item = freeContainer.getItem(freeContainer.getIdByIndex(0));
+			
+			if(item.getItemProperty(StudentStudySchema.STUDENT_CODE).getValue() != null){
+				studentCodeStr = (Integer.parseInt(item.getItemProperty(StudentStudySchema.STUDENT_CODE).getValue().toString()) + 1) + "";
+				
+			}
+		}
+		return studentCodeStr;
+	}
+	
+	private String getManaulStudentCode(){
+		String maxCode = "";
+		int max = 0;
+		StringBuilder builder = new StringBuilder();
+		builder.append(" SELECT MAX("+StudentStudySchema.STUDENT_CODE +") AS " + StudentStudySchema.STUDENT_CODE + " FROM " + StudentStudySchema.TABLE_NAME);
+		builder.append(" WHERE " + StudentStudySchema.SCHOOL_ID + "="+ SessionSchema.getSchoolID());
+
+		SQLContainer freeContainer = Container.getFreeFormContainer(builder.toString(), StudentStudySchema.STUDENT_CODE);
+		if(freeContainer.getItem(freeContainer.getIdByIndex(0)).getItemProperty(StudentStudySchema.STUDENT_CODE).getValue() != null){
+			max = Integer.parseInt(freeContainer.getItem(freeContainer.getIdByIndex(0)).getItemProperty(StudentStudySchema.STUDENT_CODE).getValue().toString());
+			max++;
+			maxCode = Integer.toString(max);
+		}else{
+		   Item schoolItem = schoolContainer.getItem(new RowId(SessionSchema.getSchoolID()));
+		   maxCode = schoolItem.getItemProperty(SchoolSchema.STUDENT_CODE_FIRST).getValue().toString();
+		}
+		return maxCode;
 	}
 }

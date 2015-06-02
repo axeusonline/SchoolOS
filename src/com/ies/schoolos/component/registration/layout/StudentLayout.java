@@ -6,6 +6,7 @@ import java.util.Locale;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.ies.schoolos.component.ui.NumberField;
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.SchoolSchema;
 import com.ies.schoolos.schema.SessionSchema;
@@ -67,7 +68,7 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 
-public class StudentLayout extends TabSheet {
+public class StudentLayout extends SchoolOSLayout {
 private static final long serialVersionUID = 1L;
 	
 	public boolean isEdit = false;
@@ -88,11 +89,11 @@ private static final long serialVersionUID = 1L;
 	private String generatedType = "";
 	private String maxStudentCode = "";
 
-	public SQLContainer sSqlContainer = Container.getStudentContainer();
-	public SQLContainer ssSqlContainer = Container.getStudentStudyContainer();
-	public SQLContainer fSqlContainer = Container.getFamilyContainer();
-	public SQLContainer userfSqlContainer = Container.getUserContainer();
-	private SQLContainer schoolContainer = Container.getSchoolContainer();
+	public SQLContainer sSqlContainer = container.getStudentContainer();
+	public SQLContainer ssSqlContainer = container.getStudentStudyContainer();
+	public SQLContainer fSqlContainer = container.getFamilyContainer();
+	public SQLContainer userfSqlContainer = container.getUserContainer();
+	private SQLContainer schoolContainer = container.getSchoolContainer();
 	
 	public FieldGroup studentBinder;
 	public FieldGroup studentStudyBinder;
@@ -100,6 +101,7 @@ private static final long serialVersionUID = 1L;
 	public FieldGroup motherBinder;
 	public FieldGroup guardianBinder;
 
+	private TabSheet tabsheet;
 	private FormLayout generalForm;
 	private OptionGroup peopleIdType;
 	private TextField peopleId;
@@ -270,8 +272,12 @@ private static final long serialVersionUID = 1L;
 		else
 			generatedType = "1";
 		
-		setWidth("100%");
-		setHeight("100%");
+		setSizeFull();
+		
+		tabsheet = new TabSheet();
+		tabsheet.setSizeFull();
+		addComponent(tabsheet);
+		
 		generalInfoLayout();
 		studyForm();
 		graduatedForm();
@@ -293,7 +299,7 @@ private static final long serialVersionUID = 1L;
 		generalForm = new FormLayout();
 		generalForm.setSizeUndefined();
 		generalForm.setMargin(true);
-		addTab(generalForm,"ข้อมูลทั่วไป", FontAwesome.CHILD);
+		tabsheet.addTab(generalForm,"ข้อมูลทั่วไป", FontAwesome.CHILD);
 		
 		peopleIdType = new OptionGroup("ประเภทบัตร",new PeopleIdType());
 		peopleIdType.setItemCaptionPropertyId("name");
@@ -524,7 +530,7 @@ private static final long serialVersionUID = 1L;
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(studyForm);
+				tabsheet.setSelectedTab(studyForm);
 			}
 		});
 		buttonLayout.addComponent(studyNext);	
@@ -535,7 +541,7 @@ private static final long serialVersionUID = 1L;
 		studyForm = new FormLayout();
 		studyForm.setSizeUndefined();
 		studyForm.setMargin(true);
-		addTab(studyForm,"ข้อมูลการเรียน", FontAwesome.GRADUATION_CAP);
+		tabsheet.addTab(studyForm,"ข้อมูลการเรียน", FontAwesome.GRADUATION_CAP);
 				
 		if(generatedType.equals("0")){
 			classRange = new ComboBox("ช่วงชั้นปัจจุบัน",new ClassRange());
@@ -639,7 +645,7 @@ private static final long serialVersionUID = 1L;
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(generalForm);
+				tabsheet.setSelectedTab(generalForm);
 			}
 		});
 		buttonLayout.addComponents(generalBack);
@@ -650,7 +656,7 @@ private static final long serialVersionUID = 1L;
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(graduatedForm);				
+				tabsheet.setSelectedTab(graduatedForm);				
 			}
 		});
 		buttonLayout.addComponents(graduatedNext);
@@ -661,7 +667,7 @@ private static final long serialVersionUID = 1L;
 		graduatedForm = new FormLayout();
 		graduatedForm.setSizeUndefined();
 		graduatedForm.setMargin(true);
-		addTab(graduatedForm,"ข้อมูลการศึกษา", FontAwesome.GRADUATION_CAP);
+		tabsheet.addTab(graduatedForm,"ข้อมูลการศึกษา", FontAwesome.GRADUATION_CAP);
 		
 		graduatedSchool = new TextField("โรงเรียนที่จบ");
 		graduatedSchool.setInputPrompt("ชื่อโรงเรียน");
@@ -718,7 +724,7 @@ private static final long serialVersionUID = 1L;
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(studyForm);
+				tabsheet.setSelectedTab(studyForm);
 			}
 		});
 		buttonLayout.addComponents(studyBack);
@@ -729,7 +735,7 @@ private static final long serialVersionUID = 1L;
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(addressForm);
+				tabsheet.setSelectedTab(addressForm);
 			}
 		});
 		buttonLayout.addComponent(addressNext);
@@ -741,7 +747,7 @@ private static final long serialVersionUID = 1L;
 		addressForm = new FormLayout();
 		addressForm.setSizeUndefined();
 		addressForm.setMargin(true);
-		addTab(addressForm,"ข้อมูลติดต่อ", FontAwesome.BOOK);
+		tabsheet.addTab(addressForm,"ข้อมูลติดต่อ", FontAwesome.BOOK);
 		
 		tel = new TextField("เบอร์โทร");
 		tel.setInputPrompt("เบอร์โทร");
@@ -1058,7 +1064,7 @@ private static final long serialVersionUID = 1L;
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(graduatedForm);
+				tabsheet.setSelectedTab(graduatedForm);
 			}
 		});
 		buttonLayout.addComponents(graduatedBack);
@@ -1078,7 +1084,7 @@ private static final long serialVersionUID = 1L;
 		                if (dialog.isConfirmed()) {
 		                	isInsertParents = true;
 		            		familyStatus.setRequired(true);
-		                	setSelectedTab(fatherForm);
+		                	tabsheet.setSelectedTab(fatherForm);
 		                }else{
 		                	isInsertParents = false;
 		            		familyStatus.setRequired(false);
@@ -1096,7 +1102,7 @@ private static final long serialVersionUID = 1L;
 		fatherForm = new FormLayout();
 		fatherForm.setSizeUndefined();
 		fatherForm.setMargin(true);
-		addTab(fatherForm,"ข้อมูลบิดา", FontAwesome.MALE);
+		tabsheet.addTab(fatherForm,"ข้อมูลบิดา", FontAwesome.MALE);
 		
 		fPeopleIdType = new OptionGroup("ประเภทบัตร",new PeopleIdType());
 		fPeopleIdType.setItemCaptionPropertyId("name");
@@ -1375,7 +1381,7 @@ private static final long serialVersionUID = 1L;
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(addressForm);
+				tabsheet.setSelectedTab(addressForm);
 			}
 		});
 		buttonLayout.addComponents(addressBack);
@@ -1386,7 +1392,7 @@ private static final long serialVersionUID = 1L;
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(motherForm);
+				tabsheet.setSelectedTab(motherForm);
 			}
 		});
 		buttonLayout.addComponents(motherNext);
@@ -1397,7 +1403,7 @@ private static final long serialVersionUID = 1L;
 		motherForm = new FormLayout();
 		motherForm.setSizeUndefined();
 		motherForm.setMargin(true);
-		addTab(motherForm,"ข้อมูลมารดา", FontAwesome.FEMALE);
+		tabsheet.addTab(motherForm,"ข้อมูลมารดา", FontAwesome.FEMALE);
 		
 		mPeopleIdType = new OptionGroup("ประเภทบัตร",new PeopleIdType());
 		mPeopleIdType.setItemCaptionPropertyId("name");
@@ -1685,7 +1691,7 @@ private static final long serialVersionUID = 1L;
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(fatherForm);
+				tabsheet.setSelectedTab(fatherForm);
 			}
 		});
 		buttonLayout.addComponents(fatherBack);
@@ -1696,7 +1702,7 @@ private static final long serialVersionUID = 1L;
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(guardianForm);
+				tabsheet.setSelectedTab(guardianForm);
 			}
 		});
 		buttonLayout.addComponents(guardianNext);
@@ -1707,7 +1713,7 @@ private static final long serialVersionUID = 1L;
 		guardianForm = new FormLayout();
 		guardianForm.setSizeUndefined();
 		guardianForm.setMargin(true);
-		addTab(guardianForm,"ข้อมูลผู้ปกครอง", FontAwesome.USER);
+		tabsheet.addTab(guardianForm,"ข้อมูลผู้ปกครอง", FontAwesome.USER);
 		
 		gParents = new ComboBox("ผู้ปกครอง",new Parents());
 		gParents.setInputPrompt("กรุณาเลือก");
@@ -2021,7 +2027,7 @@ private static final long serialVersionUID = 1L;
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(motherForm);
+				tabsheet.setSelectedTab(motherForm);
 			}
 		});
 		buttonLayout.addComponents(motherBack);
@@ -2426,7 +2432,7 @@ private static final long serialVersionUID = 1L;
 	/* ==================== PUBLIC ==================== */
 	
 	public void selectGuardianFormTab(){
-		setSelectedTab(guardianForm);
+		tabsheet.setSelectedTab(guardianForm);
 	}
 	/* ตั้งค่า Mode ว่าต้องการให้กำหนดข้อมูลเริ่มต้นให้เลยไหม*/
 	public void setDebugMode(boolean debugMode){
@@ -2537,15 +2543,12 @@ private static final long serialVersionUID = 1L;
 		studentCodeStr += "001";
 		
 		SQLContainer freeContainer = Container.getFreeFormContainer(sqlBuilder.toString(), StudentStudySchema.STUDENT_CODE);
-					
-		if(freeContainer.size() > 0){
-			Item item = freeContainer.getItem(freeContainer.getIdByIndex(0));
-			
-			if(item.getItemProperty(StudentStudySchema.STUDENT_CODE).getValue() != null){
-				studentCodeStr = (Integer.parseInt(item.getItemProperty(StudentStudySchema.STUDENT_CODE).getValue().toString()) + 1) + "";
-				
-			}
+		Item item = freeContainer.getItem(freeContainer.getIdByIndex(0));
+		
+		if(item.getItemProperty(StudentStudySchema.STUDENT_CODE).getValue() != null){
+			studentCodeStr = (Integer.parseInt(item.getItemProperty(StudentStudySchema.STUDENT_CODE).getValue().toString()) + 1) + "";	
 		}
+		
 		return studentCodeStr;
 	}
 	
@@ -2562,7 +2565,8 @@ private static final long serialVersionUID = 1L;
 			max++;
 			maxCode = Integer.toString(max);
 		}else{
-			maxCode = "00001";
+		   Item schoolItem = schoolContainer.getItem(new RowId(SessionSchema.getSchoolID()));
+		   maxCode = schoolItem.getItemProperty(SchoolSchema.STUDENT_CODE_FIRST).getValue().toString();
 		}
 
 		return maxCode;

@@ -4,8 +4,8 @@ import java.util.Collection;
 
 import org.tepi.filtertable.FilterTable;
 
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.component.ui.TwinSelectTable;
-import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
 import com.ies.schoolos.schema.SchoolSchema;
@@ -33,18 +33,17 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
 
-public class RecruitStudentClassRoomTmpView extends VerticalLayout{
+public class RecruitStudentClassRoomTmpView extends SchoolOSLayout{
 	private static final long serialVersionUID = 1L;
 
 	private int capacity = 0;
 	
-	private SQLContainer sContainer = Container.getRecruitStudentContainer();
-	private SQLContainer classContainer = Container.getClassRoomContainer();
+	private SQLContainer sContainer = container.getRecruitStudentContainer();
+	private SQLContainer classContainer = container.getClassRoomContainer();
 	
 	private ComboBox classRoom;
 	private Label capacityLabel;

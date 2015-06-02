@@ -2,7 +2,7 @@ package com.ies.schoolos.report.excel;
 
 import java.util.Date;
 
-import com.ies.schoolos.container.Container;
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.schema.CitySchema;
 import com.ies.schoolos.schema.DistrictSchema;
 import com.ies.schoolos.schema.PostcodeSchema;
@@ -41,7 +41,7 @@ public class RecruitStudentConfirmedToExcel extends Table{
 	}
 	
 	public void setData(){
-		SQLContainer sContainer = Container.getRecruitStudentContainer();
+		SQLContainer sContainer = SchoolOSLayout.container.getRecruitStudentContainer();
 		sContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.SCHOOL_ID,SessionSchema.getSchoolID()),
 				new Greater(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getFirstDateOfYear()),
 				new Less(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getLastDateOfYear()),
@@ -183,14 +183,14 @@ public class RecruitStudentConfirmedToExcel extends Table{
 		
 		for(Object itemId:sContainer.getItemIds()){
 			Item item = sContainer.getItem(itemId);
-			SQLContainer examBuildingContainer = Container.getBuildingContainer();
-			SQLContainer classRoomContainer = Container.getClassRoomContainer();
+			SQLContainer examBuildingContainer = SchoolOSLayout.container.getBuildingContainer();
+			SQLContainer classRoomContainer = SchoolOSLayout.container.getClassRoomContainer();
 			
-			SQLContainer fContainer = Container.getRecruitFamilyContainer();
-			SQLContainer provinceContainer = Container.getProvinceContainer();
-			SQLContainer districtContainer = Container.getDistrictContainer();
-			SQLContainer cityContainer = Container.getCityContainer();
-			SQLContainer postcodeContainer = Container.getPostcodeContainer();
+			SQLContainer fContainer = SchoolOSLayout.container.getRecruitFamilyContainer();
+			SQLContainer provinceContainer = SchoolOSLayout.container.getProvinceContainer();
+			SQLContainer districtContainer = SchoolOSLayout.container.getDistrictContainer();
+			SQLContainer cityContainer = SchoolOSLayout.container.getCityContainer();
+			SQLContainer postcodeContainer = SchoolOSLayout.container.getPostcodeContainer();
 			
 			/* จังหวัดโรงเรียนที่จบ */
 			String graduatedProvince = provinceContainer.

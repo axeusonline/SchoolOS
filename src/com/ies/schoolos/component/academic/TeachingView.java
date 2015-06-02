@@ -5,9 +5,9 @@ import java.util.Collection;
 import org.tepi.filtertable.FilterTable;
 import org.tepi.filtertable.numberfilter.NumberInterval;
 
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.component.ui.TwinSelectTable;
 import com.ies.schoolos.container.Container;
-import com.ies.schoolos.container.DbConnection;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
 import com.ies.schoolos.schema.CreateModifiedSchema;
@@ -27,7 +27,6 @@ import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.filter.And;
 import com.vaadin.data.util.filter.Compare.Equal;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
-import com.vaadin.data.util.sqlcontainer.query.FreeformQuery;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.Alignment;
@@ -44,12 +43,12 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
 
-public class TeachingView extends VerticalLayout {
+public class TeachingView extends SchoolOSLayout {
 
 	private static final long serialVersionUID = 1L;
 	
 	private SQLContainer freeContainer;
-	private SQLContainer teachingContainer = Container.getTeachingContainer();
+	private SQLContainer teachingContainer;
 
 	private ComboBox subject;
 	private Button addition;
@@ -57,6 +56,7 @@ public class TeachingView extends VerticalLayout {
 	private TwinSelectTable twinSelect;
 	
 	public TeachingView() {
+		teachingContainer = container.getTeachingContainer();
 		teachingContainer.refresh();
 		
 		setSizeFull();
@@ -181,8 +181,6 @@ public class TeachingView extends VerticalLayout {
 		weekend  = new Button("วันหยุดรายบุคคล", FontAwesome.CALENDAR);
 		weekend.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 1L;
-
-			private SQLContainer teachingContainer = Container.getTeachingContainer();
 			
 			private String FIELD_NAME = "name";
 			
@@ -656,10 +654,9 @@ public class TeachingView extends VerticalLayout {
 					builder.append(" FROM " + PersonnelSchema.TABLE_NAME);
 					builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + item.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue());
 
-					FreeformQuery tq = new FreeformQuery(builder.toString(), DbConnection.getConnection(),PersonnelSchema.PERSONNEL_ID);
-					SQLContainer personnelContainer = new SQLContainer(tq);
+					SQLContainer freeContainer = Container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
 
-					Item personnelItem = personnelContainer.getItem(personnelContainer.getIdByIndex(0));
+					Item personnelItem = freeContainer.getItem(freeContainer.getIdByIndex(0));
 					personalCode = personnelItem.getItemProperty(PersonnelSchema.PERSONNEL_CODE).getValue();
 					firstname = personnelItem.getItemProperty(PersonnelSchema.FIRSTNAME).getValue();
 					lastname = personnelItem.getItemProperty(PersonnelSchema.LASTNAME).getValue();

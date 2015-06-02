@@ -5,6 +5,7 @@ import org.vaadin.activelink.ActiveLink;
 import org.vaadin.activelink.ActiveLink.LinkActivatedEvent;
 import org.vaadin.activelink.ActiveLink.LinkActivatedListener;
 
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
@@ -32,13 +33,12 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Notification.Type;
 
-public class UserManagerView extends VerticalLayout {
+public class UserManagerView extends SchoolOSLayout {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -47,7 +47,7 @@ public class UserManagerView extends VerticalLayout {
 	private String passwordHashed = "";
 	
 	private SQLContainer freeContainer;
-	private SQLContainer userContainer = Container.getUserContainer();
+	private SQLContainer userContainer = container.getUserContainer();
 	
 	private JobPosition jContainer = new JobPosition();
 	

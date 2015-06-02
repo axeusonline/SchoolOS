@@ -1,6 +1,6 @@
 package com.ies.schoolos.type.dynamic;
 
-import com.ies.schoolos.container.Container;
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.fundamental.ClassRoomSchema;
 import com.vaadin.data.Item;
@@ -19,7 +19,7 @@ public class ClassRoom extends IndexedContainer{
  
 	@SuppressWarnings("unchecked")
 	private void initContainer(){
-		SQLContainer container = Container.getClassRoomContainer();
+		SQLContainer container = SchoolOSLayout.container.getClassRoomContainer();
 		container.addContainerFilter(new Equal(ClassRoomSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
 		addContainerProperty("name", String.class,null);
 		

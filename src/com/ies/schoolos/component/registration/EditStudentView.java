@@ -3,7 +3,6 @@ package com.ies.schoolos.component.registration;
 import java.util.Date;
 
 import com.ies.schoolos.component.registration.layout.StudentLayout;
-import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.info.StudentSchema;
 import com.ies.schoolos.schema.info.StudentStudySchema;
 import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
@@ -44,9 +43,9 @@ public class EditStudentView extends StudentLayout {
 	private Item motherItem;
 	private Item guardianItem;
 
-	public SQLContainer sSqlContainer = Container.getStudentContainer();
-	public SQLContainer ssSqlContainer = Container.getStudentStudyContainer();
-	public SQLContainer fSqlContainer = Container.getFamilyContainer();
+	public SQLContainer sSqlContainer = container.getStudentContainer();
+	public SQLContainer ssSqlContainer = container.getStudentStudyContainer();
+	public SQLContainer fSqlContainer = container.getFamilyContainer();
 	
 	public EditStudentView(Object studyId,boolean isTempStudent) {
 		isEdit = true;
@@ -78,7 +77,7 @@ public class EditStudentView extends StudentLayout {
 	
 	/* นำข้อมูลจาก studyId มาทำการกรอกในฟอร์มทั้งหมด */
 	private void initEditData(){
-		studyItem = ssSqlContainer.getItem(new RowId(Integer.parseInt(studyId.toString())));
+		studyItem = ssSqlContainer.getItem(new RowId(studyId));
 		studentItem = sSqlContainer.getItem(new RowId(studyItem.getItemProperty(StudentStudySchema.STUDENT_ID).getValue()));
 
 		fatherId = studentItem.getItemProperty(StudentSchema.FATHER_ID).getValue();

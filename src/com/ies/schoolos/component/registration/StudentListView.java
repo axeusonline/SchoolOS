@@ -3,6 +3,7 @@ package com.ies.schoolos.component.registration;
 import org.tepi.filtertable.FilterTable;
 import org.vaadin.dialogs.ConfirmDialog;
 
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
@@ -19,7 +20,6 @@ import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Notification.Type;
@@ -29,7 +29,7 @@ import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseListener;
 
-public class StudentListView extends VerticalLayout {
+public class StudentListView extends SchoolOSLayout {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -182,7 +182,7 @@ public class StudentListView extends VerticalLayout {
 				
 				Window editWindow = new Window();
 				editWindow.setSizeFull();
-				editWindow.setContent(new EditStudentView(itemId.toString(),true));
+				editWindow.setContent(new EditStudentView(Integer.parseInt(itemId.toString()),true));
 				editWindow.addCloseListener(new CloseListener() {
 					private static final long serialVersionUID = 1L;
 
@@ -210,8 +210,8 @@ public class StudentListView extends VerticalLayout {
 						private static final long serialVersionUID = 1L;
 						public void onClose(ConfirmDialog dialog) {
 			                if (dialog.isConfirmed()) {
-			                	SQLContainer studyContainer = Container.getStudentStudyContainer();
-			                	SQLContainer ssontainer = Container.getStudentContainer();
+			                	SQLContainer studyContainer = container.getStudentStudyContainer();
+			                	SQLContainer ssontainer = container.getStudentContainer();
 
 			                	Object studentId = studyContainer.getItem(itemId).getItemProperty(StudentStudySchema.STUDENT_ID).getValue();
 

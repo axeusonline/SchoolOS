@@ -45,7 +45,7 @@ public class ClassRoomView extends ContentPage{
 
 	private boolean editMode = false;
 	
-	private SQLContainer classContainer = Container.getClassRoomContainer();
+	private SQLContainer classContainer = container.getClassRoomContainer();
 	
 	private Item item;
 

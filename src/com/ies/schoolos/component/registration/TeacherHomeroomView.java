@@ -5,9 +5,9 @@ import java.util.Collection;
 import org.tepi.filtertable.FilterTable;
 import org.tepi.filtertable.numberfilter.NumberInterval;
 
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.component.ui.TwinSelectTable;
 import com.ies.schoolos.container.Container;
-import com.ies.schoolos.container.DbConnection;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
 import com.ies.schoolos.schema.CreateModifiedSchema;
@@ -24,7 +24,6 @@ import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.filter.And;
 import com.vaadin.data.util.filter.Compare.Equal;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
-import com.vaadin.data.util.sqlcontainer.query.FreeformQuery;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.Alignment;
@@ -34,18 +33,17 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
 
-public class TeacherHomeroomView extends VerticalLayout {
+public class TeacherHomeroomView extends SchoolOSLayout {
 
 	private static final long serialVersionUID = 1L;
 	
 	private SQLContainer tContainer;
-	private SQLContainer teacherHomeroomContainer = Container.getTeacherHomeroomContainer();
+	private SQLContainer teacherHomeroomContainer = container.getTeacherHomeroomContainer();
 
 	private ComboBox classRoom;
 	private Button addition;
@@ -395,10 +393,9 @@ public class TeacherHomeroomView extends VerticalLayout {
 					builder.append(" FROM " + PersonnelSchema.TABLE_NAME);
 					builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + item.getItemProperty(TeacherHomeroomSchema.PERSONNEL_ID).getValue());
 
-					FreeformQuery tq = new FreeformQuery(builder.toString(), DbConnection.getConnection(),PersonnelSchema.PERSONNEL_ID);
-					SQLContainer personnelContainer = new SQLContainer(tq);
+					SQLContainer freeContainer = Container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
 
-					Item personnelItem = personnelContainer.getItem(personnelContainer.getIdByIndex(0));
+					Item personnelItem = freeContainer.getItem(freeContainer.getIdByIndex(0));
 					personalCode = personnelItem.getItemProperty(PersonnelSchema.PERSONNEL_CODE).getValue();
 					firstname = personnelItem.getItemProperty(PersonnelSchema.FIRSTNAME).getValue();
 					lastname = personnelItem.getItemProperty(PersonnelSchema.LASTNAME).getValue();

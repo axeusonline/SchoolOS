@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.CitySchema;
 import com.ies.schoolos.schema.DistrictSchema;
@@ -77,7 +78,6 @@ public class StudentToExcel extends Table{
 		addContainerProperty(StudentSchema.FAMILY_STATUS, String.class, null);
 		addContainerProperty(StudentStudySchema.GUARDIAN_ID, String.class, null);
 		addContainerProperty(StudentStudySchema.GUARDIAN_RELATION, String.class, null);
-		addContainerProperty(StudentStudySchema.RECRUIT_DATE, Date.class, null);
 		
 		setColumnHeader(ClassRoomSchema.CLASS_ROOM_ID, "ห้องเรียน");
 		setColumnHeader(StudentStudySchema.STUDENT_CODE, "รหัสนักเรียน");
@@ -118,7 +118,6 @@ public class StudentToExcel extends Table{
 		setColumnHeader(StudentSchema.FAMILY_STATUS, "สถานะครอบครัว");
 		setColumnHeader(StudentStudySchema.GUARDIAN_ID, "ผู้ปกครอง");
 		setColumnHeader(StudentStudySchema.GUARDIAN_RELATION, "ความสัมพันธ์");
-		setColumnHeader(StudentStudySchema.RECRUIT_DATE, "วันที่เข้าเรียน");
 		
 		setVisibleColumns(
 				ClassRoomSchema.CLASS_ROOM_ID,
@@ -159,9 +158,7 @@ public class StudentToExcel extends Table{
 				StudentSchema.MOTHER_ID,
 				StudentSchema.FAMILY_STATUS,
 				StudentStudySchema.GUARDIAN_ID,
-				StudentStudySchema.GUARDIAN_RELATION,
-				StudentStudySchema.RECRUIT_DATE
-				);
+				StudentStudySchema.GUARDIAN_RELATION);
 		
 		SQLContainer freeFormContainer = Container.getFreeFormContainer(""
 				+ "SELECT * FROM student_class_room scr "
@@ -207,25 +204,25 @@ public class StudentToExcel extends Table{
 				}else if(propertyId.equals(StudentStudySchema.GRADUATED_SCHOOL_PROVINCE_ID)){
 					value = item.getItemProperty(ClassRoomSchema.NAME).getValue();
 				}else if(propertyId.equals(StudentStudySchema.CURRENT_CITY_ID)){
-					SQLContainer cityContainer = Container.getCityContainer();
+					SQLContainer cityContainer = SchoolOSLayout.container.getCityContainer();
 					Item cityItem = cityContainer.getItem(new RowId(value));
 					value = cityItem.getItemProperty(CitySchema.NAME).getValue();
 				}else if(propertyId.equals(StudentStudySchema.CURRENT_DISTRICT_ID)){
-					SQLContainer districtContainer = Container.getDistrictContainer();
+					SQLContainer districtContainer = SchoolOSLayout.container.getDistrictContainer();
 					Item districtItem = districtContainer.getItem(new RowId(value));
 					value = districtItem.getItemProperty(DistrictSchema.NAME).getValue();
 				}else if(propertyId.equals(StudentStudySchema.CURRENT_PROVINCE_ID)){
-					SQLContainer provinceContainer = Container.getProvinceContainer();
+					SQLContainer provinceContainer = SchoolOSLayout.container.getProvinceContainer();
 					Item provinceItem = provinceContainer.getItem(new RowId(value));
 					value = provinceItem.getItemProperty(ProvinceSchema.NAME).getValue();
 				}else if(propertyId.equals(StudentStudySchema.CURRENT_POSTCODE_ID)){
-					SQLContainer postcodeContainer = Container.getPostcodeContainer();
+					SQLContainer postcodeContainer = SchoolOSLayout.container.getPostcodeContainer();
 					Item postcodeItem = postcodeContainer.getItem(new RowId(value));
 					value = postcodeItem.getItemProperty(PostcodeSchema.CODE).getValue();
 				}else if(propertyId.equals(StudentSchema.FATHER_ID) ||
 						propertyId.equals(StudentSchema.MOTHER_ID) ||
 						propertyId.equals(StudentStudySchema.GUARDIAN_ID)){
-					SQLContainer fContainer = Container.getFamilyContainer();
+					SQLContainer fContainer = SchoolOSLayout.container.getFamilyContainer();
 					Item familyItem = fContainer.getItem(new RowId(value));
 					value = familyItem.getItemProperty(FamilySchema.FIRSTNAME).getValue() + " " + familyItem.getItemProperty(FamilySchema.LASTNAME).getValue();
 				}

@@ -13,8 +13,8 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.util.CellRangeAddress;
 
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
-import com.ies.schoolos.container.DbConnection;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.academic.ClassRoomLessonPlanSchema;
 import com.ies.schoolos.schema.academic.LessonPlanSubjectSchema;
@@ -33,7 +33,6 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
-import com.vaadin.data.util.sqlcontainer.query.FreeformQuery;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Page;
 import com.vaadin.shared.ui.combobox.FilteringMode;
@@ -46,7 +45,7 @@ import com.vaadin.ui.Table.Align;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
-public class TimetableExportView extends VerticalLayout {
+public class TimetableExportView extends SchoolOSLayout {
 
 	private static final long serialVersionUID = 1L;
 
@@ -379,9 +378,8 @@ public class TimetableExportView extends VerticalLayout {
 
 	/* ค้นหาห้องเรียนทั้งหมด */
 	private SQLContainer searchClassRoomLessonPlan(){
-		try{
-			FreeformQuery tq = new FreeformQuery(getAllClassRoom(), DbConnection.getConnection(),ClassRoomLessonPlanSchema.CLASS_ROOM_LESSON_PLAN_ID);		
-			SQLContainer freeContainer = new SQLContainer(tq);
+		try{	
+			SQLContainer freeContainer = Container.getFreeFormContainer(getAllClassRoom(), ClassRoomLessonPlanSchema.CLASS_ROOM_LESSON_PLAN_ID);
 			return freeContainer;
 		}catch(Exception e){
 			e.printStackTrace();

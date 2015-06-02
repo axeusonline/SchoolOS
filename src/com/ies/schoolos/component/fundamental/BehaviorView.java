@@ -5,7 +5,6 @@ import org.vaadin.dialogs.ConfirmDialog;
 
 import com.ies.schoolos.component.ui.ContentPage;
 import com.ies.schoolos.component.ui.NumberField;
-import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
 import com.ies.schoolos.schema.CreateModifiedSchema;
@@ -45,7 +44,7 @@ public class BehaviorView extends ContentPage{
 
 	private boolean editMode = false;
 	
-	private SQLContainer sContainer = Container.getBehaviorContainer();
+	private SQLContainer sContainer = container.getBehaviorContainer();
 	
 	private Item item;
 

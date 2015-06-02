@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import com.ies.schoolos.component.ui.NumberField;
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.schema.recruit.RecruitStudentFamilySchema;
 import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
 import com.ies.schoolos.type.AliveStatus;
@@ -42,7 +43,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 
-public class RecruitStudentLayout extends TabSheet {
+public class RecruitStudentLayout extends SchoolOSLayout {
 	private static final long serialVersionUID = 1L;
 	
 	public FieldGroup studentBinder;
@@ -50,6 +51,7 @@ public class RecruitStudentLayout extends TabSheet {
 	public FieldGroup motherBinder;
 	public FieldGroup guardianBinder;
 
+	private TabSheet tabsheet;
 	private FormLayout generalForm;
 	private ComboBox classRange;
 	private OptionGroup peopleIdType;
@@ -188,8 +190,12 @@ public class RecruitStudentLayout extends TabSheet {
 	}
 	
 	private void buildMainLayout()  {
-		setWidth("100%");
-		setHeight("100%");
+		setSizeFull();
+		
+		tabsheet = new TabSheet();
+		tabsheet.setSizeFull();
+		addComponent(tabsheet);
+		
 		generalInfoLayout();
 		graduatedForm();
 		addressForm();
@@ -204,7 +210,7 @@ public class RecruitStudentLayout extends TabSheet {
 		generalForm = new FormLayout();
 		generalForm.setSizeUndefined();
 		generalForm.setMargin(true);
-		addTab(generalForm,"ข้อมูลทั่วไป", FontAwesome.CHILD);
+		tabsheet.addTab(generalForm,"ข้อมูลทั่วไป", FontAwesome.CHILD);
 		
 		classRange = new ComboBox("ระดับชั้นที่สมัคร",new ClassRange());
 		classRange.setInputPrompt("กรุณาเลือก");
@@ -427,7 +433,7 @@ public class RecruitStudentLayout extends TabSheet {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(graduatedForm);
+				tabsheet.setSelectedTab(graduatedForm);
 			}
 		});
 		buttonLayout.addComponent(graduatedNext);	
@@ -438,7 +444,7 @@ public class RecruitStudentLayout extends TabSheet {
 		graduatedForm = new FormLayout();
 		graduatedForm.setSizeUndefined();
 		graduatedForm.setMargin(true);
-		addTab(graduatedForm,"ข้อมูลการศึกษา", FontAwesome.GRADUATION_CAP);
+		tabsheet.addTab(graduatedForm,"ข้อมูลการศึกษา", FontAwesome.GRADUATION_CAP);
 		
 		graduatedSchool = new TextField("โรงเรียนที่จบ");
 		graduatedSchool.setInputPrompt("ชื่อโรงเรียน");
@@ -489,7 +495,7 @@ public class RecruitStudentLayout extends TabSheet {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(generalForm);
+				tabsheet.setSelectedTab(generalForm);
 			}
 		});
 		buttonLayout.addComponents(generalBack);
@@ -500,7 +506,7 @@ public class RecruitStudentLayout extends TabSheet {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(addressForm);
+				tabsheet.setSelectedTab(addressForm);
 			}
 		});
 		buttonLayout.addComponent(addressNext);
@@ -512,7 +518,7 @@ public class RecruitStudentLayout extends TabSheet {
 		addressForm = new FormLayout();
 		addressForm.setSizeUndefined();
 		addressForm.setMargin(true);
-		addTab(addressForm,"ข้อมูลติดต่อ", FontAwesome.BOOK);
+		tabsheet.addTab(addressForm,"ข้อมูลติดต่อ", FontAwesome.BOOK);
 		
 		tel = new TextField("เบอร์โทร");
 		tel.setInputPrompt("เบอร์โทร");
@@ -624,7 +630,7 @@ public class RecruitStudentLayout extends TabSheet {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(graduatedForm);
+				tabsheet.setSelectedTab(graduatedForm);
 			}
 		});
 		buttonLayout.addComponents(graduatedBack);
@@ -635,7 +641,7 @@ public class RecruitStudentLayout extends TabSheet {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(fatherForm);
+				tabsheet.setSelectedTab(fatherForm);
 			}
 		});
 		
@@ -647,7 +653,7 @@ public class RecruitStudentLayout extends TabSheet {
 		fatherForm = new FormLayout();
 		fatherForm.setSizeUndefined();
 		fatherForm.setMargin(true);
-		addTab(fatherForm,"ข้อมูลบิดา", FontAwesome.MALE);
+		tabsheet.addTab(fatherForm,"ข้อมูลบิดา", FontAwesome.MALE);
 		
 		fPeopleIdType = new OptionGroup("ประเภทบัตร",new PeopleIdType());
 		fPeopleIdType.setItemCaptionPropertyId("name");
@@ -911,7 +917,7 @@ public class RecruitStudentLayout extends TabSheet {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(addressForm);
+				tabsheet.setSelectedTab(addressForm);
 			}
 		});
 		buttonLayout.addComponents(addressBack);
@@ -922,7 +928,7 @@ public class RecruitStudentLayout extends TabSheet {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(motherForm);
+				tabsheet.setSelectedTab(motherForm);
 			}
 		});
 		buttonLayout.addComponents(motherNext);
@@ -933,7 +939,7 @@ public class RecruitStudentLayout extends TabSheet {
 		motherForm = new FormLayout();
 		motherForm.setSizeUndefined();
 		motherForm.setMargin(true);
-		addTab(motherForm,"ข้อมูลมารดา", FontAwesome.FEMALE);
+		tabsheet.addTab(motherForm,"ข้อมูลมารดา", FontAwesome.FEMALE);
 		
 		mPeopleIdType = new OptionGroup("ประเภทบัตร",new PeopleIdType());
 		mPeopleIdType.setItemCaptionPropertyId("name");
@@ -1207,7 +1213,7 @@ public class RecruitStudentLayout extends TabSheet {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(fatherForm);
+				tabsheet.setSelectedTab(fatherForm);
 			}
 		});
 		buttonLayout.addComponents(fatherBack);
@@ -1218,7 +1224,7 @@ public class RecruitStudentLayout extends TabSheet {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(guardianForm);
+				tabsheet.setSelectedTab(guardianForm);
 			}
 		});
 		buttonLayout.addComponents(guardianNext);
@@ -1229,7 +1235,7 @@ public class RecruitStudentLayout extends TabSheet {
 		guardianForm = new FormLayout();
 		guardianForm.setSizeUndefined();
 		guardianForm.setMargin(true);
-		addTab(guardianForm,"ข้อมูลผู้ปกครอง", FontAwesome.USER);
+		tabsheet.addTab(guardianForm,"ข้อมูลผู้ปกครอง", FontAwesome.USER);
 		
 		gParents = new ComboBox("ผู้ปกครอง",new Parents());
 		gParents.setInputPrompt("กรุณาเลือก");
@@ -1523,7 +1529,7 @@ public class RecruitStudentLayout extends TabSheet {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setSelectedTab(motherForm);
+				tabsheet.setSelectedTab(motherForm);
 			}
 		});
 		buttonLayout.addComponents(motherBack);

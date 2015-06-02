@@ -17,6 +17,7 @@ import net.sf.jasperreports.engine.JasperRunManager;
 import net.sf.jasperreports.engine.type.WhenNoDataTypeEnum;
 import net.sf.jasperreports.engine.util.JRLoader;
 
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.container.DbConnection;
 import com.ies.schoolos.schema.CitySchema;
@@ -59,11 +60,11 @@ public class PersonnelReport {
 	private final String REPORT_ID = "personnel_info.jasper";
 	private final String LOGO = SessionSchema.getSchoolID() +".jpg";
 
-	private SQLContainer provinceCon = Container.getProvinceContainer();
-	private SQLContainer districtCon = Container.getDistrictContainer();
-	private SQLContainer cityCon = Container.getCityContainer();
-	private SQLContainer postcodeCon = Container.getPostcodeContainer();
-	private SQLContainer familyContainer = Container.getRecruitFamilyContainer();
+	private SQLContainer provinceCon = SchoolOSLayout.container.getProvinceContainer();
+	private SQLContainer districtCon = SchoolOSLayout.container.getDistrictContainer();
+	private SQLContainer cityCon = SchoolOSLayout.container.getCityContainer();
+	private SQLContainer postcodeCon = SchoolOSLayout.container.getPostcodeContainer();
+	private SQLContainer familyContainer = SchoolOSLayout.container.getRecruitFamilyContainer();
 	
 	private StreamResource resource;
 	
@@ -76,7 +77,7 @@ public class PersonnelReport {
 		try {
 			final Connection con = DbConnection.getConnection().reserveConnection();
 			final Map<String, Object> paramMap = new HashMap<String, Object>();
-			Item studentItem = Container.getPersonnelContainer().getItem(new RowId(studentId));
+			Item studentItem = SchoolOSLayout.container.getPersonnelContainer().getItem(new RowId(studentId));
 			
 			contertoMap(paramMap, studentItem);
 			

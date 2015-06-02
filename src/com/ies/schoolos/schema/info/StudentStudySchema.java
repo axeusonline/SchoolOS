@@ -31,13 +31,6 @@ public class StudentStudySchema {
 	public static final String CURRENT_DISTRICT_ID = "current_district_id";
 	public static final String CURRENT_PROVINCE_ID = "current_province_id";
 	public static final String CURRENT_POSTCODE_ID = "current_postcode_id";
-	public static final String RECRUIT_BY_ID = "recruit_by_id";
-	public static final String RECRUIT_DATE = "recruit_date";
-	public static final String RECRUIT_TYPE = "recruit_type";
-	public static final String RECRUIT_CLASS_YEAR = "recruit_class_year";
-	public static final String RECRUIT_YEAR = "recruit_year";
-	public static final String RECRUIT_SEMESTER = "recruit_semester";
-	public static final String RECRUIT_DESCRIPTION = "recruit_description";
 	public static final String GRADUATED_SCHOOL = "graduated_school";
 	public static final String GRADUATED_SCHOOL_PROVINCE_ID = "graduated_school_province_id";
 	public static final String GRADUATED_GPA = "graduated_gpa";

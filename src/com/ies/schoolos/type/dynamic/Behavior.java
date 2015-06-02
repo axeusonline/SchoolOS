@@ -1,6 +1,6 @@
 package com.ies.schoolos.type.dynamic;
 
-import com.ies.schoolos.container.Container;
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.fundamental.BehaviorSchema;
 import com.vaadin.data.Item;
@@ -19,7 +19,7 @@ public class Behavior extends IndexedContainer{
  
 	@SuppressWarnings("unchecked")
 	private void initContainer(){
-		SQLContainer container = Container.getBehaviorContainer();
+		SQLContainer container = SchoolOSLayout.container.getBehaviorContainer();
 		container.addContainerFilter(new Equal(BehaviorSchema.SCHOOL_ID, Integer.parseInt(SessionSchema.getSchoolID().toString())));
 		
 		for (int i = 0; i < container.size(); i++) {

@@ -17,11 +17,12 @@ import com.ies.schoolos.component.fundamental.DepartmentView;
 import com.ies.schoolos.component.fundamental.JobPositionView;
 import com.ies.schoolos.component.fundamental.SubjectView;
 import com.ies.schoolos.component.info.StudentTimetableView;
+import com.ies.schoolos.component.info.TeachingtableView;
 import com.ies.schoolos.component.personnel.EditPersonnelView;
 import com.ies.schoolos.component.personnel.PersonnelGraduatedHistoryView;
 import com.ies.schoolos.component.registration.EditStudentView;
 import com.ies.schoolos.component.setting.SchoolView;
-import com.ies.schoolos.container.Container;
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.UserSchema;
 import com.ies.schoolos.schema.info.StudentStudySchema;
@@ -62,7 +63,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window;
 
-public class SchoolOSView extends HorizontalSplitPanel{
+public class SchoolOSView extends SchoolOSLayout{
 	private static final long serialVersionUID = 1L;
 	
 	private boolean isSplit = true;
@@ -72,7 +73,8 @@ public class SchoolOSView extends HorizontalSplitPanel{
 	private String passwordHash = null;
 	private Item userItem = null;
 	
-	private SQLContainer userContainer = Container.getUserContainer();
+	private SQLContainer userContainer;
+	private SQLContainer studyContainer;
 	
 	private String[] permissions;
 	
@@ -80,6 +82,7 @@ public class SchoolOSView extends HorizontalSplitPanel{
 	private Component currentComponent;
 	
 	/* เนื้อหา */
+	private HorizontalSplitPanel splitLayout;
 	private VerticalLayout rightLayout;
 	private GridLayout headerLayout;
 	private Button menu;
@@ -93,15 +96,18 @@ public class SchoolOSView extends HorizontalSplitPanel{
 	private ActiveLink passwordChange;
 	
 	public SchoolOSView() {
+		userContainer = container.getUserContainer();
+		studyContainer =  container.getStudentStudyContainer();
 		userItem = userContainer.getItem(new RowId(SessionSchema.getUserID()));
+
+		System.err.println(SessionSchema.getUserID());
 		if(userItem.getItemProperty(UserSchema.PERMISSION).getValue() != null){
 			permissions = userItem.getItemProperty(UserSchema.PERMISSION).getValue().toString().split(",");
 			if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("1")){
-				userId = userItem.getItemProperty(UserSchema.REF_USER_ID).getValue().toString();
+				userId = userItem.getItemProperty(UserSchema.REF_USER_ID).getValue();
 			}else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("2")){
-				SQLContainer studyContainer = Container.getStudentStudyContainer();
 	    		studyContainer.addContainerFilter(new Equal(StudentStudySchema.STUDENT_ID,userItem.getItemProperty(UserSchema.REF_USER_ID).getValue()));  
-	    		userId = studyContainer.getIdByIndex(0).toString();
+	    		userId = Integer.parseInt(studyContainer.getIdByIndex(0).toString());
 			}
 		}
 		
@@ -128,22 +134,28 @@ public class SchoolOSView extends HorizontalSplitPanel{
 	
 	private void buildMainLayout(){
 		setSizeFull();
-        setSplitPosition(200, Unit.PIXELS);
-        showOrHideMenu();
-
+		
+		splitLayout = new HorizontalSplitPanel();
+		splitLayout.setSizeFull();
+		splitLayout.setSplitPosition(200, Unit.PIXELS);
+		addComponent(splitLayout);
+		showOrHideMenu();
+		
         initRightContentLayout();
         initLeftMenuLayout();
+        
+
+        
 	}
 
 	/* เมนูซ้ายมือ */
 	private void initLeftMenuLayout(){
-		
 		/* พื้นที่สำหรับเมนู */
 		Panel leftPanel = new Panel();
 		leftPanel.setWidth("100%");
 		leftPanel.setHeight("-1px");
 		leftPanel.setStyleName("menu-left-panel");
-		setFirstComponent(leftPanel);
+		splitLayout.setFirstComponent(leftPanel);
 		
 		/* พื้นที่สำหรับใส่กล่องเมนู */
 		VerticalLayout menuBoxLayout = new VerticalLayout();
@@ -205,9 +217,21 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		menuBoxContent.setComponentAlignment(admin, Alignment.MIDDLE_LEFT);
 		initMenu(admin, AdminMainView.class);
 		setPermission(Feature.ADMIN, admin, AdminMainView.class);
-
+		
 		if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("1")){
-			//userWD.setContent(new EditPersonnelView(userItem.getItemProperty(UserSchema.REF_USER_ID).getValue()));
+			Button timetable = new Button("ตารางสอน", FontAwesome.CALENDAR);
+			timetable.setWidth("100%");
+			timetable.addClickListener(new ClickListener() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void buttonClick(ClickEvent event) {
+					rightLayout.removeComponent(currentComponent);
+					initComponent(new TeachingtableView(userId));
+				}
+			});
+			menuBoxContent.addComponent(timetable);
+			menuBoxContent.setComponentAlignment(timetable, Alignment.MIDDLE_LEFT);
 		}else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("2")){
 			/*Button info = new Button("ประวัติ", FontAwesome.USER);
 			info.setWidth("100%");
@@ -319,7 +343,8 @@ public class SchoolOSView extends HorizontalSplitPanel{
 				hideMenu();
 			}
 		});
-        setSecondComponent(rightLayout);
+        splitLayout.setSecondComponent(rightLayout);
+        
         /* ==== Header === */
         headerLayout = new GridLayout();
 		headerLayout.setStyleName("header");
@@ -458,7 +483,7 @@ public class SchoolOSView extends HorizontalSplitPanel{
 	
 	/* ซ่อนเมนู */
 	private void hideMenu(){
-		setSplitPosition(0);
+		splitLayout.setSplitPosition(0);
 		isSplit = false;
 	}
 	
@@ -467,10 +492,10 @@ public class SchoolOSView extends HorizontalSplitPanel{
 	 *  */
 	private void showOrHideMenu(){
 		if(isSplit){
-			setSplitPosition(0);
+			splitLayout.setSplitPosition(0);
 			isSplit = false;
 		}else{
-			setSplitPosition(200);
+			splitLayout.setSplitPosition(200);
 			isSplit = true;
 		}
 	}
@@ -680,6 +705,7 @@ public class SchoolOSView extends HorizontalSplitPanel{
 		resetSession();
 		
 		UI ui = UI.getCurrent();
+		ui.close();
     	ui.setContent(new LoginView());
 	}
 	

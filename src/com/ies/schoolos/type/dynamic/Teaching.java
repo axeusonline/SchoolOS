@@ -1,7 +1,6 @@
 package com.ies.schoolos.type.dynamic;
 
 import com.ies.schoolos.container.Container;
-import com.ies.schoolos.container.DbConnection;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.academic.LessonPlanSubjectSchema;
 import com.ies.schoolos.schema.academic.TeachingSchema;
@@ -11,7 +10,6 @@ import com.ies.schoolos.utility.DateTimeUtil;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
-import com.vaadin.data.util.sqlcontainer.query.FreeformQuery;
 
 public class Teaching extends IndexedContainer{
 
@@ -71,10 +69,9 @@ public class Teaching extends IndexedContainer{
 					builder.append(" FROM " + PersonnelSchema.TABLE_NAME);
 					builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + teachingItem.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue());
 					
-					FreeformQuery tq = new FreeformQuery(builder.toString(), DbConnection.getConnection(),PersonnelSchema.PERSONNEL_ID);
-					SQLContainer personnelContainer = new SQLContainer(tq);
+					SQLContainer freeContainer = Container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
 
-					Item personnelItem = personnelContainer.getItem(personnelContainer.getIdByIndex(0));
+					Item personnelItem = freeContainer.getItem(freeContainer.getIdByIndex(0));
 					firstname = personnelItem.getItemProperty(PersonnelSchema.FIRSTNAME).getValue().toString();
 					lastname = personnelItem.getItemProperty(PersonnelSchema.LASTNAME).getValue().toString();
 				} catch (Exception e) {
@@ -126,10 +123,9 @@ public class Teaching extends IndexedContainer{
 					builder.append(" FROM " + PersonnelSchema.TABLE_NAME);
 					builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + teachingItem.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue());
 					
-					FreeformQuery tq = new FreeformQuery(builder.toString(), DbConnection.getConnection(),PersonnelSchema.PERSONNEL_ID);
-					SQLContainer personnelContainer = new SQLContainer(tq);
-
-					Item personnelItem = personnelContainer.getItem(personnelContainer.getIdByIndex(0));
+					SQLContainer freeContainer = Container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
+					
+					Item personnelItem = freeContainer.getItem(freeContainer.getIdByIndex(0));
 					firstname = personnelItem.getItemProperty(PersonnelSchema.FIRSTNAME).getValue().toString();
 					lastname = personnelItem.getItemProperty(PersonnelSchema.LASTNAME).getValue().toString();
 				} catch (Exception e) {
@@ -189,10 +185,9 @@ public class Teaching extends IndexedContainer{
 					builder.append(" FROM " + PersonnelSchema.TABLE_NAME);
 					builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + teachingItem.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue());
 
-					FreeformQuery tq = new FreeformQuery(builder.toString(), DbConnection.getConnection(),PersonnelSchema.PERSONNEL_ID);
-					SQLContainer personnelContainer = new SQLContainer(tq);
+					SQLContainer freeContainer = Container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
 
-					Item personnelItem = personnelContainer.getItem(personnelContainer.getIdByIndex(0));
+					Item personnelItem = freeContainer.getItem(freeContainer.getIdByIndex(0));
 					firstname = personnelItem.getItemProperty(PersonnelSchema.FIRSTNAME).getValue().toString();
 					lastname = personnelItem.getItemProperty(PersonnelSchema.LASTNAME).getValue().toString();
 				} catch (Exception e) {
@@ -253,10 +248,9 @@ public class Teaching extends IndexedContainer{
 					builder.append(" FROM " + PersonnelSchema.TABLE_NAME);
 					builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + teachingItem.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue());
 
-					FreeformQuery tq = new FreeformQuery(builder.toString(), DbConnection.getConnection(),PersonnelSchema.PERSONNEL_ID);
-					SQLContainer personnelContainer = new SQLContainer(tq);
+					SQLContainer freeContainer = Container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
 
-					Item personnelItem = personnelContainer.getItem(personnelContainer.getIdByIndex(0));
+					Item personnelItem = freeContainer.getItem(freeContainer.getIdByIndex(0));
 					firstname = personnelItem.getItemProperty(PersonnelSchema.FIRSTNAME).getValue().toString();
 					lastname = personnelItem.getItemProperty(PersonnelSchema.LASTNAME).getValue().toString();
 				} catch (Exception e) {
@@ -322,10 +316,9 @@ public class Teaching extends IndexedContainer{
 						builder.append(" FROM " + PersonnelSchema.TABLE_NAME);
 						builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + teachingItem.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue());
 
-						FreeformQuery tq = new FreeformQuery(builder.toString(), DbConnection.getConnection(),PersonnelSchema.PERSONNEL_ID);
-						SQLContainer personnelContainer = new SQLContainer(tq);
+						SQLContainer freeContainer = Container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
 
-						Item personnelItem = personnelContainer.getItem(personnelContainer.getIdByIndex(0));
+						Item personnelItem = freeContainer.getItem(freeContainer.getIdByIndex(0));
 						firstname = personnelItem.getItemProperty(PersonnelSchema.FIRSTNAME).getValue().toString();
 						lastname = personnelItem.getItemProperty(PersonnelSchema.LASTNAME).getValue().toString();
 					} catch (Exception e) {

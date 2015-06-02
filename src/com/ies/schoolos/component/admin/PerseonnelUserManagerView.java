@@ -2,6 +2,7 @@ package com.ies.schoolos.component.admin;
 
 import org.tepi.filtertable.FilterTable;
 
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
@@ -43,14 +44,14 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Notification.Type;
 
-public class PerseonnelUserManagerView extends VerticalLayout {
+public class PerseonnelUserManagerView extends SchoolOSLayout {
 
 	private static final long serialVersionUID = 1L;
 	
 	private Object personnelId;
 	
 	private SQLContainer freeContainer;
-	private SQLContainer userContainer = Container.getUserContainer();
+	private SQLContainer userContainer = container.getUserContainer();
 	
 	private JobPosition jContainer = new JobPosition();
 	
@@ -323,7 +324,7 @@ public class PerseonnelUserManagerView extends VerticalLayout {
 			StringBuilder builder = new StringBuilder();
 			String schoolName = "";
 			if(SessionSchema.getSchoolName() == null){
-				Item schoolItem = Container.getSchoolContainer().getItem(new RowId(SessionSchema.getSchoolID()));
+				Item schoolItem = container.getSchoolContainer().getItem(new RowId(SessionSchema.getSchoolID()));
 				schoolName += schoolItem.getItemProperty(SchoolSchema.NAME).getValue().toString();
 			}else{
 				schoolName = SessionSchema.getSchoolName().toString();

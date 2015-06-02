@@ -1,9 +1,8 @@
 package com.ies.schoolos.component.ui;
 
 import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 
-public class ContentPage extends VerticalLayout {
+public class ContentPage extends SchoolOSLayout {
 	private static final long serialVersionUID = 1L;
 
 	private String title;

@@ -7,8 +7,8 @@ import java.util.HashMap;
 import org.tepi.filtertable.FilterTable;
 import org.vaadin.dialogs.ConfirmDialog;
 
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
-import com.ies.schoolos.container.DbConnection;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
 import com.ies.schoolos.schema.CreateModifiedSchema;
@@ -32,7 +32,6 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
-import com.vaadin.data.util.sqlcontainer.query.FreeformQuery;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -45,13 +44,12 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.NativeButton;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CustomTable.Align;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Window;
 
-public class TimetableView extends VerticalLayout {
+public class TimetableView extends SchoolOSLayout {
 
 	private static final long serialVersionUID = 1L;
 
@@ -66,9 +64,9 @@ public class TimetableView extends VerticalLayout {
 	 *     > Object[] แสดง index ของคาบ โดยภายในเก็บ timetableId */
 	private HashMap<Object, HashMap<Object, Object[]>> timetables;
 
-	private SQLContainer teachingCmbContainer = Container.getTeachingContainer();
-	private SQLContainer classRoomContainer = Container.getClassRoomContainer();
-	private SQLContainer timetableContainer = Container.getTimetableContainer();
+	private SQLContainer teachingCmbContainer;
+	private SQLContainer classRoomContainer;
+	private SQLContainer timetableContainer;
 	private SQLContainer freeFormContainer;
 	
 	private Teaching teachingSemesterAndDay;
@@ -84,6 +82,10 @@ public class TimetableView extends VerticalLayout {
 	private FilterTable allTimeteachingCmbTable;
 	
 	public TimetableView() {
+		teachingCmbContainer = container.getTeachingContainer();
+		classRoomContainer = container.getClassRoomContainer();
+		timetableContainer = container.getTimetableContainer();
+		
 		setSpacing(true);
 		setMargin(true);
 		buildMainLayout();
@@ -726,8 +728,7 @@ public class TimetableView extends VerticalLayout {
 	/* ค้นหาห้องเรียนทั้งหมด */
 	private SQLContainer searchClassRoomLessonPlan(){
 		try{
-			FreeformQuery tq = new FreeformQuery(getAllClassRoom(), DbConnection.getConnection(),ClassRoomLessonPlanSchema.CLASS_ROOM_LESSON_PLAN_ID);		
-			SQLContainer freeContainer = new SQLContainer(tq);
+			SQLContainer freeContainer = Container.getFreeFormContainer(getAllClassRoom(), ClassRoomLessonPlanSchema.CLASS_ROOM_LESSON_PLAN_ID);
 			return freeContainer;
 		}catch(Exception e){
 			e.printStackTrace();

@@ -6,7 +6,7 @@ import javax.servlet.http.Cookie;
 import org.vaadin.googleanalytics.tracking.GoogleAnalyticsTracker;
 
 import com.ies.schoolos.component.SchoolOSView;
-import com.ies.schoolos.container.Container;
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.schema.SchoolSchema;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.UserSchema;
@@ -27,9 +27,8 @@ import com.vaadin.ui.UI;
 @Theme("schoolos")
 public class SchoolOSUI extends UI {
 
-	
-	private SQLContainer schoolContainer = Container.getSchoolContainer();
-	private SQLContainer userContainer = Container.getUserContainer();
+	private SQLContainer schoolContainer = SchoolOSLayout.container.getSchoolContainer();
+	private SQLContainer userContainer = SchoolOSLayout.container.getUserContainer();
 	
 	@WebServlet(value = "/*", asyncSupported = true)
 	@VaadinServletConfiguration(productionMode = false, ui = SchoolOSUI.class, widgetset = "com.ies.schoolos.widgetset.SchoolosWidgetset")
@@ -77,7 +76,7 @@ public class SchoolOSUI extends UI {
 			userContainer.addContainerFilter(new And(
 					new Equal(UserSchema.EMAIL,email.getValue()),
 					new Equal(UserSchema.PASSWORD,password.getValue())));
-			System.err.println("COOKIE Email:" + email.getValue() + ",COOKIE Pass:" + password.getValue());
+
 			if(userContainer.size() != 0){
 				Item item = userContainer.getItem(userContainer.getIdByIndex(0));
 				Item schoolItem = schoolContainer.getItem(new RowId(item.getItemProperty(UserSchema.SCHOOL_ID).getValue()));
@@ -98,7 +97,6 @@ public class SchoolOSUI extends UI {
 	private Cookie getCookieByName(String name){
 		Cookie cookie = null;
 		for(Cookie object:VaadinService.getCurrentRequest().getCookies()){
-			System.err.println("COOKIE:" + object.getName());
 			 if(object.getName().equals(name)) {
 				 cookie = object;  
 		    }

@@ -1,6 +1,6 @@
 package com.ies.schoolos.type.dynamic;
 
-import com.ies.schoolos.container.Container;
+import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.fundamental.SubjectSchema;
 import com.vaadin.data.Item;
@@ -12,7 +12,7 @@ public class Subject extends IndexedContainer{
 
 	private static final long serialVersionUID = 1L;
 	
-	private SQLContainer container = Container.getSubjectContainer();
+	private SQLContainer container = SchoolOSLayout.container.getSubjectContainer();
 	
 	public Subject() {
 		addContainerProperty("name", String.class,null);
