@@ -13,7 +13,6 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.util.CellRangeAddress;
 
-import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.academic.ClassRoomLessonPlanSchema;
@@ -45,7 +44,7 @@ import com.vaadin.ui.Table.Align;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
-public class TimetableExportView extends SchoolOSLayout {
+public class TimetableExportView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 
@@ -56,6 +55,7 @@ public class TimetableExportView extends SchoolOSLayout {
 	 *     > Object[] แสดง index ของคาบ โดยภายในเก็บ timetableId */
 	private HashMap<Object, HashMap<Object, Object[]>> timetableArray;
 
+	private Container container = new Container();
 	private SQLContainer freeFormContainer;
 	
 	private Teaching teachingAll = new Teaching();
@@ -337,7 +337,7 @@ public class TimetableExportView extends SchoolOSLayout {
 	/* ค้นหาข้อมูลตารางสอนทั้งหมด */
 	private void seachAllTimetable(){
 		timetableArray = new HashMap<Object, HashMap<Object, Object[]>>();
-		freeFormContainer = Container.getFreeFormContainer(getAllTimetable(), TimetableSchema.TIMETABLE_ID);
+		freeFormContainer = container.getFreeFormContainer(getAllTimetable(), TimetableSchema.TIMETABLE_ID);
         
 		/* นำข้อมูลที่ได้มาใส่ใน Object โดยในฐานข้อมูลจะเก็บ 1 คาบ 1 แถว แต่มาใส่ในตารางจะต้องมารวมทุกคาบมาเป็นแถวเดียวโดยแยกตามวัน */
 		for (Object itemId:freeFormContainer.getItemIds()) {
@@ -379,7 +379,7 @@ public class TimetableExportView extends SchoolOSLayout {
 	/* ค้นหาห้องเรียนทั้งหมด */
 	private SQLContainer searchClassRoomLessonPlan(){
 		try{	
-			SQLContainer freeContainer = Container.getFreeFormContainer(getAllClassRoom(), ClassRoomLessonPlanSchema.CLASS_ROOM_LESSON_PLAN_ID);
+			SQLContainer freeContainer = container.getFreeFormContainer(getAllClassRoom(), ClassRoomLessonPlanSchema.CLASS_ROOM_LESSON_PLAN_ID);
 			return freeContainer;
 		}catch(Exception e){
 			e.printStackTrace();

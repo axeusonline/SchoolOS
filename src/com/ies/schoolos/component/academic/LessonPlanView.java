@@ -3,7 +3,7 @@ package com.ies.schoolos.component.academic;
 import org.tepi.filtertable.FilterTable;
 import org.vaadin.dialogs.ConfirmDialog;
 
-import com.ies.schoolos.component.ui.SchoolOSLayout;
+import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
 import com.ies.schoolos.schema.CreateModifiedSchema;
@@ -35,17 +35,19 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.CustomTable.ColumnGenerator;
 
-public class LessonPlanView extends SchoolOSLayout{
+public class LessonPlanView extends VerticalLayout{
 	private static final long serialVersionUID = 1L;
 
 	private boolean editMode = false;
 	
+	private Container container = new Container();
 	private SQLContainer lContainer = container.getLessonPlanContainer();;
 	
 	private Item item;

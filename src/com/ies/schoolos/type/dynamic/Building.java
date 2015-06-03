@@ -1,6 +1,6 @@
 package com.ies.schoolos.type.dynamic;
 
-import com.ies.schoolos.component.ui.SchoolOSLayout;
+import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.fundamental.BuildingSchema;
 import com.vaadin.data.Item;
@@ -12,6 +12,8 @@ public class Building extends IndexedContainer{
 
 	private static final long serialVersionUID = 1L;
 
+	private Container container = new Container();
+	
 	public Building() {
 		addContainerProperty("name", String.class,null);
 		initContainer();
@@ -19,18 +21,18 @@ public class Building extends IndexedContainer{
  
 	@SuppressWarnings("unchecked")
 	private void initContainer(){
-		SQLContainer container = SchoolOSLayout.container.getBuildingContainer();
-		container.addContainerFilter(new Equal(BuildingSchema.SCHOOL_ID, Integer.parseInt(SessionSchema.getSchoolID().toString())));
+		SQLContainer bcontainer = container.getBuildingContainer();
+		bcontainer.addContainerFilter(new Equal(BuildingSchema.SCHOOL_ID, Integer.parseInt(SessionSchema.getSchoolID().toString())));
 		
-		for (int i = 0; i < container.size(); i++) {
-			Object itemId = container.getIdByIndex(i);
+		for (int i = 0; i < bcontainer.size(); i++) {
+			Object itemId = bcontainer.getIdByIndex(i);
 			Item item = addItem(Integer.parseInt(itemId.toString()));
-			Object value = container.getItem(itemId).getItemProperty(BuildingSchema.NAME).getValue() + 
-					" (" + container.getItem(itemId).getItemProperty(BuildingSchema.ROOM_NUMBER).getValue() + ")";
+			Object value = bcontainer.getItem(itemId).getItemProperty(BuildingSchema.NAME).getValue() + 
+					" (" + bcontainer.getItem(itemId).getItemProperty(BuildingSchema.ROOM_NUMBER).getValue() + ")";
 			item.getItemProperty("name").setValue(value);
 		}
 		
 		/* ลบ WHERE ออกจาก Query เพื่อป้องกันการค้างของคำสั่่งจากการทำงานอื่นที่เรียกตัวแปรไปใช้ */
-		container.removeAllContainerFilters();
+		bcontainer.removeAllContainerFilters();
 	}
 }

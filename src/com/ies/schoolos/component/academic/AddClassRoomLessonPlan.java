@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import org.tepi.filtertable.FilterTable;
 
-import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.component.ui.TwinSelectTable;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
@@ -28,14 +27,16 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.VerticalLayout;
 
-public class AddClassRoomLessonPlan extends SchoolOSLayout {
+public class AddClassRoomLessonPlan extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 
 	private Object lessonPlanId;
 	private Object classRange;
 	
+	private Container container = new Container();
 	private SQLContainer crlContainer;
 	private SQLContainer classRoomLessonPlanContainer = container.getClassRoomLessonPlanContainer();
 	
@@ -156,7 +157,7 @@ public class AddClassRoomLessonPlan extends SchoolOSLayout {
 		subject.append(" AND " + ClassRoomLessonPlanSchema.LESSON_PLAN_ID + "=" + lessonPlanId);
 		subject.append(" AND " + ClassRoomLessonPlanSchema.ACADEMIC_YEAR + "='" + DateTimeUtil.getBuddishYear() + "')");
 
-		crlContainer = Container.getFreeFormContainer(subject.toString(), ClassRoomSchema.CLASS_ROOM_ID);
+		crlContainer = container.getFreeFormContainer(subject.toString(), ClassRoomSchema.CLASS_ROOM_ID);
 		for(final Object itemId:crlContainer.getItemIds()){
 			Item item = crlContainer.getItem(itemId);
 			addItemData(twinSelect.getLeftTable(), itemId, item);
@@ -175,7 +176,7 @@ public class AddClassRoomLessonPlan extends SchoolOSLayout {
 		subject.append(" AND crl." + ClassRoomLessonPlanSchema.LESSON_PLAN_ID + "=" + lessonPlanId);
 		subject.append(" AND crl." + ClassRoomLessonPlanSchema.ACADEMIC_YEAR + "='" + DateTimeUtil.getBuddishYear()+"'");
 		
-		crlContainer = Container.getFreeFormContainer(subject.toString(), ClassRoomLessonPlanSchema.CLASS_ROOM_LESSON_PLAN_ID);
+		crlContainer = container.getFreeFormContainer(subject.toString(), ClassRoomLessonPlanSchema.CLASS_ROOM_LESSON_PLAN_ID);
 		for(Object itemId: crlContainer.getItemIds()){
 			Item item = crlContainer.getItem(itemId);
 			addItemData(twinSelect.getRightTable(), itemId, item);

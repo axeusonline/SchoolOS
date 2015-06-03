@@ -7,7 +7,6 @@ import org.tepi.filtertable.FilterTable;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.ies.schoolos.component.ui.NumberField;
-import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
@@ -41,8 +40,9 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.VerticalLayout;
 
-public class AddStudentBehaviorView extends SchoolOSLayout {
+public class AddStudentBehaviorView extends VerticalLayout {
 	private static final long serialVersionUID = 1L;
 	
 	private boolean editMode = false;
@@ -52,7 +52,8 @@ public class AddStudentBehaviorView extends SchoolOSLayout {
 	private String lastnameStr;
 	private Double scoreBreak;
 	private Item item;
-	
+
+	private Container container = new Container();
 	private SQLContainer freeContainer;
 	private SQLContainer studentBehaviorContainer = container.getStudentBehaviorContainer();
 			
@@ -315,7 +316,7 @@ public class AddStudentBehaviorView extends SchoolOSLayout {
 		builder.append(" INNER JOIN " + BehaviorSchema.TABLE_NAME + " b ON b." + BehaviorSchema.BEHAVIOR_ID + "= sb." + StudentBehaviorSchema.BEHAVIOR_ID);
 		builder.append(" WHERE ss." + StudentBehaviorSchema.STUDENT_STUDY_ID + "=" + studytId);
 
-		freeContainer = Container.getFreeFormContainer(builder.toString(), StudentBehaviorSchema.STUDENT_BEHAVIOR_ID);
+		freeContainer = container.getFreeFormContainer(builder.toString(), StudentBehaviorSchema.STUDENT_BEHAVIOR_ID);
 		for(Object itemId:freeContainer.getItemIds()){
 			Item studentBehaviorTableItem = freeContainer.getItem(itemId);
 			studentBehaviorTable.addItem(new Object[] {
@@ -335,7 +336,7 @@ public class AddStudentBehaviorView extends SchoolOSLayout {
 		studyBuilder.append(" INNER JOIN " + StudentSchema.TABLE_NAME + " s ON s." + StudentSchema.STUDENT_ID + "= ss." + StudentStudySchema.STUDENT_ID);
 		studyBuilder.append(" WHERE " + StudentStudySchema.STUDENT_STUDY_ID + "=" + studytId);
 
-		SQLContainer freeFirstnameContainer = Container.getFreeFormContainer(studyBuilder.toString(), StudentStudySchema.STUDENT_STUDY_ID);
+		SQLContainer freeFirstnameContainer = container.getFreeFormContainer(studyBuilder.toString(), StudentStudySchema.STUDENT_STUDY_ID);
 		Item studyItem = freeFirstnameContainer.getItem(freeFirstnameContainer.getIdByIndex(0));
 		
 		firstnameStr = studyItem.getItemProperty(StudentSchema.FIRSTNAME).getValue().toString();

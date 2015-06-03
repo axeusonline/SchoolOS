@@ -22,7 +22,7 @@ import com.ies.schoolos.component.personnel.EditPersonnelView;
 import com.ies.schoolos.component.personnel.PersonnelGraduatedHistoryView;
 import com.ies.schoolos.component.registration.EditStudentView;
 import com.ies.schoolos.component.setting.SchoolView;
-import com.ies.schoolos.component.ui.SchoolOSLayout;
+import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.UserSchema;
 import com.ies.schoolos.schema.info.StudentStudySchema;
@@ -63,16 +63,17 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window;
 
-public class SchoolOSView extends SchoolOSLayout{
+public class SchoolOSView extends VerticalLayout{
 	private static final long serialVersionUID = 1L;
 	
 	private boolean isSplit = true;
-	private boolean isFirstTimeStudent = true;
+	private Boolean isFirstTimeStudent;
 	
 	private Object userId;
 	private String passwordHash = null;
 	private Item userItem = null;
-	
+
+	private Container container = new Container();
 	private SQLContainer userContainer;
 	private SQLContainer studyContainer;
 	
@@ -97,7 +98,7 @@ public class SchoolOSView extends SchoolOSLayout{
 	
 	public SchoolOSView() {
 		userContainer = container.getUserContainer();
-		studyContainer =  container.getStudentStudyContainer();
+		studyContainer = container.getStudentStudyContainer();
 		userItem = userContainer.getItem(new RowId(SessionSchema.getUserID()));
 
 		System.err.println(SessionSchema.getUserID());
@@ -107,6 +108,7 @@ public class SchoolOSView extends SchoolOSLayout{
 				userId = userItem.getItemProperty(UserSchema.REF_USER_ID).getValue();
 			}else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("2")){
 	    		studyContainer.addContainerFilter(new Equal(StudentStudySchema.STUDENT_ID,userItem.getItemProperty(UserSchema.REF_USER_ID).getValue()));  
+	    		System.err.println(studyContainer.size());
 	    		userId = Integer.parseInt(studyContainer.getIdByIndex(0).toString());
 			}
 		}
@@ -414,10 +416,14 @@ public class SchoolOSView extends SchoolOSLayout{
 
 				@Override
 				public void menuSelected(MenuItem selectedItem) {
-					if(!isFirstTimeStudent)
+					if(isFirstTimeStudent == null)
 						initUserInfoLayout();
-					else
-						Notification.show("กรุณากำหนดบัญชีผู้ใช้และรหัสผ่าน", Type.WARNING_MESSAGE);
+					else{
+						if(!isFirstTimeStudent)
+							initUserInfoLayout();
+						else
+							Notification.show("กรุณากำหนดบัญชีผู้ใช้และรหัสผ่าน", Type.WARNING_MESSAGE);						
+					}
 				}
 			});	
 			if(!userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("2")){
@@ -519,12 +525,12 @@ public class SchoolOSView extends SchoolOSLayout{
 		schoolForm.setStyleName("border-white");
 		formLayout.addComponent(schoolForm);
 				
-		firstname = new TextField("ชื่อผู้ดูแลระบบ");
+		firstname = new TextField("ชื่อผู้ใช้งาน");
 		firstname.setRequired(true);
 		firstname.setInputPrompt("ชื่อจริง");
 		schoolForm.addComponent(firstname);
 		
-		lastname = new TextField("สกุลผู้ดูแลระบบ");
+		lastname = new TextField("สกุลผู้ใช้งาน");
 		lastname.setRequired(true);
 		lastname.setInputPrompt("นามสกุล");
 		schoolForm.addComponent(lastname);
@@ -628,11 +634,14 @@ public class SchoolOSView extends SchoolOSLayout{
 			public void buttonClick(ClickEvent event) {
 				try {
 					if(userBinder.isValid()){
-						if(isFirstTimeStudent){
-							userItem.getItemProperty(UserSchema.IS_EDITED).setValue(true);
-							isFirstTimeStudent = false;
-							initComponent(new EditStudentView(userId,false));
+						if(isFirstTimeStudent != null){
+							if(isFirstTimeStudent){
+								userItem.getItemProperty(UserSchema.IS_EDITED).setValue(true);
+								isFirstTimeStudent = false;
+								initComponent(new EditStudentView(userId,false));
+							}
 						}
+						
 						userBinder.commit();
 						userContainer.commit();
 						email.setReadOnly(true);
@@ -681,13 +690,16 @@ public class SchoolOSView extends SchoolOSLayout{
 		userBinder.bind(lastname, UserSchema.LASTNAME);
 		userBinder.bind(email, UserSchema.EMAIL);
 		
-		if(isFirstTimeStudent){
-			email.setValue(null);
-			email.setReadOnly(false);
-		}else{
+		if(isFirstTimeStudent == null){
 			email.setReadOnly(true);
+		}else{
+			if(isFirstTimeStudent){
+				email.setValue(null);
+				email.setReadOnly(false);
+			}else{
+				email.setReadOnly(true);
+			}
 		}
-		
 	}
 	
 	/* ออกจากระบบ */

@@ -6,7 +6,6 @@ import java.util.Map;
 import org.tepi.filtertable.FilterTable;
 import org.vaadin.dialogs.ConfirmDialog;
 
-import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
@@ -45,8 +44,9 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CustomTable.Align;
 import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.VerticalLayout;
 
-public class RecruitToStudentView extends SchoolOSLayout{
+public class RecruitToStudentView extends VerticalLayout{
 	private static final long serialVersionUID = 1L;
 
 	private int confirmQty = 0;
@@ -65,6 +65,7 @@ public class RecruitToStudentView extends SchoolOSLayout{
 	public Object pkStore[] = new Object[6];
 	private HashMap<Object, HashMap<Object, Object>> summarizes = new HashMap<Object, HashMap<Object, Object>>();
 	
+	private Container container = new Container();
 	private SQLContainer rsContainer = container.getRecruitStudentContainer();
 	private SQLContainer rsFamilyContainer = container.getRecruitFamilyContainer();
 	private SQLContainer schoolContainer = container.getSchoolContainer();
@@ -252,7 +253,7 @@ public class RecruitToStudentView extends SchoolOSLayout{
 		builder.append(" WHERE " + RecruitStudentSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		builder.append(" AND YEAR(" + RecruitStudentSchema.REGISTER_DATE + ") =" + DateTimeUtil.getChristianYear());
 		builder.append(" AND " + RecruitStudentSchema.IS_CONFIRM + "=0");
-		SQLContainer freeContainer = Container.getFreeFormContainer(builder.toString(), "count");
+		SQLContainer freeContainer = container.getFreeFormContainer(builder.toString(), "count");
 		unconfirmQty = freeContainer.size();
 
 		/* ดึงจำนวนนักเรียนที่ไม่ยืนยันตัว เพื่อหาจำนวนผู้สมัครทั้งหมด */
@@ -261,7 +262,7 @@ public class RecruitToStudentView extends SchoolOSLayout{
 		builder.append(" WHERE " + RecruitStudentSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		builder.append(" AND YEAR(" + RecruitStudentSchema.REGISTER_DATE + ") =" + DateTimeUtil.getChristianYear());
 		builder.append(" AND " + RecruitStudentSchema.IS_CONFIRM + "=1");
-		freeContainer = Container.getFreeFormContainer(builder.toString(), "count");
+		freeContainer = container.getFreeFormContainer(builder.toString(), "count");
 		confirmQty = freeContainer.size();
 
 		/* ดึงจำนวนนักเรียนที่ไม่สร้างรหัส */
@@ -270,7 +271,7 @@ public class RecruitToStudentView extends SchoolOSLayout{
 		builder.append(" WHERE " + RecruitStudentSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		builder.append(" AND YEAR(" + RecruitStudentSchema.REGISTER_DATE + ") =" + DateTimeUtil.getChristianYear());
 		builder.append(" AND " + RecruitStudentSchema.IS_GENERATE_STUDENT_CODE + "=0");
-		freeContainer = Container.getFreeFormContainer(builder.toString(), RecruitStudentSchema.STUDENT_ID);
+		freeContainer = container.getFreeFormContainer(builder.toString(), RecruitStudentSchema.STUDENT_ID);
 		
 		for(final Object itemId:freeContainer.getItemIds()){			
 			final Item studentItem = freeContainer.getItem(itemId);
@@ -561,7 +562,7 @@ public class RecruitToStudentView extends SchoolOSLayout{
 		builder.append(" GROUP BY " +  RecruitStudentSchema.CLASS_RANGE + "," + RecruitStudentSchema.GENDER);
 		builder.append(" ORDER BY " +  RecruitStudentSchema.CLASS_RANGE + " ASC");
 
-		SQLContainer freeCon = Container.getFreeFormContainer(builder.toString(), RecruitStudentSchema.STUDENT_ID);
+		SQLContainer freeCon = container.getFreeFormContainer(builder.toString(), RecruitStudentSchema.STUDENT_ID);
 		
 		HashMap<Object, Object> genderMap = null;
 		StringBuilder sumStr = new StringBuilder();
@@ -626,7 +627,7 @@ public class RecruitToStudentView extends SchoolOSLayout{
 
 		studentCodeStr += "001";
 		
-		SQLContainer freeContainer = Container.getFreeFormContainer(sqlBuilder.toString(), StudentStudySchema.STUDENT_CODE);
+		SQLContainer freeContainer = container.getFreeFormContainer(sqlBuilder.toString(), StudentStudySchema.STUDENT_CODE);
 					
 		if(freeContainer.size() > 0){
 			Item item = freeContainer.getItem(freeContainer.getIdByIndex(0));
@@ -646,7 +647,7 @@ public class RecruitToStudentView extends SchoolOSLayout{
 		builder.append(" SELECT MAX("+StudentStudySchema.STUDENT_CODE +") AS " + StudentStudySchema.STUDENT_CODE + " FROM " + StudentStudySchema.TABLE_NAME);
 		builder.append(" WHERE " + StudentStudySchema.SCHOOL_ID + "="+ SessionSchema.getSchoolID());
 
-		SQLContainer freeContainer = Container.getFreeFormContainer(builder.toString(), StudentStudySchema.STUDENT_CODE);
+		SQLContainer freeContainer = container.getFreeFormContainer(builder.toString(), StudentStudySchema.STUDENT_CODE);
 		if(freeContainer.getItem(freeContainer.getIdByIndex(0)).getItemProperty(StudentStudySchema.STUDENT_CODE).getValue() != null){
 			max = Integer.parseInt(freeContainer.getItem(freeContainer.getIdByIndex(0)).getItemProperty(StudentStudySchema.STUDENT_CODE).getValue().toString());
 			max++;

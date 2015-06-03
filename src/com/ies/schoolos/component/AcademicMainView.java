@@ -9,7 +9,6 @@ import com.ies.schoolos.component.academic.TeachingtableExportView;
 import com.ies.schoolos.component.academic.TimetableExportView;
 import com.ies.schoolos.component.academic.TimetableView;
 import com.ies.schoolos.component.registration.TeacherHomeroomView;
-import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -19,8 +18,9 @@ import com.vaadin.ui.TabSheet.CloseHandler;
 import com.vaadin.ui.TabSheet.Tab;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.VerticalLayout;
 
-public class AcademicMainView extends SchoolOSLayout {
+public class AcademicMainView extends VerticalLayout {
 	private static final long serialVersionUID = 1L;
 	
 	ArrayList<String> addedTab = new ArrayList<String>();

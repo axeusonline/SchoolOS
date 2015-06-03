@@ -5,7 +5,6 @@ import java.util.Collection;
 import org.tepi.filtertable.FilterTable;
 import org.tepi.filtertable.numberfilter.NumberInterval;
 
-import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.component.ui.TwinSelectTable;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
@@ -33,15 +32,17 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
 
-public class TeacherHomeroomView extends SchoolOSLayout {
+public class TeacherHomeroomView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
-	
+
+	private Container container = new Container();
 	private SQLContainer tContainer;
 	private SQLContainer teacherHomeroomContainer = container.getTeacherHomeroomContainer();
 
@@ -239,7 +240,7 @@ public class TeacherHomeroomView extends SchoolOSLayout {
 		classRoomBuilder.append(" AND "+ TeacherHomeroomSchema.CLASS_ROOM_ID + "=" + classRoom.getValue());
 		classRoomBuilder.append(" AND "+ TeacherHomeroomSchema.PERSONNEL_ID + " IS NOT NULL )");
 		
-		tContainer = Container.getFreeFormContainer(classRoomBuilder.toString(), PersonnelSchema.PERSONNEL_ID);
+		tContainer = container.getFreeFormContainer(classRoomBuilder.toString(), PersonnelSchema.PERSONNEL_ID);
 		for(final Object itemId:tContainer.getItemIds()){
 			Item item = tContainer.getItem(itemId);
 			addItemData(twinSelect.getLeftTable(), itemId, item);
@@ -257,7 +258,7 @@ public class TeacherHomeroomView extends SchoolOSLayout {
 		teacherHomeroomBuilder.append(" WHERE tc."+ TeacherHomeroomSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		teacherHomeroomBuilder.append(" AND tc." + TeacherHomeroomSchema.ACADEMIC_YEAR + "='" + DateTimeUtil.getBuddishYear()+"'");
 
-		tContainer = Container.getFreeFormContainer(teacherHomeroomBuilder.toString(), TeacherHomeroomSchema.TEACHER_HOMEROOM_ID);
+		tContainer = container.getFreeFormContainer(teacherHomeroomBuilder.toString(), TeacherHomeroomSchema.TEACHER_HOMEROOM_ID);
 		for(Object itemId: tContainer.getItemIds()){
 			Item item = tContainer.getItem(itemId);
 			addItemData(twinSelect.getRightTable(), itemId, item);
@@ -393,7 +394,7 @@ public class TeacherHomeroomView extends SchoolOSLayout {
 					builder.append(" FROM " + PersonnelSchema.TABLE_NAME);
 					builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + item.getItemProperty(TeacherHomeroomSchema.PERSONNEL_ID).getValue());
 
-					SQLContainer freeContainer = Container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
+					SQLContainer freeContainer = container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
 
 					Item personnelItem = freeContainer.getItem(freeContainer.getIdByIndex(0));
 					personalCode = personnelItem.getItemProperty(PersonnelSchema.PERSONNEL_CODE).getValue();

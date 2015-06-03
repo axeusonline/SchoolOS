@@ -10,7 +10,7 @@ import com.ies.schoolos.component.SchoolOSView;
 import com.ies.schoolos.component.personnel.AddPersonnelView;
 import com.ies.schoolos.component.recruit.AddRecruitStudentView;
 import com.ies.schoolos.component.registration.AddStudentView;
-import com.ies.schoolos.component.ui.SchoolOSLayout;
+import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.CookieSchema;
 import com.ies.schoolos.schema.CreateModifiedSchema;
 import com.ies.schoolos.schema.SchoolSchema;
@@ -51,11 +51,12 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window;
 
-public class LoginView extends SchoolOSLayout{
+public class LoginView extends VerticalLayout{
 	private static final long serialVersionUID = 1L;
 	
 	private Object schoolId;
-	
+
+	private Container container = new Container();
 	private SQLContainer schoolContainer;
 	private SQLContainer userContainer;
 	

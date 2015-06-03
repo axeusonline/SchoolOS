@@ -3,6 +3,7 @@ package com.ies.schoolos.component.registration;
 import java.util.Date;
 
 import com.ies.schoolos.component.registration.layout.StudentLayout;
+import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.info.StudentSchema;
 import com.ies.schoolos.schema.info.StudentStudySchema;
 import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
@@ -43,6 +44,7 @@ public class EditStudentView extends StudentLayout {
 	private Item motherItem;
 	private Item guardianItem;
 
+	private Container container = new Container();
 	public SQLContainer sSqlContainer = container.getStudentContainer();
 	public SQLContainer ssSqlContainer = container.getStudentStudyContainer();
 	public SQLContainer fSqlContainer = container.getFamilyContainer();

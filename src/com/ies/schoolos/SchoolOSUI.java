@@ -6,7 +6,7 @@ import javax.servlet.http.Cookie;
 import org.vaadin.googleanalytics.tracking.GoogleAnalyticsTracker;
 
 import com.ies.schoolos.component.SchoolOSView;
-import com.ies.schoolos.component.ui.SchoolOSLayout;
+import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.SchoolSchema;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.UserSchema;
@@ -27,8 +27,9 @@ import com.vaadin.ui.UI;
 @Theme("schoolos")
 public class SchoolOSUI extends UI {
 
-	private SQLContainer schoolContainer = SchoolOSLayout.container.getSchoolContainer();
-	private SQLContainer userContainer = SchoolOSLayout.container.getUserContainer();
+	private Container container = new Container();
+	private SQLContainer schoolContainer = container.getSchoolContainer();
+	private SQLContainer userContainer = container.getUserContainer();
 	
 	@WebServlet(value = "/*", asyncSupported = true)
 	@VaadinServletConfiguration(productionMode = false, ui = SchoolOSUI.class, widgetset = "com.ies.schoolos.widgetset.SchoolosWidgetset")

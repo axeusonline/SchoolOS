@@ -7,7 +7,6 @@ import java.util.HashMap;
 import org.tepi.filtertable.FilterTable;
 import org.vaadin.dialogs.ConfirmDialog;
 
-import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
@@ -47,9 +46,10 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CustomTable.Align;
 import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-public class TimetableView extends SchoolOSLayout {
+public class TimetableView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 
@@ -64,6 +64,7 @@ public class TimetableView extends SchoolOSLayout {
 	 *     > Object[] แสดง index ของคาบ โดยภายในเก็บ timetableId */
 	private HashMap<Object, HashMap<Object, Object[]>> timetables;
 
+	private Container container = new Container();
 	private SQLContainer teachingCmbContainer;
 	private SQLContainer classRoomContainer;
 	private SQLContainer timetableContainer;
@@ -660,7 +661,7 @@ public class TimetableView extends SchoolOSLayout {
 	private void seachTeachingTimetable(){
 		teachingCmbs = new HashMap<Object, Object[]>();
 		Item teachingCmbItem = teachingCmbContainer.getItem(teachingCmb.getValue());
-		freeFormContainer = Container.getFreeFormContainer(getTeachingSQL(teachingCmbItem), TimetableSchema.TIMETABLE_ID);
+		freeFormContainer = container.getFreeFormContainer(getTeachingSQL(teachingCmbItem), TimetableSchema.TIMETABLE_ID);
 		/* นำข้อมูลที่ได้มาใส่ใน Object โดยในฐานข้อมูลจะเก็บ 1 คาบ 1 แถว แต่มาใส่ในตารางจะต้องมารวมทุกคาบมาเป็นแถวเดียวโดยแยกตามวัน */
 		for (Object itemId:freeFormContainer.getItemIds()) {
 
@@ -687,7 +688,7 @@ public class TimetableView extends SchoolOSLayout {
 	/* ค้นหาข้อมูลตารางสอนทั้งหมด */
 	private void seachAllTimetable(){
 		timetables = new HashMap<Object, HashMap<Object, Object[]>>();
-		freeFormContainer = Container.getFreeFormContainer(getAllTimetable(), TimetableSchema.TIMETABLE_ID);
+		freeFormContainer = container.getFreeFormContainer(getAllTimetable(), TimetableSchema.TIMETABLE_ID);
 		/* นำข้อมูลที่ได้มาใส่ใน Object โดยในฐานข้อมูลจะเก็บ 1 คาบ 1 แถว แต่มาใส่ในตารางจะต้องมารวมทุกคาบมาเป็นแถวเดียวโดยแยกตามวัน */
 		for (Object itemId:freeFormContainer.getItemIds()) {
 			Item timetableItem = freeFormContainer.getItem(itemId);
@@ -728,7 +729,7 @@ public class TimetableView extends SchoolOSLayout {
 	/* ค้นหาห้องเรียนทั้งหมด */
 	private SQLContainer searchClassRoomLessonPlan(){
 		try{
-			SQLContainer freeContainer = Container.getFreeFormContainer(getAllClassRoom(), ClassRoomLessonPlanSchema.CLASS_ROOM_LESSON_PLAN_ID);
+			SQLContainer freeContainer = container.getFreeFormContainer(getAllClassRoom(), ClassRoomLessonPlanSchema.CLASS_ROOM_LESSON_PLAN_ID);
 			return freeContainer;
 		}catch(Exception e){
 			e.printStackTrace();

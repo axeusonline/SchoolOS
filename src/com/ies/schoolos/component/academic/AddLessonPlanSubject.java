@@ -5,7 +5,6 @@ import java.util.Collection;
 import org.tepi.filtertable.FilterTable;
 import org.tepi.filtertable.numberfilter.NumberInterval;
 
-import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.component.ui.TwinSelectTable;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
@@ -30,14 +29,16 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.VerticalLayout;
 
-public class AddLessonPlanSubject extends SchoolOSLayout {
+public class AddLessonPlanSubject extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 
 	private Object lessonPlanId;
 	private Object classRange;
 	
+	private Container container = new Container();
 	private SQLContainer sContainer;
 	private SQLContainer lessonPlanSubjectContainer = container.getLessonPlanSubjectContainer();
 	
@@ -163,7 +164,7 @@ public class AddLessonPlanSubject extends SchoolOSLayout {
 		subject.append(" AND " + LessonPlanSubjectSchema.SEMESTER + "=" + semester.getValue());
 		subject.append(" AND " + LessonPlanSubjectSchema.LESSON_PLAN_ID + "=" + lessonPlanId + ")");
 
-		sContainer = Container.getFreeFormContainer(subject.toString(), SubjectSchema.SUBJECT_ID);
+		sContainer = container.getFreeFormContainer(subject.toString(), SubjectSchema.SUBJECT_ID);
 		for(final Object itemId:sContainer.getItemIds()){
 			Item item = sContainer.getItem(itemId);
 			addItemData(twinSelect.getLeftTable(), itemId, item);
@@ -181,7 +182,7 @@ public class AddLessonPlanSubject extends SchoolOSLayout {
 		subject.append(" WHERE lps."+ LessonPlanSubjectSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		subject.append(" AND lps." + LessonPlanSubjectSchema.LESSON_PLAN_ID + "=" + lessonPlanId);
 		
-		sContainer = Container.getFreeFormContainer(subject.toString(), LessonPlanSubjectSchema.LESSON_PLAN_SUBJECT_ID);
+		sContainer = container.getFreeFormContainer(subject.toString(), LessonPlanSubjectSchema.LESSON_PLAN_SUBJECT_ID);
 		for(Object itemId: sContainer.getItemIds()){
 			Item item = sContainer.getItem(itemId);
 			addItemData(twinSelect.getRightTable(), itemId, item);

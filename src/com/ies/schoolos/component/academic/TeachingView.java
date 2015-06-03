@@ -5,7 +5,6 @@ import java.util.Collection;
 import org.tepi.filtertable.FilterTable;
 import org.tepi.filtertable.numberfilter.NumberInterval;
 
-import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.component.ui.TwinSelectTable;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
@@ -43,10 +42,11 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
 
-public class TeachingView extends SchoolOSLayout {
+public class TeachingView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 	
+	private Container container = new Container();
 	private SQLContainer freeContainer;
 	private SQLContainer teachingContainer;
 
@@ -500,7 +500,7 @@ public class TeachingView extends SchoolOSLayout {
 		subjectBuilder.append(" AND "+ TeachingSchema.ACADEMIC_YEAR + "='" + DateTimeUtil.getBuddishYear() + "'");
 		subjectBuilder.append(" AND "+ TeachingSchema.PERSONNEL_ID + " IS NOT NULL )");
 		
-		freeContainer = Container.getFreeFormContainer(subjectBuilder.toString(), PersonnelSchema.PERSONNEL_ID);
+		freeContainer = container.getFreeFormContainer(subjectBuilder.toString(), PersonnelSchema.PERSONNEL_ID);
 		for(final Object itemId:freeContainer.getItemIds()){
 			Item item = freeContainer.getItem(itemId);
 			addItemData(twinSelect.getLeftTable(), itemId, item);
@@ -518,7 +518,7 @@ public class TeachingView extends SchoolOSLayout {
 		teachingBuilder.append(" WHERE tc."+ TeachingSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		teachingBuilder.append(" AND tc." + TeachingSchema.ACADEMIC_YEAR + "='" + DateTimeUtil.getBuddishYear()+"'");
 
-		freeContainer = Container.getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
+		freeContainer = container.getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
 		for(Object itemId: freeContainer.getItemIds()){
 			Item item = freeContainer.getItem(itemId);
 			addItemData(twinSelect.getRightTable(), itemId, item);
@@ -654,7 +654,7 @@ public class TeachingView extends SchoolOSLayout {
 					builder.append(" FROM " + PersonnelSchema.TABLE_NAME);
 					builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + item.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue());
 
-					SQLContainer freeContainer = Container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
+					SQLContainer freeContainer = container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
 
 					Item personnelItem = freeContainer.getItem(freeContainer.getIdByIndex(0));
 					personalCode = personnelItem.getItemProperty(PersonnelSchema.PERSONNEL_CODE).getValue();

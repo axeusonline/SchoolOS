@@ -3,6 +3,7 @@ package com.ies.schoolos.component.recruit;
 import org.tepi.filtertable.FilterTable;
 
 import com.ies.schoolos.component.ui.ContentPage;
+import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
 import com.ies.schoolos.schema.SessionSchema;
@@ -36,7 +37,8 @@ import com.vaadin.ui.Notification.Type;
 
 public class RecruitStudentExamScore extends ContentPage {
 private static final long serialVersionUID = 1L;
-	
+
+	private Container container = new Container();
 	private SQLContainer sContainer = container.getRecruitStudentContainer();
 	
 	private Item item;

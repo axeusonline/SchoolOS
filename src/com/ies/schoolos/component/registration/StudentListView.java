@@ -3,7 +3,6 @@ package com.ies.schoolos.component.registration;
 import org.tepi.filtertable.FilterTable;
 import org.vaadin.dialogs.ConfirmDialog;
 
-import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
@@ -25,14 +24,16 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseListener;
 
-public class StudentListView extends SchoolOSLayout {
+public class StudentListView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
-	
+
+	private Container container = new Container();
 	private SQLContainer freeContainer;
 	
 	private HorizontalLayout toolbar;
@@ -157,7 +158,7 @@ public class StudentListView extends SchoolOSLayout {
 		builder.append(" AND ( ss." + StudentStudySchema.STUDENT_STATUS + "=" + 0);
 		builder.append(" OR ss." + StudentStudySchema.STUDENT_STATUS + "=" + 2 + ")");
 		
-		freeContainer = Container.getFreeFormContainer(builder.toString(), StudentStudySchema.STUDENT_STUDY_ID);
+		freeContainer = container.getFreeFormContainer(builder.toString(), StudentStudySchema.STUDENT_STUDY_ID);
 		for(final Object itemId:freeContainer.getItemIds()){
 			Item item = freeContainer.getItem(itemId);
 			table.addItem(new Object[]{

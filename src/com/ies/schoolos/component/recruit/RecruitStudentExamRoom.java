@@ -4,8 +4,8 @@ import java.util.Collection;
 
 import org.tepi.filtertable.FilterTable;
 
-import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.component.ui.TwinSelectTable;
+import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
 import com.ies.schoolos.schema.SchoolSchema;
@@ -36,8 +36,9 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
 
-public class RecruitStudentExamRoom extends SchoolOSLayout{
+public class RecruitStudentExamRoom extends VerticalLayout{
 	private static final long serialVersionUID = 1L;
 
 	private int capacity = 0;
@@ -47,7 +48,8 @@ public class RecruitStudentExamRoom extends SchoolOSLayout{
 	private Label capacityLabel;
 	
 	private TwinSelectTable twinSelect;
-	
+
+	private Container container = new Container();
 	private SQLContainer sContainer = container.getRecruitStudentContainer();
 	private SQLContainer bContainer = container.getBuildingContainer();
 

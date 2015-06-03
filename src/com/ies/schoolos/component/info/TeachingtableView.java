@@ -3,7 +3,6 @@ package com.ies.schoolos.component.info;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.academic.LessonPlanSubjectSchema;
@@ -34,7 +33,7 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Table.Align;
 import com.vaadin.ui.VerticalLayout;
 
-public class TeachingtableView extends SchoolOSLayout {
+public class TeachingtableView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 
@@ -46,6 +45,7 @@ public class TeachingtableView extends SchoolOSLayout {
 	private String printText = "";
 	private Object personnelId;
 	
+	private Container container = new Container();
 	private SQLContainer timetableFreeFormContainer;
 	private SQLContainer freeFormContainer;
 
@@ -234,7 +234,7 @@ public class TeachingtableView extends SchoolOSLayout {
 	private void seachTeachingTimetable(){
 		teachingArrays = new HashMap<Object, Object[]>();
 		
-		freeFormContainer = Container.getFreeFormContainer(getTeaching(), TimetableSchema.TIMETABLE_ID);
+		freeFormContainer = container.getFreeFormContainer(getTeaching(), TimetableSchema.TIMETABLE_ID);
 		
 		/* นำข้อมูลที่ได้มาใส่ใน Object โดยในฐานข้อมูลจะเก็บ 1 คาบ 1 แถว แต่มาใส่ในตารางจะต้องมารวมทุกคาบมาเป็นแถวเดียวโดยแยกตามวัน */
 		for (Object itemId:freeFormContainer.getItemIds()) {
@@ -277,7 +277,7 @@ public class TeachingtableView extends SchoolOSLayout {
 		sql.append(" AND tc." + TeachingSchema.ACADEMIC_YEAR + "='" + DateTimeUtil.getBuddishYear()+"'");	
 		sql.append(" AND tc." + TimetableSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());	
 		
-		timetableFreeFormContainer = Container.getFreeFormContainer(sql.toString(), TimetableSchema.TIMETABLE_ID);
+		timetableFreeFormContainer = container.getFreeFormContainer(sql.toString(), TimetableSchema.TIMETABLE_ID);
 	}
 	
 	/* ดึงข้อมูลการสอนทั้งหมด ของครูผู้สอน */

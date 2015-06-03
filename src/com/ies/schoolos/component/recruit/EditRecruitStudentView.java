@@ -3,6 +3,7 @@ package com.ies.schoolos.component.recruit;
 import java.util.Date;
 
 import com.ies.schoolos.component.recruit.layout.RecruitStudentLayout;
+import com.ies.schoolos.container.Container;
 import com.ies.schoolos.report.RecruitStudentReport;
 import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
 import com.ies.schoolos.utility.Notification;
@@ -37,7 +38,8 @@ public class EditRecruitStudentView extends RecruitStudentLayout {
 	private Item fatherItem;
 	private Item motherItem;
 	private Item guardianItem;
-	
+
+	private Container container = new Container();
 	public SQLContainer sSqlContainer = container.getRecruitStudentContainer();
 	public SQLContainer fSqlContainer = container.getRecruitFamilyContainer();
 	

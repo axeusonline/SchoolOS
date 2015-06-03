@@ -43,6 +43,8 @@ public class StudentTimetableView extends VerticalLayout {
 	 *     > Object[] แสดง index ของคาบ โดยภายในเก็บ timetableId */
 	private HashMap<Object, HashMap<Object, Object[]>> timetableArray;
 	private Teaching teachingAll = new Teaching();
+	
+	private Container container = new Container();
 	private SQLContainer freeFormContainer;
 	
 	private ComboBox classRoom;
@@ -331,7 +333,7 @@ public class StudentTimetableView extends VerticalLayout {
 	/* ค้นหาข้อมูลตารางสอนทั้งหมด */
 	private void seachTimetable(){
 		timetableArray = new HashMap<Object, HashMap<Object, Object[]>>();
-		freeFormContainer = Container.getFreeFormContainer(getAllTimetable(), TimetableSchema.TIMETABLE_ID);
+		freeFormContainer = container.getFreeFormContainer(getAllTimetable(), TimetableSchema.TIMETABLE_ID);
         
 		/* นำข้อมูลที่ได้มาใส่ใน Object โดยในฐานข้อมูลจะเก็บ 1 คาบ 1 แถว แต่มาใส่ในตารางจะต้องมารวมทุกคาบมาเป็นแถวเดียวโดยแยกตามวัน */
 		for (Object itemId:freeFormContainer.getItemIds()) {

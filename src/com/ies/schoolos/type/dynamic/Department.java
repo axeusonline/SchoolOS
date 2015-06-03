@@ -1,6 +1,6 @@
 package com.ies.schoolos.type.dynamic;
 
-import com.ies.schoolos.component.ui.SchoolOSLayout;
+import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.fundamental.DepartmentSchema;
 import com.vaadin.data.Item;
@@ -13,6 +13,8 @@ import com.vaadin.data.util.sqlcontainer.SQLContainer;
 public class Department extends IndexedContainer{
 
 	private static final long serialVersionUID = 1L;
+
+	private Container container = new Container();
 	
 	public Department() {
 		initContainer();
@@ -20,19 +22,19 @@ public class Department extends IndexedContainer{
  
 	@SuppressWarnings("unchecked")
 	private void initContainer(){
-		SQLContainer container = SchoolOSLayout.container.getDepartmentContainer();
-		container.addContainerFilter(new Or(new Equal(DepartmentSchema.SCHOOL_ID, SessionSchema.getSchoolID()),
+		SQLContainer dcontainer = container.getDepartmentContainer();
+		dcontainer.addContainerFilter(new Or(new Equal(DepartmentSchema.SCHOOL_ID, SessionSchema.getSchoolID()),
 				new IsNull(DepartmentSchema.SCHOOL_ID)));
-		container.sort(new Object[]{DepartmentSchema.DEPARTMENT_ID}, new boolean[]{true});
+		dcontainer.sort(new Object[]{DepartmentSchema.DEPARTMENT_ID}, new boolean[]{true});
 		addContainerProperty("name", String.class,null);
 
-		for (Object itemId:container.getItemIds()) {
+		for (Object itemId:dcontainer.getItemIds()) {
 			Item item = addItem(Integer.parseInt(itemId.toString()));
-			item.getItemProperty("name").setValue(container.getItem(itemId).getItemProperty(DepartmentSchema.NAME).getValue());
+			item.getItemProperty("name").setValue(dcontainer.getItem(itemId).getItemProperty(DepartmentSchema.NAME).getValue());
 		}
 		
 		//ลบ WHERE ออกจาก Query เพื่อป้องกันการค้างของคำสั่่งจากการทำงานอื่นที่เรียกตัวแปรไปใช้
-		container.removeAllContainerFilters();
+		dcontainer.removeAllContainerFilters();
 	}
 	
 	/*public static String getNameEn(int index){

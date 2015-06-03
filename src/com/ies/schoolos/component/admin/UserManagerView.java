@@ -5,7 +5,6 @@ import org.vaadin.activelink.ActiveLink;
 import org.vaadin.activelink.ActiveLink.LinkActivatedEvent;
 import org.vaadin.activelink.ActiveLink.LinkActivatedListener;
 
-import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
@@ -37,8 +36,9 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.VerticalLayout;
 
-public class UserManagerView extends SchoolOSLayout {
+public class UserManagerView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -46,6 +46,7 @@ public class UserManagerView extends SchoolOSLayout {
 	private Item userItem;
 	private String passwordHashed = "";
 	
+	private Container container = new Container();
 	private SQLContainer freeContainer;
 	private SQLContainer userContainer = container.getUserContainer();
 	
@@ -270,7 +271,7 @@ public class UserManagerView extends SchoolOSLayout {
 		
 		table.removeAllItems();
 		
-		freeContainer = Container.getFreeFormContainer(builder.toString(), UserSchema.USER_ID);
+		freeContainer = container.getFreeFormContainer(builder.toString(), UserSchema.USER_ID);
 		for(final Object itemId:freeContainer.getItemIds()){
 			Item item = freeContainer.getItem(itemId);
 						

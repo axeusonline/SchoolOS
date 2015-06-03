@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import org.tepi.filtertable.FilterTable;
 
-import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.component.ui.TwinSelectTable;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
@@ -27,11 +26,13 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.VerticalLayout;
 
-public class PermissionView extends SchoolOSLayout {
+public class PermissionView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 	
+	private Container container = new Container();
 	private SQLContainer freeContainer;
 	private SQLContainer userContainer = container.getUserContainer();
 
@@ -131,7 +132,7 @@ public class PermissionView extends SchoolOSLayout {
 		userBuilder.append(" AND u."+ UserSchema.REF_USER_TYPE + "<> 0");
 		userBuilder.append(" AND SUBSTR("+ UserSchema.PERMISSION + "," + currentFeature +",1) = 0");
 		
-		freeContainer = Container.getFreeFormContainer(userBuilder.toString(), UserSchema.USER_ID);
+		freeContainer = container.getFreeFormContainer(userBuilder.toString(), UserSchema.USER_ID);
 		for(final Object itemId:freeContainer.getItemIds()){
 			Item item = freeContainer.getItem(itemId);
 			addItemData(twinSelect.getLeftTable(), itemId, item);
@@ -150,7 +151,7 @@ public class PermissionView extends SchoolOSLayout {
 		userBuilder.append(" AND u."+ UserSchema.REF_USER_TYPE + "<> 0");
 		userBuilder.append(" AND SUBSTR("+ UserSchema.PERMISSION + "," + currentFeature+",1) = 1");
 
-		freeContainer = Container.getFreeFormContainer(userBuilder.toString(), UserSchema.USER_ID);
+		freeContainer = container.getFreeFormContainer(userBuilder.toString(), UserSchema.USER_ID);
 		for(Object itemId: freeContainer.getItemIds()){
 			Item item = freeContainer.getItem(itemId);
 			addItemData(twinSelect.getRightTable(), itemId, item);

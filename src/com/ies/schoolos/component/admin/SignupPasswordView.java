@@ -2,7 +2,7 @@ package com.ies.schoolos.component.admin;
 
 import java.util.Random;
 
-import com.ies.schoolos.component.ui.SchoolOSLayout;
+import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.SchoolSchema;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.utility.Notification;
@@ -19,10 +19,12 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.VerticalLayout;
 
-public class SignupPasswordView extends SchoolOSLayout {
+public class SignupPasswordView extends VerticalLayout {
 	private static final long serialVersionUID = 1L;
 
+	private Container container = new Container();
 	private SQLContainer schoolContainer = container.getSchoolContainer();
 	
 	private FieldGroup schoolBinder;

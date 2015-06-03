@@ -13,6 +13,8 @@ public class ClassRoomFromStudentClassRoom extends IndexedContainer{
 	private Object studyId;
 	private static final long serialVersionUID = 1L;
 
+	private Container container = new Container();
+	
 	public ClassRoomFromStudentClassRoom(Object studyId) {
 		this.studyId = studyId;
 		addContainerProperty("name", String.class,null);
@@ -28,7 +30,7 @@ public class ClassRoomFromStudentClassRoom extends IndexedContainer{
 		builder.append(" AND scr." + StudentClassRoomSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());	
 		builder.append(" ORDER BY scr." + StudentClassRoomSchema.ACADEMIC_YEAR + " DESC");
 		
-		SQLContainer freeContainer = Container.getFreeFormContainer(builder.toString(), ClassRoomSchema.CLASS_ROOM_ID);
+		SQLContainer freeContainer = container.getFreeFormContainer(builder.toString(), ClassRoomSchema.CLASS_ROOM_ID);
 		addContainerProperty("name", String.class,null);
 		
 		for (int i = 0; i < freeContainer.size(); i++) {

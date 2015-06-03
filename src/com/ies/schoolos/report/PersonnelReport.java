@@ -17,7 +17,6 @@ import net.sf.jasperreports.engine.JasperRunManager;
 import net.sf.jasperreports.engine.type.WhenNoDataTypeEnum;
 import net.sf.jasperreports.engine.util.JRLoader;
 
-import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.container.DbConnection;
 import com.ies.schoolos.schema.CitySchema;
@@ -60,11 +59,12 @@ public class PersonnelReport {
 	private final String REPORT_ID = "personnel_info.jasper";
 	private final String LOGO = SessionSchema.getSchoolID() +".jpg";
 
-	private SQLContainer provinceCon = SchoolOSLayout.container.getProvinceContainer();
-	private SQLContainer districtCon = SchoolOSLayout.container.getDistrictContainer();
-	private SQLContainer cityCon = SchoolOSLayout.container.getCityContainer();
-	private SQLContainer postcodeCon = SchoolOSLayout.container.getPostcodeContainer();
-	private SQLContainer familyContainer = SchoolOSLayout.container.getRecruitFamilyContainer();
+	private Container container = new Container();
+	private SQLContainer provinceCon = container.getProvinceContainer();
+	private SQLContainer districtCon = container.getDistrictContainer();
+	private SQLContainer cityCon = container.getCityContainer();
+	private SQLContainer postcodeCon = container.getPostcodeContainer();
+	private SQLContainer familyContainer = container.getRecruitFamilyContainer();
 	
 	private StreamResource resource;
 	
@@ -77,7 +77,7 @@ public class PersonnelReport {
 		try {
 			final Connection con = DbConnection.getConnection().reserveConnection();
 			final Map<String, Object> paramMap = new HashMap<String, Object>();
-			Item studentItem = SchoolOSLayout.container.getPersonnelContainer().getItem(new RowId(studentId));
+			Item studentItem = container.getPersonnelContainer().getItem(new RowId(studentId));
 			
 			contertoMap(paramMap, studentItem);
 			
@@ -226,7 +226,7 @@ public class PersonnelReport {
 		graduatedBuilder.append(" ORDER BY " + PersonnelGraduatedHistorySchema.YEAR);
 		graduatedBuilder.append(" LIMIT 1");
 		
-		SQLContainer freeContainer = Container.getFreeFormContainer(graduatedBuilder.toString(), PersonnelGraduatedHistorySchema.GRADUATED_HISTORY_ID);
+		SQLContainer freeContainer = container.getFreeFormContainer(graduatedBuilder.toString(), PersonnelGraduatedHistorySchema.GRADUATED_HISTORY_ID);
 		if(freeContainer.size() > 1){
 			Item graduatedItem = freeContainer.getItem(freeContainer.getIdByIndex(0));
 			paramMap.put(PersonnelGraduatedHistorySchema.INSTITUTE,graduatedItem.getItemProperty(PersonnelGraduatedHistorySchema.INSTITUTE).getValue());

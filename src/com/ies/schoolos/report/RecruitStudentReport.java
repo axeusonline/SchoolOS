@@ -17,7 +17,7 @@ import net.sf.jasperreports.engine.JasperRunManager;
 import net.sf.jasperreports.engine.type.WhenNoDataTypeEnum;
 import net.sf.jasperreports.engine.util.JRLoader;
 
-import com.ies.schoolos.component.ui.SchoolOSLayout;
+import com.ies.schoolos.container.Container;
 import com.ies.schoolos.container.DbConnection;
 import com.ies.schoolos.schema.CitySchema;
 import com.ies.schoolos.schema.DistrictSchema;
@@ -57,6 +57,8 @@ public class RecruitStudentReport {
 	private StreamResource resource;
 	private String fileName = "";
 	private String emailTo = "";
+
+	private Container container = new Container();
 	
 	public RecruitStudentReport(int studentId) {
 		printReport(studentId);
@@ -73,7 +75,7 @@ public class RecruitStudentReport {
 		try {
 			final Connection con = DbConnection.getConnection().reserveConnection();
 			final Map<String, Object> paramMap = new HashMap<String, Object>();
-			Item studentItem = SchoolOSLayout.container.getRecruitStudentContainer().getItem(new RowId(studentId));
+			Item studentItem = container.getRecruitStudentContainer().getItem(new RowId(studentId));
 			
 			contertoMap(paramMap, studentItem);
 			
@@ -194,7 +196,7 @@ public class RecruitStudentReport {
 		
 		/* FATHER */
 		Object fatherId = item.getItemProperty(RecruitStudentSchema.FATHER_ID).getValue();
-		Item fatherItem = SchoolOSLayout.container.getRecruitFamilyContainer().getItem(new RowId(fatherId));
+		Item fatherItem = container.getRecruitFamilyContainer().getItem(new RowId(fatherId));
 		
 		paramMap.put("f_" + RecruitStudentFamilySchema.REG_FAMILY_ID,fatherItem.getItemProperty(RecruitStudentFamilySchema.REG_FAMILY_ID).getValue());
 		paramMap.put("f_" + RecruitStudentFamilySchema.PEOPLE_ID,fatherItem.getItemProperty(RecruitStudentFamilySchema.PEOPLE_ID).getValue());
@@ -226,7 +228,7 @@ public class RecruitStudentReport {
 		
 		/* Mother */
 		Object motherId = item.getItemProperty(RecruitStudentSchema.MOTHER_ID).getValue();
-		Item motherItem = SchoolOSLayout.container.getRecruitFamilyContainer().getItem(new RowId(motherId));
+		Item motherItem = container.getRecruitFamilyContainer().getItem(new RowId(motherId));
 		
 		paramMap.put("m_" + RecruitStudentFamilySchema.REG_FAMILY_ID,motherItem.getItemProperty(RecruitStudentFamilySchema.REG_FAMILY_ID).getValue());
 		paramMap.put("m_" + RecruitStudentFamilySchema.PEOPLE_ID,motherItem.getItemProperty(RecruitStudentFamilySchema.PEOPLE_ID).getValue());
@@ -258,7 +260,7 @@ public class RecruitStudentReport {
 				
 		/* Guardian */
 		Object guardianId = item.getItemProperty(RecruitStudentSchema.GUARDIAN_ID).getValue();
-		Item guardianItem = SchoolOSLayout.container.getRecruitFamilyContainer().getItem(new RowId(guardianId));
+		Item guardianItem = container.getRecruitFamilyContainer().getItem(new RowId(guardianId));
 		
 		paramMap.put("g_" + RecruitStudentFamilySchema.REG_FAMILY_ID,guardianItem.getItemProperty(RecruitStudentFamilySchema.REG_FAMILY_ID).getValue());
 		paramMap.put("g_" + RecruitStudentFamilySchema.PEOPLE_ID,guardianItem.getItemProperty(RecruitStudentFamilySchema.PEOPLE_ID).getValue());
@@ -291,7 +293,7 @@ public class RecruitStudentReport {
 	}
 
 	private String getProvinceName(int itemId){
-		SQLContainer provinceCon = SchoolOSLayout.container.getProvinceContainer();
+		SQLContainer provinceCon = container.getProvinceContainer();
 		provinceCon.addContainerFilter(new Equal(ProvinceSchema.PROVINCE_ID,itemId));
 		String name = provinceCon.getItem(new RowId(itemId)).getItemProperty(ProvinceSchema.NAME).getValue().toString();
 		provinceCon.removeAllContainerFilters();
@@ -300,7 +302,7 @@ public class RecruitStudentReport {
 	}
 
 	private String getDistrictName(int itemId){
-		SQLContainer districtCon = SchoolOSLayout.container.getDistrictContainer();
+		SQLContainer districtCon = container.getDistrictContainer();
 		districtCon.addContainerFilter(new Equal(DistrictSchema.DISTRICT_ID,itemId));
 		String name = districtCon.getItem(new RowId(itemId)).getItemProperty(DistrictSchema.NAME).getValue().toString();
 		districtCon.removeAllContainerFilters();
@@ -309,7 +311,7 @@ public class RecruitStudentReport {
 	}
 
 	private String getCityName(int itemId){
-		SQLContainer cityCon = SchoolOSLayout.container.getCityContainer();
+		SQLContainer cityCon = container.getCityContainer();
 		cityCon.addContainerFilter(new Equal(CitySchema.CITY_ID,itemId));
 		String name = cityCon.getItem(new RowId(itemId)).getItemProperty(CitySchema.NAME).getValue().toString();
 		cityCon.removeAllContainerFilters();
@@ -318,7 +320,7 @@ public class RecruitStudentReport {
 	}
 
 	private String getPostcodeName(int itemId){
-		SQLContainer postcodeCon = SchoolOSLayout.container.getPostcodeContainer();
+		SQLContainer postcodeCon = container.getPostcodeContainer();
 		postcodeCon.addContainerFilter(new Equal(PostcodeSchema.POSTCODE_ID,itemId));
 		String code = postcodeCon.getItem(new RowId(itemId)).getItemProperty(PostcodeSchema.CODE).getValue().toString();
 		postcodeCon.removeAllContainerFilters();

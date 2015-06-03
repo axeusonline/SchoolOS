@@ -5,6 +5,7 @@ import java.util.Date;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.ies.schoolos.component.personnel.layout.PersonnelLayout;
+import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.info.PersonnelSchema;
 import com.ies.schoolos.utility.Notification;
 import com.ies.schoolos.utility.Utility;
@@ -39,7 +40,8 @@ public class EditPersonnelView extends PersonnelLayout {
 	private Item fatherItem;
 	private Item motherItem;
 	private Item spouseItem;
-	
+
+	private Container container = new Container();
 	public SQLContainer pSqlContainer = container.getPersonnelContainer();
 	public SQLContainer fSqlContainer = container.getFamilyContainer();
 	

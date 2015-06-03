@@ -6,7 +6,6 @@ import java.util.Locale;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.ies.schoolos.component.ui.NumberField;
-import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.UserSchema;
 import com.ies.schoolos.schema.info.FamilySchema;
@@ -62,8 +61,9 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.VerticalLayout;
 
-public class PersonnelLayout extends SchoolOSLayout {
+public class PersonnelLayout extends VerticalLayout {
 private static final long serialVersionUID = 1L;
 	
 	public boolean isEdit = false;
@@ -82,6 +82,7 @@ private static final long serialVersionUID = 1L;
 	 * */
 	public Object pkStore[] = new Object[4];
 
+	private Container container = new Container();
 	public SQLContainer pSqlContainer = container.getPersonnelContainer();
 	public SQLContainer fSqlContainer = container.getFamilyContainer();
 	public SQLContainer userSqlContainer = container.getUserContainer();
@@ -2253,7 +2254,7 @@ private static final long serialVersionUID = 1L;
 
 			personalCode += "01";
 			
-			SQLContainer freeContainer = Container.getFreeFormContainer(sqlBuilder.toString(), PersonnelSchema.PERSONNEL_CODE);
+			SQLContainer freeContainer = container.getFreeFormContainer(sqlBuilder.toString(), PersonnelSchema.PERSONNEL_CODE);
 			Item item = freeContainer.getItem(freeContainer.getIdByIndex(0));
 			
 			if(item.getItemProperty(PersonnelSchema.PERSONNEL_CODE).getValue() != null){

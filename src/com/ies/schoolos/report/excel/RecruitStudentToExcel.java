@@ -3,7 +3,6 @@ package com.ies.schoolos.report.excel;
 import java.sql.Date;
 import java.util.ArrayList;
 
-import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.CitySchema;
 import com.ies.schoolos.schema.DistrictSchema;
@@ -36,6 +35,8 @@ import com.vaadin.ui.Table;
 
 public class RecruitStudentToExcel extends Table{
 	private static final long serialVersionUID = 1L;
+
+	private Container container = new Container();
 	
 	public RecruitStudentToExcel() {
 		setSizeFull();
@@ -176,18 +177,18 @@ public class RecruitStudentToExcel extends Table{
 			RecruitStudentSchema.EXAM_BUILDING_ID,
 			RecruitStudentSchema.CLASS_ROOM_ID);
 		
-		SQLContainer sContainer = SchoolOSLayout.container.getRecruitStudentContainer();
+		SQLContainer sContainer = container.getRecruitStudentContainer();
 		sContainer.addContainerFilter(new And(new Equal(RecruitStudentSchema.SCHOOL_ID,SessionSchema.getSchoolID()),
 				new Greater(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getFirstDateOfYear()),
 				new Less(RecruitStudentSchema.REGISTER_DATE,DateTimeUtil.getLastDateOfYear())));
 		sContainer.addOrderBy(new OrderBy(RecruitStudentSchema.RECRUIT_CODE, true));	
 		
-		SQLContainer examBuildingContainer = SchoolOSLayout.container.getBuildingContainer();
-		SQLContainer classRoomContainer = SchoolOSLayout.container.getClassRoomContainer();
-		SQLContainer provinceContainer = SchoolOSLayout.container.getProvinceContainer();
-		SQLContainer districtContainer = SchoolOSLayout.container.getDistrictContainer();
-		SQLContainer cityContainer = SchoolOSLayout.container.getCityContainer();
-		SQLContainer postcodeContainer = SchoolOSLayout.container.getPostcodeContainer();
+		SQLContainer examBuildingContainer = container.getBuildingContainer();
+		SQLContainer classRoomContainer = container.getClassRoomContainer();
+		SQLContainer provinceContainer = container.getProvinceContainer();
+		SQLContainer districtContainer = container.getDistrictContainer();
+		SQLContainer cityContainer = container.getCityContainer();
+		SQLContainer postcodeContainer = container.getPostcodeContainer();
 		
 		for(Object itemId:sContainer.getItemIds()){
 			Item item = sContainer.getItem(itemId);
@@ -223,7 +224,7 @@ public class RecruitStudentToExcel extends Table{
 						familySQL.append(" FROM " + RecruitStudentFamilySchema.TABLE_NAME);
 						familySQL.append(" WHERE " + RecruitStudentFamilySchema.REG_FAMILY_ID + "=");
 						
-						SQLContainer familyContainer = Container.getFreeFormContainer(familySQL.toString() + value, RecruitStudentFamilySchema.REG_FAMILY_ID);						
+						SQLContainer familyContainer = container.getFreeFormContainer(familySQL.toString() + value, RecruitStudentFamilySchema.REG_FAMILY_ID);						
 						
 						Item familyItem = familyContainer.getItem(new RowId(value));
 						value = familyItem.getItemProperty(RecruitStudentFamilySchema.FIRSTNAME).getValue().toString() + " " +

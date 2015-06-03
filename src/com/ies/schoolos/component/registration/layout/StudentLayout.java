@@ -6,7 +6,6 @@ import java.util.Locale;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.ies.schoolos.component.ui.NumberField;
-import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.SchoolSchema;
 import com.ies.schoolos.schema.SessionSchema;
@@ -67,8 +66,9 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.VerticalLayout;
 
-public class StudentLayout extends SchoolOSLayout {
+public class StudentLayout extends VerticalLayout {
 private static final long serialVersionUID = 1L;
 	
 	public boolean isEdit = false;
@@ -89,11 +89,12 @@ private static final long serialVersionUID = 1L;
 	private String generatedType = "";
 	private String maxStudentCode = "";
 
+	private Container container = new Container();
+	private SQLContainer schoolContainer = container.getSchoolContainer();
 	public SQLContainer sSqlContainer = container.getStudentContainer();
 	public SQLContainer ssSqlContainer = container.getStudentStudyContainer();
 	public SQLContainer fSqlContainer = container.getFamilyContainer();
 	public SQLContainer userfSqlContainer = container.getUserContainer();
-	private SQLContainer schoolContainer = container.getSchoolContainer();
 	
 	public FieldGroup studentBinder;
 	public FieldGroup studentStudyBinder;
@@ -2542,7 +2543,7 @@ private static final long serialVersionUID = 1L;
 
 		studentCodeStr += "001";
 		
-		SQLContainer freeContainer = Container.getFreeFormContainer(sqlBuilder.toString(), StudentStudySchema.STUDENT_CODE);
+		SQLContainer freeContainer = container.getFreeFormContainer(sqlBuilder.toString(), StudentStudySchema.STUDENT_CODE);
 		Item item = freeContainer.getItem(freeContainer.getIdByIndex(0));
 		
 		if(item.getItemProperty(StudentStudySchema.STUDENT_CODE).getValue() != null){
@@ -2559,7 +2560,7 @@ private static final long serialVersionUID = 1L;
 		builder.append(" SELECT MAX("+StudentStudySchema.STUDENT_CODE +") AS " + StudentStudySchema.STUDENT_CODE + " FROM " + StudentStudySchema.TABLE_NAME);
 		builder.append(" WHERE " + StudentStudySchema.SCHOOL_ID + "="+ SessionSchema.getSchoolID());
 
-		SQLContainer freeContainer = Container.getFreeFormContainer(builder.toString(), StudentStudySchema.STUDENT_CODE);
+		SQLContainer freeContainer = container.getFreeFormContainer(builder.toString(), StudentStudySchema.STUDENT_CODE);
 		if(freeContainer.getItem(freeContainer.getIdByIndex(0)).getItemProperty(StudentStudySchema.STUDENT_CODE).getValue() != null){
 			max = Integer.parseInt(freeContainer.getItem(freeContainer.getIdByIndex(0)).getItemProperty(StudentStudySchema.STUDENT_CODE).getValue().toString());
 			max++;

@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import com.ies.schoolos.component.ui.NumberField;
-import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.schema.recruit.RecruitStudentFamilySchema;
 import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
 import com.ies.schoolos.type.AliveStatus;
@@ -42,8 +41,9 @@ import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.VerticalLayout;
 
-public class RecruitStudentLayout extends SchoolOSLayout {
+public class RecruitStudentLayout extends VerticalLayout {
 	private static final long serialVersionUID = 1L;
 	
 	public FieldGroup studentBinder;

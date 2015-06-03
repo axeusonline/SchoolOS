@@ -25,6 +25,8 @@ import com.vaadin.data.Item;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 
 public class EmailSender {
+	private Container container = new Container();
+	
 	public EmailSender(String to, String subject, String description, String filename, InputStream inputStream) {
 		final String username = "administrator@schoolos.in.th";
 		final String password = "!IeSP@ssw0RD?";
@@ -36,7 +38,7 @@ public class EmailSender {
 	    	builder.append(" SELECT * FROM " + UserSchema.TABLE_NAME);
 	    	builder.append(" WHERE " + UserSchema.REF_USER_ID + "=" + SessionSchema.getSchoolID());
 	    	
-	    	SQLContainer userContainer = Container.getFreeFormContainer(builder.toString(), UserSchema.USER_ID);
+	    	SQLContainer userContainer = container.getFreeFormContainer(builder.toString(), UserSchema.USER_ID);
 	    	Item userItem = userContainer.getItem(userContainer.getIdByIndex(0));
 	    	
 	    	from = userItem.getItemProperty(UserSchema.EMAIL).getValue().toString();

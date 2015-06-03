@@ -4,6 +4,7 @@ import org.tepi.filtertable.FilterTable;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.ies.schoolos.component.ui.ContentPage;
+import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
 import com.ies.schoolos.schema.CreateModifiedSchema;
@@ -39,6 +40,7 @@ public class JobPositionView extends ContentPage{
 	
 	private boolean editMode = false;
 	
+	private Container container = new Container();
 	private SQLContainer jContainer = container.getJobPositionContainer();
 	
 	private Item item;

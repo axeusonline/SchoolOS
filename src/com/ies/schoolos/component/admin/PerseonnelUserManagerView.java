@@ -2,7 +2,6 @@ package com.ies.schoolos.component.admin;
 
 import org.tepi.filtertable.FilterTable;
 
-import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
@@ -44,12 +43,13 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Notification.Type;
 
-public class PerseonnelUserManagerView extends SchoolOSLayout {
+public class PerseonnelUserManagerView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 	
 	private Object personnelId;
 	
+	private Container container = new Container();
 	private SQLContainer freeContainer;
 	private SQLContainer userContainer = container.getUserContainer();
 	
@@ -261,7 +261,7 @@ public class PerseonnelUserManagerView extends SchoolOSLayout {
 		
 		table.removeAllItems();
 		
-		freeContainer = Container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
+		freeContainer = container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
 		for(final Object itemId:freeContainer.getItemIds()){
 			Item item = freeContainer.getItem(itemId);
 						

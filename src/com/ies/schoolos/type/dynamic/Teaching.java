@@ -13,6 +13,7 @@ import com.vaadin.data.util.sqlcontainer.SQLContainer;
 
 public class Teaching extends IndexedContainer{
 
+	private Container container = new Container();
 	private static final long serialVersionUID = 1L;
 	
 	private SQLContainer freeContainer;
@@ -50,7 +51,7 @@ public class Teaching extends IndexedContainer{
 		teachingBuilder.append(" WHERE tc."+ TeachingSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		teachingBuilder.append(" AND tc." + TeachingSchema.ACADEMIC_YEAR + "='" + DateTimeUtil.getBuddishYear()+"'");
 
-		freeContainer = Container.getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
+		freeContainer = container.getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
 		for (int i = 0; i < freeContainer.size(); i++) {
 			Object teachingItemId = freeContainer.getIdByIndex(i);
 			
@@ -69,7 +70,7 @@ public class Teaching extends IndexedContainer{
 					builder.append(" FROM " + PersonnelSchema.TABLE_NAME);
 					builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + teachingItem.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue());
 					
-					SQLContainer freeContainer = Container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
+					SQLContainer freeContainer = container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
 
 					Item personnelItem = freeContainer.getItem(freeContainer.getIdByIndex(0));
 					firstname = personnelItem.getItemProperty(PersonnelSchema.FIRSTNAME).getValue().toString();
@@ -104,7 +105,7 @@ public class Teaching extends IndexedContainer{
 			teachingBuilder.append(" AND tc."+ TeachingSchema.WEEKEND + " IS NULL");
 		teachingBuilder.append(" AND tc." + TeachingSchema.ACADEMIC_YEAR + "='" + DateTimeUtil.getBuddishYear()+"'");
 
-		freeContainer = Container.getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
+		freeContainer = container.getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
 		for (int i = 0; i < freeContainer.size(); i++) {
 			Object teachingItemId = freeContainer.getIdByIndex(i);
 			
@@ -123,7 +124,7 @@ public class Teaching extends IndexedContainer{
 					builder.append(" FROM " + PersonnelSchema.TABLE_NAME);
 					builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + teachingItem.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue());
 					
-					SQLContainer freeContainer = Container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
+					SQLContainer freeContainer = container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
 					
 					Item personnelItem = freeContainer.getItem(freeContainer.getIdByIndex(0));
 					firstname = personnelItem.getItemProperty(PersonnelSchema.FIRSTNAME).getValue().toString();
@@ -166,7 +167,7 @@ public class Teaching extends IndexedContainer{
 		teachingBuilder.append(" (SELECT " + LessonPlanSubjectSchema.SUBJECT_ID + " FROM " + LessonPlanSubjectSchema.TABLE_NAME);
 		teachingBuilder.append(" WHERE " + LessonPlanSubjectSchema.SEMESTER + "=" + semester +")");
 		
-		freeContainer = Container.getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
+		freeContainer = container.getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
 		for (int i = 0; i < freeContainer.size(); i++) {
 			Object teachingItemId = freeContainer.getIdByIndex(i);
 			
@@ -185,7 +186,7 @@ public class Teaching extends IndexedContainer{
 					builder.append(" FROM " + PersonnelSchema.TABLE_NAME);
 					builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + teachingItem.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue());
 
-					SQLContainer freeContainer = Container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
+					SQLContainer freeContainer = container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
 
 					Item personnelItem = freeContainer.getItem(freeContainer.getIdByIndex(0));
 					firstname = personnelItem.getItemProperty(PersonnelSchema.FIRSTNAME).getValue().toString();
@@ -229,7 +230,7 @@ public class Teaching extends IndexedContainer{
 		teachingBuilder.append(" WHERE " + LessonPlanSubjectSchema.CLASS_YEAR + "=" + classYear);
 		teachingBuilder.append(" AND " + LessonPlanSubjectSchema.SEMESTER + "=" + semester +")");
 		
-		freeContainer = Container.getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
+		freeContainer = container.getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
 		for (int i = 0; i < freeContainer.size(); i++) {
 			Object teachingItemId = freeContainer.getIdByIndex(i);
 			
@@ -248,7 +249,7 @@ public class Teaching extends IndexedContainer{
 					builder.append(" FROM " + PersonnelSchema.TABLE_NAME);
 					builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + teachingItem.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue());
 
-					SQLContainer freeContainer = Container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
+					SQLContainer freeContainer = container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
 
 					Item personnelItem = freeContainer.getItem(freeContainer.getIdByIndex(0));
 					firstname = personnelItem.getItemProperty(PersonnelSchema.FIRSTNAME).getValue().toString();
@@ -295,7 +296,7 @@ public class Teaching extends IndexedContainer{
 		teachingBuilder.append(" WHERE " + LessonPlanSubjectSchema.CLASS_YEAR + "=" + classYear);
 		teachingBuilder.append(" AND " + LessonPlanSubjectSchema.SEMESTER + "=" + semester +")");
 
-		freeContainer = Container.getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
+		freeContainer = container.getFreeFormContainer(teachingBuilder.toString(), TeachingSchema.TEACHING_ID);
 		
 		if(freeContainer.size() > 0){
 			for (int i = 0; i < freeContainer.size(); i++) {
@@ -316,7 +317,7 @@ public class Teaching extends IndexedContainer{
 						builder.append(" FROM " + PersonnelSchema.TABLE_NAME);
 						builder.append(" WHERE " + PersonnelSchema.PERSONNEL_ID + "=" + teachingItem.getItemProperty(TeachingSchema.PERSONNEL_ID).getValue());
 
-						SQLContainer freeContainer = Container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
+						SQLContainer freeContainer = container.getFreeFormContainer(builder.toString(), PersonnelSchema.PERSONNEL_ID);
 
 						Item personnelItem = freeContainer.getItem(freeContainer.getIdByIndex(0));
 						firstname = personnelItem.getItemProperty(PersonnelSchema.FIRSTNAME).getValue().toString();

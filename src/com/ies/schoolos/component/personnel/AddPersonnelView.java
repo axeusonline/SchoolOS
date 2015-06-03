@@ -3,6 +3,7 @@ package com.ies.schoolos.component.personnel;
 import java.util.Date;
 
 import com.ies.schoolos.component.personnel.layout.PersonnelLayout;
+import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.CreateModifiedSchema;
 import com.ies.schoolos.schema.SchoolSchema;
 import com.ies.schoolos.schema.SessionSchema;
@@ -35,6 +36,9 @@ public class AddPersonnelView extends PersonnelLayout {
 
 	private int pkIndex = 0;
 	private boolean isSaved = false;
+	
+
+	private Container container = new Container();
 	private SQLContainer userContainer = container.getUserContainer();
 	
 	private String maritalStr = "";

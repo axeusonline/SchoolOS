@@ -13,7 +13,6 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.util.CellRangeAddress;
 
-import com.ies.schoolos.component.ui.SchoolOSLayout;
 import com.ies.schoolos.container.Container;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.academic.LessonPlanSubjectSchema;
@@ -44,7 +43,7 @@ import com.vaadin.ui.Table.Align;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
-public class TeachingtableExportView extends SchoolOSLayout {
+public class TeachingtableExportView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 
@@ -56,6 +55,7 @@ public class TeachingtableExportView extends SchoolOSLayout {
 	 * โดยที่ Key เก็บชื่อ */
 	private ArrayList<String> teachingAssigned = new ArrayList<String>();
 
+	private Container container = new Container();
 	private SQLContainer teachingContainer;
 	private SQLContainer timetableFreeFormContainer;
 	private SQLContainer freeFormContainer;
@@ -308,7 +308,7 @@ public class TeachingtableExportView extends SchoolOSLayout {
 		teachingArrays = new HashMap<Object, Object[]>();
 		Item teachingItem = teachingContainer.getItem(teachingId);
 
-		freeFormContainer = Container.getFreeFormContainer(getTeachingSQL(teachingItem), TimetableSchema.TIMETABLE_ID);
+		freeFormContainer = container.getFreeFormContainer(getTeachingSQL(teachingItem), TimetableSchema.TIMETABLE_ID);
 		/* นำข้อมูลที่ได้มาใส่ใน Object โดยในฐานข้อมูลจะเก็บ 1 คาบ 1 แถว แต่มาใส่ในตารางจะต้องมารวมทุกคาบมาเป็นแถวเดียวโดยแยกตามวัน */
 		for (Object itemId:freeFormContainer.getItemIds()) {
 	
@@ -350,7 +350,7 @@ public class TeachingtableExportView extends SchoolOSLayout {
 		sql.append(" AND tc." + TeachingSchema.ACADEMIC_YEAR + "='" + DateTimeUtil.getBuddishYear()+"'");	
 		sql.append(" AND tc." + TimetableSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());	
 		
-		timetableFreeFormContainer = Container.getFreeFormContainer(sql.toString(), TimetableSchema.TIMETABLE_ID);
+		timetableFreeFormContainer = container.getFreeFormContainer(sql.toString(), TimetableSchema.TIMETABLE_ID);
 	}
 		
 	/* ดึงข้อมูลการสอนทั้งหมด ของครูผู้สอน */

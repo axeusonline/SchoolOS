@@ -14,7 +14,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.tepi.filtertable.FilterTable;
 import org.vaadin.dialogs.ConfirmDialog;
 
-import com.ies.schoolos.component.ui.SchoolOSLayout;
+import com.ies.schoolos.container.Container;
 import com.ies.schoolos.filter.TableFilterDecorator;
 import com.ies.schoolos.filter.TableFilterGenerator;
 import com.ies.schoolos.report.PersonnelReport;
@@ -54,16 +54,18 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseListener;
 
-public class PersonnelListView extends SchoolOSLayout {
+public class PersonnelListView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 	
 	private HashMap<String, String> mapTitle;
-	
+
+	private Container container = new Container();
 	private SQLContainer provinceCon = container.getProvinceContainer();
 	private SQLContainer districtCon = container.getDistrictContainer();
 	private SQLContainer cityCon = container.getCityContainer();

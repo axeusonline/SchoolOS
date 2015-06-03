@@ -29,7 +29,8 @@ import com.vaadin.ui.Window;
 public class StudentBehaviorView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
-	
+
+	private Container container = new Container();
 	private SQLContainer freeContainer;
 	
 	private FilterTable table;
@@ -123,7 +124,7 @@ public class StudentBehaviorView extends VerticalLayout {
 		builder.append(" AND ( ss." + StudentStudySchema.STUDENT_STATUS + "=" + 0);
 		builder.append(" OR ss." + StudentStudySchema.STUDENT_STATUS + "=" + 2 + ")");
 
-		freeContainer = Container.getFreeFormContainer(builder.toString(), StudentStudySchema.STUDENT_STUDY_ID);
+		freeContainer = container.getFreeFormContainer(builder.toString(), StudentStudySchema.STUDENT_STUDY_ID);
 		for(final Object itemId:freeContainer.getItemIds()){
 			Item item = freeContainer.getItem(itemId);
 			table.addItem(new Object[]{

@@ -10,7 +10,6 @@ import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.info.FamilySchema;
 import com.ies.schoolos.schema.info.PersonnelSchema;
 import com.ies.schoolos.schema.recruit.RecruitStudentSchema;
-import com.ies.schoolos.schema.view.StatRecruitStudentCodeSchema;
 import com.ies.schoolos.utility.Notification;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -40,7 +39,8 @@ public class AddRecruitStudentView extends RecruitStudentLayout {
 	 * 3 แทนถึง id นักเรียน
 	 * */
 	private ArrayList<Object> idStore = new ArrayList<Object>();
-	
+
+	private Container container = new Container();
 	private SQLContainer sSqlContainer = container.getRecruitStudentContainer();
 	private SQLContainer fSqlContainer = container.getRecruitFamilyContainer();
 	
@@ -261,21 +261,25 @@ public class AddRecruitStudentView extends RecruitStudentLayout {
 				 *   - 001 แสดงถึงลำดับ
 				 * กรณีมีอยู่แล้ว อาจจะการนำเข้าด้วย Excel ก็จะบวกรหัสไปเรื่อย ๆ
 				 * */	
-				SQLContainer freeFormContainer = Container.getFreeFormContainer(StatRecruitStudentCodeSchema.getQuery(), StatRecruitStudentCodeSchema.MAX_CODE);
+				String query = "SELECT MAX( "+ RecruitStudentSchema.RECRUIT_CODE + ") AS " + RecruitStudentSchema.RECRUIT_CODE + 
+						" FROM " + RecruitStudentSchema.TABLE_NAME + 
+		    			" WHERE " + RecruitStudentSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID();
 				
+				SQLContainer freeFormContainer = container.getFreeFormContainer(query, RecruitStudentSchema.RECRUIT_CODE);
+
+				String recruitCode = "";
 				int maxCode = 0;
 				for(Object object:freeFormContainer.getItemIds())
 					maxCode = Integer.parseInt(object.toString())+1;
-				/* ลบ WHERE ออกจาก Query เพื่อป้องกันการค้างของคำสั่่งจากการทำงานอื่นที่เรียกตัวแปรไปใช้ */
-				freeFormContainer.removeAllContainerFilters();
-				
-				String recruitCode = "";
-				if(maxCode == 0){
+				if(freeFormContainer.getItem(freeFormContainer.getIdByIndex(0)).getItemProperty(RecruitStudentSchema.RECRUIT_CODE).getValue() != null){
+					maxCode = Integer.parseInt(freeFormContainer.getItem(freeFormContainer.getIdByIndex(0)).getItemProperty(RecruitStudentSchema.RECRUIT_CODE).getValue().toString());
+					maxCode++;
+					recruitCode = Integer.toString(maxCode);
+				}else{
 					maxCode = new Date().getYear()+2443;
 					recruitCode = Integer.toString(maxCode).substring(2)+studentBinder.getField(RecruitStudentSchema.CLASS_RANGE).getValue().toString()+"001";
-				}else{
-					recruitCode = Integer.toString(maxCode);
 				}
+				
 				item.getItemProperty(RecruitStudentSchema.FATHER_ID).setValue(Integer.parseInt(idStore.get(0).toString()));
 				item.getItemProperty(RecruitStudentSchema.MOTHER_ID).setValue(Integer.parseInt(idStore.get(1).toString()));
 				item.getItemProperty(RecruitStudentSchema.GUARDIAN_ID).setValue(Integer.parseInt(idStore.get(2).toString()));
