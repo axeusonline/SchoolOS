@@ -19,10 +19,12 @@ import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.combobox.FilteringMode;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.JavaScript;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
@@ -142,16 +144,16 @@ public class StudentTimetableView extends VerticalLayout {
 	
 	private void setTableStyle(Table table){
 		table.addContainerProperty(TimetableSchema.WORKING_DAY, String.class, null);
-		table.addContainerProperty("1", String.class, null);
-		table.addContainerProperty("2", String.class, null);
-		table.addContainerProperty("3", String.class, null);
-		table.addContainerProperty("4", String.class, null);
-		table.addContainerProperty("5", String.class, null);
-		table.addContainerProperty("6", String.class, null);
-		table.addContainerProperty("7", String.class, null);
-		table.addContainerProperty("8", String.class, null);
-		table.addContainerProperty("9", String.class, null);
-		table.addContainerProperty("10", String.class, null);
+		table.addContainerProperty("1", Label.class, null);
+		table.addContainerProperty("2", Label.class, null);
+		table.addContainerProperty("3", Label.class, null);
+		table.addContainerProperty("4", Label.class, null);
+		table.addContainerProperty("5", Label.class, null);
+		table.addContainerProperty("6", Label.class, null);
+		table.addContainerProperty("7", Label.class, null);
+		table.addContainerProperty("8", Label.class, null);
+		table.addContainerProperty("9", Label.class, null);
+		table.addContainerProperty("10", Label.class, null);
 		
 		table.setColumnAlignment(TimetableSchema.WORKING_DAY,Align.CENTER);
 		table.setColumnAlignment("1",Align.CENTER);
@@ -187,16 +189,23 @@ public class StudentTimetableView extends VerticalLayout {
 		seachTimetable();
 		
 		Table exportedTable = new Table();
-		exportedTable.setSizeFull();
+		exportedTable.setWidth("100%");
+		exportedTable.setHeight("340px");
 		setTableStyle(exportedTable);
 		timetableLayout.addComponent(exportedTable);
 		
+		printedTable = new Table();
+		printedTable.setSizeFull();
+		setTableStyle(printedTable);
+
 		//String[] daysClosed = getDays();
 		/* วนลูบเรียงตามวัน อาทิตย์ ถึง เสาร์ */
 		for (int i=0; i < 7;i++) {
 			final int weekDay = i;
-			ArrayList<Object> data = new ArrayList<Object>();	
+			ArrayList<Object> data = new ArrayList<Object>();
 			data.add(Days.getNameTh(weekDay));
+			ArrayList<Object> dataPrint = new ArrayList<Object>();
+			dataPrint.add(Days.getNameTh(weekDay));
 			
 			/* ตรวจสอบจำนวนข้อมูลตารางสอนที่พบ
 			 *  กรณีพบตารางสอนที่เคยใส่ก่อนหน้า จะตรวจคาบใหนที่กำหนดแล้ว (สีแดง) หรือ ยังไม่กำหนด (เขียว) 
@@ -213,10 +222,15 @@ public class StudentTimetableView extends VerticalLayout {
 						/* วนลูบจำนวนคาบ 9 คาบ */
 						for(int j=0; j < 10; j++){
 							String content = "";
+							Label label = getTimetableLabel();
+							Label printLabel = getTimetableLabel();
+							
 							/* ตรวจสอบว่า คาบดังกล่่าวถูกระบุใว้หรือยัง
 							 *  กรณียังว่าง จะกำหนด Caption เป็น "ว่าง"
 							 *  กรณี ระบุ จะกำหนด Caption เป็นชื่อวิชา (อจ) พร้อมตั้งค่า id บนปุ่ม*/
 							if(timetableIdArray[j] == null){
+								label.setStyleName("green-label");
+								printLabel.setStyleName("green-label");
 								content = "ว่าง";
 							}else{
 								Object timetableId = timetableIdArray[j];
@@ -225,36 +239,55 @@ public class StudentTimetableView extends VerticalLayout {
 								String caption = teachingAll.
 										getItem(new RowId(timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue())).
 										getItemProperty("name").getValue().toString();
-
+								label.setStyleName("red-label");
 								content = getTeachingNameHtml(caption);
 							}
-							data.add(content);
+							label.setValue(content);
+							printLabel.setValue(content);
+							data.add(label);
+							dataPrint.add(printLabel);
 						}
 					}else{
 						for(int j=0; j < 10; j++){
 							String content = "ว่าง";
-							data.add(content);
+							
+							Label label = getTimetableLabel();
+							label.setStyleName("green-label");
+							label.setValue(content);
+							
+							Label printLabel = getTimetableLabel();
+							printLabel.setStyleName("green-label");
+							printLabel.setValue(content);
+							
+							data.add(label);
+							dataPrint.add(printLabel);
 						}
 					}
 				}
 
 				/* เก็บ id เป็น วัน,ห้องเรียน (index ของวัน ,id ห้องเรียน) */
 				exportedTable.addItem(data.toArray(),i+","+classRoom.getValue());
+				printedTable.addItem(dataPrint.toArray(),i+","+classRoom.getValue());
 			}else{
 				for(int j=0; j < 10; j++){
-					String content = "";
-					content = "ว่าง";
-					data.add(content);
+					String content = "ว่าง";
+					
+					Label label = getTimetableLabel();
+					label.setStyleName("green-label");
+					label.setValue(content);
+					
+					Label printLabel = getTimetableLabel();
+					printLabel.setStyleName("green-label");
+					printLabel.setValue(content);
+					
+					data.add(label);
+					dataPrint.add(printLabel);
 				}
 				/* เก็บ id เป็น วัน,ห้องเรียน (index ของวัน ,id ห้องเรียน) */
 				exportedTable.addItem(data.toArray(),i+","+classRoom.getValue());
+				printedTable.addItem(dataPrint.toArray(),i+","+classRoom.getValue());
 			}
 		}
-		
-		printedTable = new Table();
-		printedTable.setHeight("100%");
-		setTableStyle(printedTable);
-		printedTable.setContainerDataSource(exportedTable.getContainerDataSource());
 		/*HSSFWorkbook workbook = new HSSFWorkbook(); 
 		CellStyle cs = workbook.createCellStyle();
 		cs.setWrapText(true);
@@ -391,12 +424,20 @@ public class StudentTimetableView extends VerticalLayout {
 	 *  ท1101:ภาษาไทย1 (อ.ทดลอง ทดสอบ) หรือ
 	 *  แนะแนว (อ.ทดลอง ทดสอบ) 
 	 *  ให้อยู่ในรํปของ 
-	 *    - ถ้ามีรหัสวิชา ท1101 \n อ.ทดลอง ทดสอบ
+	 *    - ถ้ามีรหัสวิชา ท1101 <br/> อ.ทดลอง ทดสอบ
 	 *    - ถ้าไม่มีรหัสวิชา แนะแนว อ.ทดลอง ทดสอบ */
 	private String getTeachingNameHtml(String name){
-		String styles = name.substring(0, name.indexOf("("))+"\n" +
+		String styles = name.substring(0, name.indexOf("("))+"<br/>" +
 				name.substring(name.indexOf("(")+1, name.lastIndexOf(")"));
 
 		return styles;
+	}
+	
+	private Label getTimetableLabel(){
+		Label label = new Label();
+		label.setWidth("90px");
+		label.setHeight("100%");
+		label.setContentMode(ContentMode.HTML);
+		return label;
 	}
 }

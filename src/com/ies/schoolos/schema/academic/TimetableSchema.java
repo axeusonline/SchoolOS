@@ -11,4 +11,6 @@ public class TimetableSchema implements java.io.Serializable{
 	public static final String TEACHING_ID = "teaching_id";
 	public static final String SECTION = "section";
 	public static final String WORKING_DAY = "working_day";
+	public static final String SEMESTER = "semester";
+	public static final String ACADEMIC_YEAR = "academic_year";
 }

@@ -14,6 +14,7 @@ import com.ies.schoolos.schema.info.PersonnelSchema;
 import com.ies.schoolos.type.Prename;
 import com.ies.schoolos.type.UserStatus;
 import com.ies.schoolos.type.dynamic.JobPosition;
+import com.ies.schoolos.utility.BCrypt;
 import com.vaadin.data.Container.ItemSetChangeEvent;
 import com.vaadin.data.Container.ItemSetChangeListener;
 import com.vaadin.data.Item;
@@ -64,7 +65,7 @@ public class UserManagerView extends VerticalLayout {
 	private PasswordField passwordAgain;
 	private Button save;	
 	
-	public UserManagerView() {			
+	public UserManagerView() {	
 		setSizeFull();
 		setSpacing(true);
 		setMargin(true);
@@ -204,6 +205,15 @@ public class UserManagerView extends VerticalLayout {
 		password.setVisible(false);
 		password.setStyleName("input-form");
 		password.setNullRepresentation("");
+		password.addValueChangeListener(new ValueChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				if(event.getProperty().getValue() != null)
+					passwordHashed = BCrypt.hashpw(event.getProperty().getValue().toString(), BCrypt.gensalt());
+			}
+		});
 		userForm.addComponent(password);
 		
 		passwordAgain = new PasswordField("รหัสผ่านอีกครั้ง");
@@ -227,10 +237,21 @@ public class UserManagerView extends VerticalLayout {
 					}
 
 					userContainer.removeAllContainerFilters();
+					
+					if(isPassEdited){
+						if(password.getValue().toString().equals(passwordAgain.getValue())){
+							password.setValue(passwordHashed);
+						}else{
+							Notification.show("รหัสผ่านไม่ตรงกัน กรุณาระบุใหม่อีกครั้ง", Type.WARNING_MESSAGE);
+							return;
+						}
+					}
+					
 					if(!saveFormData())
 						return;
 					
 					userBinder.setItemDataSource(null);
+					isPassEdited = false;
 					fetchData();
 					
 					Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);

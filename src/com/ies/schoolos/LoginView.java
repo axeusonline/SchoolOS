@@ -579,6 +579,7 @@ public class LoginView extends VerticalLayout{
 				SessionSchema.setSession(
 						Integer.parseInt(userItem.getItemProperty(UserSchema.SCHOOL_ID).getValue().toString()),
 						Integer.parseInt(userItem.getItemProperty(UserSchema.USER_ID).getValue().toString()),
+						Integer.parseInt(userItem.getItemProperty(UserSchema.REF_USER_ID).getValue().toString()),
 						schoolItem.getItemProperty(SchoolSchema.NAME).getValue(),
 						userItem.getItemProperty(UserSchema.FIRSTNAME).getValue(),
 						schoolItem.getItemProperty(SchoolSchema.CONTACT_EMAIL).getValue());

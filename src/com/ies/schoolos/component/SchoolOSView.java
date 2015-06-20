@@ -66,16 +66,16 @@ import com.vaadin.ui.Window;
 public class SchoolOSView extends VerticalLayout{
 	private static final long serialVersionUID = 1L;
 	
-	private boolean isSplit = true;
+	private Object userId;	
 	private Boolean isFirstTimeStudent;
-	
-	private Object userId;
-	private String passwordHash = null;
+	private boolean isPassEdited = false;
+	private boolean isSplit = true;
+	private String passwordHashed = "";
 	private Item userItem = null;
 
 	private Container container = new Container();
-	private SQLContainer userContainer;
-	private SQLContainer studyContainer;
+	private SQLContainer userContainer = container.getUserContainer();
+	private SQLContainer studyContainer = container.getStudentStudyContainer();
 	
 	private String[] permissions;
 	
@@ -95,20 +95,19 @@ public class SchoolOSView extends VerticalLayout{
 	private TextField lastname;
 	private TextField email;
 	private ActiveLink passwordChange;
+	private PasswordField password;
+	private PasswordField passwordAgain;
 	
 	public SchoolOSView() {
-		userContainer = container.getUserContainer();
-		studyContainer = container.getStudentStudyContainer();
+		userContainer.addContainerFilter(new Equal(UserSchema.USER_ID, SessionSchema.getUserID()));
 		userItem = userContainer.getItem(new RowId(SessionSchema.getUserID()));
 
-		System.err.println(SessionSchema.getUserID());
 		if(userItem.getItemProperty(UserSchema.PERMISSION).getValue() != null){
 			permissions = userItem.getItemProperty(UserSchema.PERMISSION).getValue().toString().split(",");
 			if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("1")){
 				userId = userItem.getItemProperty(UserSchema.REF_USER_ID).getValue();
 			}else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("2")){
 	    		studyContainer.addContainerFilter(new Equal(StudentStudySchema.STUDENT_ID,userItem.getItemProperty(UserSchema.REF_USER_ID).getValue()));  
-	    		System.err.println(studyContainer.size());
 	    		userId = Integer.parseInt(studyContainer.getIdByIndex(0).toString());
 			}
 		}
@@ -405,6 +404,7 @@ public class SchoolOSView extends VerticalLayout{
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
+				passwordHashed = userItem.getItemProperty(UserSchema.PASSWORD).getValue().toString();
 				initUserLayout();
 				initialDataBinding();
 			}
@@ -510,7 +510,7 @@ public class SchoolOSView extends VerticalLayout{
 	private void initUserLayout(){
 		Window userWD = new Window("บัญชีผู้ใช้");
 		userWD.setWidth("50%");
-		userWD.setHeight("60%");
+		userWD.setHeight("70%");
 		userWD.center();
 		UI.getCurrent().addWindow(userWD);
 		
@@ -548,83 +548,38 @@ public class SchoolOSView extends VerticalLayout{
             private static final long serialVersionUID = -7680743472997645381L;
 
             public void linkActivated(LinkActivatedEvent event) {
-              	Window passwordWD = new Window();
-              	passwordWD.setWidth("400px");
-              	passwordWD.setHeight("300px");
-              	passwordWD.center();
-              	passwordWD.setCaption("เปลี่ยนรหัสผ่าน");
-              	UI.getCurrent().addWindow(passwordWD);
-              	
-              	VerticalLayout formLayout = new VerticalLayout();
-        		formLayout.setSizeFull();
-        		formLayout.setSpacing(true);
-        		formLayout.setMargin(true);
-              	passwordWD.setContent(formLayout);
-        		
-        		FormLayout schoolForm = new FormLayout();
-        		schoolForm.setSizeFull();
-        		schoolForm.setStyleName("border-white");
-        		
-              	FormLayout passwordForm = new FormLayout();
-              	passwordForm.setSizeFull();
-              	formLayout.addComponent(passwordForm);
-              	
-              	final PasswordField password = new PasswordField("รหัสผ่าน");
-              	password.setRequired(true);
-              	password.setInputPrompt("รหัสผ่าน");
-              	password.addValueChangeListener(new ValueChangeListener() {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void valueChange(ValueChangeEvent event) {
-						passwordHash = BCrypt.hashpw(event.getProperty().getValue().toString(), BCrypt.gensalt());
-					}
-				});
-              	passwordForm.addComponent(password);
-              	
-              	final PasswordField passwordAgain = new PasswordField("รหัสผ่านอีกครั้ง");
-              	passwordAgain.setRequired(true);
-              	passwordAgain.setInputPrompt("รหัสผ่าน");
-              	passwordForm.addComponent(passwordAgain);
-              	
-              	Button savePass = new Button("ตกลง", FontAwesome.SAVE);
-              	savePass.addClickListener(new ClickListener() {
-					private static final long serialVersionUID = 1L;
-					@SuppressWarnings("unchecked")
-					@Override
-					public void buttonClick(ClickEvent event) {
-						if(password.getValue().toString().equals(passwordAgain.getValue())){
-							userItem.getItemProperty(UserSchema.PASSWORD).setValue(passwordHash);
-							try {
-								userBinder.commit();
-								userContainer.commit();
-								
-								Cookie emailCookie = new Cookie(SessionSchema.EMAIL, SessionSchema.getEmail().toString());
-								emailCookie.setMaxAge(12000);
-								emailCookie.setPath(VaadinService.getCurrentRequest().getContextPath());
-								VaadinService.getCurrentResponse().addCookie(emailCookie);
-								
-								Cookie passwordCookie = new Cookie(SessionSchema.PASSWORD, passwordHash);
-								passwordCookie.setMaxAge(12000);
-								passwordCookie.setPath(VaadinService.getCurrentRequest().getContextPath());
-								VaadinService.getCurrentResponse().addCookie(passwordCookie);
-								
-								Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
-							} catch (Exception e) {
-								Notification.show("บันทึกไม่สำเร็จ", Type.WARNING_MESSAGE);
-								e.printStackTrace();
-							}
-						}else{
-							Notification.show("รหัสผ่านไม่ตรงกัน กรุณาระบุใหม่อีกครั้ง", Type.WARNING_MESSAGE);
-						}
-					}
-				});
-              	passwordForm.addComponent(savePass);
-              	
+            	if(!isPassEdited){
+            		setShowPassword();
+            	}else{
+            		setHidePassword();
+            	}
             }
         });
 		schoolForm.addComponent(passwordChange);
 		
+		password = new PasswordField("รหัสผ่าน");
+		password.setWidth("90%");
+		password.setInputPrompt("รหัสผ่าน");
+		password.setVisible(false);
+		password.setNullRepresentation("");
+		password.addValueChangeListener(new ValueChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				if(event.getProperty().getValue() != null)
+					passwordHashed = BCrypt.hashpw(event.getProperty().getValue().toString(), BCrypt.gensalt());
+			}
+		});
+		schoolForm.addComponent(password);
+		
+		passwordAgain = new PasswordField("รหัสผ่านอีกครั้ง");
+		passwordAgain.setWidth("90%");
+		passwordAgain.setInputPrompt("รหัสผ่าน");
+		passwordAgain.setVisible(false);
+		passwordAgain.setNullRepresentation("");
+		schoolForm.addComponent(passwordAgain);
+
 		Button userSave = new Button("บันทึก",FontAwesome.SAVE);
 		userSave.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 1L;
@@ -634,6 +589,15 @@ public class SchoolOSView extends VerticalLayout{
 			public void buttonClick(ClickEvent event) {
 				try {
 					if(userBinder.isValid()){
+						if(isPassEdited){
+							if(password.getValue().toString().equals(passwordAgain.getValue())){
+								password.setValue(passwordHashed);
+							}else{
+								Notification.show("รหัสผ่านไม่ตรงกัน กรุณาระบุใหม่อีกครั้ง", Type.WARNING_MESSAGE);
+								return;
+							}
+						}
+						
 						if(isFirstTimeStudent != null){
 							if(isFirstTimeStudent){
 								userItem.getItemProperty(UserSchema.IS_EDITED).setValue(true);
@@ -645,6 +609,7 @@ public class SchoolOSView extends VerticalLayout{
 						userBinder.commit();
 						userContainer.commit();
 						email.setReadOnly(true);
+						setHidePassword();
 						
 						Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 						
@@ -683,12 +648,29 @@ public class SchoolOSView extends VerticalLayout{
 		UI.getCurrent().addWindow(userWD);
 	}
 	
+	private void setShowPassword(){
+		isPassEdited = true;
+		password.setValue(null);
+		passwordAgain.setValue(null);
+    	password.setVisible(true);
+    	passwordAgain.setVisible(true);
+	}
+	
+	private void setHidePassword(){
+		isPassEdited = false;
+		password.setValue(passwordHashed);
+		passwordAgain.setValue(passwordHashed);
+    	password.setVisible(false);
+    	passwordAgain.setVisible(false);
+	}
+	
 	private void initialDataBinding(){
 		userBinder = new FieldGroup(userItem);
 		userBinder.setBuffered(true);
 		userBinder.bind(firstname, UserSchema.FIRSTNAME);
 		userBinder.bind(lastname, UserSchema.LASTNAME);
 		userBinder.bind(email, UserSchema.EMAIL);
+		userBinder.bind(password, UserSchema.PASSWORD);
 		
 		if(isFirstTimeStudent == null){
 			email.setReadOnly(true);
@@ -717,7 +699,7 @@ public class SchoolOSView extends VerticalLayout{
 		resetSession();
 		
 		UI ui = UI.getCurrent();
-		ui.close();
+		//ui.close();
     	ui.setContent(new LoginView());
 	}
 	
@@ -726,6 +708,7 @@ public class SchoolOSView extends VerticalLayout{
 		UI.getCurrent().getSession().setAttribute(SessionSchema.SCHOOL_ID, null);
 		UI.getCurrent().getSession().setAttribute(SessionSchema.SCHOOL_NAME, null);
 		UI.getCurrent().getSession().setAttribute(SessionSchema.USER_ID, null);
+		UI.getCurrent().getSession().setAttribute(SessionSchema.REF_ID, null);
 		UI.getCurrent().getSession().setAttribute(SessionSchema.FIRSTNAME, null);
 		UI.getCurrent().getSession().setAttribute(SessionSchema.EMAIL, null);
 	}

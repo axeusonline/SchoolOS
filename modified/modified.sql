@@ -573,3 +573,4 @@ ALTER TABLE `user` ADD `is_edited` BOOLEAN NULL COMMENT 'สถานะกา�
 ALTER TABLE `family` CHANGE `people_id` `people_id` VARCHAR(16) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT 'หมายเลขประจำตัวประชาชน', CHANGE `people_id_type` `people_id_type` TINYINT(4) NULL COMMENT '*Fix ประเภทหมายเลขประจำตัว';
 ALTER TABLE `school` ADD `contact_email` VARCHAR(100) NOT NULL AFTER `province_id`;
 UPDATE school s INNER JOIN user u ON s.school_id = u.school_id SET s.contact_email = u.email WHERE u.ref_user_type = 0;
+ALTER TABLE `timetable` ADD `semester` TINYINT NOT NULL DEFAULT '0' COMMENT 'ภาคเรียน' AFTER `working_day`, ADD `academic_year` VARCHAR(4) NOT NULL DEFAULT '2558' COMMENT 'ปีการศึกษา' AFTER `semester`;

@@ -71,4 +71,17 @@ public class DateTimeUtil {
 		}
 		return isBetween;
 	}
+	
+	public static String getDateFromDayOfWeek(int dowTarget){
+		Calendar now = Calendar.getInstance();
+		SimpleDateFormat format1 = new SimpleDateFormat("dd/MM/yyyy");
+		
+		int DAY_OF_WEEK = now.get(Calendar.DAY_OF_WEEK)-1;
+		if(dowTarget >= DAY_OF_WEEK){
+			now.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), (now.get(Calendar.DATE)+dowTarget-DAY_OF_WEEK));
+		}else if(dowTarget <= DAY_OF_WEEK){
+			now.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), (now.get(Calendar.DATE)+6-dowTarget));				
+		}
+		return format1.format(now.getTime());
+	}
 }

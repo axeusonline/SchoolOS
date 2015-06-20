@@ -63,8 +63,8 @@ public class LessonPlanView extends VerticalLayout{
 	private Button save;	
 	
 	public LessonPlanView() {
-		/*lContainer.refresh();
-		lContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, SessionSchema.getSchoolID()));*/
+		lContainer.refresh();
+		lContainer.addContainerFilter(new Equal(SubjectSchema.SCHOOL_ID, SessionSchema.getSchoolID()));
 
 		setSpacing(true);
 		setMargin(true);
@@ -171,6 +171,7 @@ public class LessonPlanView extends VerticalLayout{
 						lessonPlanBinder.commit();
 						lContainer.commit();
 						editMode = false;
+						save.setCaption("บันทึก");
 						Notification.show("บันทึกสำเร็จ", Type.HUMANIZED_MESSAGE);
 					}else{
 						if(!lessonPlanBinder.isValid()){

@@ -27,10 +27,11 @@ public class Subject extends IndexedContainer{
 		for (int i = 0; i < scontainer.size(); i++) {
 			Object itemId = scontainer.getIdByIndex(i);
 			Item item = addItem(Integer.parseInt(itemId.toString()));
+			Item subjectItem = scontainer.getItem(itemId);
 			String value = "";
 			if(scontainer.getItem(itemId).getItemProperty(SubjectSchema.CODE).getValue() != null)
-				value = scontainer.getItem(itemId).getItemProperty(SubjectSchema.CODE).getValue() + " : ";
-			value += scontainer.getItem(itemId).getItemProperty(SubjectSchema.NAME).getValue();
+				value = subjectItem.getItemProperty(SubjectSchema.CODE).getValue() + " : ";
+			value += subjectItem.getItemProperty(SubjectSchema.NAME).getValue()+" ("+subjectItem.getItemProperty(SubjectSchema.WEIGHT).getValue()+")";
 			item.getItemProperty("name").setValue(value);
 		}
 		

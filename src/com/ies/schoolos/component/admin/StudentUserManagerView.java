@@ -89,7 +89,6 @@ public class StudentUserManagerView extends VerticalLayout {
 		                    else
 		                        status.setValue("100% เสร็จสิ้น");
 		                    
-		                    System.err.println(count + "/" + size + "=" + (current*100));
 		                }
 		            });
 	        	}
@@ -99,10 +98,6 @@ public class StudentUserManagerView extends VerticalLayout {
 	
 	private SQLContainer freeContainer;
 	private SQLContainer userContainer = container.getUserContainer();
-
-	/* เก็บชื่อของอาจารย์ ที่ไม่ซ้ำกัน 
-	 * โดยที่ Key เก็บชื่อ */
-	private ArrayList<String> teachingAssigned = new ArrayList<String>();
 	
 	private FilterTable  table;
 	
@@ -300,7 +295,6 @@ public class StudentUserManagerView extends VerticalLayout {
 		builder.append(" , s." + StudentSchema.FIRSTNAME);
 		builder.append(" , s." + StudentSchema.LASTNAME);
 
-		System.err.println(builder.toString());
 		table.removeAllItems();
 		
 		freeContainer = container.getFreeFormContainer(builder.toString(), StudentStudySchema.STUDENT_CODE);
@@ -313,6 +307,9 @@ public class StudentUserManagerView extends VerticalLayout {
 		
 		int row = 0;
 		HSSFSheet sheet = null;
+		/* เก็บชื่อของอาจารย์ ที่ไม่ซ้ำกัน 
+		 * โดยที่ Key เก็บชื่อ */
+		ArrayList<String> teachingAssigned = new ArrayList<String>();
 		
 		for(Object itemId:freeContainer.getItemIds()){
 			Item item = freeContainer.getItem(itemId);
@@ -341,7 +338,7 @@ public class StudentUserManagerView extends VerticalLayout {
 				name.append(Prename.getNameTh(Integer.parseInt(item.getItemProperty(StudentSchema.PRENAME).getValue().toString()))+ " ");
 				name.append(item.getItemProperty(StudentSchema.FIRSTNAME).getValue().toString()+ " ");
 				name.append(item.getItemProperty(StudentSchema.LASTNAME).getValue().toString());
-				
+
 				HSSFRow dataRow = sheet.createRow(row);
 				HSSFCell cell1 = dataRow.createCell(0);
 				cell1.setCellValue(new HSSFRichTextString(name.toString()));

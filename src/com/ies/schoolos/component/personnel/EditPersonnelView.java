@@ -6,6 +6,7 @@ import org.vaadin.dialogs.ConfirmDialog;
 
 import com.ies.schoolos.component.personnel.layout.PersonnelLayout;
 import com.ies.schoolos.container.Container;
+import com.ies.schoolos.schema.info.FamilySchema;
 import com.ies.schoolos.schema.info.PersonnelSchema;
 import com.ies.schoolos.utility.Notification;
 import com.ies.schoolos.utility.Utility;
@@ -131,6 +132,27 @@ public class EditPersonnelView extends PersonnelLayout {
 			}
 						
 			try {
+				/* หากเลือกอย่างใดอย่างหนึ่ง จะโดนตั้งค่าเป็น Null */
+				if(fatherBinder.getField(FamilySchema.PEOPLE_ID_TYPE).getValue() != null &&
+						!fatherBinder.getField(FamilySchema.PEOPLE_ID).getValue().toString().equals("")){
+					fatherBinder.getField(FamilySchema.PEOPLE_ID_TYPE).setValue(null);
+					fatherBinder.getField(FamilySchema.PEOPLE_ID).setValue(null);
+				}else if(fatherBinder.getField(FamilySchema.PEOPLE_ID_TYPE).getValue() == null &&
+						!fatherBinder.getField(FamilySchema.PEOPLE_ID).getValue().toString().equals("")){
+					Notification.show("กรุณาระบุประเภทเลขประชาชน", Type.WARNING_MESSAGE);
+					return;
+				}
+				/* หากเลือกอย่างใดอย่างหนึ่ง จะโดนตั้งค่าเป็น Null */
+				if(motherBinder.getField(FamilySchema.PEOPLE_ID_TYPE).getValue() != null &&
+						!motherBinder.getField(FamilySchema.PEOPLE_ID).getValue().toString().equals("")){
+					motherBinder.getField(FamilySchema.PEOPLE_ID_TYPE).setValue(null);
+					motherBinder.getField(FamilySchema.PEOPLE_ID).setValue(null);
+				}else if(motherBinder.getField(FamilySchema.PEOPLE_ID_TYPE).getValue() == null &&
+						!motherBinder.getField(FamilySchema.PEOPLE_ID).getValue().toString().equals("")){
+					Notification.show("กรุณาระบุประเภทเลขประชาชน", Type.WARNING_MESSAGE);
+					return;
+				}
+				
 				/* ตรวจสอบว่า อยู่สถานะการเพิ่มข้อมูลใหม่ บิดา มารดา หรือไม่? 
 				 *  ถ้าใช่ ก็บันทึกข้อมูลใหม่
 				 *  ถ้าไม่ ก็อัพเดทข้อมูลเดิม */
@@ -139,7 +161,7 @@ public class EditPersonnelView extends PersonnelLayout {
 					 *  ถ้า id = null แปลว่าเพิ่ม
 					 *  ถ้า id != null แปลว่าแก้ไข  */
 					if(personnelBinder.getItemDataSource().getItemProperty(PersonnelSchema.FATHER_ID).getValue() == null){
-						pkIndex = 0;
+						pkIndex = 0;							
 						/* เพิ่มบิดา โดยตรวจสอบว่าบิดาดังกล่าวไม่ซ้ำ และถูกบันทึกข้อมูลใหม่  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
 						if(!isDuplicateFather &&  !saveFormData(fSqlContainer, fatherBinder))
 							return;	
@@ -181,6 +203,17 @@ public class EditPersonnelView extends PersonnelLayout {
 				 *  หากไม่ครบ แสถงว่า ต้องการเพิ่มแต่ข้อมูลไม่ครบ หรือ ไม่ต้องการเพิ่ม 
 				 *  */
 				if(spouseBinder.isValid()){
+					/* หากเลือกอย่างใดอย่างหนึ่ง จะโดนตั้งค่าเป็น Null */
+					if(spouseBinder.getField(FamilySchema.PEOPLE_ID_TYPE).getValue() != null &&
+							!spouseBinder.getField(FamilySchema.PEOPLE_ID).getValue().toString().equals("")){
+						spouseBinder.getField(FamilySchema.PEOPLE_ID_TYPE).setValue(null);
+						spouseBinder.getField(FamilySchema.PEOPLE_ID).setValue(null);
+					}else if(spouseBinder.getField(FamilySchema.PEOPLE_ID_TYPE).getValue() == null &&
+							!spouseBinder.getField(FamilySchema.PEOPLE_ID).getValue().toString().equals("")){
+						Notification.show("กรุณาระบุประเภทเลขประชาชน", Type.WARNING_MESSAGE);
+						return;
+					}
+					
 					/* ตรวจสอบว่าเป็นการเพิ่มคู่สมรสใหม่หรือแก้ไขจากข้อมูลเดิม */
 					if(maritalStr.equals("1") && spouseId == null){
 						/* เพิ่มบิดา โดยตรวจสอบว่าคู่สมรสดังกล่าวไม่ซ้ำ และถูกบันทึกข้อมูลใหม่  หากบันทึกไม่ผ่านจะหยุดการทำงานทันที */
@@ -210,6 +243,17 @@ public class EditPersonnelView extends PersonnelLayout {
 					        new ConfirmDialog.Listener() {
 								private static final long serialVersionUID = 1L;
 								public void onClose(ConfirmDialog dialog) {
+									/* หากเลือกอย่างใดอย่างหนึ่ง จะโดนตั้งค่าเป็น Null */
+									if(spouseBinder.getField(FamilySchema.PEOPLE_ID_TYPE).getValue() != null &&
+											spouseBinder.getField(FamilySchema.PEOPLE_ID).getValue() == null){
+										spouseBinder.getField(FamilySchema.PEOPLE_ID_TYPE).setValue(null);
+										spouseBinder.getField(FamilySchema.PEOPLE_ID).setValue(null);
+									}else if(spouseBinder.getField(FamilySchema.PEOPLE_ID_TYPE).getValue() == null &&
+											spouseBinder.getField(FamilySchema.PEOPLE_ID).getValue() != null){
+										Notification.show("กรุณาระบุประเภทเลขประชาชน", Type.WARNING_MESSAGE);
+										return;
+									}
+									
 					                if (dialog.isConfirmed()) {
 					                	selectSpouseFormTab();
 					                	return;

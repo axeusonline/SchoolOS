@@ -43,7 +43,7 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Notification.Type;
 
-public class PerseonnelUserManagerView extends VerticalLayout {
+public class PersonnelUserManagerView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -66,7 +66,7 @@ public class PerseonnelUserManagerView extends VerticalLayout {
 	private PasswordField passwordAgain;
 	private Button save;	
 	
-	public PerseonnelUserManagerView() {			
+	public PersonnelUserManagerView() {			
 		setSizeFull();
 		setSpacing(true);
 		setMargin(true);

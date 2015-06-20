@@ -470,8 +470,7 @@ public class RecruitToStudentView extends VerticalLayout{
     	try {
     		Object studentStudyIdTemp = studentStudyContainer.addItem();
         	Item newItem = studentStudyContainer.getItem(studentStudyIdTemp);
-        	for(Object object:newItem.getItemPropertyIds())
-        		System.err.println(object.toString());
+
 			/* กำหนดค่าให้ข้อมูลนักเรียน โดยตรวจสอบชื่อ Column ที่เหมือนกัน ระหว่าง ข้อมูลการสมัคร(RecruitStudent) และ ข้อมูลนักเรียน (Student)*/
 		    for(Object propertyId:oldItem.getItemPropertyIds()){
 				Object value = oldItem.getItemProperty(propertyId).getValue();

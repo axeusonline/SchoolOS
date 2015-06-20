@@ -56,6 +56,7 @@ public class TimetableExportView extends VerticalLayout {
 	private HashMap<Object, HashMap<Object, Object[]>> timetableArray;
 
 	private Container container = new Container();
+	private ClassRoom classRoom = new ClassRoom();
 	private SQLContainer freeFormContainer;
 	
 	private Teaching teachingAll = new Teaching();
@@ -209,70 +210,69 @@ public class TimetableExportView extends VerticalLayout {
 			//String[] daysClosed = getDays();
 			/* วนลูบเรียงตามวัน อาทิตย์ ถึง เสาร์ */
 			for (int i=0; i < 7;i++) {
-				//if(!Arrays.asList(daysClosed).contains(Integer.toString(i))){
-					final int weekDay = i;
-					ArrayList<Object> data = new ArrayList<Object>();	
-					data.add(Days.getNameTh(weekDay));
-					data.add(new ClassRoom().getItem(classRoomId).getItemProperty("name").getValue());
-					
-					/* ตรวจสอบจำนวนข้อมูลตารางสอนที่พบ
-					 *  กรณีพบตารางสอนที่เคยใส่ก่อนหน้า จะตรวจคาบใหนที่กำหนดแล้ว (สีแดง) หรือ ยังไม่กำหนด (เขียว) 
-					 *  กรณีไม่พบตารางสอน จะใส่ปุ่มสีเขียวทั้งหมด */
-					if(timetableArray.size() > 0){
-						if(timetableArray.containsKey(weekDay)){
-							HashMap<Object, Object[]> teachingsTmp = timetableArray.get(weekDay);
-							/* ตรวจสอบว่าวันดัวกล่าวมีการกำหนดคาบอย่างน้อยหนึ่งคาบหรือไม่
-							 *  กรณีมีการกำหนด ก็จะทำการกดหนด ตาบสีแดง ในวันดังกล่าง
-							 *  กรณีไม่มีการกำหนดคาบได ๆ เลย จะกำหนด สีเขียวทั้งหมดของห้องดังกล่าว */
-							if(teachingsTmp.containsKey(classRoomId)){	
+				final int weekDay = i;
+				ArrayList<Object> data = new ArrayList<Object>();	
+				data.add(Days.getNameTh(weekDay));
+				data.add(classRoom.getItem(classRoomId).getItemProperty("name").getValue());
+				
+				/* ตรวจสอบจำนวนข้อมูลตารางสอนที่พบ
+				 *  กรณีพบตารางสอนที่เคยใส่ก่อนหน้า จะตรวจคาบใหนที่กำหนดแล้ว (สีแดง) หรือ ยังไม่กำหนด (เขียว) 
+				 *  กรณีไม่พบตารางสอน จะใส่ปุ่มสีเขียวทั้งหมด */
+				if(timetableArray.size() > 0){
+					if(timetableArray.containsKey(weekDay)){
+						HashMap<Object, Object[]> teachingsTmp = timetableArray.get(weekDay);
+						/* ตรวจสอบว่าวันดัวกล่าวมีการกำหนดคาบอย่างน้อยหนึ่งคาบหรือไม่
+						 *  กรณีมีการกำหนด ก็จะทำการกดหนด ตาบสีแดง ในวันดังกล่าง
+						 *  กรณีไม่มีการกำหนดคาบได ๆ เลย จะกำหนด สีเขียวทั้งหมดของห้องดังกล่าว */
+						if(teachingsTmp.containsKey(classRoomId)){	
 
-								Object timetableIdArray[] = teachingsTmp.get(classRoomId);
-								/* วนลูบจำนวนคาบ 9 คาบ */
-								for(int j=0; j < 10; j++){
-									String content = "";
-									/*Label lable = new Label();
-									lable.setWidth("90px");
-									lable.setHeight("100%");
-									lable.setContentMode(ContentMode.HTML);*/
-									/* ตรวจสอบว่า คาบดังกล่่าวถูกระบุใว้หรือยัง
-									 *  กรณียังว่าง จะกำหนด Caption เป็น "ว่าง"
-									 *  กรณี ระบุ จะกำหนด Caption เป็นชื่อวิชา (อจ) พร้อมตั้งค่า id บนปุ่ม*/
-									if(timetableIdArray[j] == null){
-										content = "ว่าง";
-									}else{
-										Object timetableId = timetableIdArray[j];
+							Object timetableIdArray[] = teachingsTmp.get(classRoomId);
+							/* วนลูบจำนวนคาบ 9 คาบ */
+							for(int j=0; j < 10; j++){
+								String content = "";
+								/*Label lable = new Label();
+								lable.setWidth("90px");
+								lable.setHeight("100%");
+								lable.setContentMode(ContentMode.HTML);*/
+								/* ตรวจสอบว่า คาบดังกล่่าวถูกระบุใว้หรือยัง
+								 *  กรณียังว่าง จะกำหนด Caption เป็น "ว่าง"
+								 *  กรณี ระบุ จะกำหนด Caption เป็นชื่อวิชา (อจ) พร้อมตั้งค่า id บนปุ่ม*/
+								if(timetableIdArray[j] == null){
+									content = "ว่าง";
+								}else{
+									Object timetableId = timetableIdArray[j];
 
-										Item timetableItem = freeFormContainer.getItem(new RowId(timetableId));
-										String caption = teachingAll.
-												getItem(new RowId(timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue())).
-												getItemProperty("name").getValue().toString();
+									Item timetableItem = freeFormContainer.getItem(new RowId(timetableId));
+									String caption = teachingAll.
+											getItem(new RowId(timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue())).
+											getItemProperty("name").getValue().toString();
 
-										content = getTeachingNameHtml(caption);
-									}
-									data.add(content);
+									content = getTeachingNameHtml(caption);
 								}
-							}else{
-								for(int j=0; j < 10; j++){
-									String content = "ว่าง";
-									data.add(content);
-								}
+								data.add(content);
+							}
+						}else{
+							for(int j=0; j < 10; j++){
+								String content = "ว่าง";
+								data.add(content);
 							}
 						}
-
-						/* เก็บ id เป็น วัน,ห้องเรียน (index ของวัน ,id ห้องเรียน) */
-						exportTable.addItem(data.toArray(),i+","+classRoomId.toString());
-					}else{
-						for(int j=0; j < 10; j++){
-							String content = "";
-							content = "ว่าง";
-							data.add(content);
-						}
-						/* เก็บ id เป็น วัน,ห้องเรียน (index ของวัน ,id ห้องเรียน) */
-						exportTable.addItem(data.toArray(),i+","+classRoomId.toString());
 					}
-				//}
+
+					/* เก็บ id เป็น วัน,ห้องเรียน (index ของวัน ,id ห้องเรียน) */
+					exportTable.addItem(data.toArray(),i+","+classRoomId.toString());
+				}else{
+					for(int j=0; j < 10; j++){
+						String content = "";
+						content = "ว่าง";
+						data.add(content);
+					}
+					/* เก็บ id เป็น วัน,ห้องเรียน (index ของวัน ,id ห้องเรียน) */
+					exportTable.addItem(data.toArray(),i+","+classRoomId.toString());
+				}
+
 			}
-			
+
 			HSSFSheet sheet = workbook.createSheet(roomNumber); 				
 			sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 10));
 			
@@ -399,7 +399,7 @@ public class TimetableExportView extends VerticalLayout {
 		sql.append(" WHERE cr." + ClassRoomSchema.CLASS_YEAR + "=" + classYear.getValue());
 		sql.append(" AND crl." + ClassRoomLessonPlanSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		sql.append(" AND crl." + ClassRoomLessonPlanSchema.ACADEMIC_YEAR + "='" + DateTimeUtil.getBuddishYear()+"'");
-		
+
 		return sql.toString();
 	}
 	

@@ -18,6 +18,8 @@ import com.ies.schoolos.utility.DateTimeUtil;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.data.util.filter.And;
+import com.vaadin.data.util.filter.Compare.Equal;
 import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.shared.ui.combobox.FilteringMode;
@@ -36,11 +38,12 @@ public class StudentClassRoomView extends VerticalLayout{
 	private static final long serialVersionUID = 1L;
 
 	private int capacity = 0;
-
+	private Object classRange;
+	
 	private Container container = new Container();
 	private SQLContainer freeContainer;
 	private SQLContainer studentClassRoomContainer = container.getStudentClassRoomContainer();
-	private SQLContainer classtudentClassRoomContainer = container.getClassRoomContainer();
+	private SQLContainer classRoomContainer = container.getClassRoomContainer();
 	
 	private ComboBox classRoom;
 	private TextField academicYear;
@@ -53,7 +56,7 @@ public class StudentClassRoomView extends VerticalLayout{
 		setSpacing(true);
 		setMargin(true);
 		buildMainLayout();
-		fetchLeftData();
+		fetchData();
 	}
 	
 	private void buildMainLayout(){
@@ -83,12 +86,14 @@ public class StudentClassRoomView extends VerticalLayout{
 				if(event.getProperty().getValue() != null){
 				
 					/* ======== ดึงจำนวนคนที่ห้องรองรับได้ ========== */
-					Item item = classtudentClassRoomContainer.getItem(new RowId(event.getProperty().getValue()));
+					Item item = classRoomContainer.getItem(new RowId(event.getProperty().getValue()));
 					capacity = Integer.parseInt(item.getItemProperty(ClassRoomSchema.CAPACITY).getValue().toString());
 					
 					capacityLabel.setValue("ความจุนักเรียน " + capacity + " คน");
 					capacityLabel.setVisible(true);
+					classRange = item.getItemProperty(ClassRoomSchema.CLASS_RANGE).getValue();
 					
+					fetchLeftData();
 					fetchRightData();
 				}
 			}
@@ -158,6 +163,14 @@ public class StudentClassRoomView extends VerticalLayout{
 				StudentSchema.LASTNAME);
 	}
 	
+	private void fetchData(){
+		studentClassRoomContainer.addContainerFilter(new And(
+				new Equal(StudentClassRoomSchema.SCHOOL_ID,SessionSchema.getSchoolID()),
+				new Equal(StudentClassRoomSchema.ACADEMIC_YEAR,DateTimeUtil.getBuddishYear())));
+				
+		classRoomContainer.addContainerFilter(new Equal(ClassRoomSchema.SCHOOL_ID,SessionSchema.getSchoolID()));
+	}
+	
 	private void fetchLeftData(){	
 		twinSelect.removeAllLeftItem();
 		
@@ -166,9 +179,11 @@ public class StudentClassRoomView extends VerticalLayout{
 		builder.append(" INNER JOIN " + StudentSchema.TABLE_NAME + " s ON s." + StudentSchema.STUDENT_ID + "= ss." + StudentStudySchema.STUDENT_ID);
 		builder.append(" WHERE ss." + StudentSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 		builder.append(" AND ss." + StudentStudySchema.STUDENT_STUDY_ID + " NOT IN (");
-		builder.append(" SELECT " + StudentClassRoomSchema.STUDENT_STUDY_ID + " FROM " + StudentClassRoomSchema.TABLE_NAME);
-		builder.append(" WHERE " + StudentClassRoomSchema.ACADEMIC_YEAR + "='" + academicYear.getValue() + "'");
-		builder.append(" AND " + StudentClassRoomSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID() + ")");
+		builder.append(" SELECT " + StudentClassRoomSchema.STUDENT_STUDY_ID + " FROM " + StudentClassRoomSchema.TABLE_NAME + " scr");
+		builder.append(" INNER JOIN " + ClassRoomSchema.TABLE_NAME + " cr ON cr." + ClassRoomSchema.CLASS_ROOM_ID + "= scr."+StudentClassRoomSchema.CLASS_ROOM_ID);
+		builder.append(" WHERE scr." + StudentClassRoomSchema.ACADEMIC_YEAR + "=" + academicYear.getValue());
+		builder.append(" AND scr." + StudentClassRoomSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
+		builder.append(" AND cr." + ClassRoomSchema.CLASS_RANGE + "=" + classRange+")");
 
 		freeContainer = container.getFreeFormContainer(builder.toString(), StudentStudySchema.STUDENT_STUDY_ID);
 		for(final Object itemId:freeContainer.getItemIds()){

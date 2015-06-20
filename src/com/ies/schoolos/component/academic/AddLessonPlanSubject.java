@@ -50,6 +50,7 @@ public class AddLessonPlanSubject extends VerticalLayout {
 		this.lessonPlanId = lessonPlanId;
 		this.classRange = classRange;
 
+		setSizeFull();
 		buildMainLayout();
 		setLeftData();
 		setRightData();
@@ -97,11 +98,12 @@ public class AddLessonPlanSubject extends VerticalLayout {
 		twinSelect.setSelectable(true);
 		twinSelect.setMultiSelect(true);
 		twinSelect.showFooterCount(true);
-		twinSelect.setFooterUnit("คน");
+		twinSelect.setFooterUnit("วิชา");
 		
 		twinSelect.addContainerProperty(SubjectSchema.CODE, String.class, null);
 		twinSelect.addContainerProperty(SubjectSchema.NAME, String.class, null);
 		twinSelect.addContainerProperty(SubjectSchema.LESSON_TYPE, String.class, null);
+		twinSelect.addContainerProperty(SubjectSchema.WEIGHT, Double.class, null);
 		twinSelect.getRightTable().addContainerProperty(LessonPlanSubjectSchema.CLASS_YEAR, Integer.class, null);
 		twinSelect.getRightTable().addContainerProperty(LessonPlanSubjectSchema.SEMESTER, Integer.class, null);
 		
@@ -112,6 +114,7 @@ public class AddLessonPlanSubject extends VerticalLayout {
 		twinSelect.setColumnHeader(SubjectSchema.CODE, "รหัสวิชา");
 		twinSelect.setColumnHeader(SubjectSchema.NAME,"ชื่อวิชา");
 		twinSelect.setColumnHeader(SubjectSchema.LESSON_TYPE, "สาระการเรียนรู้");
+		twinSelect.setColumnHeader(SubjectSchema.WEIGHT, "น้ำหนัก");
 		twinSelect.getRightTable().setColumnHeader(LessonPlanSubjectSchema.CLASS_YEAR, "ชั้นปี");
 		twinSelect.getRightTable().setColumnHeader(LessonPlanSubjectSchema.SEMESTER, "เทอมการศึกษา");
 		
@@ -125,12 +128,14 @@ public class AddLessonPlanSubject extends VerticalLayout {
 		twinSelect.getLeftTable().setVisibleColumns(
 				SubjectSchema.CODE, 
 				SubjectSchema.NAME,
-				SubjectSchema.LESSON_TYPE);
+				SubjectSchema.LESSON_TYPE,
+				SubjectSchema.WEIGHT);
 		
 		twinSelect.getRightTable().setVisibleColumns(
 				SubjectSchema.CODE, 
 				SubjectSchema.NAME,
 				SubjectSchema.LESSON_TYPE,
+				SubjectSchema.WEIGHT,
 				LessonPlanSubjectSchema.CLASS_YEAR,
 				LessonPlanSubjectSchema.SEMESTER);
 		
@@ -140,6 +145,7 @@ public class AddLessonPlanSubject extends VerticalLayout {
 		twinSelect.setRemoveAllClick(removeAllListener);
 		
 		addComponent(twinSelect);
+		setExpandRatio(twinSelect, 1);
 	}
 	
 	/* เรียงอันดับข้อมูลของตาราง */
@@ -216,6 +222,7 @@ public class AddLessonPlanSubject extends VerticalLayout {
 			sortData();
 			twinSelect.setLeftCountFooter(SubjectSchema.CODE);
 			twinSelect.setRightCountFooter(SubjectSchema.CODE);
+			
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -301,13 +308,15 @@ public class AddLessonPlanSubject extends VerticalLayout {
 			table.addItem(new Object[] {
 					item.getItemProperty(SubjectSchema.CODE).getValue(), 
 					item.getItemProperty(SubjectSchema.NAME).getValue(), 
-					lessonType
+					lessonType,
+					item.getItemProperty(SubjectSchema.WEIGHT).getValue()
 			},itemId);
 		else
 			table.addItem(new Object[] {
 					item.getItemProperty(SubjectSchema.CODE).getValue(), 
 					item.getItemProperty(SubjectSchema.NAME).getValue(), 
 					lessonType,
+					item.getItemProperty(SubjectSchema.WEIGHT).getValue(),
 					item.getItemProperty(LessonPlanSubjectSchema.CLASS_YEAR).getValue(), 
 					item.getItemProperty(LessonPlanSubjectSchema.SEMESTER).getValue(),
 			},itemId);

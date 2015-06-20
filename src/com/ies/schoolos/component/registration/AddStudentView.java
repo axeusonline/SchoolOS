@@ -356,6 +356,7 @@ public class AddStudentView extends StudentLayout {
 			userItem.getItemProperty(UserSchema.STATUS).setValue(0);
 			userItem.getItemProperty(UserSchema.REF_USER_ID).setValue(Integer.parseInt(pkStore[3].toString()));
 			userItem.getItemProperty(UserSchema.REF_USER_TYPE).setValue(2);
+			userItem.getItemProperty(UserSchema.IS_EDITED).setValue(false);
 			userItem.getItemProperty(CreateModifiedSchema.CREATED_BY_ID).setValue(Integer.parseInt(pkStore[3].toString()));
 			userItem.getItemProperty(CreateModifiedSchema.CREATED_DATE).setValue(new Date());
 			Feature.setPermission(userItem, false);

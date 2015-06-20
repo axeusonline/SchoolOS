@@ -7,7 +7,7 @@ public class Semester extends IndexedContainer{
 
 	private static final long serialVersionUID = 1L;
 	
-	private static String[] semesters = {"1","2","3"};
+	private static String[] semesters = {"1","2","3","1-2"};
 	
 	public Semester() {
 		initContainer();

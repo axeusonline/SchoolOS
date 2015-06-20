@@ -21,10 +21,12 @@ import com.vaadin.data.util.sqlcontainer.RowId;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.combobox.FilteringMode;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.JavaScript;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
@@ -98,7 +100,7 @@ public class TeachingtableView extends VerticalLayout {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				Window window = new Window("ตารางสอน " + printText);
+				Window window = new Window("ตารางสอน " + printText + " ภาคเรียน " + (Integer.parseInt(semester.getValue().toString())+1));
 				window.setSizeFull();
                 window.setContent(printedTable);
 				UI.getCurrent().addWindow(window);
@@ -120,16 +122,16 @@ public class TeachingtableView extends VerticalLayout {
 	
 	private void setTableStyle(Table table){
 		table.addContainerProperty(TimetableSchema.WORKING_DAY, String.class, null);
-		table.addContainerProperty("1", String.class, null);
-		table.addContainerProperty("2", String.class, null);
-		table.addContainerProperty("3", String.class, null);
-		table.addContainerProperty("4", String.class, null);
-		table.addContainerProperty("5", String.class, null);
-		table.addContainerProperty("6", String.class, null);
-		table.addContainerProperty("7", String.class, null);
-		table.addContainerProperty("8", String.class, null);
-		table.addContainerProperty("9", String.class, null);
-		table.addContainerProperty("10", String.class, null);
+		table.addContainerProperty("1", Label.class, null);
+		table.addContainerProperty("2", Label.class, null);
+		table.addContainerProperty("3", Label.class, null);
+		table.addContainerProperty("4", Label.class, null);
+		table.addContainerProperty("5", Label.class, null);
+		table.addContainerProperty("6", Label.class, null);
+		table.addContainerProperty("7", Label.class, null);
+		table.addContainerProperty("8", Label.class, null);
+		table.addContainerProperty("9", Label.class, null);
+		table.addContainerProperty("10", Label.class, null);
 		
 		table.setColumnAlignment(TimetableSchema.WORKING_DAY,Align.CENTER);
 		table.setColumnAlignment("1",Align.CENTER);
@@ -170,9 +172,8 @@ public class TeachingtableView extends VerticalLayout {
 		timetableLayout.addComponent(exportTable);
 		
 		printedTable = new Table();
-		printedTable.setHeight("100%");
+		printedTable.setSizeFull();
 		setTableStyle(printedTable);
-		printedTable.setContainerDataSource(exportTable.getContainerDataSource());
 		
 		seachTeachingTimetable();
 		
@@ -182,6 +183,8 @@ public class TeachingtableView extends VerticalLayout {
 			 *  Index แรกแสดงถึงวัน ระหว่าง 0-6 (อ-ส) ที่เหลือแสดงถึง คาบ 9 คาบ*/
 			ArrayList<Object> data = new ArrayList<Object>();
 			data.add(Days.getNameTh(workDay));
+			ArrayList<Object> dataPrint = new ArrayList<Object>();
+			dataPrint.add(Days.getNameTh(workDay));
 			/* ตรวจสอบจำนวนข้อมูลตารางสอนที่พบ
 			 *  กรณีพบตารางสอนที่เคยใส่ก่อนหน้า จะถูกนำมากำหนดปุ่มบนตาราง โดยทำเป็นสีแดง 
 			 *  กรณีไม่พบตารางสอน จะใส่ปุ่มสีเขียวทั้งหมด */
@@ -195,35 +198,57 @@ public class TeachingtableView extends VerticalLayout {
 					 *  Index ต่อมาแสดงถึงคาบ 9 คาบ ระหว่าง 0-8 (1-9) */
 					for(int j=0; j < 10; j++){
 						String content = "";
+						Label label = getTeachingLabel();
+						Label printLabel = getTeachingLabel();
+
 						/* ตรวจสอบว่า คาบดังกล่่าวถูกระบุ timetableId ใว้หรือยัง
 						 *  กรณียังว่าง จะกำหนด Caption เป็นว่าง
 						 *  กรณี ระบุและว จะกำหนด Caption เป็นชื่อวิชา (อจ) พร้อมตั้งค่า id บนปุ่ม*/
 						if(timetableIdArray[j] == null){
+							label.setStyleName("green-label");
+							printLabel.setStyleName("green-label");
 							content = "ว่าง";
 						}else{
 							final Object timetableId = timetableIdArray[j];
 							Item timetableItem = timetableFreeFormContainer.getItem(new RowId(timetableId));
 
 							if(timetableItem != null){
+								label.setStyleName("red-label");
+								printLabel.setStyleName("red-label");
 								/* แสดง ชื่ออาจารย์ /n ห้องเรียน*/
 								String caption = getTeachingName(teachingAll.
 										getItem(new RowId(timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue())).
-										getItemProperty("name").getValue().toString()) + "\n" +										
+										getItemProperty("name").getValue().toString()) + "<br/>" +										
 										timetableItem.getItemProperty(ClassRoomSchema.NAME).getValue();
 								content = caption;
 							}else{
+								label.setStyleName("green-label");
+								printLabel.setStyleName("green-label");
 								content = "ว่าง";
 							}
 						}
-						data.add(content);
+						label.setValue(content);
+						printLabel.setValue(content);
+						data.add(label);
+						dataPrint.add(printLabel);
 					}
 					exportTable.addItem(data.toArray(),workDay);
+					printedTable.addItem(dataPrint.toArray(),workDay);
 				}
 			}else{
+				
 				for(int j=0; j < 10; j++){
 					String content = "ว่าง";
-					data.add(content);
+					Label label = new Label(content);
+					label.setWidth("90px");
+					label.setHeight("100%");
+					label.setContentMode(ContentMode.HTML);
+					label.setStyleName("green-label");
+
+					data.add(label);
+					dataPrint.add(label);
 				}
+				printedTable.addItem(dataPrint.toArray(),workDay);
 				exportTable.addItem(data.toArray(),workDay);
 			}
 		}
@@ -272,11 +297,13 @@ public class TeachingtableView extends VerticalLayout {
 		sql.append(" SELECT tt.*,cr.* FROM " + TimetableSchema.TABLE_NAME +" tt");
 		sql.append(" INNER JOIN " + ClassRoomSchema.TABLE_NAME + " cr ON cr." + ClassRoomSchema.CLASS_ROOM_ID + "=" + "tt." + TimetableSchema.CLASS_ROOM_ID);
 		sql.append(" INNER JOIN " + TeachingSchema.TABLE_NAME + " tc ON tc." + TeachingSchema.TEACHING_ID + "=" + "tt." + TimetableSchema.TEACHING_ID);
+		sql.append(" INNER JOIN " + PersonnelSchema.TABLE_NAME + " p ON p." + PersonnelSchema.PERSONNEL_ID + "=" + "tc." + TeachingSchema.PERSONNEL_ID);
 		sql.append(" INNER JOIN " + LessonPlanSubjectSchema.TABLE_NAME + " lps ON lps." + LessonPlanSubjectSchema.SUBJECT_ID + "=" + "tc." + TeachingSchema.SUBJECT_ID);
-		sql.append(" WHERE lps." + LessonPlanSubjectSchema.SEMESTER + "=" + semester.getValue());
-		sql.append(" AND tc." + TeachingSchema.ACADEMIC_YEAR + "='" + DateTimeUtil.getBuddishYear()+"'");	
+		sql.append(" WHERE tt." + TimetableSchema.SEMESTER + "=" + semester.getValue());
+		sql.append(" AND p." + PersonnelSchema.PERSONNEL_ID + "=" + personnelId);
+		sql.append(" AND tc." + TimetableSchema.ACADEMIC_YEAR + "='" + DateTimeUtil.getBuddishYear()+"'");	
 		sql.append(" AND tc." + TimetableSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());	
-		
+
 		timetableFreeFormContainer = container.getFreeFormContainer(sql.toString(), TimetableSchema.TIMETABLE_ID);
 	}
 	
@@ -287,9 +314,9 @@ public class TeachingtableView extends VerticalLayout {
 		sql.append(" INNER JOIN " + TeachingSchema.TABLE_NAME + " t ON tt." + TeachingSchema.TEACHING_ID + "=" + "t." + TimetableSchema.TEACHING_ID);
 		sql.append(" INNER JOIN " + PersonnelSchema.TABLE_NAME + " p ON p." + PersonnelSchema.PERSONNEL_ID + "=" + "t." + TeachingSchema.PERSONNEL_ID);
 		sql.append(" INNER JOIN " + LessonPlanSubjectSchema.TABLE_NAME + " lps ON lps." + LessonPlanSubjectSchema.SUBJECT_ID + "=" + "t." + TeachingSchema.SUBJECT_ID);
-		sql.append(" WHERE lps." + LessonPlanSubjectSchema.SEMESTER + "=" + semester.getValue());
+		sql.append(" WHERE tt." + TimetableSchema.SEMESTER + "=" + semester.getValue());
 		sql.append(" AND p." + PersonnelSchema.PERSONNEL_ID + "=" + personnelId);
-		sql.append(" AND tt." + TeachingSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
+		sql.append(" AND tt." + TimetableSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
 
 		return sql.toString();
 	}
@@ -301,9 +328,17 @@ public class TeachingtableView extends VerticalLayout {
 	 *    - ถ้ามีรหัสวิชา ท1101
 	 *    - ถ้าไม่มีรหัสวิชา แนะแนว อ.ทดลอง ทดสอบ */
 	private String getTeachingName(String name){
-		String styles = name.substring(0, name.indexOf("("))+"\n" +
+		String styles = name.substring(0, name.indexOf("("))+"<br/>" +
 				name.substring(name.indexOf("(")+1, name.lastIndexOf(")"));
 		printText = name.substring(name.indexOf("(")+1, name.lastIndexOf(")"));
 		return styles;
+	}
+	
+	private Label getTeachingLabel(){
+		Label label = new Label();
+		label.setWidth("90px");
+		label.setHeight("100%");
+		label.setContentMode(ContentMode.HTML);
+		return label;
 	}
 }

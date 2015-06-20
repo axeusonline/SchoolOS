@@ -4,7 +4,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
 import com.ies.schoolos.component.admin.PermissionView;
-import com.ies.schoolos.component.admin.PerseonnelUserManagerView;
+import com.ies.schoolos.component.admin.PersonnelUserManagerView;
 import com.ies.schoolos.component.admin.SignupPasswordView;
 import com.ies.schoolos.component.admin.StudentUserManagerView;
 import com.ies.schoolos.component.admin.UserManagerView;
@@ -58,7 +58,7 @@ public class AdminMainView extends VerticalLayout {
 		Button personnel = new Button("4.ผู้ใช้งาน (เจ้าหน้าที่)", FontAwesome.CUBE);
 		personnel.setSizeFull();
 		dashboar.addComponent(personnel);
-		addClickListener(personnel, PerseonnelUserManagerView.class);
+		addClickListener(personnel, PersonnelUserManagerView.class);
 		
 		Button userStudent = new Button("5.ผู้ใช้งาน (นักเรียน)", FontAwesome.CUBE);
 		userStudent.setSizeFull();

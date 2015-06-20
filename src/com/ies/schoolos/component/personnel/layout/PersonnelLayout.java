@@ -2576,32 +2576,35 @@ private static final long serialVersionUID = 1L;
 	
 	/* ตรวจสอบข้อมูลครบถ้วน */
 	public boolean validateForms(){
+		boolean status = false;
 		/* ตรวจสอบว่าต้องการใส่ข้อมูลบิดา มาร หรือไม่*/
 		if(isInsertParents){
 			/* ตรวจสอบว่าข้อมูลบิดา มารดา ครบถ้วนหรือไม่*/
 			if(fatherBinder.isValid() && motherBinder.isValid())
-				return true;
-			else{
-				/* ตรวจสอบว่าสถานภาพว่า สมรส หรือไม่ */
-				if(maritalStatus.equals("1")){
-					/* ตรวจสอบว่าข้อมูลคู่สมรส ครบถ้วนหรือไม่*/
-					if(spouseBinder.isValid())
-						return true;
-					else
-						return false;
-				}else{
+				status = true;
+			else{ 
+				return false;
+			}
+			
+			/* ตรวจสอบว่าสถานภาพว่า สมรส หรือไม่ */
+			if(maritalStatus.equals("1")){
+				/* ตรวจสอบว่าข้อมูลคู่สมรส ครบถ้วนหรือไม่*/
+				if(spouseBinder.isValid())
+					status = true;
+				else{
 					return false;
 				}
 			}
-			
-		}else{
-			/* ตรวจสอบว่าข้อมูลบุคลากร ครบถ้วนหรือไม่*/
-			if(personnelBinder.isValid()){
-				return true;
-			}
 		}
-
-		return false;
+		
+		/* ตรวจสอบว่าข้อมูลบุคลากร ครบถ้วนหรือไม่*/
+		if(personnelBinder.isValid())
+			status = true;
+		else{
+			return false;
+		}
+		
+		return status;
 	}
 	
 	public String getActualPersonnelCode(){
