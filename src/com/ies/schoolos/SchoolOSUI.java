@@ -84,9 +84,11 @@ public class SchoolOSUI extends UI {
 				SessionSchema.setSession(
 						Integer.parseInt(item.getItemProperty(UserSchema.SCHOOL_ID).getValue().toString()),
 						Integer.parseInt(item.getItemProperty(UserSchema.USER_ID).getValue().toString()),
+						Integer.parseInt(item.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString()),
 						Integer.parseInt(item.getItemProperty(UserSchema.REF_USER_ID).getValue().toString()),
 						schoolItem.getItemProperty(SchoolSchema.NAME).getValue(),
 						item.getItemProperty(UserSchema.FIRSTNAME).getValue(),
+						item.getItemProperty(UserSchema.LASTNAME).getValue(),
 						schoolItem.getItemProperty(SchoolSchema.CONTACT_EMAIL).getValue());
 				setContent(new SchoolOSView());
 			}else{

@@ -24,6 +24,7 @@ import com.ies.schoolos.schema.info.StudentSchema;
 import com.ies.schoolos.schema.info.StudentStudySchema;
 import com.ies.schoolos.type.Feature;
 import com.ies.schoolos.type.Prename;
+import com.ies.schoolos.type.UserType;
 import com.ies.schoolos.utility.BCrypt;
 import com.ies.schoolos.utility.DateTimeUtil;
 import com.vaadin.addon.tableexport.TemporaryFileDownloadResource;
@@ -226,7 +227,7 @@ public class StudentUserManagerView extends VerticalLayout {
 		builder.append(" AND s." + StudentSchema.STUDENT_ID + " NOT IN (");
 		builder.append(" SELECT " + UserSchema.REF_USER_ID + " FROM " + UserSchema.TABLE_NAME);
 		builder.append(" WHERE " + UserSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
-		builder.append(" AND " + UserSchema.REF_USER_TYPE + "=" + 2 + ")");
+		builder.append(" AND " + UserSchema.REF_USER_TYPE + "=" + UserType.STUDENT + ")");
 
 		table.removeAllItems();
 		
@@ -264,7 +265,7 @@ public class StudentUserManagerView extends VerticalLayout {
 			item.getItemProperty(UserSchema.PASSWORD).setValue(BCrypt.hashpw(studentItem.getItemProperty(StudentSchema.PEOPLE_ID).getValue().toString(), BCrypt.gensalt()));
 			item.getItemProperty(UserSchema.STATUS).setValue(0);
 			item.getItemProperty(UserSchema.REF_USER_ID).setValue(Integer.parseInt(studentItem.getItemProperty(StudentSchema.STUDENT_ID).getValue().toString()));
-			item.getItemProperty(UserSchema.REF_USER_TYPE).setValue(2);
+			item.getItemProperty(UserSchema.REF_USER_TYPE).setValue(UserType.STUDENT);
 			Feature.setPermission(item, false);
 			item.getItemProperty(UserSchema.IS_EDITED).setValue(false);
 			CreateModifiedSchema.setCreateAndModified(item);

@@ -574,3 +574,27 @@ ALTER TABLE `family` CHANGE `people_id` `people_id` VARCHAR(16) CHARACTER SET ut
 ALTER TABLE `school` ADD `contact_email` VARCHAR(100) NOT NULL AFTER `province_id`;
 UPDATE school s INNER JOIN user u ON s.school_id = u.school_id SET s.contact_email = u.email WHERE u.ref_user_type = 0;
 ALTER TABLE `timetable` ADD `semester` TINYINT NOT NULL DEFAULT '0' COMMENT 'ภาคเรียน' AFTER `working_day`, ADD `academic_year` VARCHAR(4) NOT NULL DEFAULT '2558' COMMENT 'ปีการศึกษา' AFTER `semester`;
+
+/*
+ * Description : เช็คชื่อเข้าเรียน
+ * Date : 24/07/2014
+ * */
+CREATE TABLE IF NOT EXISTS `student_attendance` (
+  `student_attendance_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'PK ตารางเช็คชื่อ',
+  `school_id` int(11) NOT NULL COMMENT 'FK โรงเรียน',
+  `timetable_id` int(11) NOT NULL COMMENT 'FK ตารางสอน',
+  `student_study_id` int(11) NOT NULL COMMENT 'FK นักเรียน',
+  `check_date` date NOT NULL COMMENT 'วัน เดือน ปี เวลา',
+  `attendance_status` tinyint(4) NOT NULL COMMENT '*Fix สถานะ',
+  `created_by_id` int(11) DEFAULT NULL COMMENT 'FK ผู้ใส่ข้อมูล',
+  `created_date` datetime DEFAULT NULL COMMENT 'วันเดือนปี ที่ใส่ข้อมูล',
+  `modified_by_id` int(11) DEFAULT NULL COMMENT 'FK ผู้แก้ไขข้อมูล',
+  `modified_date` datetime DEFAULT NULL COMMENT 'วันเดือนปี ที่แก้ไขข้อมูล',
+  PRIMARY KEY (`student_attendance_id`),
+  KEY `fk_student_attendance_has_student_study_idx` (`student_study_id`),
+  KEY `fk_student_attendance_has_school_idx` (`school_id`),
+  KEY `fk_student_attendance_has_timetable` (`timetable_id`),
+  CONSTRAINT `fk_student_attendance_has_school` FOREIGN KEY (`school_id`) REFERENCES `school` (`school_id`),
+  CONSTRAINT `fk_student_attendance_has_student_study` FOREIGN KEY (`student_study_id`) REFERENCES `student_study` (`student_study_id`),
+  CONSTRAINT `fk_student_attendance_has_timetable` FOREIGN KEY (`timetable_id`) REFERENCES `timetable` (`timetable_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='ตารางเช็คชื่อนักเรียน';

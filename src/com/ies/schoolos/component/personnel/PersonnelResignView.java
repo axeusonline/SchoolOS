@@ -39,6 +39,7 @@ import com.ies.schoolos.type.Prename;
 import com.ies.schoolos.type.Race;
 import com.ies.schoolos.type.Religion;
 import com.ies.schoolos.type.ResignType;
+import com.ies.schoolos.type.UserType;
 import com.ies.schoolos.type.dynamic.Department;
 import com.ies.schoolos.type.dynamic.JobPosition;
 import com.ies.schoolos.utility.Notification;
@@ -360,7 +361,7 @@ public class PersonnelResignView extends VerticalLayout {
 
 						userContainer.addContainerFilter(new And(
 								new Equal(UserSchema.REF_USER_ID, Integer.parseInt(item.getItemProperty(PersonnelSchema.PERSONNEL_ID).getValue().toString())),
-								new Equal(UserSchema.REF_USER_TYPE, 1),
+								new Equal(UserSchema.REF_USER_TYPE, UserType.EMPLOYEE),
 								new Equal(UserSchema.SCHOOL_ID, SessionSchema.getSchoolID())));
 						if(userContainer.size() > 0){
 							Item userItem = userContainer.getItem(userContainer.getIdByIndex(0));

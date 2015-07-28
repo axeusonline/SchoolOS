@@ -60,7 +60,7 @@ public class AddClassRoomLessonPlan extends VerticalLayout {
 		toolStrip.setHeight("90px");
 		toolStrip.setStyleName("border-white");
 		addComponent(toolStrip);
-		
+		System.err.println(classRange.toString());
 		classYear = new ComboBox("ชั้นปี",new ClassYear(Integer.parseInt(classRange.toString())));
 		classYear.setInputPrompt("กรุณาเลือก");
 		classYear.setItemCaptionPropertyId("name");

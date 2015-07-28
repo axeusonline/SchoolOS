@@ -159,9 +159,9 @@ public class StudentBehaviorView extends VerticalLayout {
 		buttonLayout.addComponent(addBehavior);
 		buttonLayout.setComponentAlignment(addBehavior, Alignment.MIDDLE_CENTER);
 		
-		Button editButton = new Button(FontAwesome.EDIT);
-		editButton.setId(itemId.toString());
-		editButton.addClickListener(new ClickListener() {
+		Button infoButton = new Button(FontAwesome.EDIT);
+		infoButton.setId(itemId.toString());
+		infoButton.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
@@ -182,12 +182,9 @@ public class StudentBehaviorView extends VerticalLayout {
 				UI.getCurrent().addWindow(editWindow);
 			}
 		});
-		buttonLayout.addComponent(editButton);
-		buttonLayout.setComponentAlignment(editButton, Alignment.MIDDLE_CENTER);
-		
-		
-		
-		
+		buttonLayout.addComponent(infoButton);
+		buttonLayout.setComponentAlignment(infoButton, Alignment.MIDDLE_CENTER);
+
 		return buttonLayout;
 	}
 	

@@ -27,6 +27,7 @@ import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.UserSchema;
 import com.ies.schoolos.schema.info.StudentStudySchema;
 import com.ies.schoolos.type.Feature;
+import com.ies.schoolos.type.UserType;
 import com.ies.schoolos.utility.BCrypt;
 import com.ies.schoolos.utility.Notification;
 import com.vaadin.data.Item;
@@ -104,9 +105,9 @@ public class SchoolOSView extends VerticalLayout{
 
 		if(userItem.getItemProperty(UserSchema.PERMISSION).getValue() != null){
 			permissions = userItem.getItemProperty(UserSchema.PERMISSION).getValue().toString().split(",");
-			if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("1")){
+			if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals(Integer.toString(UserType.EMPLOYEE))){
 				userId = userItem.getItemProperty(UserSchema.REF_USER_ID).getValue();
-			}else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("2")){
+			}else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals(Integer.toString(UserType.STUDENT))){
 	    		studyContainer.addContainerFilter(new Equal(StudentStudySchema.STUDENT_ID,userItem.getItemProperty(UserSchema.REF_USER_ID).getValue()));  
 	    		userId = Integer.parseInt(studyContainer.getIdByIndex(0).toString());
 			}
@@ -116,11 +117,11 @@ public class SchoolOSView extends VerticalLayout{
 		
 		 /* กรณี ไม่มี Permission เลยให้แสดงข้อมูลส่วนตัว */
         if(currentComponent == null){
-			if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("0"))
+			if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals(Integer.toString(UserType.ADMIN)))
         		initComponent(new SchoolView());
-        	else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("1"))
+        	else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals(Integer.toString(UserType.EMPLOYEE)))
         		initComponent(new EditPersonnelView(userId));
-        	else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("2")){
+        	else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals(Integer.toString(UserType.STUDENT))){
         		if(! (boolean) userItem.getItemProperty(UserSchema.IS_EDITED).getValue()){
         			isFirstTimeStudent = true;
         			initUserLayout();
@@ -219,7 +220,7 @@ public class SchoolOSView extends VerticalLayout{
 		initMenu(admin, AdminMainView.class);
 		setPermission(Feature.ADMIN, admin, AdminMainView.class);
 		
-		if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("1")){
+		if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals(Integer.toString(UserType.EMPLOYEE))){
 			Button timetable = new Button("ตารางสอน", FontAwesome.CALENDAR);
 			timetable.setWidth("100%");
 			timetable.addClickListener(new ClickListener() {
@@ -233,7 +234,7 @@ public class SchoolOSView extends VerticalLayout{
 			});
 			menuBoxContent.addComponent(timetable);
 			menuBoxContent.setComponentAlignment(timetable, Alignment.MIDDLE_LEFT);
-		}else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("2")){
+		}else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals(Integer.toString(UserType.STUDENT))){
 			/*Button info = new Button("ประวัติ", FontAwesome.USER);
 			info.setWidth("100%");
 			info.addClickListener(new ClickListener() {
@@ -409,7 +410,7 @@ public class SchoolOSView extends VerticalLayout{
 				initialDataBinding();
 			}
 		});	
-		if(!userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("0")){
+		if(!userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals(Integer.toString(UserType.ADMIN))){
 
 			menuItem.addItem("ข้อมูลส่วนตัว", null, new Command() {
 				private static final long serialVersionUID = 1L;
@@ -630,9 +631,9 @@ public class SchoolOSView extends VerticalLayout{
 		Window userWD = new Window("ข้อมูลผู้ใช้");
 		userWD.setSizeFull();
 		userWD.center();
-		if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("1"))
+		if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals(Integer.toString(UserType.EMPLOYEE)))
 			userWD.setContent(new EditPersonnelView(userId));
-		else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("2")){
+		else if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals(Integer.toString(UserType.STUDENT))){
 			userWD.setContent(new EditStudentView(userId,false));
 		}
 		UI.getCurrent().addWindow(userWD);
@@ -643,7 +644,7 @@ public class SchoolOSView extends VerticalLayout{
 		Window userWD = new Window("ข้อมูลการศึกษา");
 		userWD.setSizeFull();
 		userWD.center();
-		if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals("1"))
+		if(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString().equals(Integer.toString(UserType.EMPLOYEE)))
 			userWD.setContent(new PersonnelGraduatedHistoryView(userId));
 		UI.getCurrent().addWindow(userWD);
 	}

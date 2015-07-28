@@ -13,6 +13,7 @@ import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.UserSchema;
 import com.ies.schoolos.schema.info.PersonnelSchema;
 import com.ies.schoolos.type.Feature;
+import com.ies.schoolos.type.UserType;
 import com.ies.schoolos.type.dynamic.Department;
 import com.ies.schoolos.utility.Notification;
 import com.vaadin.data.Item;
@@ -129,7 +130,7 @@ public class PermissionView extends VerticalLayout {
 		userBuilder.append(" SELECT * FROM " + UserSchema.TABLE_NAME + " u");
 		userBuilder.append(" INNER JOIN " + PersonnelSchema.TABLE_NAME + " p ON p." + PersonnelSchema.PERSONNEL_ID + "= u." +UserSchema.REF_USER_ID);
 		userBuilder.append(" WHERE u."+ PersonnelSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
-		userBuilder.append(" AND u."+ UserSchema.REF_USER_TYPE + "<> 0");
+		userBuilder.append(" AND u."+ UserSchema.REF_USER_TYPE + "<> " + UserType.ADMIN);
 		userBuilder.append(" AND SUBSTR("+ UserSchema.PERMISSION + "," + currentFeature +",1) = 0");
 		
 		freeContainer = container.getFreeFormContainer(userBuilder.toString(), UserSchema.USER_ID);
@@ -148,7 +149,7 @@ public class PermissionView extends VerticalLayout {
 		userBuilder.append(" SELECT * FROM " + UserSchema.TABLE_NAME + " u");
 		userBuilder.append(" INNER JOIN " + PersonnelSchema.TABLE_NAME + " p ON p." + PersonnelSchema.PERSONNEL_ID + "= u." +UserSchema.REF_USER_ID);
 		userBuilder.append(" WHERE u."+ PersonnelSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
-		userBuilder.append(" AND u."+ UserSchema.REF_USER_TYPE + "<> 0");
+		userBuilder.append(" AND u."+ UserSchema.REF_USER_TYPE + "<> " + UserType.ADMIN);
 		userBuilder.append(" AND SUBSTR("+ UserSchema.PERMISSION + "," + currentFeature+",1) = 1");
 
 		freeContainer = container.getFreeFormContainer(userBuilder.toString(), UserSchema.USER_ID);

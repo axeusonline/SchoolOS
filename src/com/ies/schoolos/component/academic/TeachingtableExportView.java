@@ -204,29 +204,69 @@ public class TeachingtableExportView extends VerticalLayout {
 							Object timetableIdArray[] = teachingArrays.get(workDay);
 							/*ข้อมูลตารางสอน ระหว่างคาบ โดยมี 9 ช่อง หรือ 9 คาบ
 							 *  Index ต่อมาแสดงถึงคาบ 9 คาบ ระหว่าง 0-8 (1-9) */
-							for(int j=0; j < 10; j++){
+							for(int j=0; j < 10; j++){		
 								String content = "";
 								/* ตรวจสอบว่า คาบดังกล่่าวถูกระบุ timetableId ใว้หรือยัง
 								 *  กรณียังว่าง จะกำหนด Caption เป็นว่าง
 								 *  กรณี ระบุและว จะกำหนด Caption เป็นชื่อวิชา (อจ) พร้อมตั้งค่า id บนปุ่ม*/
-								if(timetableIdArray[j] == null){
-									content = "ว่าง";
-								}else{
-									final Object timetableId = timetableIdArray[j];
-									Item timetableItem = timetableFreeFormContainer.getItem(new RowId(timetableId));
+                                if(timetableIdArray[j] == null)
+                                {
+                                    content = "ว่าง";
+                                } else
+                                {
+                                    String teachingId = "";
+                                    Object timetableId = timetableIdArray[j];
+                                    Item timetableItem = timetableFreeFormContainer.getItem(new RowId(new Object[] {
+                                        timetableId
+                                    }));
+                                    if(timetableId.toString().contains(","))
+                                    {
+                                        String timetableIds[] = timetableId.toString().split(",");
+                                        timetableItem = timetableFreeFormContainer.getItem(new RowId(new Object[] {
+                                            Integer.valueOf(Integer.parseInt(timetableIds[0]))
+                                        }));
+                                        String captionOriginal = (new StringBuilder(String.valueOf(getTeachingName(teachingAll.getItem(new RowId(new Object[] {
+                                            timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue()
+                                        })).getItemProperty("name").getValue().toString())))).append(" \n").toString();
+                                        String caption = captionOriginal;
+                                        String as1[];
+                                        int j1 = (as1 = timetableIds).length;
+                                        for(int i1 = 0; i1 < j1; i1++)
+                                        {
+                                            String id = as1[i1];
+                                            timetableItem = timetableFreeFormContainer.getItem(new RowId(new Object[] {
+                                                Integer.valueOf(Integer.parseInt(id))
+                                            }));
+                                            if(teachingId.equals(""))
+                                            {
+                                                caption = (new StringBuilder(String.valueOf(caption))).append(" ").append(timetableItem.getItemProperty("name").getValue()).toString();
+                                                teachingId = timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue().toString();
+                                            } else
+                                            if(!teachingId.equals(timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue().toString()))
+                                            {
+                                                caption = (new StringBuilder(String.valueOf(getTeachingName(teachingAll.getItem(new RowId(new Object[] {
+                                                    Integer.valueOf(Integer.parseInt(teachingId))
+                                                })).getItemProperty("name").getValue().toString())))).append(",\n").append(getTeachingName(teachingAll.getItem(new RowId(new Object[] {
+                                                    timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue()
+                                                })).getItemProperty("name").getValue().toString())).append(" \n").append(" ").append(timetableItem.getItemProperty("name").getValue()).toString();
+                                            } else
+                                            {
+                                                caption = (new StringBuilder(String.valueOf(caption))).append(" ").append(timetableItem.getItemProperty("name").getValue()).toString();
+                                                teachingId = timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue().toString();
+                                            }
+                                        }
 
-									if(timetableItem != null){
-										/* แสดง ชื่ออาจารย์ /n ห้องเรียน*/
-										String caption = getTeachingName(teachingAll.
-												getItem(new RowId(timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue())).
-												getItemProperty("name").getValue().toString()) + "\n" +										
-												timetableItem.getItemProperty(ClassRoomSchema.NAME).getValue();
-										content = caption;
-									}else{
-										content = "ว่าง";
-									}
-								}
-								data.add(content);
+                                        content = caption;
+                                    } else
+                                    if(timetableItem != null)
+                                        content = (new StringBuilder(String.valueOf(getTeachingName(teachingAll.getItem(new RowId(new Object[] {
+                                            timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue()
+                                        })).getItemProperty("name").getValue().toString())))).append(" \n").append(timetableItem.getItemProperty("name").getValue()).toString();
+                                    else
+                                        content = "ว่าง";
+                                }
+                                data.add(content);
+
 							}
 							exportTable.addItem(data.toArray(),workDay);
 						}
@@ -322,7 +362,10 @@ public class TeachingtableExportView extends VerticalLayout {
 			 *  กรณีไม่มีข้อมูล ก็ทำการเพิ่ม Key ใหม่ โดยกำหนด Value ของคาบช่วงระหว่าง 0-8*/
 			if(teachingArrays.containsKey(workDay)){
 				Object timetableIdArray[] = teachingArrays.get(workDay);
-				timetableIdArray[(int)section] = timetableId;
+				if(timetableIdArray[((Integer)section).intValue()] != null && timetableIdArray[((Integer)section).intValue()] != timetableId)
+                    timetableIdArray[((Integer)section).intValue()] = (new StringBuilder()).append(timetableIdArray[((Integer)section).intValue()]).append(",").append(timetableId).toString();
+                else
+                    timetableIdArray[((Integer)section).intValue()] = timetableId;
 				teachingArrays.put(workDay, timetableIdArray);
 			}else{
 				Object timetableIdArray[] = new Object[10];

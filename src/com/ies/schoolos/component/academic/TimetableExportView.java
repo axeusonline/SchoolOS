@@ -228,28 +228,62 @@ public class TimetableExportView extends VerticalLayout {
 
 							Object timetableIdArray[] = teachingsTmp.get(classRoomId);
 							/* วนลูบจำนวนคาบ 9 คาบ */
-							for(int j=0; j < 10; j++){
+							for(int j=0; j < 10; j++){								
 								String content = "";
-								/*Label lable = new Label();
-								lable.setWidth("90px");
-								lable.setHeight("100%");
-								lable.setContentMode(ContentMode.HTML);*/
 								/* ตรวจสอบว่า คาบดังกล่่าวถูกระบุใว้หรือยัง
 								 *  กรณียังว่าง จะกำหนด Caption เป็น "ว่าง"
 								 *  กรณี ระบุ จะกำหนด Caption เป็นชื่อวิชา (อจ) พร้อมตั้งค่า id บนปุ่ม*/
-								if(timetableIdArray[j] == null){
-									content = "ว่าง";
-								}else{
-									Object timetableId = timetableIdArray[j];
+                                if(timetableIdArray[j] == null)
+                                {
+                                	content = "ว่าง";
+                                } else
+                                {
+                                    Object timetableId = timetableIdArray[j];
+                                    Item timetableItem = freeFormContainer.getItem(new RowId(new Object[] {
+                                        timetableId
+                                    }));
+                                    if(timetableId.toString().contains(","))
+                                    {
+                                        String timetableIds[] = timetableId.toString().split(",");
+                                        timetableItem = freeFormContainer.getItem(new RowId(new Object[] {
+                                            Integer.valueOf(Integer.parseInt(timetableIds[0]))
+                                        }));
+                                        String captionOriginal = (new StringBuilder(String.valueOf(teachingAll.getItem(new RowId(new Object[] {
+                                            timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue()
+                                        })).getItemProperty("name").getValue().toString()))).append(",\n").toString();
+                                        String caption = captionOriginal;
+                                        int round = 0;
+                                        String as1[];
+                                        int j1 = (as1 = timetableIds).length;
+                                        for(int i1 = 0; i1 < j1; i1++)
+                                        {
+                                            String id = as1[i1];
+                                            if(round != 0)
+                                            {
+                                                timetableItem = freeFormContainer.getItem(new RowId(new Object[] {
+                                                    Integer.valueOf(Integer.parseInt(id))
+                                                }));
+                                                caption = (new StringBuilder(String.valueOf(caption))).append(teachingAll.getItem(new RowId(new Object[] {
+                                                    timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue()
+                                                })).getItemProperty("name").getValue().toString()).append(",\n").toString();
+                                            }
+                                            round++;
+                                        }
 
-									Item timetableItem = freeFormContainer.getItem(new RowId(timetableId));
-									String caption = teachingAll.
-											getItem(new RowId(timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue())).
-											getItemProperty("name").getValue().toString();
-
-									content = getTeachingNameHtml(caption);
-								}
-								data.add(content);
+                                        content = caption.substring(0, caption.length());
+                                    } else
+                                    if(timetableItem != null)
+                                    {
+                                        String caption = teachingAll.getItem(new RowId(new Object[] {
+                                            timetableItem.getItemProperty(TimetableSchema.TEACHING_ID).getValue()
+                                        })).getItemProperty("name").getValue().toString();
+                                        content = caption;
+                                    } else
+                                    {
+                                    	content = "ว่าง";
+                                    }
+                                }
+                                data.add(content);
 							}
 						}else{
 							for(int j=0; j < 10; j++){
@@ -359,7 +393,10 @@ public class TimetableExportView extends VerticalLayout {
 				 *  กรณีไม่มี ก็ทำการกำหนดค่าของ teaching Map */
 				if(classRoomMap.containsKey(classRoomId)){
 					Object timetableIdArray[] = classRoomMap.get(classRoomId);
-					timetableIdArray[(int)section] = timetableId;
+					if(timetableIdArray[((Integer)section).intValue()] != null && timetableIdArray[((Integer)section).intValue()] != timetableId)
+                        timetableIdArray[((Integer)section).intValue()] = (new StringBuilder()).append(timetableIdArray[((Integer)section).intValue()]).append(",").append(timetableId).toString();
+                    else
+                        timetableIdArray[((Integer)section).intValue()] = timetableId;
 					classRoomMap.put(classRoomId, timetableIdArray);
 				}else{
 					Object timetableIdArray[] = new Object[10];
@@ -426,30 +463,5 @@ public class TimetableExportView extends VerticalLayout {
 		sql.append(" AND tc." + TimetableSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());	
 		
 		return sql.toString();
-	}
-	
-	/* ดึงวันยุดที่เลือก */
-	/*private String[] getDays(){
-		//รูปแบบของ Form ที่เลือกจะเก็บในรุปแบบของ [5, 6]
-		String daysClosed = days.getValue().toString();
-		daysClosed = daysClosed.replace("[", "");
-		daysClosed = daysClosed.replace("]", "");
-		daysClosed = daysClosed.replace(" ", "");
-
-		String[] daysArray = daysClosed.split(",");
-		return daysArray;
-	}*/
-	
-	/* ตัดคำ จากชื่อของผู้สอน ซึ่งอยู่ในรูปของ 
-	 *  ท1101:ภาษาไทย1 (อ.ทดลอง ทดสอบ) หรือ
-	 *  แนะแนว (อ.ทดลอง ทดสอบ) 
-	 *  ให้อยู่ในรํปของ 
-	 *    - ถ้ามีรหัสวิชา ท1101 \n อ.ทดลอง ทดสอบ
-	 *    - ถ้าไม่มีรหัสวิชา แนะแนว อ.ทดลอง ทดสอบ */
-	private String getTeachingNameHtml(String name){
-		String styles = name.substring(0, name.indexOf("("))+"\n" +
-				name.substring(name.indexOf("(")+1, name.lastIndexOf(")"));
-
-		return styles;
 	}
 }

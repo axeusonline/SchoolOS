@@ -32,7 +32,11 @@ public class ClassYear extends IndexedContainer{
 		else if(classRange == 3)
 			initContainer(12, 14);
 		else if(classRange == 4)
-			initContainer(15, 24);
+			initContainer(15, 18);
+		else if(classRange == 5)
+			initContainer(19, 21);
+		else if(classRange == 6)
+			initContainer(22, 24);
 	}
  
 	@SuppressWarnings("unchecked")

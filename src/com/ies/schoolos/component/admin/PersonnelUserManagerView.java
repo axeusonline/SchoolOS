@@ -12,6 +12,7 @@ import com.ies.schoolos.schema.UserSchema;
 import com.ies.schoolos.schema.info.PersonnelSchema;
 import com.ies.schoolos.type.Feature;
 import com.ies.schoolos.type.Prename;
+import com.ies.schoolos.type.UserType;
 import com.ies.schoolos.type.dynamic.JobPosition;
 import com.ies.schoolos.utility.BCrypt;
 import com.ies.schoolos.utility.EmailSender;
@@ -257,7 +258,7 @@ public class PersonnelUserManagerView extends VerticalLayout {
 		builder.append(" AND " + PersonnelSchema.PERSONNEL_ID + " NOT IN (");
 		builder.append(" SELECT " + UserSchema.REF_USER_ID + " FROM " + UserSchema.TABLE_NAME);
 		builder.append(" WHERE " + UserSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
-		builder.append(" AND " + UserSchema.REF_USER_TYPE + "=" + 1 + ")");
+		builder.append(" AND " + UserSchema.REF_USER_TYPE + "=" + UserType.EMPLOYEE + ")");
 		
 		table.removeAllItems();
 		
@@ -305,7 +306,7 @@ public class PersonnelUserManagerView extends VerticalLayout {
 			item.getItemProperty(UserSchema.PASSWORD).setValue(BCrypt.hashpw(password.getValue(), BCrypt.gensalt()));
 			item.getItemProperty(UserSchema.STATUS).setValue(0);
 			item.getItemProperty(UserSchema.REF_USER_ID).setValue(Integer.parseInt(personnelId.toString()));
-			item.getItemProperty(UserSchema.REF_USER_TYPE).setValue(1);
+			item.getItemProperty(UserSchema.REF_USER_TYPE).setValue(UserType.EMPLOYEE);
 			Feature.setPermission(item, false);
 			CreateModifiedSchema.setCreateAndModified(item);
 			userContainer.commit();

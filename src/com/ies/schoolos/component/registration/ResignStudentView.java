@@ -16,6 +16,7 @@ import com.ies.schoolos.schema.info.StudentStudySchema;
 import com.ies.schoolos.type.Prename;
 import com.ies.schoolos.type.ResignType;
 import com.ies.schoolos.type.StudentStatus;
+import com.ies.schoolos.type.UserType;
 import com.ies.schoolos.utility.Notification;
 import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
@@ -237,7 +238,7 @@ public class ResignStudentView extends VerticalLayout {
 
 					userContainer.addContainerFilter(new And(
 							new Equal(UserSchema.REF_USER_ID, Integer.parseInt(item.getItemProperty(StudentStudySchema.STUDENT_ID).getValue().toString())),
-							new Equal(UserSchema.REF_USER_TYPE, 2),
+							new Equal(UserSchema.REF_USER_TYPE, UserType.STUDENT),
 							new Equal(UserSchema.SCHOOL_ID, SessionSchema.getSchoolID())));
 					if(userContainer.size() > 0){
 						Item userItem = userContainer.getItem(userContainer.getIdByIndex(0));

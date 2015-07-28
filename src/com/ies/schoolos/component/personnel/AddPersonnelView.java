@@ -10,6 +10,7 @@ import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.UserSchema;
 import com.ies.schoolos.schema.info.PersonnelSchema;
 import com.ies.schoolos.type.Feature;
+import com.ies.schoolos.type.UserType;
 import com.ies.schoolos.utility.BCrypt;
 import com.ies.schoolos.utility.EmailSender;
 import com.ies.schoolos.utility.Notification;
@@ -280,7 +281,7 @@ public class AddPersonnelView extends PersonnelLayout {
 			userItem.getItemProperty(UserSchema.PASSWORD).setValue(BCrypt.hashpw(personnelBinder.getField(PersonnelSchema.PEOPLE_ID).getValue().toString(), BCrypt.gensalt()));
 			userItem.getItemProperty(UserSchema.STATUS).setValue(0);
 			userItem.getItemProperty(UserSchema.REF_USER_ID).setValue(Integer.parseInt(pkStore[3].toString()));
-			userItem.getItemProperty(UserSchema.REF_USER_TYPE).setValue(1);
+			userItem.getItemProperty(UserSchema.REF_USER_TYPE).setValue(UserType.EMPLOYEE);
 			userItem.getItemProperty(CreateModifiedSchema.CREATED_BY_ID).setValue(Integer.parseInt(pkStore[3].toString()));
 			userItem.getItemProperty(CreateModifiedSchema.CREATED_DATE).setValue(new Date());
 			Feature.setPermission(userItem, false);

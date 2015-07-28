@@ -17,6 +17,7 @@ import com.ies.schoolos.schema.SchoolSchema;
 import com.ies.schoolos.schema.SessionSchema;
 import com.ies.schoolos.schema.UserSchema;
 import com.ies.schoolos.type.Feature;
+import com.ies.schoolos.type.UserType;
 import com.ies.schoolos.type.dynamic.Province;
 import com.ies.schoolos.utility.BCrypt;
 import com.ies.schoolos.utility.DateTimeUtil;
@@ -29,6 +30,8 @@ import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.util.sqlcontainer.query.QueryDelegate.RowIdChangeEvent;
 import com.vaadin.data.util.sqlcontainer.query.QueryDelegate.RowIdChangeListener;
 import com.vaadin.data.validator.EmailValidator;
+import com.vaadin.event.ShortcutAction;
+import com.vaadin.event.ShortcutListener;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.VaadinService;
@@ -213,6 +216,14 @@ public class LoginView extends VerticalLayout{
 		password = new PasswordField();
 		password.setWidth("100%");
 		password.setInputPrompt("รหัสผ่าน");
+		password.addShortcutListener(new ShortcutListener("Shortcut Name", ShortcutAction.KeyCode.ENTER, null) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+        	public void handleAction(Object sender, Object target) {
+				login(email.getValue(),password.getValue());
+        	}
+    	});
 		passwordLayout.addComponent(password);
 		
 		signon = new Button("เข้าสู่ระบบ");
@@ -370,7 +381,7 @@ public class LoginView extends VerticalLayout{
 								userItem.getItemProperty(UserSchema.PASSWORD).setValue(BCrypt.hashpw(userBinder.getField(UserSchema.PASSWORD).getValue().toString(), BCrypt.gensalt()));
 								userItem.getItemProperty(UserSchema.STATUS).setValue(0);
 								userItem.getItemProperty(UserSchema.REF_USER_ID).setValue(Integer.parseInt(schoolId.toString()));
-								userItem.getItemProperty(UserSchema.REF_USER_TYPE).setValue(0);
+								userItem.getItemProperty(UserSchema.REF_USER_TYPE).setValue(UserType.ADMIN);
 								userItem.getItemProperty(CreateModifiedSchema.CREATED_BY_ID).setValue(Integer.parseInt(schoolId.toString()));
 								userItem.getItemProperty(CreateModifiedSchema.CREATED_DATE).setValue(new Date());
 								
@@ -579,9 +590,11 @@ public class LoginView extends VerticalLayout{
 				SessionSchema.setSession(
 						Integer.parseInt(userItem.getItemProperty(UserSchema.SCHOOL_ID).getValue().toString()),
 						Integer.parseInt(userItem.getItemProperty(UserSchema.USER_ID).getValue().toString()),
+						Integer.parseInt(userItem.getItemProperty(UserSchema.REF_USER_TYPE).getValue().toString()),
 						Integer.parseInt(userItem.getItemProperty(UserSchema.REF_USER_ID).getValue().toString()),
 						schoolItem.getItemProperty(SchoolSchema.NAME).getValue(),
 						userItem.getItemProperty(UserSchema.FIRSTNAME).getValue(),
+						userItem.getItemProperty(UserSchema.LASTNAME).getValue(),
 						schoolItem.getItemProperty(SchoolSchema.CONTACT_EMAIL).getValue());
 				
 				ui.setContent(new SchoolOSView());	

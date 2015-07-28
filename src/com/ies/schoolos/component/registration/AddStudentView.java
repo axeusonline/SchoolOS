@@ -12,6 +12,7 @@ import com.ies.schoolos.schema.info.FamilySchema;
 import com.ies.schoolos.schema.info.StudentSchema;
 import com.ies.schoolos.schema.info.StudentStudySchema;
 import com.ies.schoolos.type.Feature;
+import com.ies.schoolos.type.UserType;
 import com.ies.schoolos.utility.BCrypt;
 import com.ies.schoolos.utility.EmailSender;
 import com.ies.schoolos.utility.Notification;
@@ -355,7 +356,7 @@ public class AddStudentView extends StudentLayout {
 			userItem.getItemProperty(UserSchema.PASSWORD).setValue(BCrypt.hashpw(studentBinder.getField(StudentSchema.PEOPLE_ID).getValue().toString(), BCrypt.gensalt()));
 			userItem.getItemProperty(UserSchema.STATUS).setValue(0);
 			userItem.getItemProperty(UserSchema.REF_USER_ID).setValue(Integer.parseInt(pkStore[3].toString()));
-			userItem.getItemProperty(UserSchema.REF_USER_TYPE).setValue(2);
+			userItem.getItemProperty(UserSchema.REF_USER_TYPE).setValue(UserType.STUDENT);
 			userItem.getItemProperty(UserSchema.IS_EDITED).setValue(false);
 			userItem.getItemProperty(CreateModifiedSchema.CREATED_BY_ID).setValue(Integer.parseInt(pkStore[3].toString()));
 			userItem.getItemProperty(CreateModifiedSchema.CREATED_DATE).setValue(new Date());

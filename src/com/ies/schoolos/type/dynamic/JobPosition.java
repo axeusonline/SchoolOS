@@ -23,11 +23,12 @@ public class JobPosition extends IndexedContainer{
 	@SuppressWarnings("unchecked")
 	private void initContainer(){
 		SQLContainer jcontainer = container.getJobPositionContainer();
-		jcontainer.addContainerFilter(new Or(new Equal(JobPositionSchema.SCHOOL_ID, SessionSchema.getSchoolID()),
+		jcontainer.addContainerFilter(new Or(
+				new Equal(JobPositionSchema.SCHOOL_ID, SessionSchema.getSchoolID()),
 				new IsNull(JobPositionSchema.SCHOOL_ID)));
 		jcontainer.sort(new Object[]{JobPositionSchema.JOB_POSITION_ID}, new boolean[]{true});
 		addContainerProperty("name", String.class,null);
-
+		System.err.println(jcontainer.size());
 		for (Object itemId:jcontainer.getItemIds()) {
 			Item item = addItem(Integer.parseInt(itemId.toString()));
 			item.getItemProperty("name").setValue(jcontainer.getItem(itemId).getItemProperty(JobPositionSchema.NAME).getValue());

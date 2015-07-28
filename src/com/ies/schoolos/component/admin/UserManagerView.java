@@ -13,6 +13,7 @@ import com.ies.schoolos.schema.UserSchema;
 import com.ies.schoolos.schema.info.PersonnelSchema;
 import com.ies.schoolos.type.Prename;
 import com.ies.schoolos.type.UserStatus;
+import com.ies.schoolos.type.UserType;
 import com.ies.schoolos.type.dynamic.JobPosition;
 import com.ies.schoolos.utility.BCrypt;
 import com.vaadin.data.Container.ItemSetChangeEvent;
@@ -288,7 +289,7 @@ public class UserManagerView extends VerticalLayout {
 		builder.append(" SELECT * FROM " + UserSchema.TABLE_NAME + " u");
 		builder.append(" INNER JOIN " + PersonnelSchema.TABLE_NAME + " p ON p."+PersonnelSchema.PERSONNEL_ID + "= u."+UserSchema.REF_USER_ID);
 		builder.append(" WHERE u." + UserSchema.SCHOOL_ID + "=" + SessionSchema.getSchoolID());
-		builder.append(" AND " + UserSchema.REF_USER_TYPE + "= 1");
+		builder.append(" AND " + UserSchema.REF_USER_TYPE + "= " + UserType.EMPLOYEE);
 		
 		table.removeAllItems();
 		
